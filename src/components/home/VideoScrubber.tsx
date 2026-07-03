@@ -78,31 +78,48 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
+  // Lock body scroll when in faux-fullscreen
+  useEffect(() => {
+    if (isFullscreen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isFullscreen]);
+
   const toggleFullscreen = async () => {
     if (!wrapperRef.current) return;
 
-    if (!document.fullscreenElement) {
-      try {
-        await wrapperRef.current.requestFullscreen();
-        // Try to force landscape on mobile
-        if (screen.orientation && (screen.orientation as any).lock) {
-          try {
-            await (screen.orientation as any).lock('landscape');
-          } catch (err) {
-             // Silently fail if not supported (iOS Safari)
-          }
+    if (!isFullscreen) {
+      if (wrapperRef.current.requestFullscreen) {
+        try {
+          await wrapperRef.current.requestFullscreen();
+        } catch (err) {
+          console.error("Native requestFullscreen failed, using CSS fallback", err);
         }
-      } catch (err) {
-        console.error("Error attempting to enable fullscreen:", err);
+      }
+      setIsFullscreen(true);
+      
+      if (screen.orientation && (screen.orientation as any).lock) {
+        try {
+          await (screen.orientation as any).lock('landscape');
+        } catch (err) {}
       }
     } else {
-      if (document.exitFullscreen) {
-        await document.exitFullscreen();
-        if (screen.orientation && screen.orientation.unlock) {
-          try {
-            screen.orientation.unlock();
-          } catch (err) {}
-        }
+      if (document.fullscreenElement && document.exitFullscreen) {
+        try {
+          await document.exitFullscreen();
+        } catch (err) {}
+      }
+      setIsFullscreen(false);
+      
+      if (screen.orientation && screen.orientation.unlock) {
+        try {
+          screen.orientation.unlock();
+        } catch (err) {}
       }
     }
   };
@@ -192,13 +209,18 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
 
     // Also trigger timer on touch start/mouse down to be highly responsive
     const handleDown = () => resetInactivityTimer();
+    
+    // Prevent page scrolling while scrubbing
+    const handleTouchMove = (e: Event) => e.preventDefault();
 
     input.addEventListener('input', handleInput, { passive: true });
     input.addEventListener('pointerdown', handleDown, { passive: true });
+    input.addEventListener('touchmove', handleTouchMove, { passive: false });
     
     return () => {
       input.removeEventListener('input', handleInput);
       input.removeEventListener('pointerdown', handleDown);
+      input.removeEventListener('touchmove', handleTouchMove);
       cancelAnimationFrame(rafId);
     };
   }, [totalFrames]);
@@ -313,7 +335,7 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
               step="0.01"
               defaultValue="0"
               disabled={!isLoaded}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0 touch-pan-x"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0 touch-none"
             />
             
             <motion.div 
