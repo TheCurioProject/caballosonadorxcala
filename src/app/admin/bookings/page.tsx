@@ -34,7 +34,7 @@ export default async function AdminBookingsPage() {
     });
   }
 
-  async function addManualBooking(formData: FormData) {
+  async function addManualBooking(formData: FormData): Promise<{ success: boolean; bookingId?: number; error?: string }> {
     'use server';
     const checkIn = new Date(formData.get('checkIn') as string);
     const checkOut = new Date(formData.get('checkOut') as string);
@@ -64,23 +64,30 @@ export default async function AdminBookingsPage() {
     }
 
     if (!isNaN(checkIn.getTime()) && !isNaN(checkOut.getTime())) {
-      await prisma.booking.create({
-        data: {
-          propertyId: property!.id,
-          checkIn,
-          checkOut,
-          guestName,
-          guestEmail,
-          guestPhone,
-          origin,
-          payment_status: 'CONFIRMED',
-          totalPrice: isNaN(price) ? 0 : price,
-          idCardUrl
-        }
-      });
-      revalidatePath('/admin/bookings');
-      revalidatePath('/admin/calendar');
+      try {
+        const newBooking = await prisma.booking.create({
+          data: {
+            propertyId: property!.id,
+            checkIn,
+            checkOut,
+            guestName,
+            guestEmail,
+            guestPhone,
+            origin,
+            payment_status: 'CONFIRMED',
+            totalPrice: isNaN(price) ? 0 : price,
+            idCardUrl
+          }
+        });
+        revalidatePath('/admin/bookings');
+        revalidatePath('/admin/calendar');
+        return { success: true, bookingId: newBooking.id };
+      } catch (e) {
+        console.error(e);
+        return { success: false, error: 'Database error' };
+      }
     }
+    return { success: false, error: 'Invalid dates' };
   }
 
   async function removeBooking(formData: FormData) {
@@ -93,7 +100,7 @@ export default async function AdminBookingsPage() {
     }
   }
 
-  const formatDate = (date: Date) => new Date(date).toLocaleDateString('es-MX', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric' });
+  const formatDate = (date: Date) => new Date(date).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-12">

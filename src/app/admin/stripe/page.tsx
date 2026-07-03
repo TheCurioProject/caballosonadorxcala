@@ -119,7 +119,7 @@ export default async function AdminStripePage() {
                   {recentPayments.map((charge) => (
                     <tr key={charge.id} className="hover:bg-gray-50 transition-colors">
                       <td className="py-4 px-6 text-gray-600">
-                        {new Date(charge.created * 1000).toLocaleDateString('en-US')}
+                        {new Date(charge.created * 1000).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </td>
                       <td className="py-4 px-6 font-serif text-[#9B7E67]">
                         ${(charge.amount / 100).toFixed(2)} {charge.currency.toUpperCase()}

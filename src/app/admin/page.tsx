@@ -87,7 +87,7 @@ export default async function AdminDashboard() {
                 </td>
                 <td className="py-6 text-gray-600">{booking.propertyName}</td>
                 <td className="py-6 text-gray-600">
-                  {booking.checkIn.toLocaleDateString()} - {booking.checkOut.toLocaleDateString()}
+                  {booking.checkIn.toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })} - {booking.checkOut.toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </td>
                 <td className="py-6">
                   {booking.origin === 'MANUAL_BLOCK' ? (
