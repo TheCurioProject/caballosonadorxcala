@@ -7,14 +7,16 @@ import { LogoCompleto } from '../ui/LogoCompleto';
 import { useBooking } from '@/context/BookingContext';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { usePathname, useRouter } from 'next/navigation';
+import FluidHorseAnimation from '../FluidHorseAnimation';
 
-const SideMenu = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (v: boolean) => void }) => {
+const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, setIsOpen: (v: boolean) => void, setIsSwitchingLang: (v: boolean) => void }) => {
   const { openBookingModal } = useBooking();
   const dict = useDictionary();
   const pathname = usePathname();
   const router = useRouter();
 
   const changeLanguage = (lang: string) => {
+    setIsSwitchingLang(true);
     // pathname es /es/algo o /en/algo, reemplazamos el primer segmento
     const segments = pathname.split('/');
     if (segments.length > 1 && ['es', 'en', 'de'].includes(segments[1])) {
@@ -147,6 +149,13 @@ export const HomeNavigation = () => {
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [isSwitchingLang, setIsSwitchingLang] = useState(false);
+  const pathname = usePathname();
+  const dict = useDictionary();
+
+  useEffect(() => {
+    setIsSwitchingLang(false);
+  }, [pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -176,6 +185,29 @@ export const HomeNavigation = () => {
 
   return (
     <>
+      <AnimatePresence>
+        {isSwitchingLang && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[99999] bg-[#0A0908]/90 backdrop-blur-md flex flex-col items-center justify-center pointer-events-none"
+          >
+            <div className="flex flex-col items-center">
+              <FluidHorseAnimation className="w-16 h-16 md:w-24 md:h-24 text-[#F9F7F4] drop-shadow-2xl" />
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.8 }}
+                className="mt-8 text-[#9B7E67] font-sans text-xs tracking-[0.3em] uppercase font-bold"
+              >
+                {dict?.modal?.preparing || "Preparando..."}
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <header className={`fixed top-0 w-full z-40 transition-transform duration-500 ease-in-out ${hidden ? '-translate-y-full' : 'translate-y-0'}`}>
         <div className={`transition-all duration-500 ${scrolled ? 'py-4 bg-[#F9F7F4]/95 backdrop-blur-lg shadow-sm' : 'py-10 bg-transparent'}`}>
           <div className={`max-w-[1400px] mx-auto px-6 md:px-16 flex justify-between items-center transition-colors duration-500 relative ${scrolled ? 'text-[#2C2927]' : 'text-[#F9F7F4]'}`}>
@@ -199,7 +231,7 @@ export const HomeNavigation = () => {
         </div>
       </header>
 
-      <SideMenu isOpen={menuOpen} setIsOpen={setMenuOpen} />
+      <SideMenu isOpen={menuOpen} setIsOpen={setMenuOpen} setIsSwitchingLang={setIsSwitchingLang} />
     </>
   );
 };

@@ -8,7 +8,7 @@ export default function FluidHorseAnimation({ className = '', duration = 3.5 }) 
   const cycleDuration = 1.3; // 0.6s per gallop loop
 
   return (
-    <div className={`flex flex-col items-center justify-center w-full h-full ${className}`}>
+    <div className={`flex flex-col items-center justify-center ${className || 'w-full h-full'}`}>
       <div className="relative w-full aspect-square">
         <svg
           className="w-full h-full drop-shadow-2xl overflow-visible"
