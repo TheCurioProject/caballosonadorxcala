@@ -151,12 +151,12 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
             if (!isCurrentMonth) {
               bgClass = "bg-transparent opacity-30 shadow-none";
             } else if (info.isBlocked) {
-              bgClass = "bg-[#6c757d] shadow-[inset_3px_3px_6px_rgba(0,0,0,0.2)]"; // Grey block
+              bgClass = "bg-[#c1121f] shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3)]"; // Deep red block
               textClass = "text-white";
               label = info.blockReason || "Blocked";
             } else if (info.isBooked) {
-              const color = info.bookingOrigin === 'MANUAL' ? 'bg-[#ff9f1c]' : 'bg-[#4361ee]';
-              bgClass = `${color} shadow-[inset_3px_3px_6px_rgba(0,0,0,0.2)]`; 
+              const color = info.bookingOrigin === 'MANUAL' ? 'bg-[#c1121f]' : 'bg-[#a30b17]';
+              bgClass = `${color} shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3)]`; 
               textClass = "text-white";
               label = info.bookingOrigin;
             } else if (info.isHoliday) {

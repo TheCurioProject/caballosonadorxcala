@@ -4,6 +4,8 @@ import prisma from '@/lib/prisma';
 import { renderToBuffer } from '@react-pdf/renderer';
 import { InvoicePDF } from '@/components/pdf/InvoicePDF';
 import React from 'react';
+import fs from 'fs';
+import path from 'path';
 
 export async function GET(
   request: Request,
@@ -26,6 +28,9 @@ export async function GET(
       return new NextResponse('Booking not found', { status: 404 });
     }
 
+    const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_secondary_dark.png');
+    const logoBase64 = fs.existsSync(logoPath) ? fs.readFileSync(logoPath).toString('base64') : '';
+
     const pdfBuffer = await renderToBuffer(
       <InvoicePDF 
         bookingId={booking.id}
@@ -35,6 +40,7 @@ export async function GET(
         checkOut={booking.checkOut.toLocaleDateString()}
         totalPrice={booking.totalPrice}
         date={new Date().toLocaleDateString()}
+        logoBase64={logoBase64}
       /> as any
     );
 

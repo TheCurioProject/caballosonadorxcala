@@ -203,8 +203,8 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
             if (!isCurrentMonth) {
               bgClass = "bg-transparent opacity-0 pointer-events-none";
             } else if (unavailable && (!checkIn || checkOut)) {
-              bgClass = "bg-gray-100 opacity-50 cursor-not-allowed";
-              textClass = "text-gray-400";
+              bgClass = "bg-[#c1121f] cursor-not-allowed shadow-inner";
+              textClass = "text-white opacity-80";
             } else if (checkIn && isSameDay(day, checkIn)) {
               bgClass = "bg-[#23211F] text-white";
               textClass = "text-white font-bold";

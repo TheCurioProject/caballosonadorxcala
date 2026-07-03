@@ -4,6 +4,8 @@ import { renderToBuffer } from '@react-pdf/renderer';
 import { InvoicePDF } from '@/components/pdf/InvoicePDF';
 import { sendInvoiceEmail } from '@/lib/resend';
 import React from 'react';
+import fs from 'fs';
+import path from 'path';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,6 +30,10 @@ export async function POST(request: Request) {
     const checkOut = booking.checkOut.toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' });
     const date = new Date().toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' });
 
+    // Read Logo as base64
+    const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_secondary_dark.png');
+    const logoBase64 = fs.existsSync(logoPath) ? fs.readFileSync(logoPath).toString('base64') : '';
+
     // Generate PDF Buffer
     const pdfBuffer = await renderToBuffer(
       <InvoicePDF 
@@ -38,6 +44,7 @@ export async function POST(request: Request) {
         checkOut={checkOut}
         totalPrice={booking.totalPrice}
         date={date}
+        logoBase64={logoBase64}
       /> as any
     );
 
