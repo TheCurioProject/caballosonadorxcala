@@ -28,6 +28,8 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
   const framesRef = useRef<HTMLImageElement[]>([]);
   const inactivityTimerRef = useRef<any>(null);
 
+  const [shouldLoadFrames, setShouldLoadFrames] = useState(false);
+
   const resetInactivityTimer = () => {
     setShowHint(false);
     if (inactivityTimerRef.current) {
@@ -43,6 +45,21 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
     return () => {
       if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
     };
+  }, []);
+
+  // Intersection Observer for Lazy Loading Frames
+  useEffect(() => {
+    if (!wrapperRef.current) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        // Start loading shortly after coming into view to prioritize scrolling performance
+        setTimeout(() => setShouldLoadFrames(true), 300);
+        observer.disconnect();
+      }
+    }, { rootMargin: '300px' });
+    
+    observer.observe(wrapperRef.current);
+    return () => observer.disconnect();
   }, []);
 
   // Fetch metadata once
@@ -124,37 +141,7 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
     }
   };
 
-  // Load frames when roomId, environment, or metadataMap changes
-  useEffect(() => {
-    if (!metadataMap || !metadataMap[roomId]) return;
-    
-    const count = metadataMap[roomId][environment];
-    setTotalFrames(count);
-    setIsLoaded(false);
-    setShowHint(false); // Hide hint while loading
-    
-    framesRef.current = [];
-    let loadedCount = 0;
-    
-    for (let i = 1; i <= count; i++) {
-      const img = new Image();
-      const paddedIndex = i.toString().padStart(4, '0');
-      img.src = `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/habitaciones/frames/${roomId}/${environment}/frame_${paddedIndex}.jpg`;
-      img.onload = () => {
-        loadedCount++;
-        // Draw the very first frame immediately to have a poster image
-        if (i === 1) {
-          drawFrame(1);
-        }
-        if (loadedCount === count) {
-          setIsLoaded(true);
-          setShowHint(true); // Show hint when loaded
-        }
-      };
-      framesRef.current.push(img);
-    }
-  }, [roomId, environment, metadataMap]);
-
+  // Move drawFrame above the useEffect to fix ESLint "accessed before declared"
   const drawFrame = (frameNumber: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -170,6 +157,47 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     }
   };
+
+  // Load frames when roomId, environment, or metadataMap changes
+  useEffect(() => {
+    if (!metadataMap || !metadataMap[roomId]) return;
+    
+    const count = metadataMap[roomId][environment];
+    
+    // Instead of setting state in effect causing cascading renders, we can compute totalFrames
+    // But since totalFrames is used in other effects, we can safely set it here as long as it's not repeatedly triggering
+    setTotalFrames(count);
+    
+    // Always load the very first frame immediately to have a poster
+    const firstImg = new Image();
+    const paddedFirst = '0001';
+    firstImg.src = `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/habitaciones/frames/${roomId}/${environment}/frame_${paddedFirst}.jpg`;
+    firstImg.onload = () => {
+      framesRef.current[0] = firstImg;
+      drawFrame(1);
+    };
+
+    if (!shouldLoadFrames) return; // Wait until in viewport to load the heavy sequence
+
+    setIsLoaded(false);
+    setShowHint(false); // Hide hint while loading
+    
+    let loadedCount = 1; // already loaded the first one
+    
+    for (let i = 2; i <= count; i++) {
+      const img = new Image();
+      const paddedIndex = i.toString().padStart(4, '0');
+      img.src = `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/habitaciones/frames/${roomId}/${environment}/frame_${paddedIndex}.jpg`;
+      img.onload = () => {
+        framesRef.current[i - 1] = img;
+        loadedCount++;
+        if (loadedCount === count) {
+          setIsLoaded(true);
+          setShowHint(true); // Show hint when loaded
+        }
+      };
+    }
+  }, [roomId, environment, metadataMap, shouldLoadFrames]);
 
   // Slider Native Logic decoupled from React state for 60fps manipulation
   useEffect(() => {
@@ -210,17 +238,12 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
     // Also trigger timer on touch start/mouse down to be highly responsive
     const handleDown = () => resetInactivityTimer();
     
-    // Prevent page scrolling while scrubbing
-    const handleTouchMove = (e: Event) => e.preventDefault();
-
     input.addEventListener('input', handleInput, { passive: true });
     input.addEventListener('pointerdown', handleDown, { passive: true });
-    input.addEventListener('touchmove', handleTouchMove, { passive: false });
     
     return () => {
       input.removeEventListener('input', handleInput);
       input.removeEventListener('pointerdown', handleDown);
-      input.removeEventListener('touchmove', handleTouchMove);
       cancelAnimationFrame(rafId);
     };
   }, [totalFrames]);
@@ -335,7 +358,7 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
               step="0.01"
               defaultValue="0"
               disabled={!isLoaded}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0 touch-none"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0 touch-pan-y"
             />
             
             <motion.div 
