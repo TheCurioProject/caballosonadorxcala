@@ -709,7 +709,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         className="flex flex-col items-center text-center relative"
                       >
                         {/* Confetti */}
-                        {showConfetti && confettiParticles.map(({ id, delay }) => (
+                        {showConfetti && Array.from({ length: 50 }).map((_, i) => ({ id: i, delay: Math.random() * 0.5 })).map(({ id, delay }) => (
                           <ConfettiParticle key={id} index={id} delay={delay} />
                         ))}
 
@@ -719,7 +719,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
                           className="w-24 h-24 bg-[#9B7E67]/10 text-[#9B7E67] rounded-full flex items-center justify-center mb-6"
                         >
-                          <AnimatedCheckmark size={48} />
+                          <Check size={48} />
                         </motion.div>
 
                         {/* Staggered text reveal */}

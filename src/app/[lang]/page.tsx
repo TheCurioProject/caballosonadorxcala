@@ -13,9 +13,10 @@ import { getDictionary } from '@/i18n/dictionaries';
 
 // Removed force-dynamic for static export
 
-export default async function Home({ params }: { params: { lang: 'es' | 'en' | 'de' } }) {
-  const lang = params.lang || 'es';
-  const dict = await getDictionary(lang);
+export default async function Home({ params }: { params: Promise<{ lang: 'es' | 'en' | 'de' }> }) {
+  const { lang } = await params;
+  const safeLang = lang || 'es';
+  const dict = await getDictionary(safeLang);
 
   // Fetch from database
   let experiences = [];

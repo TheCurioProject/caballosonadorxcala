@@ -1,9 +1,10 @@
 import { Metadata } from 'next';
 import { getDictionary } from '@/i18n/dictionaries';
 
-export async function generateMetadata({ params }: { params: { lang: 'es' | 'en' | 'de' } }): Promise<Metadata> {
-  const lang = params.lang || 'es';
-  const dict = await getDictionary(lang);
+export async function generateMetadata({ params }: { params: Promise<{ lang: 'es' | 'en' | 'de' }> }): Promise<Metadata> {
+  const { lang } = await params;
+  const safeLang = lang || 'es';
+  const dict = await getDictionary(safeLang);
   
   const siteUrl = 'https://casadelcaballosonador.com';
 
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: { params: { lang: 'es' | 'en'
     openGraph: {
       title: `Casa del Caballo Soñador | ${dict.hero.reserve}`,
       description: dict.about.p1,
-      url: `${siteUrl}/${lang}`,
+      url: `${siteUrl}/${safeLang}`,
       siteName: 'Casa del Caballo Soñador',
       images: [
         {
@@ -31,7 +32,7 @@ export async function generateMetadata({ params }: { params: { lang: 'es' | 'en'
           alt: 'Casa del Caballo Soñador',
         },
       ],
-      locale: lang === 'es' ? 'es_MX' : lang === 'de' ? 'de_DE' : 'en_US',
+      locale: safeLang === 'es' ? 'es_MX' : safeLang === 'de' ? 'de_DE' : 'en_US',
       type: 'website',
     },
     twitter: {
@@ -50,10 +51,11 @@ export default async function LangLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { lang: string };
+  params: Promise<{ lang: string }>;
 }) {
-  const lang = (params.lang as 'es' | 'en' | 'de') || 'es';
-  const dict = await getDictionary(lang);
+  const { lang } = await params;
+  const safeLang = (lang as 'es' | 'en' | 'de') || 'es';
+  const dict = await getDictionary(safeLang);
 
   return (
     <DictionaryProvider dict={dict}>

@@ -31,13 +31,13 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   // Use cookie to determine lang for the HTML tag since this layout wraps everything
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const lang = (cookieStore.get('NEXT_LOCALE')?.value as 'es' | 'en' | 'de') || 'es';
   const dict = await getDictionary(lang);
 
