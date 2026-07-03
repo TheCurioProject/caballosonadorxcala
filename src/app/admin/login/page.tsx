@@ -31,10 +31,10 @@ export default function AdminLogin() {
         router.refresh();
       } else {
         const data = await res.json();
-        setError(data.error || 'Login fallido');
+        setError(data.details ? `${data.error}: ${data.details}` : data.error || 'Login fallido');
       }
-    } catch (err) {
-      setError('Error de red. Intenta de nuevo.');
+    } catch (err: any) {
+      setError(`Error de red: ${err.message || 'Intenta de nuevo.'}`);
     } finally {
       setIsLoading(false);
     }
