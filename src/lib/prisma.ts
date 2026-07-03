@@ -1,7 +1,32 @@
 import { PrismaClient } from '@prisma/client';
+import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 
 const prismaClientSingleton = () => {
-  return new PrismaClient();
+  const dbUrl = process.env.DATABASE_URL || '';
+  
+  if (!dbUrl) {
+    console.warn('[Prisma] DATABASE_URL is not set. Using dummy adapter for build phase.');
+    // Provide a dummy string that satisfies the parsing for build phase
+    const adapter = new PrismaMariaDb('mariadb://user:pass@localhost:3306/db');
+    return new PrismaClient({ adapter });
+  }
+
+  // Clean the URL: fix common formatting issues
+  let cleanUrl = dbUrl;
+  cleanUrl = cleanUrl.replace(/@https?:\/\//, '@');
+  cleanUrl = cleanUrl.replace(/@www\./, '@');
+  cleanUrl = cleanUrl.replace(/\/:(\d+)/, ':$1');
+  
+  if (!cleanUrl.includes('connection_limit')) {
+    const separator = cleanUrl.includes('?') ? '&' : '?';
+    cleanUrl += `${separator}connection_limit=3&pool_timeout=15`;
+  }
+  
+  // The PrismaMariaDb adapter strictly expects mariadb:// instead of mysql://
+  cleanUrl = cleanUrl.replace(/^mysql:\/\//, 'mariadb://');
+
+  const adapter = new PrismaMariaDb(cleanUrl);
+  return new PrismaClient({ adapter });
 };
 
 declare global {
