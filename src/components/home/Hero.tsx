@@ -30,10 +30,10 @@ export const Hero = () => {
         <RevealText delay={0.2} className="mb-6 md:mb-8 max-w-5xl mt-auto">
           <h1 className="flex flex-col gap-3 md:gap-5">
             <span className="uppercase tracking-[0.2em] md:tracking-[0.4em] text-xs md:text-sm font-bold text-[#D5C6B1]">
-              Casa del Caballo Soñador | Hotel Boutique en Chacala, Nayarit
+              {dict.hero.title}
             </span>
             <span className="font-serif leading-[0.85] tracking-tighter block break-words" style={{ fontSize: 'clamp(4.5rem, min(15vw, 22vh), 14rem)' }}>
-              Respira. <br className="hidden md:block" />
+              {dict.hero.breathe} <br className="hidden md:block" />
               <span className="italic font-light text-[#F9F7F4]">{dict.hero.belong}</span>
             </span>
           </h1>

@@ -41,7 +41,7 @@ export function LoadingScreen() {
             />
             
             <div className="relative z-10">
-              <FluidHorseAnimation className="w-[45vw] max-w-[180px] md:max-w-[240px] lg:max-w-[320px] text-white" />
+              <FluidHorseAnimation className="w-[30vw] max-w-[120px] md:max-w-[200px] lg:max-w-[280px] text-white" />
             </div>
             
             {/* Resplandor lineal inferior */}

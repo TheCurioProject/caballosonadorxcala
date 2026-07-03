@@ -670,7 +670,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         animate={{ opacity: 1, scale: 1 }}
                         className="flex flex-col items-center text-center"
                       >
-                        <div className="w-28 mb-8 text-[#9B7E67]">
+                        <div className="w-20 md:w-28 mb-8 text-[#9B7E67]">
                           <FluidHorseAnimation />
                         </div>
                         <motion.h3 
