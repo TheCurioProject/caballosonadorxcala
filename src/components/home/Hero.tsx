@@ -1,0 +1,59 @@
+'use client';
+
+import React from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { RevealText } from './RevealText';
+
+export const Hero = () => {
+  const { scrollYProgress } = useScroll();
+  // Parallax enhanced: translate Y and Scale for depth
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
+  const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+
+  return (
+    <section className="relative min-h-[100dvh] w-full overflow-hidden bg-[#1A1817]">
+      <motion.div style={{ y, scale, opacity }} className="absolute inset-0 w-full h-full transform-gpu origin-top">
+        <img 
+          src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/casaexterior.webp`}
+          alt="Casa del Caballo Soñador - Hotel Boutique" 
+          className="w-full h-full object-cover opacity-70"
+        />
+        {/* Refined gradient overlay for high contrast and elegant moody feel */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1A1817] via-[#1A1817]/40 to-transparent"></div>
+        <div className="absolute inset-0 bg-black/10"></div>
+      </motion.div>
+      
+      <div className="relative z-10 min-h-[100dvh] flex flex-col pt-32 pb-24 md:pb-32 px-6 md:px-16 text-white w-full max-w-7xl mx-auto drop-shadow-2xl">
+        <RevealText delay={0.2} className="mb-6 md:mb-8 max-w-5xl mt-auto">
+          <h1 className="flex flex-col gap-3 md:gap-5">
+            <span className="uppercase tracking-[0.2em] md:tracking-[0.4em] text-xs md:text-sm font-bold text-[#D5C6B1]">
+              Casa del Caballo Soñador | Hotel Boutique en Chacala, Nayarit
+            </span>
+            <span className="font-serif leading-[0.85] tracking-tighter block break-words" style={{ fontSize: 'clamp(4.5rem, min(15vw, 22vh), 14rem)' }}>
+              Respira. <br className="hidden md:block" />
+              <span className="italic font-light text-[#F9F7F4]">Pertenece.</span>
+            </span>
+          </h1>
+        </RevealText>
+      </div>
+      
+      {/* Redesigned scroll indicator */}
+      <motion.div 
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        transition={{ delay: 1.5, duration: 1 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 md:left-auto md:right-16 md:translate-x-0 z-10 text-white flex flex-col items-center gap-4"
+      >
+        <span className="uppercase tracking-[0.3em] text-[0.65rem] font-medium text-[#D5C6B1]/70">Descubre</span>
+        <div className="w-[1px] h-16 md:h-24 bg-white/10 overflow-hidden relative">
+          <motion.div 
+            animate={{ y: ["-100%", "200%"] }} 
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+            className="w-full h-1/2 bg-[#D5C6B1]" 
+          />
+        </div>
+      </motion.div>
+    </section>
+  );
+};

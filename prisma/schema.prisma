@@ -1,0 +1,116 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// Representa la propiedad entera (Casa del Caballo Soñador)
+model Property {
+  id                    Int      @id @default(autoincrement())
+  name                  String   @db.VarChar(255)
+  description           String?  @db.Text
+  basePrice             Float    @map("base_price") @default(1500) // Precio por defecto
+  baseCapacity          Int      @default(12) @map("base_capacity") // 6 habitaciones * 2
+  icalToken             String?  @unique @map("ical_token") @db.VarChar(255)
+  isActive              Boolean  @default(true) @map("is_active")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  bookings      Booking[]
+  blockedDates  BlockedDate[]
+  pricingRules  PricingRule[]
+  icalSources   IcalSource[]
+
+  @@map("properties")
+}
+
+model Booking {
+  id             Int       @id @default(autoincrement())
+  propertyId     Int       @default(1) @map("property_id")
+  property       Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  checkIn        DateTime  @map("start_date")
+  checkOut       DateTime  @map("end_date")
+  guestName      String    @db.VarChar(255)
+  guestEmail     String    @db.VarChar(255)
+  guestPhone     String?   @db.VarChar(50)
+  payment_status String    @default("PENDING") @db.VarChar(50)
+  origin         String    @db.VarChar(100) // Origen de la reserva: WEBSITE, BOOKING_COM, etc.
+  totalPrice     Float
+  externalId     String?   @unique @db.VarChar(255) // ID único para reservas importadas vía iCal
+  idCardUrl      String?   @db.VarChar(500) // URL o ruta de la foto de credencial
+  notes          String?   @db.Text
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@map("reservas")
+  @@index([checkIn, checkOut])
+  @@index([propertyId])
+}
+
+model BlockedDate {
+  id         Int       @id @default(autoincrement())
+  propertyId Int       @default(1) @map("property_id")
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  startDate  DateTime  @map("start_date")
+  endDate    DateTime  @map("end_date")
+  reason     String?   @db.VarChar(500)
+  source     String?   @default("manual") @db.VarChar(50) // manual, airbnb, booking, other
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  @@map("blocked_dates")
+  @@index([startDate, endDate])
+  @@index([propertyId])
+}
+
+model PricingRule {
+  id            Int       @id @default(autoincrement())
+  propertyId    Int       @default(1) @map("property_id")
+  property      Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  date          DateTime
+  priceOverride Float     @map("price_override")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@map("pricing_rules")
+  @@unique([propertyId, date])
+}
+
+model IcalSource {
+  id         Int       @id @default(autoincrement())
+  propertyId Int       @default(1) @map("property_id")
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  name       String    @db.VarChar(255)
+  url        String    @db.Text
+  lastSync   DateTime? @map("last_sync")
+  syncStatus String?   @default("pending") @map("sync_status") @db.VarChar(50)
+  syncError  String?   @map("sync_error") @db.Text
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  @@map("ical_sources")
+  @@index([propertyId])
+}
+
+model Experience {
+  id          Int       @id @default(autoincrement())
+  title       String    @db.VarChar(255)
+  description String?   @db.Text
+  price       String?   @db.VarChar(50)
+  imageUrl    String?   @db.VarChar(500)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model AdminUser {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique @db.VarChar(255)
+  passwordHash String    @db.VarChar(255)
+  name         String?   @db.VarChar(255)
+  role         String    @default("ADMIN") @db.VarChar(50)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}

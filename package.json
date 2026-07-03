@@ -1,24 +1,49 @@
 {
-  "name": "temp_app",
-  "version": "0.1.0",
+  "name": "hotelsonador",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@prisma/adapter-mariadb": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "@react-pdf/renderer": "^4.5.1",
+    "autoprefixer": "^10.5.2",
+    "d3-interpolate": "^3.0.1",
+    "date-fns": "^4.4.0",
+    "flubber": "^0.4.2",
+    "framer-motion": "^12.42.0",
+    "ical-generator": "^11.0.0",
+    "lucide-react": "^1.21.0",
+    "mariadb": "^3.5.3",
     "next": "16.2.9",
+    "node-ical": "^0.26.1",
+    "postcss": "^8.5.15",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-day-picker": "^10.0.1",
+    "react-dom": "19.2.4",
+    "stripe": "^22.3.0",
+    "tailwindcss": "^3.4.19"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "d3-interpolate-path": "^2.3.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
+    "ffmpeg-static": "^5.3.0",
+    "glob": "^13.0.6",
+    "prisma": "^7.8.0",
+    "sharp": "^0.35.2",
+    "svg-path-bbox": "^2.1.0",
+    "svg-path-properties": "^2.0.2",
+    "svgpath": "^2.6.0",
     "typescript": "^5"
   }
 }
