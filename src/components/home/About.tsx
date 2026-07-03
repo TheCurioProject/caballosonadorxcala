@@ -45,11 +45,11 @@ export const About = () => {
         </div>
 
         {/* Mobile Animated Images */}
-        <div className="relative h-[450px] w-full mt-12 block md:hidden">
-          <motion.div style={{ y: yImage1 }} className="absolute top-0 right-0 w-[80%] h-[80%] z-10">
+        <div className="relative h-[600px] w-full mt-12 block md:hidden">
+          <motion.div style={{ y: yImage1 }} className="absolute top-4 right-0 w-[75%] h-[60%] z-10">
             <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/04_about/DSC_0300.JPG`} alt="El Santuario - Vista principal" className="w-full h-full object-cover shadow-2xl rounded-2xl" />
           </motion.div>
-          <motion.div style={{ y: yImage2 }} className="absolute bottom-0 left-0 w-[60%] h-[60%] z-20">
+          <motion.div style={{ y: yImage2 }} className="absolute bottom-4 left-0 w-[65%] h-[55%] z-20">
             <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/04_about/DSC_0307.JPG`} alt="El Santuario - Detalles" className="w-full h-full object-cover shadow-xl border-[6px] border-[#F9F7F4] rounded-2xl" />
           </motion.div>
         </div>

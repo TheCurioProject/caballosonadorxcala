@@ -72,7 +72,7 @@ export const Suites = ({ rooms }: { rooms: any[] }) => {
             <motion.div 
               ref={scrollContainerRef}
               style={isMobile ? undefined : { x }}
-              className="flex items-stretch w-full overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none md:w-max [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+              className="flex items-stretch w-full overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none md:w-max [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] touch-pan-x"
             >
               {rooms.map((room, index) => (
                 <div 

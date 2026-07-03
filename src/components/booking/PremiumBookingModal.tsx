@@ -417,11 +417,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
             onDragEnd={(e, info) => {
               if (info.offset.y > 100 || info.velocity.y > 500) onClose();
             }}
-            className="relative w-full max-w-4xl bg-[#F9F7F4] rounded-t-[2rem] md:rounded-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.2)] md:shadow-2xl overflow-hidden flex flex-col md:flex-row h-[92dvh] md:h-[600px] mt-auto md:mt-0"
+            className="relative w-full max-w-4xl bg-[#F9F7F4] rounded-t-[2rem] md:rounded-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.2)] md:shadow-2xl overflow-y-auto md:overflow-hidden flex flex-col md:flex-row max-h-[92dvh] md:h-[600px] mt-auto md:mt-0"
           >
             {isMobile && (
               <div 
-                className="w-full h-8 absolute top-0 left-0 z-50 flex justify-center items-center touch-none"
+                className="w-full h-8 sticky top-0 left-0 z-50 flex justify-center items-center touch-none"
                 onPointerDown={(e) => dragControls.start(e)}
               >
                 <div className="w-12 h-1.5 bg-white/30 rounded-full mt-2" />
@@ -440,7 +440,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
               </motion.button>
             )}
 
-            <div className="w-full md:w-1/3 bg-[#23211F] text-[#F9F7F4] p-8 md:p-12 flex flex-col relative overflow-hidden pt-12 md:pt-12">
+            <div className="w-full md:w-1/3 bg-[#23211F] text-[#F9F7F4] p-6 md:p-12 flex flex-col relative overflow-hidden pt-10 md:pt-12 shrink-0">
               <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#9B7E67]/10 blur-3xl" />
               <div className="absolute -bottom-16 -left-16 w-40 h-40 rounded-full bg-[#9B7E67]/5 blur-2xl" />
               <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#9B7E67]/30 to-transparent" />
@@ -451,7 +451,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 </h2>
               </div>
 
-              <div className="flex flex-col gap-6 w-full flex-grow pt-4">
+              <div className="hidden md:flex flex-col gap-6 w-full flex-grow pt-4">
                   <div className="bg-white/5 p-4 rounded-xl backdrop-blur-sm">
                     <p className="text-xs uppercase tracking-[0.2em] opacity-60 mb-1">{dict.modal.hotelName}</p>
                     <p className="font-serif text-xl">Suite Exclusiva</p>
@@ -474,12 +474,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   </div>
                 </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="relative z-10 border-t border-white/10 pt-6 mt-auto"
-              >
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="relative z-10 border-t border-white/10 pt-4 md:pt-6 mt-4 md:mt-auto"
+                >
                 <div className="flex justify-between items-end mb-2">
                   <span className="font-light text-sm opacity-80">{dict.modal.total} ({nights} {dict.modal.nights})</span>
                   <span className="font-serif text-3xl text-[#9B7E67]">

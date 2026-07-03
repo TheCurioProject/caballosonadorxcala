@@ -3,6 +3,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FluidHorseAnimation from '../FluidHorseAnimation';
+import { useDictionary } from '@/i18n/DictionaryContext';
 
 interface VideoScrubberProps {
   roomId: string;
@@ -11,6 +12,7 @@ interface VideoScrubberProps {
 }
 
 export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, children }) => {
+  const dict = useDictionary();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -229,14 +231,14 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
             className="absolute inset-0 z-50 bg-[#0A0908]/90 backdrop-blur-md flex flex-col items-center justify-center pointer-events-none"
           >
             <div className="flex flex-col items-center -mt-16">
-              <FluidHorseAnimation className="w-16 h-16 md:w-24 md:h-24 text-[#F9F7F4] drop-shadow-2xl" />
+              <FluidHorseAnimation className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 text-[#F9F7F4] drop-shadow-2xl" />
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
                 className="mt-8 text-[#9B7E67] font-sans text-[10px] tracking-[0.4em] uppercase font-bold"
               >
-                Cargando Recorrido
+                {dict.modal.preparing}
               </motion.div>
             </div>
           </motion.div>
@@ -274,7 +276,7 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
                   animation: 'fadeHint 2.4s ease-in-out infinite',
                 }}
               >
-                Desliza para explorar
+                {dict.suites.explore}
               </motion.span>
             )}
           </AnimatePresence>
@@ -282,7 +284,7 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
           {/* Fade keyframes + shimmer keyframes injected via style tag */}
           <style jsx global>{`
             @keyframes fadeHint {
-              0%, 100% { opacity: 0.3; }
+              0%, 100% { opacity: 0; }
               50% { opacity: 1; }
             }
             @keyframes barShimmer {
