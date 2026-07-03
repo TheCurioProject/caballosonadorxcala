@@ -87,7 +87,7 @@ export const Footer = () => {
         {/* Borde inferior y Copyright */}
         <div className="pt-8 border-t border-[#F9F7F4]/10 text-xs flex flex-col md:flex-row justify-between items-center text-gray-500 gap-4">
           <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
-            <p>&copy; {new Date().getFullYear()} {dict.modal.hotelName}. {dict.footer.rights}</p>
+            <p>&copy; 2026 {dict.modal.hotelName}. Made By <a href="https://thecurio.com.mx" target="_blank" rel="noopener noreferrer" className="hover:text-[#9B7E67] transition-colors">The Curio Agency</a></p>
             <a href="/politicas" className="hover:text-[#9B7E67] transition-colors underline underline-offset-4 decoration-[#F9F7F4]/10 hover:decoration-[#9B7E67]">{dict.footer.policy}</a>
           </div>
           <p className="tracking-widest uppercase text-[10px]">{dict.footer.tagline}</p>

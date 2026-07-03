@@ -7,6 +7,7 @@ import { LogoCompleto } from '../ui/LogoCompleto';
 import { useBooking } from '@/context/BookingContext';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { usePathname, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import FluidHorseAnimation from '../FluidHorseAnimation';
 
 const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, setIsOpen: (v: boolean) => void, setIsSwitchingLang: (v: boolean) => void }) => {
@@ -201,7 +202,7 @@ export const HomeNavigation = () => {
                 transition={{ delay: 0.2, duration: 0.8 }}
                 className="mt-8 text-[#9B7E67] font-sans text-xs tracking-[0.3em] uppercase font-bold"
               >
-                {dict?.modal?.preparing || "Preparando..."}
+                {dict?.nav?.changingLanguage || "Cambiando idioma..."}
               </motion.div>
             </div>
           </motion.div>
@@ -213,12 +214,12 @@ export const HomeNavigation = () => {
           <div className={`max-w-[1400px] mx-auto px-6 md:px-16 flex justify-between items-center transition-colors duration-500 relative ${scrolled ? 'text-[#2C2927]' : 'text-[#F9F7F4]'}`}>
             
             {/* Logo a la izquierda */}
-            <a href="#" aria-label="Inicio" className="flex items-center">
+            <Link href={`/${pathname.split('/')[1] || 'es'}`} aria-label="Inicio" className="flex items-center">
               <LogoCompleto 
                 solidWhite={!scrolled}
                 className={`w-auto transition-all duration-700 ease-[0.76,0,0.24,1] drop-shadow-lg hover:scale-105 ${scrolled ? 'h-10 md:h-12' : 'h-12 md:h-16'}`} 
               />
-            </a>
+            </Link>
 
             {/* Menú a la derecha */}
             <button 
