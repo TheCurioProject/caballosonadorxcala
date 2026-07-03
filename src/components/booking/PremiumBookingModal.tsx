@@ -305,8 +305,18 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [basePrice, setBasePrice] = useState(15000);
+  const [currency, setCurrency] = useState('MXN');
   const [showConfetti, setShowConfetti] = useState(false);
+
+  // Calculate base price dynamically based on currency
+  const basePrice = useMemo(() => {
+    switch(currency) {
+      case 'USD': return 800;
+      case 'EUR': return 750;
+      case 'MXN': 
+      default: return 15000;
+    }
+  }, [currency]);
 
   const nights = (range?.from && range?.to) ? differenceInDays(range.to, range.from) : 0;
   const total = nights > 0 ? nights * basePrice : 0;
@@ -369,7 +379,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
           guestName,
           guestEmail,
           guestPhone: `${countryCode} ${guestPhone}`,
-          totalPrice: total
+          totalPrice: total,
+          currency
         }),
       });
       const data = await res.json();
@@ -415,30 +426,28 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={0.2}
             onDragEnd={(e, info) => {
-              if (info.offset.y > 100 || info.velocity.y > 500) onClose();
+              if (info.offset.y > 60 || info.velocity.y > 300) onClose();
             }}
-            className="relative w-full max-w-4xl bg-[#F9F7F4] rounded-t-[2rem] md:rounded-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.2)] md:shadow-2xl overflow-y-auto md:overflow-hidden flex flex-col md:flex-row max-h-[92dvh] md:h-[600px] mt-auto md:mt-0"
+            className="relative w-full max-w-4xl bg-[#F9F7F4] rounded-t-[2rem] md:rounded-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.2)] md:shadow-2xl overflow-visible flex flex-col md:flex-row max-h-[92dvh] md:h-[600px] mt-auto md:mt-0"
           >
             {isMobile && (
               <div 
-                className="w-full h-8 sticky top-0 left-0 z-50 flex justify-center items-center touch-none"
+                className="w-full h-6 sticky top-0 left-0 z-50 flex justify-center items-center touch-none bg-[#23211F] rounded-t-[2rem]"
                 onPointerDown={(e) => dragControls.start(e)}
               >
-                <div className="w-12 h-1.5 bg-white/30 rounded-full mt-2" />
+                <div className="w-12 h-1.5 bg-white/30 rounded-full" />
               </div>
             )}
 
-            {!isMobile && (
-              <motion.button
-                onClick={onClose}
-                whileHover={{ scale: 1.1, rotate: 90 }}
-                whileTap={{ scale: 0.9 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-                className="absolute top-6 right-6 z-50 p-3 bg-black/5 hover:bg-black/10 backdrop-blur-md rounded-full text-[#23211F] transition-colors"
-              >
-                <X size={20} />
-              </motion.button>
-            )}
+            <motion.button
+              onClick={onClose}
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+              className={`absolute top-4 right-4 md:top-6 md:right-6 z-[60] p-3 bg-black/10 hover:bg-black/20 backdrop-blur-md rounded-full transition-colors ${isMobile ? 'text-white' : 'text-[#23211F]'}`}
+            >
+              <X size={20} />
+            </motion.button>
 
             <div className="w-full md:w-1/3 bg-[#23211F] text-[#F9F7F4] p-6 md:p-12 flex flex-col relative overflow-hidden pt-10 md:pt-12 shrink-0">
               <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#9B7E67]/10 blur-3xl" />
@@ -481,12 +490,29 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   className="relative z-10 border-t border-white/10 pt-4 md:pt-6 mt-4 md:mt-auto"
                 >
                 <div className="flex justify-between items-end mb-2">
-                  <span className="font-light text-sm opacity-80">{dict.modal.total} ({nights} {dict.modal.nights})</span>
-                  <span className="font-serif text-3xl text-[#9B7E67]">
-                    <AnimatedCounter value={total} />
-                  </span>
+                  <div className="flex flex-col gap-1">
+                    <span className="font-light text-sm opacity-80">{dict.modal.total} ({nights} {dict.modal.nights})</span>
+                    <div className="flex gap-2 items-center">
+                      {['MXN', 'USD', 'EUR'].map((c) => (
+                        <button
+                          key={c}
+                          onClick={() => setCurrency(c)}
+                          className={`text-[10px] font-bold tracking-widest transition-colors ${
+                            currency === c ? 'text-[#9B7E67]' : 'text-gray-500 hover:text-gray-300'
+                          }`}
+                        >
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="font-serif text-3xl text-[#9B7E67]">
+                      <AnimatedCounter value={total} prefix={currency === 'EUR' ? '€' : currency === 'USD' ? 'US$' : '$'} />
+                    </span>
+                    <span className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">{dict.modal.taxesIncluded}</span>
+                  </div>
                 </div>
-                <span className="text-[10px] text-gray-500 uppercase tracking-widest">{dict.modal.taxesIncluded}</span>
               </motion.div>
             </div>
 
@@ -670,13 +696,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         animate={{ opacity: 1, scale: 1 }}
                         className="flex flex-col items-center text-center"
                       >
-                        <div className="w-20 md:w-28 mb-8 text-[#9B7E67]">
+                        <div className="w-28 md:w-36 mb-8 text-[#9B7E67]">
                           <FluidHorseAnimation />
                         </div>
                         <motion.h3 
                           className="text-xl font-serif text-[#23211F] mb-4"
                         >
-                          Preparando tu reserva
+                          {dict.modal.preparing}
                         </motion.h3>
                         {/* Animated dots */}
                         <div className="flex gap-1.5 mb-6">

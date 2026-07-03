@@ -194,7 +194,7 @@ export const HomeNavigation = () => {
             className="fixed inset-0 z-[99999] bg-[#0A0908]/90 backdrop-blur-md flex flex-col items-center justify-center pointer-events-none"
           >
             <div className="flex flex-col items-center">
-              <FluidHorseAnimation className="w-16 h-16 md:w-24 md:h-24 text-[#F9F7F4] drop-shadow-2xl" />
+              <FluidHorseAnimation className="w-24 h-24 md:w-32 md:h-32 text-[#F9F7F4] drop-shadow-2xl" />
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}

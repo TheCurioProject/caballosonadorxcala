@@ -1,7 +1,12 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { PremiumBookingModal } from '@/components/booking/PremiumBookingModal';
+import dynamic from 'next/dynamic';
+
+const PremiumBookingModal = dynamic(
+  () => import('@/components/booking/PremiumBookingModal').then(mod => mod.PremiumBookingModal),
+  { ssr: false }
+);
 
 interface BookingContextProps {
   openBookingModal: () => void;

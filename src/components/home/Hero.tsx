@@ -45,7 +45,7 @@ export const Hero = () => {
         initial={{ opacity: 0 }} 
         animate={{ opacity: 1 }} 
         transition={{ delay: 1.5, duration: 1 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 md:left-auto md:right-16 md:translate-x-0 z-10 text-white flex flex-col items-center gap-4"
+        className="absolute bottom-8 right-6 md:right-16 z-10 text-white flex flex-col items-center gap-4"
       >
         <span className="uppercase tracking-[0.3em] text-[0.65rem] font-medium text-[#D5C6B1]/70">{dict.hero.discover}</span>
         <div className="w-[1px] h-16 md:h-24 bg-white/10 overflow-hidden relative">

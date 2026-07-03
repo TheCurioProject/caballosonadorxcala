@@ -231,14 +231,14 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
             className="absolute inset-0 z-50 bg-[#0A0908]/90 backdrop-blur-md flex flex-col items-center justify-center pointer-events-none"
           >
             <div className="flex flex-col items-center -mt-16">
-              <FluidHorseAnimation className="w-8 h-8 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 text-[#F9F7F4] drop-shadow-2xl" />
+              <FluidHorseAnimation className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 text-[#F9F7F4] drop-shadow-2xl" />
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
                 className="mt-8 text-[#9B7E67] font-sans text-[10px] tracking-[0.4em] uppercase font-bold"
               >
-                {dict.modal.preparing}
+                {dict.modal.preparingTour}
               </motion.div>
             </div>
           </motion.div>
@@ -307,7 +307,7 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
               step="0.01"
               defaultValue="0"
               disabled={!isLoaded}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0 touch-pan-y"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0 touch-pan-x"
             />
             
             <motion.div 

@@ -57,7 +57,7 @@
     "guestsCount": "Up to 12 People",
     "total": "Total",
     "nights": "nights",
-    "taxesIncluded": "USD Taxes Included",
+    "taxesIncluded": "Taxes Included",
     "selectDates": "Select your Dates",
     "minStay": "⚠ Minimum stay: 2 nights",
     "continue": "Continue",
@@ -66,6 +66,13 @@
     "email": "Email Address",
     "phone": "Phone Number",
     "proceedPayment": "Proceed to Payment",
-    "preparing": "Preparing your reservation"
+    "errorTitle": "Oops, something went wrong",
+    "retry": "Try Again",
+    "allReady": "All set!",
+    "redirecting": "Redirecting to secure payment...",
+    "securePayments": "Secure payments via Stripe",
+    "backToCalendar": "Back to Calendar",
+    "preparing": "Preparing your reservation",
+    "preparingTour": "Preparing Virtual Tour"
   }
 }

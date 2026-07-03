@@ -57,7 +57,7 @@
     "guestsCount": "Hasta 12 Personas",
     "total": "Total",
     "nights": "noches",
-    "taxesIncluded": "USD Impuestos Incluidos",
+    "taxesIncluded": "Impuestos Incluidos",
     "selectDates": "Selecciona tus Fechas",
     "minStay": "⚠ Estancia mínima: 2 noches",
     "continue": "Continuar",
@@ -66,6 +66,13 @@
     "email": "Correo Electrónico",
     "phone": "Teléfono",
     "proceedPayment": "Proceder al Pago",
-    "preparing": "Preparando tu reserva"
+    "errorTitle": "Uy, algo salió mal",
+    "retry": "Intentar de nuevo",
+    "allReady": "¡Todo listo!",
+    "redirecting": "Redirigiendo a pago seguro...",
+    "securePayments": "Pagos seguros mediante Stripe",
+    "backToCalendar": "Volver a Calendario",
+    "preparing": "Preparando tu Reserva",
+    "preparingTour": "Preparando Recorrido Virtual"
   }
 }
