@@ -2,12 +2,29 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Globe } from 'lucide-react';
 import { LogoCompleto } from '../ui/LogoCompleto';
 import { useBooking } from '@/context/BookingContext';
+import { useDictionary } from '@/i18n/DictionaryContext';
+import { usePathname, useRouter } from 'next/navigation';
 
 const SideMenu = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (v: boolean) => void }) => {
   const { openBookingModal } = useBooking();
+  const dict = useDictionary();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const changeLanguage = (lang: string) => {
+    // pathname es /es/algo o /en/algo, reemplazamos el primer segmento
+    const segments = pathname.split('/');
+    if (segments.length > 1 && ['es', 'en', 'de'].includes(segments[1])) {
+      segments[1] = lang;
+    } else {
+      segments.splice(1, 0, lang);
+    }
+    router.push(segments.join('/') || '/');
+    setIsOpen(false);
+  };
   const menuVariants: any = {
     closed: { x: "100%", transition: { duration: 0.8, ease: [0.76, 0, 0.24, 1] } },
     open: { x: 0, transition: { duration: 0.8, ease: [0.76, 0, 0.24, 1] } }
@@ -23,7 +40,10 @@ const SideMenu = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (v: boole
     open: (i: number) => ({ x: 0, opacity: 1, transition: { delay: 0.3 + (i * 0.1), duration: 0.5 } })
   };
 
-  const links = ['Adventure Tours', 'Events'];
+  const links = [
+    { name: dict.nav.rooms, href: '#suites' },
+    { name: dict.nav.tours, href: '#experiencias' },
+  ];
 
   return (
     <AnimatePresence>
@@ -54,14 +74,14 @@ const SideMenu = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (v: boole
             <div className="flex flex-col space-y-8 mt-10">
               {links.map((link, i) => (
                 <motion.a
-                  key={link}
-                  href={`#${link.toLowerCase().replace(' ', '-')}`}
+                  key={link.name}
+                  href={link.href}
                   custom={i}
                   variants={linkVariants}
                   onClick={() => setIsOpen(false)}
                   className="font-serif text-3xl sm:text-4xl hover:italic hover:opacity-70 transition-all cursor-pointer"
                 >
-                  {link}
+                  {link.name}
                 </motion.a>
               ))}
               
@@ -73,13 +93,27 @@ const SideMenu = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (v: boole
                   }}
                   className="w-full block text-center border border-[#F9F7F4] rounded-full px-8 py-4 uppercase tracking-[0.2em] text-xs hover:bg-[#F9F7F4] hover:text-[#2C2927] transition-all cursor-pointer"
                 >
-                  Reserva
+                  {dict.nav.book}
                 </button>
+              </motion.div>
+
+              <motion.div custom={2.5} variants={linkVariants} className="pt-6 flex justify-center gap-6 border-t border-[#F9F7F4]/10 mt-6">
+                {['es', 'en', 'de'].map((l) => (
+                  <button
+                    key={l}
+                    onClick={() => changeLanguage(l)}
+                    className={`uppercase tracking-widest text-xs font-bold transition-all ${
+                      pathname.startsWith(`/${l}`) ? 'text-[#9B7E67]' : 'text-gray-400 hover:text-[#F9F7F4]'
+                    }`}
+                  >
+                    {l}
+                  </button>
+                ))}
               </motion.div>
 
               <motion.div custom={3} variants={linkVariants} className="pt-12 mt-auto pb-10">
                 <div className="flex flex-col gap-6">
-                  <p className="text-xs uppercase tracking-[0.2em] text-gray-400">Contacto y Redes</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-gray-400">{dict.footer.contact}</p>
                   <div className="flex flex-col gap-4">
                     <a href="mailto:info@hotel.com" className="font-light text-sm hover:text-[#9B7E67] transition-colors flex items-center gap-3">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>

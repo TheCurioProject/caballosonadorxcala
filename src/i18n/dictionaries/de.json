@@ -1,0 +1,69 @@
+{
+  "nav": {
+    "rooms": "Zimmer",
+    "tours": "Erlebnisse",
+    "gallery": "Galerie",
+    "book": "Jetzt Buchen"
+  },
+  "hero": {
+    "belong": "Dazugehören.",
+    "discover": "Entdecken",
+    "reserve": "Buchen Sie Ihren Aufenthalt"
+  },
+  "about": {
+    "subtitle": "Das Heiligtum",
+    "title": "Das Leben bewegt sich langsamer, und die Natur gibt den Takt an.",
+    "p1": "Im pulsierenden Herzen von Chacala gelegen, bietet Casa del Caballo Soñador ein unvergleichliches Erlebnis für diejenigen, die Ruhe und Verbundenheit suchen.",
+    "p2": "Unser Anwesen wurde in Harmonie mit der Natur entworfen, unter Verwendung nachhaltiger lokaler Materialien."
+  },
+  "suites": {
+    "subtitle": "6 Einzigartige Rückzugsorte",
+    "title": "Unsere Suiten",
+    "explore": "Wischen zum Entdecken"
+  },
+  "amenities": {
+    "title": "Entworfen für Ihren Komfort",
+    "palapa": "La Palapa",
+    "palapa_desc": "Freiluftterrasse für Yoga, Meditation und Panoramablick auf den Pazifik.",
+    "pool": "Der Pool",
+    "pool_desc": "Zentrale Oase mit einem Wasserfall-Whirlpool unter den Palmen.",
+    "kitchen": "Die Küche",
+    "kitchen_desc": "Voll ausgestattete Gemeinschaftsküche für kulinarische Erlebnisse.",
+    "comfort": "Täglicher Komfort",
+    "comfort_desc": "Warmes Frühstück, schnelles WLAN, Klimaanlage und 6 Min. vom Strand entfernt."
+  },
+  "tours": {
+    "subtitle": "Abenteuer in Chacala",
+    "title": "Erkunden Sie das Unerforschte",
+    "scroll": "Nach unten scrollen zum Entdecken"
+  },
+  "footer": {
+    "slogan": "Ein Hafen der Ruhe",
+    "location": "Standort",
+    "contact": "Kontakt",
+    "hours": "Öffnungszeiten",
+    "follow": "Folgen Sie uns",
+    "rights": "Alle Rechte vorbehalten.",
+    "policy": "Stornierungsbedingungen (Keine Rückerstattungen)",
+    "tagline": "Minimalist & Eco-conscious Retreat"
+  },
+  "modal": {
+    "yourReservation": "Ihre Reservierung",
+    "hotelName": "Casa del Caballo Soñador",
+    "dates": "Daten",
+    "guests": "Gäste",
+    "guestsCount": "Bis zu 12 Personen",
+    "total": "Gesamt",
+    "nights": "Nächte",
+    "taxesIncluded": "USD Steuern Inbegriffen",
+    "selectDates": "Wählen Sie Ihre Daten",
+    "minStay": "⚠ Mindestaufenthalt: 2 Nächte",
+    "continue": "Weiter",
+    "yourData": "Ihre Daten",
+    "fullName": "Vollständiger Name",
+    "email": "E-Mail-Adresse",
+    "phone": "Telefonnummer",
+    "proceedPayment": "Zur Zahlung Gehen",
+    "preparing": "Ihre Reservierung wird vorbereitet"
+  }
+}

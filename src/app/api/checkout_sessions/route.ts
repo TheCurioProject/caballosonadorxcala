@@ -6,9 +6,9 @@ import prisma from '@/lib/prisma';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { checkIn, checkOut, guestName, guestEmail, totalPrice } = body;
+    const { checkIn, checkOut, guestName, guestEmail, guestPhone, totalPrice } = body;
 
-    if (!checkIn || !checkOut || !guestName || !guestEmail || !totalPrice) {
+    if (!checkIn || !checkOut || !guestName || !guestEmail || !guestPhone || !totalPrice) {
       return NextResponse.json({ error: 'Faltan datos requeridos' }, { status: 400 });
     }
 
@@ -29,6 +29,7 @@ export async function POST(req: Request) {
         checkOut: new Date(checkOut),
         guestName,
         guestEmail,
+        guestPhone,
         totalPrice,
         payment_status: 'PENDING',
         origin: 'WEBSITE',

@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useDragControls } from 'framer-motion';
-import { X, CalendarDays, ArrowRight, Check, Shield, CreditCard } from 'lucide-react';
+import { X, CalendarDays, ArrowRight, Check, Shield, CreditCard, Calendar, User } from 'lucide-react';
 import { DayPicker, DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import FluidHorseAnimation from '../FluidHorseAnimation';
 import { format, differenceInDays } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useDictionary } from '@/i18n/DictionaryContext';
 
 /* ─── Hook: useMediaQuery ─── */
 function useMediaQuery(query: string) {
@@ -75,45 +76,6 @@ const AnimatedCounter = ({ value, prefix = '$' }: { value: number; prefix?: stri
   return <span>{display}</span>;
 };
 
-/* ─── Animated SVG Checkmark ─── */
-const AnimatedCheckmark = ({ size = 48, className = '' }: { size?: number; className?: string }) => (
-  <motion.svg
-    viewBox="0 0 50 50"
-    width={size}
-    height={size}
-    className={className}
-    initial="hidden"
-    animate="visible"
-  >
-    <motion.circle
-      cx="25"
-      cy="25"
-      r="22"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      variants={{
-        hidden: { pathLength: 0, opacity: 0 },
-        visible: { pathLength: 1, opacity: 1 },
-      }}
-      transition={{ duration: 0.6, ease: 'easeInOut' }}
-    />
-    <motion.path
-      d="M14 26 L22 34 L36 18"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      variants={{
-        hidden: { pathLength: 0, opacity: 0 },
-        visible: { pathLength: 1, opacity: 1 },
-      }}
-      transition={{ duration: 0.5, delay: 0.5, ease: 'easeOut' }}
-    />
-  </motion.svg>
-);
-
 /* ─── Premium Input ─── */
 const PremiumInput = ({
   id,
@@ -155,14 +117,12 @@ const PremiumInput = ({
           className="w-full bg-transparent border-b-2 border-gray-200 py-4 pr-10 text-[#23211F] text-lg focus:outline-none transition-colors peer font-light placeholder:text-transparent"
           placeholder={placeholder}
         />
-        {/* Animated underline fill */}
         <motion.div
           className="absolute bottom-0 left-0 h-[2px] bg-[#9B7E67]"
           initial={{ width: '0%' }}
           animate={{ width: isFocused ? '100%' : value ? '100%' : '0%' }}
           transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
         />
-        {/* Floating label */}
         <motion.label
           htmlFor={id}
           className="absolute left-0 text-gray-400 pointer-events-none origin-left"
@@ -178,7 +138,6 @@ const PremiumInput = ({
         >
           {isFocused || value ? label.toUpperCase() : placeholder}
         </motion.label>
-        {/* Inline validation checkmark */}
         <AnimatePresence>
           {isValid && value && (
             <motion.div
@@ -240,7 +199,6 @@ const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; total
               )}
             </AnimatePresence>
           </motion.div>
-          {/* Active ring pulse */}
           {currentStep === step && (
             <motion.div
               className="absolute inset-0 rounded-full border-2 border-[#9B7E67]"
@@ -313,7 +271,6 @@ const PremiumButton = ({
           : 'bg-[#23211F] text-[#F9F7F4] shadow-xl hover:shadow-2xl'
       }`}
     >
-      {/* Shimmer overlay on hover */}
       {!disabled && (
         <motion.div
           className="absolute inset-0 pointer-events-none"
@@ -336,16 +293,19 @@ const PremiumButton = ({
 export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const dragControls = useDragControls();
+  const dict = useDictionary();
 
   const [step, setStep] = useState(1);
   const [range, setRange] = useState<DateRange | undefined>(undefined);
   const [disabledRanges, setDisabledRanges] = useState<{from: Date, to: Date}[]>([]);
   const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
+  const [countryCode, setCountryCode] = useState('+52');
+  const [guestPhone, setGuestPhone] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [basePrice, setBasePrice] = useState(1500);
+  const [basePrice, setBasePrice] = useState(15000);
   const [showConfetti, setShowConfetti] = useState(false);
 
   const nights = (range?.from && range?.to) ? differenceInDays(range.to, range.from) : 0;
@@ -353,12 +313,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
   const isNameValid = guestName.trim().length >= 2;
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail);
-
-  const confettiParticles = useMemo(() =>
-    Array.from({ length: 30 }, (_, i) => ({
-      id: i,
-      delay: Math.random() * 0.4,
-    })), []);
+  const isPhoneValid = guestPhone.trim().length >= 7;
 
   useEffect(() => {
     if (isOpen) {
@@ -377,12 +332,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         .catch(console.error);
     } else {
       document.body.style.overflow = 'unset';
-      // Reset state when closing
       setTimeout(() => {
         setStep(1);
         setRange(undefined);
         setGuestName('');
         setGuestEmail('');
+        setGuestPhone('');
+        setCountryCode('+52');
         setIsLoading(false);
         setError(null);
         setIsSuccess(false);
@@ -412,6 +368,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
           checkOut: range?.to,
           guestName,
           guestEmail,
+          guestPhone: `${countryCode} ${guestPhone}`,
           totalPrice: total
         }),
       });
@@ -438,7 +395,6 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[200] flex items-end md:items-center justify-center p-0 md:p-12 overflow-hidden touch-none">
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -448,7 +404,6 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
             className="absolute inset-0 bg-black/50 backdrop-blur-lg cursor-pointer"
           />
 
-          {/* Modal Container */}
           <motion.div
             initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.92, y: 30 }}
             animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
@@ -462,9 +417,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
             onDragEnd={(e, info) => {
               if (info.offset.y > 100 || info.velocity.y > 500) onClose();
             }}
-            className="relative w-full max-w-4xl bg-[#F9F7F4] rounded-t-[2rem] md:rounded-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.2)] md:shadow-2xl overflow-hidden flex flex-col md:flex-row h-[92vh] md:h-[600px] mt-auto md:mt-0"
+            className="relative w-full max-w-4xl bg-[#F9F7F4] rounded-t-[2rem] md:rounded-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.2)] md:shadow-2xl overflow-hidden flex flex-col md:flex-row h-[92dvh] md:h-[600px] mt-auto md:mt-0"
           >
-            {/* Mobile Drag Handle */}
             {isMobile && (
               <div 
                 className="w-full h-8 absolute top-0 left-0 z-50 flex justify-center items-center touch-none"
@@ -474,7 +428,6 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
               </div>
             )}
 
-            {/* Close Button (Desktop Only) */}
             {!isMobile && (
               <motion.button
                 onClick={onClose}
@@ -487,60 +440,39 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
               </motion.button>
             )}
 
-            {/* Left Side: Summary Panel */}
             <div className="w-full md:w-1/3 bg-[#23211F] text-[#F9F7F4] p-8 md:p-12 flex flex-col relative overflow-hidden pt-12 md:pt-12">
-              {/* Decorative gradient orb */}
               <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#9B7E67]/10 blur-3xl" />
               <div className="absolute -bottom-16 -left-16 w-40 h-40 rounded-full bg-[#9B7E67]/5 blur-2xl" />
               <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#9B7E67]/30 to-transparent" />
               
               <div className="relative z-10 flex-1">
-                <motion.h3
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="text-xs font-bold tracking-[0.3em] uppercase text-[#9B7E67] mb-4"
-                >
-                  Tu Reserva
-                </motion.h3>
-                <motion.h2
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="font-serif text-3xl md:text-4xl mb-12"
-                >
-                  Casa del Caballo Soñador
-                </motion.h2>
-
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="space-y-6 mb-12"
-                >
-                  <div>
-                    <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">Fechas</p>
-                    <AnimatePresence mode="wait">
-                      <motion.p
-                        key={`${range?.from?.toISOString()}-${range?.to?.toISOString()}`}
-                        initial={{ opacity: 0, y: 5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -5 }}
-                        transition={{ duration: 0.3 }}
-                        className="font-light text-lg"
-                      >
-                        {range?.from ? format(range.from, "dd MMM yyyy", { locale: es }) : 'Selecciona Check-in'} <br/>
-                        <span className="text-[#9B7E67]">—</span> <br/>
-                        {range?.to ? format(range.to, "dd MMM yyyy", { locale: es }) : 'Selecciona Check-out'}
-                      </motion.p>
-                    </AnimatePresence>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">Huéspedes</p>
-                    <p className="font-light text-lg">Hasta 14 Personas</p>
-                  </div>
-                </motion.div>
+                <h2 className="font-serif text-3xl md:text-5xl font-medium tracking-tight leading-[1.1] max-w-[80%]">
+                  {dict.modal.yourReservation}
+                </h2>
               </div>
+
+              <div className="flex flex-col gap-6 w-full flex-grow pt-4">
+                  <div className="bg-white/5 p-4 rounded-xl backdrop-blur-sm">
+                    <p className="text-xs uppercase tracking-[0.2em] opacity-60 mb-1">{dict.modal.hotelName}</p>
+                    <p className="font-serif text-xl">Suite Exclusiva</p>
+                  </div>
+                  
+                  <div className="bg-white/5 p-4 rounded-xl backdrop-blur-sm">
+                    <p className="text-xs uppercase tracking-[0.2em] opacity-60 mb-1">{dict.modal.dates}</p>
+                    <p className="font-light text-sm flex items-center gap-2">
+                      <Calendar size={14} className="text-[#9B7E67]"/>
+                      {range?.from ? format(range.from, 'dd MMM yyyy') : 'Check-in'} — {range?.to ? format(range.to, 'dd MMM yyyy') : 'Check-out'}
+                    </p>
+                  </div>
+
+                  <div className="bg-white/5 p-4 rounded-xl backdrop-blur-sm">
+                    <p className="text-xs uppercase tracking-[0.2em] opacity-60 mb-1">{dict.modal.guests}</p>
+                    <p className="font-light text-sm flex items-center gap-2">
+                      <User size={14} className="text-[#9B7E67]"/>
+                      {dict.modal.guestsCount}
+                    </p>
+                  </div>
+                </div>
 
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -549,16 +481,15 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 className="relative z-10 border-t border-white/10 pt-6 mt-auto"
               >
                 <div className="flex justify-between items-end mb-2">
-                  <span className="font-light text-sm opacity-80">Total ({nights} noches)</span>
+                  <span className="font-light text-sm opacity-80">{dict.modal.total} ({nights} {dict.modal.nights})</span>
                   <span className="font-serif text-3xl text-[#9B7E67]">
                     <AnimatedCounter value={total} />
                   </span>
                 </div>
-                <span className="text-[10px] text-gray-500 uppercase tracking-widest">USD Impuestos Incluidos</span>
+                <span className="text-[10px] text-gray-500 uppercase tracking-widest">{dict.modal.taxesIncluded}</span>
               </motion.div>
             </div>
 
-            {/* Right Side: Interactive Area */}
             <div className="w-full md:w-2/3 p-8 md:p-12 overflow-y-auto relative">
               {/* Step Progress Indicator */}
               <StepIndicator currentStep={step} totalSteps={2} />
@@ -579,7 +510,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       transition={{ delay: 0.1 }}
                       className="text-2xl font-serif text-[#23211F] mb-6"
                     >
-                      Selecciona tus Fechas
+                      {dict.modal.selectDates}
                     </motion.h3>
 
                     <motion.div
@@ -610,7 +541,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           exit={{ opacity: 0, height: 0 }}
                           className="text-center text-sm text-amber-600 font-medium mb-4"
                         >
-                          ⚠ Estancia mínima: 2 noches
+                          {dict.modal.minStay}
                         </motion.p>
                       )}
                     </AnimatePresence>
@@ -619,7 +550,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       onClick={handleNext}
                       disabled={!range?.from || !range?.to || nights < 2}
                     >
-                      Continuar <ArrowRight size={16} />
+                      {dict.modal.continue} <ArrowRight size={16} />
                     </PremiumButton>
                   </motion.div>
                 )}
@@ -641,15 +572,15 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       transition={{ delay: 0.1 }}
                       className="text-2xl font-serif text-[#23211F] mb-8"
                     >
-                      Tus Datos
+                      {dict.modal.yourData}
                     </motion.h3>
                     
                     <form onSubmit={handleCheckout} className="space-y-8 flex-1 flex flex-col">
                       <PremiumInput
                         id="guestName"
                         type="text"
-                        label="Nombre Completo"
-                        placeholder="Nombre completo"
+                        label={dict.modal.fullName}
+                        placeholder={dict.modal.fullName}
                         value={guestName}
                         onChange={setGuestName}
                         isValid={isNameValid}
@@ -658,21 +589,54 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       <PremiumInput
                         id="guestEmail"
                         type="email"
-                        label="Correo Electrónico"
-                        placeholder="Correo electrónico"
+                        label={dict.modal.email}
+                        placeholder={dict.modal.email}
                         value={guestEmail}
                         onChange={setGuestEmail}
                         isValid={isEmailValid}
                         delay={0.25}
                       />
+
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.35, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+                        className="relative group flex gap-2"
+                      >
+                        <select
+                          value={countryCode}
+                          onChange={(e) => setCountryCode(e.target.value)}
+                          className="bg-transparent border-b-2 border-gray-200 py-4 text-[#23211F] text-lg focus:outline-none transition-colors w-24 font-light cursor-pointer appearance-none text-center"
+                        >
+                          <option value="+52">🇲🇽 +52</option>
+                          <option value="+1">🇺🇸 +1</option>
+                          <option value="+34">🇪🇸 +34</option>
+                          <option value="+44">🇬🇧 +44</option>
+                          <option value="+54">🇦🇷 +54</option>
+                          <option value="+57">🇨🇴 +57</option>
+                          <option value="+56">🇨🇱 +56</option>
+                        </select>
+                        <div className="flex-1">
+                          <PremiumInput
+                            id="guestPhone"
+                            type="tel"
+                            label={dict.modal.phone}
+                            placeholder={dict.modal.phone}
+                            value={guestPhone}
+                            onChange={setGuestPhone}
+                            isValid={isPhoneValid}
+                            delay={0}
+                          />
+                        </div>
+                      </motion.div>
                       
-                      <div className="mt-auto pt-8">
+                      <div className="mt-auto pt-4">
                         <PremiumButton
                           type="submit"
-                          disabled={isLoading || !isNameValid || !isEmailValid}
+                          disabled={isLoading || !isNameValid || !isEmailValid || !isPhoneValid}
                         >
                           <CreditCard size={16} />
-                          Proceder al Pago
+                          {dict.modal.proceedPayment}
                         </PremiumButton>
                         <motion.div
                           initial={{ opacity: 0 }}

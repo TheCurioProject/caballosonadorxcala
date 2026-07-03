@@ -50,7 +50,6 @@ dev.db
 # archives & large files
 *.zip
 *.MOV
-public/habitaciones/suite-down.webm
 public/habitaciones/suite.MOV
 
 # temp frames & build artifacts

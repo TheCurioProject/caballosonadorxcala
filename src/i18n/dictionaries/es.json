@@ -1,0 +1,69 @@
+{
+  "nav": {
+    "rooms": "Habitaciones",
+    "tours": "Experiencias",
+    "gallery": "Galería",
+    "book": "Reservar Ahora"
+  },
+  "hero": {
+    "belong": "Pertenece.",
+    "discover": "Descubre",
+    "reserve": "Reserva tu estancia"
+  },
+  "about": {
+    "subtitle": "El Santuario",
+    "title": "La vida se mueve más lento, y la naturaleza marca el ritmo.",
+    "p1": "Ubicado en el corazón vibrante de Chacala, Casa del Caballo Soñador ofrece una experiencia incomparable para aquellos que buscan tranquilidad y conexión.",
+    "p2": "Nuestra propiedad ha sido diseñada pensando en la armonía con la naturaleza, utilizando materiales locales sostenibles."
+  },
+  "suites": {
+    "subtitle": "6 Retiros Únicos",
+    "title": "Nuestras Suites",
+    "explore": "Desliza para explorar"
+  },
+  "amenities": {
+    "title": "Diseñado para tu confort",
+    "palapa": "La Palapa",
+    "palapa_desc": "Terraza al aire libre para yoga, meditación y vistas panorámicas del Pacífico.",
+    "pool": "La Piscina",
+    "pool_desc": "Oasis central con jacuzzi tipo cascada bajo las palmeras.",
+    "kitchen": "La Cocina",
+    "kitchen_desc": "Cocina compartida totalmente equipada para experiencias culinarias.",
+    "comfort": "Confort Diario",
+    "comfort_desc": "Desayuno caliente, Wi-Fi rápido, A/C y a 6 min de la playa."
+  },
+  "tours": {
+    "subtitle": "Aventuras en Chacala",
+    "title": "Explora lo Inexplorado",
+    "scroll": "Sigue bajando para descubrir"
+  },
+  "footer": {
+    "slogan": "Un Refugio de Paz",
+    "location": "Ubicación",
+    "contact": "Contacto",
+    "hours": "Horarios",
+    "follow": "Síguenos",
+    "rights": "Todos los derechos reservados.",
+    "policy": "Políticas de Cancelación (No reembolsos)",
+    "tagline": "Minimalist & Eco-conscious Retreat"
+  },
+  "modal": {
+    "yourReservation": "Tu Reserva",
+    "hotelName": "Casa del Caballo Soñador",
+    "dates": "Fechas",
+    "guests": "Huéspedes",
+    "guestsCount": "Hasta 12 Personas",
+    "total": "Total",
+    "nights": "noches",
+    "taxesIncluded": "USD Impuestos Incluidos",
+    "selectDates": "Selecciona tus Fechas",
+    "minStay": "⚠ Estancia mínima: 2 noches",
+    "continue": "Continuar",
+    "yourData": "Tus Datos",
+    "fullName": "Nombre Completo",
+    "email": "Correo Electrónico",
+    "phone": "Teléfono",
+    "proceedPayment": "Proceder al Pago",
+    "preparing": "Preparando tu reserva"
+  }
+}

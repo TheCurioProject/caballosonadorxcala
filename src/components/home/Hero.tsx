@@ -3,8 +3,10 @@
 import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { RevealText } from './RevealText';
+import { useDictionary } from '@/i18n/DictionaryContext';
 
 export const Hero = () => {
+  const dict = useDictionary();
   const { scrollYProgress } = useScroll();
   // Parallax enhanced: translate Y and Scale for depth
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
@@ -32,7 +34,7 @@ export const Hero = () => {
             </span>
             <span className="font-serif leading-[0.85] tracking-tighter block break-words" style={{ fontSize: 'clamp(4.5rem, min(15vw, 22vh), 14rem)' }}>
               Respira. <br className="hidden md:block" />
-              <span className="italic font-light text-[#F9F7F4]">Pertenece.</span>
+              <span className="italic font-light text-[#F9F7F4]">{dict.hero.belong}</span>
             </span>
           </h1>
         </RevealText>
@@ -45,7 +47,7 @@ export const Hero = () => {
         transition={{ delay: 1.5, duration: 1 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 md:left-auto md:right-16 md:translate-x-0 z-10 text-white flex flex-col items-center gap-4"
       >
-        <span className="uppercase tracking-[0.3em] text-[0.65rem] font-medium text-[#D5C6B1]/70">Descubre</span>
+        <span className="uppercase tracking-[0.3em] text-[0.65rem] font-medium text-[#D5C6B1]/70">{dict.hero.discover}</span>
         <div className="w-[1px] h-16 md:h-24 bg-white/10 overflow-hidden relative">
           <motion.div 
             animate={{ y: ["-100%", "200%"] }} 

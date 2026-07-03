@@ -1,0 +1,69 @@
+{
+  "nav": {
+    "rooms": "Rooms",
+    "tours": "Experiences",
+    "gallery": "Gallery",
+    "book": "Book Now"
+  },
+  "hero": {
+    "belong": "Belong.",
+    "discover": "Discover",
+    "reserve": "Book your stay"
+  },
+  "about": {
+    "subtitle": "The Sanctuary",
+    "title": "Life moves slower, and nature sets the pace.",
+    "p1": "Located in the vibrant heart of Chacala, Casa del Caballo Soñador offers an unparalleled experience for those seeking tranquility and connection.",
+    "p2": "Our property has been designed with harmony with nature in mind, using sustainable local materials."
+  },
+  "suites": {
+    "subtitle": "6 Unique Retreats",
+    "title": "Our Suites",
+    "explore": "Swipe to explore"
+  },
+  "amenities": {
+    "title": "Designed for your comfort",
+    "palapa": "La Palapa",
+    "palapa_desc": "Open-air terrace for yoga, meditation, and panoramic Pacific views.",
+    "pool": "The Pool",
+    "pool_desc": "Central oasis with a waterfall jacuzzi under the palm trees.",
+    "kitchen": "The Kitchen",
+    "kitchen_desc": "Fully equipped shared kitchen for culinary experiences.",
+    "comfort": "Daily Comfort",
+    "comfort_desc": "Hot breakfast, fast Wi-Fi, A/C, and 6 mins from the beach."
+  },
+  "tours": {
+    "subtitle": "Adventures in Chacala",
+    "title": "Explore the Unexplored",
+    "scroll": "Scroll down to discover"
+  },
+  "footer": {
+    "slogan": "A Haven of Peace",
+    "location": "Location",
+    "contact": "Contact",
+    "hours": "Hours",
+    "follow": "Follow us",
+    "rights": "All rights reserved.",
+    "policy": "Cancellation Policies (No refunds)",
+    "tagline": "Minimalist & Eco-conscious Retreat"
+  },
+  "modal": {
+    "yourReservation": "Your Reservation",
+    "hotelName": "Casa del Caballo Soñador",
+    "dates": "Dates",
+    "guests": "Guests",
+    "guestsCount": "Up to 12 People",
+    "total": "Total",
+    "nights": "nights",
+    "taxesIncluded": "USD Taxes Included",
+    "selectDates": "Select your Dates",
+    "minStay": "⚠ Minimum stay: 2 nights",
+    "continue": "Continue",
+    "yourData": "Your Details",
+    "fullName": "Full Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "proceedPayment": "Proceed to Payment",
+    "preparing": "Preparing your reservation"
+  }
+}

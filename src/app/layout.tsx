@@ -4,6 +4,9 @@ import "./globals.css";
 import Navigation from "@/components/Navigation";
 import { BookingProvider } from "@/context/BookingContext";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { cookies } from 'next/headers';
+import { getDictionary } from '@/i18n/dictionaries';
+import { DictionaryProvider } from '@/i18n/DictionaryContext';
 
 const syne = Syne({
   subsets: ["latin"],
@@ -33,16 +36,23 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Use cookie to determine lang for the HTML tag since this layout wraps everything
+  const cookieStore = cookies();
+  const lang = (cookieStore.get('NEXT_LOCALE')?.value as 'es' | 'en' | 'de') || 'es';
+  const dict = await getDictionary(lang);
+
   return (
-    <html lang="es" className={`${syne.variable} ${cormorant.variable}`}>
+    <html lang={lang} className={`${syne.variable} ${cormorant.variable}`}>
       <body className="font-sans bg-brand-beige text-brand-dark antialiased selection:bg-brand-terracotta selection:text-brand-beige">
-        <BookingProvider>
-          <LoadingScreen />
-          <Navigation />
-          <main className="min-h-screen">
-            {children}
-          </main>
-        </BookingProvider>
+        <DictionaryProvider dict={dict}>
+          <BookingProvider>
+            <LoadingScreen />
+            <Navigation />
+            <main className="min-h-screen">
+              {children}
+            </main>
+          </BookingProvider>
+        </DictionaryProvider>
       </body>
     </html>
   );

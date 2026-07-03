@@ -9,9 +9,14 @@ import { FAQ } from '@/components/home/FAQ';
 import { Location } from '@/components/home/Location';
 import { Footer } from '@/components/home/Footer';
 
+import { getDictionary } from '@/i18n/dictionaries';
+
 // Removed force-dynamic for static export
 
-export default async function Home() {
+export default async function Home({ params }: { params: { lang: 'es' | 'en' | 'de' } }) {
+  const lang = params.lang || 'es';
+  const dict = await getDictionary(lang);
+
   // Fetch from database
   let experiences = [];
   

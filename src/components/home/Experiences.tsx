@@ -3,8 +3,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { RevealText } from './RevealText';
+import { useDictionary } from '@/i18n/DictionaryContext';
 
 export const Experiences = ({ experiences }: { experiences: any[] }) => {
+  const dict = useDictionary();
   return (
     <section id="experiencias" className="relative bg-[#23211F]">
       
@@ -12,13 +14,13 @@ export const Experiences = ({ experiences }: { experiences: any[] }) => {
       <div className="h-[100dvh] flex items-center justify-center text-center px-6 sticky top-0 bg-[#23211F] text-white">
         <div className="max-w-3xl mix-blend-difference">
           <RevealText>
-            <h2 className="uppercase tracking-[0.3em] text-xs font-bold mb-4">Aventuras en Chacala</h2>
+            <h2 className="uppercase tracking-[0.3em] text-xs font-bold mb-4">{dict.tours.subtitle}</h2>
           </RevealText>
           <RevealText delay={0.1}>
-            <h3 className="font-serif text-5xl md:text-7xl lg:text-8xl leading-tight">Explora lo Inexplorado</h3>
+            <h3 className="font-serif text-5xl md:text-7xl lg:text-8xl leading-tight">{dict.tours.title}</h3>
           </RevealText>
           <RevealText delay={0.3}>
-             <p className="mt-12 text-xs md:text-sm font-bold uppercase tracking-[0.3em] animate-pulse">Sigue bajando para descubrir</p>
+             <p className="mt-12 text-xs md:text-sm font-bold uppercase tracking-[0.3em] animate-pulse">{dict.tours.scroll}</p>
           </RevealText>
         </div>
       </div>

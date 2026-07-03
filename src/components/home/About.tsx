@@ -4,8 +4,10 @@ import React, { useRef } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { RevealText } from './RevealText';
+import { useDictionary } from '@/i18n/DictionaryContext';
 
 export const About = () => {
+  const dict = useDictionary();
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   
@@ -19,14 +21,14 @@ export const About = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
         <div className="space-y-8">
           <RevealText>
-            <h2 className="text-[#9B7E67] uppercase tracking-[0.3em] text-xs font-bold">El Santuario</h2>
+            <h2 className="text-[#9B7E67] uppercase tracking-[0.3em] text-xs font-bold">{dict.about.subtitle}</h2>
           </RevealText>
           <RevealText delay={0.1}>
-            <h3 className="font-serif text-4xl md:text-6xl leading-tight">La vida se mueve más lento, y la naturaleza marca el ritmo.</h3>
+            <h3 className="font-serif text-4xl md:text-6xl leading-tight">{dict.about.title}</h3>
           </RevealText>
           <RevealText delay={0.2}>
             <p className="text-lg font-light leading-relaxed opacity-80 text-[#524D48]">
-              Bienvenido a Casa del Caballo Soñador, un bed & breakfast boutique en un pequeño pueblo pesquero. Elaborado con cuidado usando piedra local, madera cálida y suaves linos naturales, cada una de nuestras seis habitaciones refleja la fuerza tranquila de la tierra.
+              {dict.about.p1}
             </p>
           </RevealText>
 
@@ -42,9 +44,14 @@ export const About = () => {
           </motion.div>
         </div>
 
-        {/* Mobile Image */}
-        <div className="relative h-[400px] w-full mt-12 block md:hidden">
-          <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/04_about/DSC_0300.JPG`} alt="El Santuario - Vista principal" className="w-full h-full object-cover shadow-2xl rounded-2xl" />
+        {/* Mobile Animated Images */}
+        <div className="relative h-[450px] w-full mt-12 block md:hidden">
+          <motion.div style={{ y: yImage1 }} className="absolute top-0 right-0 w-[80%] h-[80%] z-10">
+            <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/04_about/DSC_0300.JPG`} alt="El Santuario - Vista principal" className="w-full h-full object-cover shadow-2xl rounded-2xl" />
+          </motion.div>
+          <motion.div style={{ y: yImage2 }} className="absolute bottom-0 left-0 w-[60%] h-[60%] z-20">
+            <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/04_about/DSC_0307.JPG`} alt="El Santuario - Detalles" className="w-full h-full object-cover shadow-xl border-[6px] border-[#F9F7F4] rounded-2xl" />
+          </motion.div>
         </div>
       </div>
     </section>

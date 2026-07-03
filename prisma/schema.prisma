@@ -12,7 +12,7 @@ model Property {
   id                    Int      @id @default(autoincrement())
   name                  String   @db.VarChar(255)
   description           String?  @db.Text
-  basePrice             Float    @map("base_price") @default(1500) // Precio por defecto
+  basePrice             Float    @map("base_price") @default(15000) // Precio por defecto
   baseCapacity          Int      @default(12) @map("base_capacity") // 6 habitaciones * 2
   icalToken             String?  @unique @map("ical_token") @db.VarChar(255)
   isActive              Boolean  @default(true) @map("is_active")

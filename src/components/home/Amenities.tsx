@@ -4,20 +4,22 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Sun, Droplets, Coffee, Wind } from 'lucide-react';
 import { RevealText } from './RevealText';
+import { useDictionary } from '@/i18n/DictionaryContext';
 
 export const Amenities = () => {
+  const dict = useDictionary();
   const icons = [
-    { icon: <Sun size={32}/>, title: "La Palapa", desc: "Terraza al aire libre para yoga, meditación y vistas panorámicas del Pacífico." },
-    { icon: <Droplets size={32}/>, title: "La Piscina", desc: "Oasis central con jacuzzi tipo cascada bajo las palmeras." },
-    { icon: <Coffee size={32}/>, title: "La Cocina", desc: "Cocina compartida totalmente equipada para experiencias culinarias." },
-    { icon: <Wind size={32}/>, title: "Confort Diario", desc: "Desayuno caliente, Wi-Fi rápido, A/C y a 6 min de la playa." }
+    { icon: <Sun size={32}/>, title: dict.amenities.palapa, desc: dict.amenities.palapa_desc },
+    { icon: <Droplets size={32}/>, title: dict.amenities.pool, desc: dict.amenities.pool_desc },
+    { icon: <Coffee size={32}/>, title: dict.amenities.kitchen, desc: dict.amenities.kitchen_desc },
+    { icon: <Wind size={32}/>, title: dict.amenities.comfort, desc: dict.amenities.comfort_desc }
   ];
 
   return (
     <section id="amenidades" className="py-16 md:py-32 px-6 md:px-16 bg-[#F9F7F4] text-[#23211F]">
       <div className="max-w-7xl mx-auto">
         <RevealText>
-          <h2 className="font-serif text-5xl md:text-7xl text-center mb-24">Diseñado para tu confort</h2>
+          <h2 className="font-serif text-5xl md:text-7xl text-center mb-24">{dict.amenities.title}</h2>
         </RevealText>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

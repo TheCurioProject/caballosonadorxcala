@@ -71,7 +71,7 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
   }, []);
 
   const toggleFullscreen = async () => {
-    if (!wrapperRef.current) return;
+    if (!wrapperRef.current || environment === 'mobile') return;
 
     if (!document.fullscreenElement) {
       try {
@@ -229,7 +229,7 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
             className="absolute inset-0 z-50 bg-[#0A0908]/90 backdrop-blur-md flex flex-col items-center justify-center pointer-events-none"
           >
             <div className="flex flex-col items-center -mt-16">
-              <FluidHorseAnimation className="w-24 md:w-32 text-[#F9F7F4] drop-shadow-2xl" />
+              <FluidHorseAnimation className="w-16 h-16 md:w-24 md:h-24 text-[#F9F7F4] drop-shadow-2xl" />
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -246,7 +246,7 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
       {/* Fullscreen Toggle Buttons (Faded in when loaded) */}
       <button 
         onClick={toggleFullscreen}
-        className={`absolute top-4 left-4 md:top-6 md:left-6 z-50 w-10 h-10 bg-black/40 hover:bg-black/70 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center text-white transition-all duration-700 ${isLoaded ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        className={`absolute top-4 left-4 md:top-6 md:left-6 z-50 w-10 h-10 bg-black/40 hover:bg-black/70 backdrop-blur-md border border-white/10 rounded-full hidden md:flex items-center justify-center text-white transition-all duration-700 ${isLoaded ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         aria-label={isFullscreen ? "Cerrar pantalla completa" : "Pantalla completa"}
       >
         {isFullscreen ? (
@@ -271,7 +271,7 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
                 transition={{ duration: 0.6 }}
                 className="mb-3 self-start text-white/70 font-serif italic text-[11px] tracking-[0.2em] uppercase whitespace-nowrap pointer-events-none origin-left"
                 style={{
-                  animation: 'tiltHint 2.4s ease-in-out infinite',
+                  animation: 'fadeHint 2.4s ease-in-out infinite',
                 }}
               >
                 Desliza para explorar
@@ -279,14 +279,11 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
             )}
           </AnimatePresence>
 
-          {/* Tilt keyframes + shimmer keyframes injected via style tag */}
+          {/* Fade keyframes + shimmer keyframes injected via style tag */}
           <style jsx global>{`
-            @keyframes tiltHint {
-              0%, 100% { transform: rotate(0deg); }
-              20% { transform: rotate(-2.5deg); }
-              40% { transform: rotate(2.5deg); }
-              60% { transform: rotate(-1.5deg); }
-              80% { transform: rotate(1.5deg); }
+            @keyframes fadeHint {
+              0%, 100% { opacity: 0.3; }
+              50% { opacity: 1; }
             }
             @keyframes barShimmer {
               0% { transform: translateX(-100%); }
