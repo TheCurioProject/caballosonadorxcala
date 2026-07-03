@@ -126,19 +126,20 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
         </div>
       </div>
 
-      {/* Calendar Grid */}
-      <div className="bg-[#F9F7F4] p-6 rounded-[2rem] shadow-[10px_10px_20px_#e3e1de,-10px_-10px_20px_#ffffff]">
-        {/* Days of week */}
-        <div className="grid grid-cols-7 mb-4">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-            <div key={d} className="text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-              {d}
-            </div>
-          ))}
-        </div>
+      {/* Calendar Grid Wrapper for Mobile Scrolling */}
+      <div className="overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0">
+        <div className="bg-[#F9F7F4] p-6 rounded-[2rem] shadow-[10px_10px_20px_#e3e1de,-10px_-10px_20px_#ffffff] min-w-[700px]">
+          {/* Days of week */}
+          <div className="grid grid-cols-7 mb-4">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+              <div key={d} className="text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                {d}
+              </div>
+            ))}
+          </div>
 
-        {/* Days */}
-        <div className="grid grid-cols-7 gap-4">
+          {/* Days */}
+          <div className="grid grid-cols-7 gap-4">
           {days.map((day, i) => {
             const isCurrentMonth = isSameMonth(day, currentDate);
             const info = getDayInfo(day);
@@ -192,6 +193,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
               </motion.div>
             );
           })}
+          </div>
         </div>
       </div>
 

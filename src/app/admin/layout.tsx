@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { LayoutDashboard, Book, CalendarDays, CreditCard, Settings, CalendarSync, LogOut } from 'lucide-react';
 
+import { motion } from 'framer-motion';
+
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -33,8 +35,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { name: 'iCal', href: '/admin/ical', icon: CalendarSync },
   ];
 
+  const mobileNavItems = [
+    { name: 'Inicio', href: '/admin', icon: LayoutDashboard },
+    { name: 'Reservas', href: '/admin/bookings', icon: Book },
+    { name: 'Fechas', href: '/admin/calendar', icon: CalendarDays },
+    { name: 'Ajustes', href: '/admin/settings', icon: Settings },
+  ];
+
   return (
-    <div className="min-h-screen flex bg-[#F9F7F4] text-[#23211F] pb-20 md:pb-0">
+    <div className="min-h-screen flex bg-[#F9F7F4] text-[#23211F] pb-24 md:pb-0">
       {/* Sidebar (Desktop) */}
       <aside className="w-64 bg-[#2C2927] text-[#F9F7F4] flex-col shadow-xl z-20 hidden md:flex">
         <div className="p-8 border-b border-[#F9F7F4]/10">
@@ -74,29 +83,51 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </main>
       </div>
 
-      {/* Bottom Navigation Bar (Mobile) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#2C2927] text-[#F9F7F4] shadow-[0_-4px_20px_rgba(0,0,0,0.15)] z-50 px-2 pb-safe pt-2">
-        <div className="flex justify-around items-center h-16">
-          {/* Main mobile items */}
-          <Link href="/admin" className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${pathname === '/admin' ? 'text-[#9B7E67]' : 'text-gray-400'}`}>
-            <LayoutDashboard className="w-6 h-6" />
-            <span className="text-[9px] uppercase tracking-widest font-bold">Inicio</span>
-          </Link>
-          <Link href="/admin/bookings" className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${pathname === '/admin/bookings' ? 'text-[#9B7E67]' : 'text-gray-400'}`}>
-            <Book className="w-6 h-6" />
-            <span className="text-[9px] uppercase tracking-widest font-bold">Reservas</span>
-          </Link>
-          <Link href="/admin/calendar" className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${pathname === '/admin/calendar' ? 'text-[#9B7E67]' : 'text-gray-400'}`}>
-            <CalendarDays className="w-6 h-6" />
-            <span className="text-[9px] uppercase tracking-widest font-bold">Calendario</span>
-          </Link>
-          <Link href="/admin/settings" className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${pathname === '/admin/settings' ? 'text-[#9B7E67]' : 'text-gray-400'}`}>
-            <Settings className="w-6 h-6" />
-            <span className="text-[9px] uppercase tracking-widest font-bold">Ajustes</span>
-          </Link>
-          <button onClick={handleLogout} className="flex flex-col items-center justify-center w-full h-full space-y-1 text-red-400">
-            <LogOut className="w-6 h-6" />
-            <span className="text-[9px] uppercase tracking-widest font-bold">Salir</span>
+      {/* Bottom Navigation Bar (Mobile) - Rediseño Premium */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#2C2927]/90 backdrop-blur-xl border-t border-white/5 shadow-[0_-10px_40px_rgba(0,0,0,0.2)] z-50 px-2 pb-safe pt-2">
+        <div className="flex justify-around items-center h-16 relative">
+          
+          {mobileNavItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link 
+                key={item.name} 
+                href={item.href} 
+                className="relative flex flex-col items-center justify-center w-full h-full group"
+              >
+                {isActive && (
+                  <motion.div 
+                    layoutId="mobileNavIndicator"
+                    className="absolute inset-0 mx-2 my-1 bg-[#9B7E67]/20 rounded-xl"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+                <motion.div
+                  whileTap={{ scale: 0.9 }}
+                  className={`relative z-10 flex flex-col items-center justify-center space-y-1 transition-colors duration-300 ${isActive ? 'text-[#9B7E67]' : 'text-gray-400 group-hover:text-gray-300'}`}
+                >
+                  <item.icon className={`w-5 h-5 transition-transform duration-300 ${isActive ? 'scale-110' : 'scale-100'}`} />
+                  <span className={`text-[9px] uppercase tracking-widest font-bold transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-70'}`}>
+                    {item.name}
+                  </span>
+                </motion.div>
+              </Link>
+            );
+          })}
+
+          <button 
+            onClick={handleLogout} 
+            className="relative flex flex-col items-center justify-center w-full h-full group"
+          >
+            <motion.div
+              whileTap={{ scale: 0.9 }}
+              className="relative z-10 flex flex-col items-center justify-center space-y-1 text-red-400/80 group-hover:text-red-400 transition-colors duration-300"
+            >
+              <LogOut className="w-5 h-5" />
+              <span className="text-[9px] uppercase tracking-widest font-bold opacity-70 group-hover:opacity-100">
+                Salir
+              </span>
+            </motion.div>
           </button>
         </div>
       </nav>

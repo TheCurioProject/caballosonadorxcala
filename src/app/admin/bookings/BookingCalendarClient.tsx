@@ -185,51 +185,55 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
           {format(currentDate, 'MMMM yyyy', { locale: enUS })}
         </div>
 
-        <div className="grid grid-cols-7 mb-2">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-            <div key={d} className="text-center text-[10px] font-bold text-gray-400 uppercase">
-              {d}
+        <div className="overflow-x-auto pb-4 -mx-6 px-6 md:mx-0 md:px-0">
+          <div className="min-w-[700px]">
+            <div className="grid grid-cols-7 mb-2">
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+                <div key={d} className="text-center text-[10px] font-bold text-gray-400 uppercase">
+                  {d}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-7 gap-1">
-          {days.map((day) => {
-            const isCurrentMonth = isSameMonth(day, currentDate);
-            const unavailable = isDateUnavailable(day);
-            
-            let bgClass = "bg-white hover:bg-gray-50 border border-gray-100 cursor-pointer";
-            let textClass = "text-[#23211F]";
+            <div className="grid grid-cols-7 gap-1">
+              {days.map((day) => {
+                const isCurrentMonth = isSameMonth(day, currentDate);
+                const unavailable = isDateUnavailable(day);
+                
+                let bgClass = "bg-white hover:bg-gray-50 border border-gray-100 cursor-pointer";
+                let textClass = "text-[#23211F]";
 
-            if (!isCurrentMonth) {
-              bgClass = "bg-transparent opacity-0 pointer-events-none";
-            } else if (unavailable && (!checkIn || checkOut)) {
-              bgClass = "bg-[#c1121f] cursor-not-allowed shadow-inner";
-              textClass = "text-white opacity-80";
-            } else if (checkIn && isSameDay(day, checkIn)) {
-              bgClass = "bg-[#23211F] text-white";
-              textClass = "text-white font-bold";
-            } else if (checkOut && isSameDay(day, checkOut)) {
-              bgClass = "bg-[#23211F] text-white";
-              textClass = "text-white font-bold";
-            } else if (checkIn && checkOut && day > checkIn && day < checkOut) {
-              bgClass = "bg-[#F9F7F4]";
-              textClass = "text-[#9B7E67] font-medium";
-            }
+                if (!isCurrentMonth) {
+                  bgClass = "bg-transparent opacity-0 pointer-events-none";
+                } else if (unavailable && (!checkIn || checkOut)) {
+                  bgClass = "bg-[#c1121f] cursor-not-allowed shadow-inner";
+                  textClass = "text-white opacity-80";
+                } else if (checkIn && isSameDay(day, checkIn)) {
+                  bgClass = "bg-[#23211F] text-white";
+                  textClass = "text-white font-bold";
+                } else if (checkOut && isSameDay(day, checkOut)) {
+                  bgClass = "bg-[#23211F] text-white";
+                  textClass = "text-white font-bold";
+                } else if (checkIn && checkOut && day > checkIn && day < checkOut) {
+                  bgClass = "bg-[#F9F7F4]";
+                  textClass = "text-[#9B7E67] font-medium";
+                }
 
-            return (
-              <div 
-                key={day.toString()}
-                onClick={() => isCurrentMonth && handleDayClick(day)}
-                className={`h-12 flex items-center justify-center rounded-lg transition-colors ${bgClass}`}
-              >
-                {isCurrentMonth && (
-                  <span className={`text-sm ${textClass}`}>
-                    {format(day, 'd')}
-                  </span>
-                )}
-              </div>
-            );
-          })}
+                return (
+                  <div 
+                    key={day.toString()}
+                    onClick={() => isCurrentMonth && handleDayClick(day)}
+                    className={`h-12 flex items-center justify-center rounded-lg transition-colors ${bgClass}`}
+                  >
+                    {isCurrentMonth && (
+                      <span className={`text-sm ${textClass}`}>
+                        {format(day, 'd')}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
         
         <div className="mt-6 flex justify-between bg-gray-50 p-4 rounded-xl border border-gray-100">

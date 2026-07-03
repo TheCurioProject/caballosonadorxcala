@@ -158,6 +158,8 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
     }
   };
 
+  const [loadedFrames, setLoadedFrames] = useState(0);
+
   // Load frames when roomId, environment, or metadataMap changes
   useEffect(() => {
     if (!metadataMap || !metadataMap[roomId]) return;
@@ -183,6 +185,7 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
     setShowHint(false); // Hide hint while loading
     
     let loadedCount = 1; // already loaded the first one
+    setLoadedFrames(1);
     
     for (let i = 2; i <= count; i++) {
       const img = new Image();
@@ -191,6 +194,7 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
       img.onload = () => {
         framesRef.current[i - 1] = img;
         loadedCount++;
+        setLoadedFrames(loadedCount);
         if (loadedCount === count) {
           setIsLoaded(true);
           setShowHint(true); // Show hint when loaded
@@ -287,9 +291,22 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
-                className="mt-8 text-[#9B7E67] font-sans text-[10px] tracking-[0.4em] uppercase font-bold"
+                className="mt-8 text-[#9B7E67] font-sans text-[10px] tracking-[0.4em] uppercase font-bold flex flex-col items-center"
               >
                 {dict.modal.preparingTour}
+                {totalFrames > 0 && (
+                  <div className="w-48 mt-4 flex flex-col items-center">
+                    <div className="w-full h-[2px] bg-white/10 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-[#9B7E67] transition-all duration-300 ease-out" 
+                        style={{ width: `${Math.round((loadedFrames / totalFrames) * 100)}%` }} 
+                      />
+                    </div>
+                    <span className="text-[9px] text-white/40 mt-3 font-serif tracking-[0.2em]">
+                      {Math.round((loadedFrames / totalFrames) * 100)}%
+                    </span>
+                  </div>
+                )}
               </motion.div>
             </div>
           </motion.div>

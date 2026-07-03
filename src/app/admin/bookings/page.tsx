@@ -4,6 +4,7 @@ import React from 'react';
 import fs from 'fs/promises';
 import path from 'path';
 import BookingCalendarClient from './BookingCalendarClient';
+import DeleteBookingButton from './DeleteBookingButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -90,16 +91,6 @@ export default async function AdminBookingsPage() {
     return { success: false, error: 'Invalid dates' };
   }
 
-  async function removeBooking(formData: FormData) {
-    'use server';
-    const id = parseInt(formData.get('id') as string, 10);
-    if (!isNaN(id)) {
-      await prisma.booking.delete({ where: { id } });
-      revalidatePath('/admin/bookings');
-      revalidatePath('/admin/calendar');
-    }
-  }
-
   const formatDate = (date: Date) => new Date(date).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   return (
@@ -159,12 +150,7 @@ export default async function AdminBookingsPage() {
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <form action={removeBooking}>
-                          <input type="hidden" name="id" value={b.id} />
-                          <button type="submit" className="text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-600 transition-colors">
-                            Delete
-                          </button>
-                        </form>
+                        <DeleteBookingButton bookingId={b.id} />
                       </td>
                     </tr>
                   ))}
