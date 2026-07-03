@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const isLoginPage = pathname === '/admin/login';
+  const isLoginPage = pathname.includes('/admin/login');
 
   if (isLoginPage) {
     return <>{children}</>;
