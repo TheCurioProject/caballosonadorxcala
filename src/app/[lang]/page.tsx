@@ -1,13 +1,15 @@
 import prisma from '@/lib/prisma';
 import { Hero } from '@/components/home/Hero';
-import { About } from '@/components/home/About';
-import { Suites } from '@/components/home/Suites';
-import { Amenities } from '@/components/home/Amenities';
-import { Experiences } from '@/components/home/Experiences';
-import { Reviews } from '@/components/home/Reviews';
-import { FAQ } from '@/components/home/FAQ';
-import { Location } from '@/components/home/Location';
-import { Footer } from '@/components/home/Footer';
+import dynamic from 'next/dynamic';
+
+const About = dynamic(() => import('@/components/home/About').then(mod => mod.About));
+const Suites = dynamic(() => import('@/components/home/Suites').then(mod => mod.Suites));
+const Amenities = dynamic(() => import('@/components/home/Amenities').then(mod => mod.Amenities));
+const Experiences = dynamic(() => import('@/components/home/Experiences').then(mod => mod.Experiences));
+const Reviews = dynamic(() => import('@/components/home/Reviews').then(mod => mod.Reviews));
+const FAQ = dynamic(() => import('@/components/home/FAQ').then(mod => mod.FAQ));
+const Location = dynamic(() => import('@/components/home/Location').then(mod => mod.Location));
+const Footer = dynamic(() => import('@/components/home/Footer').then(mod => mod.Footer));
 
 import { getDictionary } from '@/i18n/dictionaries';
 

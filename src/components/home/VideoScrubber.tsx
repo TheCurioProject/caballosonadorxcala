@@ -231,7 +231,7 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
             className="absolute inset-0 z-50 bg-[#0A0908]/90 backdrop-blur-md flex flex-col items-center justify-center pointer-events-none"
           >
             <div className="flex flex-col items-center -mt-16">
-              <FluidHorseAnimation className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 text-[#F9F7F4] drop-shadow-2xl" />
+              <FluidHorseAnimation className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 text-[#F9F7F4] drop-shadow-2xl" />
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}

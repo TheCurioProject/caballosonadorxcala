@@ -428,7 +428,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
             onDragEnd={(e, info) => {
               if (info.offset.y > 60 || info.velocity.y > 300) onClose();
             }}
-            className="relative w-full max-w-4xl bg-[#F9F7F4] rounded-t-[2rem] md:rounded-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.2)] md:shadow-2xl overflow-visible flex flex-col md:flex-row max-h-[92dvh] md:h-[600px] mt-auto md:mt-0"
+            className="relative w-full max-w-4xl bg-[#23211F] md:bg-[#F9F7F4] rounded-t-[2rem] md:rounded-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.2)] md:shadow-2xl overflow-visible flex flex-col md:flex-row max-h-[92dvh] md:h-[600px] mt-auto md:mt-0"
           >
             {isMobile && (
               <div 
@@ -516,7 +516,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
               </motion.div>
             </div>
 
-            <div className="w-full md:w-2/3 p-8 md:p-12 overflow-y-auto relative">
+            <div className="w-full md:w-2/3 p-8 md:p-12 overflow-y-auto relative bg-[#F9F7F4]">
               {/* Step Progress Indicator */}
               <StepIndicator currentStep={step} totalSteps={2} />
 
