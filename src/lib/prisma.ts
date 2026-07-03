@@ -23,6 +23,9 @@ const prismaClientSingleton = () => {
     const separator = cleanUrl.includes('?') ? '&' : '?';
     cleanUrl += `${separator}connection_limit=3&pool_timeout=15`;
   }
+  
+  // The PrismaMariaDb adapter strictly expects mariadb:// instead of mysql://
+  cleanUrl = cleanUrl.replace(/^mysql:\/\//, 'mariadb://');
 
   const adapter = new PrismaMariaDb(cleanUrl);
   return new PrismaClient({ adapter });
