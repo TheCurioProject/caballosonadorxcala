@@ -21,6 +21,39 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Property not found' }, { status: 404 });
       }
 
+      // Clean up expired pending bookings
+      const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+      await prisma.booking.deleteMany({
+        where: {
+          payment_status: 'PENDING',
+          createdAt: { lt: fifteenMinutesAgo }
+        }
+      });
+
+      // Check for overlapping bookings or blocks
+      const overlappingBookings = await prisma.booking.findMany({
+        where: {
+          propertyId: property.id,
+          payment_status: { in: ['CONFIRMED', 'PENDING'] },
+          checkIn: { lt: new Date(checkOut) },
+          checkOut: { gt: new Date(checkIn) }
+        }
+      });
+
+      const overlappingBlocks = await prisma.blockedDate.findMany({
+        where: {
+          propertyId: property.id,
+          startDate: { lt: new Date(checkOut) },
+          endDate: { gt: new Date(checkIn) }
+        }
+      });
+
+      if (overlappingBookings.length > 0 || overlappingBlocks.length > 0) {
+        return NextResponse.json({ 
+          error: 'Las fechas seleccionadas acaban de ser reservadas. Por favor, elige otras.' 
+        }, { status: 409 });
+      }
+
       booking = await prisma.booking.create({
         data: {
           propertyId: property.id,

@@ -60,11 +60,12 @@ export async function POST(request: Request) {
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.error('Login error:', error);
+    const e = error as Error;
     return NextResponse.json({ 
       error: 'Error interno del servidor',
-      details: error.message || String(error)
+      details: e.message || String(error)
     }, { status: 500 });
   }
 }

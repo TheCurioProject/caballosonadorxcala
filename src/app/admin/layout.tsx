@@ -17,7 +17,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       <aside className="w-64 bg-[#2C2927] text-[#F9F7F4] flex flex-col shadow-xl z-20 hidden md:flex">
         <div className="p-8 border-b border-[#F9F7F4]/10">
-          <h1 className="font-serif text-2xl font-bold tracking-wide text-[#9B7E67]">Casa Soñador</h1>
+          <h1 className="font-serif text-2xl font-bold tracking-wide text-[#9B7E67]">Casa Caballo Soñador</h1>
           <p className="text-xs font-light opacity-60 uppercase tracking-widest mt-2">Admin Panel</p>
         </div>
         <nav className="flex-1 py-8 px-4 flex flex-col space-y-2">

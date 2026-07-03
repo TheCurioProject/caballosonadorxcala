@@ -10,6 +10,17 @@ export async function GET() {
       return NextResponse.json({ disabledDates: [] });
     }
 
+    // Clean up expired pending bookings (older than 15 minutes)
+    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+    await prisma.booking.deleteMany({
+      where: {
+        payment_status: 'PENDING',
+        createdAt: {
+          lt: fifteenMinutesAgo
+        }
+      }
+    });
+
     // Get all manual blocks for this property that are in the future (or current month)
     const blocks = await prisma.blockedDate.findMany({
       where: {
@@ -18,11 +29,13 @@ export async function GET() {
       }
     });
 
-    // Get all confirmed bookings
+    // Get all confirmed bookings AND valid pending bookings
     const bookings = await prisma.booking.findMany({
       where: {
         propertyId: property.id,
-        payment_status: 'CONFIRMED',
+        payment_status: {
+          in: ['CONFIRMED', 'PENDING']
+        },
         checkOut: { gte: new Date() }
       }
     });
