@@ -4,6 +4,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FluidHorseAnimation from '../FluidHorseAnimation';
 import { useDictionary } from '@/i18n/DictionaryContext';
+import { useScrollLock } from '@/hooks/useScrollLock';
 
 interface VideoScrubberProps {
   roomId: string;
@@ -96,16 +97,7 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
   }, []);
 
   // Lock body scroll when in faux-fullscreen
-  useEffect(() => {
-    if (isFullscreen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isFullscreen]);
+  useScrollLock(isFullscreen);
 
   const toggleFullscreen = async () => {
     if (!wrapperRef.current) return;
@@ -375,7 +367,7 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
               step="0.01"
               defaultValue="0"
               disabled={!isLoaded}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0 touch-pan-y"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 m-0 touch-none"
             />
             
             <motion.div 

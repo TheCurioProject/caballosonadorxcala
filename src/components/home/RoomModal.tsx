@@ -6,6 +6,7 @@ import { X, Bed, Users, Bath, Droplets } from 'lucide-react';
 import { VideoScrubber } from './VideoScrubber';
 import { useBooking } from '@/context/BookingContext';
 import { useDictionary } from '@/i18n/DictionaryContext';
+import { useScrollLock } from '@/hooks/useScrollLock';
 
 interface RoomModalProps {
   room: any | null;
@@ -21,26 +22,7 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
     setActiveTab('suite');
   }, [room]);
 
-  useEffect(() => {
-    if (room) {
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-      // Para Safari móvil
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
-    } else {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-    }
-    return () => { 
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-    };
-  }, [room]);
+  useScrollLock(!!room);
 
   const dict = useDictionary();
   const isRoom7 = room?.id === 7;

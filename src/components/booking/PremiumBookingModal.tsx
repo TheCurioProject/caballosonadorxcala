@@ -9,6 +9,7 @@ import FluidHorseAnimation from '../FluidHorseAnimation';
 import { format, differenceInDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useDictionary } from '@/i18n/DictionaryContext';
+import { useScrollLock } from '@/hooks/useScrollLock';
 
 /* ─── Hook: useMediaQuery ─── */
 function useMediaQuery(query: string) {
@@ -308,6 +309,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [currency, setCurrency] = useState('MXN');
   const [showConfetti, setShowConfetti] = useState(false);
 
+  useScrollLock(isOpen);
+
   // Calculate base price dynamically based on currency
   const basePrice = useMemo(() => {
     switch(currency) {
@@ -327,7 +330,6 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
       fetch('/api/availability')
         .then(res => res.json())
         .then(data => {
@@ -341,7 +343,6 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         })
         .catch(console.error);
     } else {
-      document.body.style.overflow = 'unset';
       setTimeout(() => {
         setStep(1);
         setRange(undefined);
@@ -355,7 +356,6 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         setShowConfetti(false);
       }, 400);
     }
-    return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
 
   const handleNext = useCallback(() => {
