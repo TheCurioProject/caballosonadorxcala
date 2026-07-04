@@ -75,5 +75,52 @@
     "backToCalendar": "Back to Calendar",
     "preparing": "Preparing your reservation",
     "preparingTour": "Preparing Virtual Tour"
+  },
+  "roomsData": {
+    "1": {
+      "name": "Room 1",
+      "description": "TWIN ROOM (King-Convertible). Meaning \"gentle step\", Paso Suave is ideal for friends, siblings, or solo travelers sharing a restful escape. This airy space features two single beds, A/C, and Wi-Fi.",
+      "guests": "2",
+      "beds": "2 Singles",
+      "bath": "1 Bath"
+    },
+    "2": {
+      "name": "Room 2",
+      "description": "Queen Room. Bright and welcoming, Estrella shines with a cozy charm and natural coastal textures. With a queen size bed, A/C, and Wi-Fi, it’s the perfect place to relax.",
+      "guests": "2",
+      "beds": "1 Queen",
+      "bath": "1 Bath"
+    },
+    "3": {
+      "name": "Room 3",
+      "description": "A peaceful retreat bathed in soft tones and gentle light, La Luna invites you to relax under the calming glow of the moon. Offers a queen-size bed, A/C, fast Wi-Fi.",
+      "guests": "2",
+      "beds": "1 Queen",
+      "bath": "1 Bath"
+    },
+    "4": {
+      "name": "Room 4",
+      "description": "Matrimonial + Day Bed. Spacious and versatile, perfect for couples, friends, or small families. Natural materials and warm decor create a cozy retreat with A/C.",
+      "guests": "2",
+      "beds": "1 Full + 1 Day Bed",
+      "bath": "1 Bath"
+    },
+    "6": {
+      "name": "Room 6",
+      "description": "KING SUITE. Named after the living wood used throughout the room, Madera Viva offers a quiet and grounded atmosphere with a king-size bed and stone accents.",
+      "guests": "2",
+      "beds": "1 King",
+      "bath": "1 Bath"
+    },
+    "7": {
+      "name": "El Sueño del Mar Suite",
+      "description": "Deluxe King Suite (Jacuzzi + Ocean View). The crown jewel featuring a king bed, office space, and lounge with TV. Crafted from local wood and stone.",
+      "guests": "2",
+      "beds": "1 King",
+      "bath": "1 Bath",
+      "extra": "Jacuzzi & Ocean View"
+    },
+    "cocinaName": "House Kitchen",
+    "cocinaDesc": "A private communal space, fully equipped for you to prepare your own dishes or simply enjoy the house's ambiance in total privacy and absolute comfort."
   }
 }

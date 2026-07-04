@@ -75,5 +75,52 @@
     "backToCalendar": "Volver a Calendario",
     "preparing": "Preparando tu Reserva",
     "preparingTour": "Preparando Recorrido Virtual"
+  },
+  "roomsData": {
+    "1": {
+      "name": "Habitación 1",
+      "description": "HABITACIÓN TWIN (Convertible a King). Con el significado de \"paso suave\", Paso Suave es ideal para amigos, hermanos o viajeros solitarios que comparten una escapada de descanso. Este espacio ventilado cuenta con dos camas individuales, aire acondicionado y Wi-Fi.",
+      "guests": "2",
+      "beds": "2 Individuales",
+      "bath": "1 Baño"
+    },
+    "2": {
+      "name": "Habitación 2",
+      "description": "Habitación Queen. Brillante y acogedora, Estrella brilla con un encanto cálido y texturas costeras naturales. Con una cama tamaño queen, aire acondicionado y Wi-Fi, es el lugar perfecto para relajarse.",
+      "guests": "2",
+      "beds": "1 Queen",
+      "bath": "1 Baño"
+    },
+    "3": {
+      "name": "Habitación 3",
+      "description": "Un retiro pacífico bañado en tonos suaves y luz tenue, La Luna te invita a relajarte bajo el resplandor de la luna. Ofrece una cama tamaño queen, aire acondicionado y Wi-Fi rápido.",
+      "guests": "2",
+      "beds": "1 Queen",
+      "bath": "1 Baño"
+    },
+    "4": {
+      "name": "Habitación 4",
+      "description": "Matrimonial + Cama de Día. Amplia y versátil, perfecta para parejas, amigos o familias pequeñas. Materiales naturales y decoración cálida crean un retiro acogedor con aire acondicionado.",
+      "guests": "2",
+      "beds": "1 Matrimonial + 1 Day Bed",
+      "bath": "1 Baño"
+    },
+    "6": {
+      "name": "Habitación 6",
+      "description": "SUITE KING. Nombrada por la madera viva utilizada en toda la habitación, Madera Viva ofrece una atmósfera tranquila y terrenal con una cama king y acentos de piedra.",
+      "guests": "2",
+      "beds": "1 King",
+      "bath": "1 Baño"
+    },
+    "7": {
+      "name": "Suite El Sueño del Mar",
+      "description": "Deluxe King Suite (Jacuzzi + Vista al Mar). La joya de la corona con cama king, espacio de oficina y sala de estar con TV. Hecha con madera y piedra local.",
+      "guests": "2",
+      "beds": "1 King",
+      "bath": "1 Baño",
+      "extra": "Jacuzzi & Vista al Mar"
+    },
+    "cocinaName": "Cocina de la Casa",
+    "cocinaDesc": "Un espacio comunal privado, totalmente equipado para que prepares tus propios platillos o simplemente disfrutes del ambiente de la casa en total privacidad y confort absoluto."
   }
 }

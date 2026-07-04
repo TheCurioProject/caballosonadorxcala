@@ -75,5 +75,52 @@
     "backToCalendar": "Zurück zum Kalender",
     "preparing": "Ihre Reservierung wird vorbereitet",
     "preparingTour": "Virtuellen Rundgang vorbereiten"
+  },
+  "roomsData": {
+    "1": {
+      "name": "Zimmer 1",
+      "description": "ZWEIBETTZIMMER (in King umwandelbar). Paso Suave bedeutet \"sanfter Schritt\" und ist ideal für Freunde, Geschwister oder Alleinreisende. Bietet zwei Einzelbetten, Klimaanlage und WLAN.",
+      "guests": "2",
+      "beds": "2 Einzelbetten",
+      "bath": "1 Bad"
+    },
+    "2": {
+      "name": "Zimmer 2",
+      "description": "Queen-Zimmer. Hell und einladend erstrahlt Estrella mit gemütlichem Charme und natürlichen Texturen. Mit einem Queen-Size-Bett, Klimaanlage und WLAN.",
+      "guests": "2",
+      "beds": "1 Queen",
+      "bath": "1 Bad"
+    },
+    "3": {
+      "name": "Zimmer 3",
+      "description": "Ein friedlicher Rückzugsort in sanften Tönen. La Luna lädt Sie ein, unter dem beruhigenden Licht des Mondes zu entspannen. Bietet ein Queen-Size-Bett, Klimaanlage und schnelles WLAN.",
+      "guests": "2",
+      "beds": "1 Queen",
+      "bath": "1 Bad"
+    },
+    "4": {
+      "name": "Zimmer 4",
+      "description": "Matrimonial + Tagesbett. Geräumig und vielseitig, perfekt für Paare oder kleine Familien. Natürliche Materialien und warme Einrichtung mit Klimaanlage.",
+      "guests": "2",
+      "beds": "1 Doppelbett + 1 Tagesbett",
+      "bath": "1 Bad"
+    },
+    "6": {
+      "name": "Zimmer 6",
+      "description": "KING SUITE. Benannt nach dem lebendigen Holz im Raum, bietet Madera Viva eine ruhige und geerdete Atmosphäre mit einem Kingsize-Bett und Steinakzenten.",
+      "guests": "2",
+      "beds": "1 King",
+      "bath": "1 Bad"
+    },
+    "7": {
+      "name": "Suite El Sueño del Mar",
+      "description": "Deluxe King Suite (Whirlpool + Meerblick). Das Kronjuwel mit Kingsize-Bett, Büroraum und Lounge mit TV. Gefertigt aus lokalem Holz und Stein.",
+      "guests": "2",
+      "beds": "1 King",
+      "bath": "1 Bad",
+      "extra": "Whirlpool & Meerblick"
+    },
+    "cocinaName": "Hausküche",
+    "cocinaDesc": "Ein privater Gemeinschaftsraum, voll ausgestattet, damit Sie Ihre eigenen Gerichte zubereiten oder einfach die Atmosphäre des Hauses in absoluter Privatsphäre genießen können."
   }
 }

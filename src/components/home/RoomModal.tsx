@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Bed, Users, Bath, Droplets } from 'lucide-react';
 import { VideoScrubber } from './VideoScrubber';
 import { useBooking } from '@/context/BookingContext';
+import { useDictionary } from '@/i18n/DictionaryContext';
 
 interface RoomModalProps {
   room: any | null;
@@ -23,12 +24,25 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
   useEffect(() => {
     if (room) {
       document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      // Para Safari móvil
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
     }
-    return () => { document.body.style.overflow = 'unset'; };
+    return () => { 
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    };
   }, [room]);
 
+  const dict = useDictionary();
   const isRoom7 = room?.id === 7;
   const isCocina = activeTab === 'cocina';
   
@@ -39,7 +53,7 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
   const getTitle = () => {
     if (!room) return '';
     if (isRoom7) {
-      return isCocina ? "Cocina de la Casa" : room.name;
+      return isCocina ? (dict as any).roomsData.cocinaName : room.name;
     }
     return room.name;
   };
@@ -47,7 +61,7 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
   const getDescription = () => {
     if (!room) return '';
     if (isCocina) {
-      return "Un espacio comunal privado, totalmente equipado para que prepares tus propios platillos o simplemente disfrutes del ambiente de la casa en total privacidad y confort absoluto.";
+      return (dict as any).roomsData.cocinaDesc;
     }
     return room.desc || room.description;
   };
@@ -76,7 +90,7 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
           </div>
 
           {/* Bottom Section: Info (45vh / 35vh) */}
-          <div className="w-full flex-1 overflow-y-auto bg-[#F9F7F4]">
+          <div className="w-full flex-1 overflow-y-auto overscroll-contain touch-pan-y bg-[#F9F7F4]">
             <div className="max-w-5xl mx-auto p-8 md:p-12 w-full flex flex-col min-h-full">
               
               {/* Tabs for Room 7 */}
@@ -86,13 +100,13 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
                     onClick={() => setActiveTab('suite')}
                     className={`pb-4 px-2 uppercase tracking-widest text-[10px] md:text-xs font-bold transition-colors ${activeTab === 'suite' ? 'border-b-2 border-[#9B7E67] text-[#9B7E67]' : 'text-[#524D48] hover:text-[#23211F]'}`}
                   >
-                    Suite Principal
+                    {room.name}
                   </button>
                   <button 
                     onClick={() => setActiveTab('cocina')}
                     className={`pb-4 px-2 uppercase tracking-widest text-[10px] md:text-xs font-bold transition-colors ${activeTab === 'cocina' ? 'border-b-2 border-[#9B7E67] text-[#9B7E67]' : 'text-[#524D48] hover:text-[#23211F]'}`}
                   >
-                    Cocina de la Casa
+                    {(dict as any).roomsData.cocinaName}
                   </button>
                 </div>
               )}
@@ -111,7 +125,7 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
                 <div className="w-full md:w-[40%] flex flex-col">
                   {!isCocina && room.details && (
                     <div className="grid grid-cols-1 gap-4 text-sm text-[#524D48] mb-8 border-l border-[#E5E0D8] pl-6">
-                      <div className="flex items-center gap-3"><Users size={16} className="text-[#9B7E67]" /> {room.details.guests} Huéspedes</div>
+                      <div className="flex items-center gap-3"><Users size={16} className="text-[#9B7E67]" /> {room.details.guests} {dict.modal.guests}</div>
                       <div className="flex items-center gap-3"><Bed size={16} className="text-[#9B7E67]" /> {room.details.beds}</div>
                       <div className="flex items-center gap-3"><Bath size={16} className="text-[#9B7E67]" /> {room.details.bath}</div>
                       {room.details.extra && <div className="flex items-center gap-3"><Droplets size={16} className="text-[#9B7E67]" /> {room.details.extra}</div>}
@@ -120,7 +134,7 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
 
                   <div className="mt-auto pt-6 border-t border-[#E5E0D8] flex flex-col gap-4">
                     {!isCocina && room.price !== undefined && (
-                      <span className="font-serif italic text-2xl text-[#23211F]">{room.price === 0 ? 'Consultar precio' : room.price}</span>
+                      <span className="font-serif italic text-2xl text-[#23211F]">{room.price === 0 ? '' : room.price}</span>
                     )}
                     <button 
                       onClick={() => {
@@ -129,7 +143,7 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
                       }}
                       className="bg-[#23211F] text-[#F9F7F4] px-8 py-4 uppercase tracking-widest text-xs font-bold hover:bg-[#9B7E67] transition-colors w-full text-center mt-2"
                     >
-                      Reserva
+                      {dict.nav.book}
                     </button>
                   </div>
                 </div>
