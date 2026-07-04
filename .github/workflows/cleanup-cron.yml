@@ -1,0 +1,22 @@
+name: Cleanup Pending Bookings (Every 5 Mins)
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Cleanup Endpoint
+        run: |
+          # Si las variables de entorno están vacías, terminamos el script pacíficamente.
+          if [ -z "${{ secrets.PRODUCTION_URL }}" ]; then
+            echo "PRODUCTION_URL no está configurado en los Secretos de GitHub. Configúralo para habilitar el Cron Job."
+            exit 0
+          fi
+          
+          # Hacemos el request a nuestro endpoint de Next.js
+          curl -sS -X GET "${{ secrets.PRODUCTION_URL }}/api/cron/expire-pending" \
+          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
