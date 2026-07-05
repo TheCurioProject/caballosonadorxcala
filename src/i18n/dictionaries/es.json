@@ -257,5 +257,51 @@
     ],
     "editorialTitle": "Hacia lo Salvaje",
     "editorialText": "Experimenta la belleza indomable de la Riviera Nayarit. Nuestras expediciones todoterreno están diseñadas para conectarte profundamente con la naturaleza preservando su condición prístina."
+  },
+  "faq": {
+    "title": "Preguntas Frecuentes",
+    "subtitle": "Información",
+    "items": [
+      {
+        "q": "¿Qué tan grande es Chacala?",
+        "a": "Chacala tiene alrededor de 300 residentes a tiempo completo, con una población que aumenta durante Navidad y Semana Santa. Nuestro pueblo es muy pequeño, situado principalmente alrededor de una pequeña bahía y la mayoría de hoteles y residencias están a 6 minutos caminando de la playa."
+      },
+      {
+        "q": "¿Hay facilidades para cocinar?",
+        "a": "Sí, tenemos una cocina compartida totalmente equipada con electrodomésticos de tamaño completo y la mayoría de comodidades de casa. Cada habitación también está equipada con un mini refrigerador/microondas. También tenemos un asador disponible bajo petición."
+      },
+      {
+        "q": "¿Cómo es la situación con los insectos?",
+        "a": "Recomendamos encarecidamente DEET para repeler mosquitos. Insectos más pequeños salen en las horas más frescas de la tarde."
+      },
+      {
+        "q": "¿Cuál es la capacidad de la Casa?",
+        "a": "Podemos acomodar hasta 14 personas."
+      },
+      {
+        "q": "¿Cómo llego desde el aeropuerto?",
+        "a": "Puedes alquilar un coche o tomar un autobús o taxi. Podemos ayudarte con tus arreglos."
+      },
+      {
+        "q": "¿Hay una farmacia cerca?",
+        "a": "Hay varias farmacias en Las Varas (a 10 km de Chacala)."
+      },
+      {
+        "q": "¿Hay un hospital cerca?",
+        "a": "Hay un hospital en la cercana Las Varas (a 10 km de Chacala) así como una clínica médica abierta de lunes a viernes de 8am a 4pm."
+      },
+      {
+        "q": "¿Hay cajero automático?",
+        "a": "Chacala tiene 3 cajeros automáticos y hay varios bancos grandes en Las Varas."
+      },
+      {
+        "q": "¿Hay una tienda de abarrotes?",
+        "a": "Tenemos varios pequeños abarrotes en Chacala, y supermercados más grandes en Las Varas."
+      },
+      {
+        "q": "¿Es un lugar tranquilo?",
+        "a": "Nuestro pueblo siempre tiene construcción durante el día, pero las noches son normalmente tranquilas. Nuestra Casa está más cerca de la jungla en las afueras y tiende a ser más silenciosa."
+      }
+    ]
   }
 }

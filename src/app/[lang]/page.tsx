@@ -52,12 +52,24 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
   ];
 
   if (experiences.length === 0) {
-    experiences = [
-      { id: 1, title: "Ojo de Agua", price: "$75 USD", description: "Orchards to a pristine cold-water spring. Uncover hidden petroglyphs.", imageUrl: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/07_tours/tour_ojo_de_agua.jpg` },
-      { id: 2, title: "Molote River", price: "$90 USD", description: "Thermal inlets and refreshing downstream waters.", imageUrl: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/07_tours/tour_molote.jpg` },
-      { id: 3, title: "El Capomo", price: "$90 USD", description: "Plunge pool beneath a majestic 50ft jungle waterfall.", imageUrl: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/07_tours/tour_el_capomo.jpg` },
-      { id: 4, title: "Las Cuevas", price: "$80 USD", description: "Hidden gem beneath a volcanic plug for uninterrupted beach time.", imageUrl: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/07_tours/tour_los_cuevas.jpg` }
-    ] as any;
+    experiences = dict.toursPage.tours.map((t: any, i: number) => {
+      const images = [
+        '/imagenes/07_tours/tour_ojo_de_agua.jpg',
+        '/imagenes/07_tours/tour_molote.jpg',
+        '/imagenes/07_tours/tour_el_capomo.jpg',
+        '/imagenes/07_tours/tour_los_cuevas.jpg',
+        '/imagenes/07_tours/tour_ojo_de_agua.jpg',
+        '/imagenes/07_tours/tour_molote.jpg',
+        '/imagenes/07_tours/tour_el_capomo.jpg'
+      ];
+      return {
+        id: t.id,
+        title: t.title,
+        price: i === 0 ? "$75 USD" : (i === 3 ? "$80 USD" : "$90 USD"),
+        description: t.description,
+        imageUrl: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${images[i]}`
+      };
+    }).slice(0, 4) as any;
   }
 
   return (

@@ -256,5 +256,51 @@
     ],
     "editorialTitle": "Into the Wild",
     "editorialText": "Experience the untamed beauty of Riviera Nayarit. Our off-road expeditions are designed to connect you deeply with nature while preserving its pristine condition."
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Information",
+    "items": [
+      {
+        "q": "How big is Chacala?",
+        "a": "Chacala has about 300 full time resident with the population surging during Christmas and Semana Santa. Our town is very small, situated primarily around a small Bay and most hotels/residence are within a 6 minute walk of the beach."
+      },
+      {
+        "q": "Are there cooking facilities?",
+        "a": "Yes, we have a fully stocked shared kitchen with full size appliances and most of the amenities you would find at home. Each room is also equipped with a mini fridge/microwave. We also have a BBQ available on request."
+      },
+      {
+        "q": "What is the bug situation?",
+        "a": "We highly recommend DEET to repel mosquitoes. Smaller insects such as midges come out in the cooler hours of the evening."
+      },
+      {
+        "q": "What is the capacity of your Casa?",
+        "a": "We can accommodate up to 14 people."
+      },
+      {
+        "q": "How do I get there from the airport?",
+        "a": "You can rent a car or take a bus or taxi. We can assist with your arrangements."
+      },
+      {
+        "q": "Is there a drug store nearby?",
+        "a": "There are several drug stores in Las Varas (10km from Chacala)."
+      },
+      {
+        "q": "Is there a hospital nearby?",
+        "a": "There is a hospital in nearby Las Varas (10 km from Chacala) as well as a medical clinic that is open Monday - Friday 8am - 4 pm."
+      },
+      {
+        "q": "Is there a bank machine?",
+        "a": "Chacala has 3 bank machines and there are several large banks in nearby Las Varas."
+      },
+      {
+        "q": "Is there a grocery store?",
+        "a": "We have several small grocers in Chacala, and larger grocery stores in nearby Las Varas."
+      },
+      {
+        "q": "Is it quiet?",
+        "a": "Our town always has construction going on during the day, but evenings are normally quiet. Our Casa is closer to the jungle on the outskirts and tend to be quieter."
+      }
+    ]
   }
 }

@@ -193,5 +193,51 @@
     ],
     "editorialTitle": "Ab In Die Wildnis",
     "editorialText": "Erlebe die ungezähmte Schönheit der Riviera Nayarit. Unsere Offroad-Expeditionen sind darauf ausgelegt, dich tief mit der Natur zu verbinden und gleichzeitig ihren unberührten Zustand zu bewahren."
+  },
+  "faq": {
+    "title": "Häufig Gestellte Fragen",
+    "subtitle": "Informationen",
+    "items": [
+      {
+        "q": "Wie groß ist Chacala?",
+        "a": "Chacala hat etwa 300 ständige Einwohner, wobei die Bevölkerung über Weihnachten und Ostern stark ansteigt. Unser Dorf ist sehr klein, liegt hauptsächlich an einer kleinen Bucht und die meisten Hotels/Wohnungen sind in 6 Gehminuten vom Strand aus erreichbar."
+      },
+      {
+        "q": "Gibt es Kochmöglichkeiten?",
+        "a": "Ja, wir haben eine voll ausgestattete Gemeinschaftsküche mit großen Geräten und den meisten Annehmlichkeiten, die Sie von zu Hause kennen. Jedes Zimmer ist zudem mit einem Mini-Kühlschrank und einer Mikrowelle ausgestattet. Ein Grill steht auf Anfrage zur Verfügung."
+      },
+      {
+        "q": "Wie ist die Situation mit Insekten?",
+        "a": "Wir empfehlen dringend DEET, um Mücken abzuwehren. Kleinere Insekten kommen in den kühleren Abendstunden heraus."
+      },
+      {
+        "q": "Wie hoch ist die Kapazität der Casa?",
+        "a": "Wir können bis zu 14 Personen beherbergen."
+      },
+      {
+        "q": "Wie komme ich vom Flughafen dorthin?",
+        "a": "Sie können ein Auto mieten oder einen Bus oder ein Taxi nehmen. Wir können bei den Vorbereitungen helfen."
+      },
+      {
+        "q": "Gibt es eine Apotheke in der Nähe?",
+        "a": "Es gibt mehrere Apotheken in Las Varas (10 km von Chacala entfernt)."
+      },
+      {
+        "q": "Gibt es ein Krankenhaus in der Nähe?",
+        "a": "Es gibt ein Krankenhaus im nahegelegenen Las Varas (10 km von Chacala) sowie eine medizinische Klinik, die von Montag bis Freitag von 8 bis 16 Uhr geöffnet ist."
+      },
+      {
+        "q": "Gibt es einen Geldautomaten?",
+        "a": "Chacala hat 3 Geldautomaten und es gibt mehrere große Banken im nahegelegenen Las Varas."
+      },
+      {
+        "q": "Gibt es einen Supermarkt?",
+        "a": "Wir haben mehrere kleine Lebensmittelgeschäfte in Chacala und größere Supermärkte im nahegelegenen Las Varas."
+      },
+      {
+        "q": "Ist es ruhig?",
+        "a": "In unserem Dorf wird tagsüber immer wieder gebaut, aber die Abende sind normalerweise ruhig. Unsere Casa liegt näher am Dschungel am Stadtrand und ist tendenziell ruhiger."
+      }
+    ]
   }
 }

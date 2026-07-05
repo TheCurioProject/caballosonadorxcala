@@ -79,9 +79,9 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
               </Link>
             </div>
 
-            {/* 2. Center: Minimalist Centered Language Switcher */}
-            <div className="flex justify-center pointer-events-auto">
-              <div className="flex items-center gap-3 md:gap-5">
+            {/* 2. Center: Minimalist Centered Language Switcher (Desktop) */}
+            <div className="hidden md:flex justify-center pointer-events-auto">
+              <div className="flex items-center gap-5">
                 {['es', 'en', 'de'].map((l) => {
                   const isActive = lang === l;
                   return (
@@ -92,7 +92,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                         isActive ? 'opacity-100 grayscale-0 scale-110' : 'opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
                       }`}
                     >
-                      <span className="text-sm md:text-base leading-none block">{l === 'es' ? '🇲🇽' : l === 'en' ? '🇺🇸' : '🇩🇪'}</span>
+                      <span className="text-base leading-none block">{l === 'es' ? '🇲🇽' : l === 'en' ? '🇺🇸' : '🇩🇪'}</span>
                       <div className="h-1.5 mt-1 w-full flex justify-center items-center">
                         {isActive && (
                           <motion.div 
@@ -108,9 +108,12 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                 })}
               </div>
             </div>
+            
+            {/* Mobile spacer for grid */}
+            <div className="md:hidden"></div>
 
-            {/* 3. Right: Book Tour Action */}
-            <div className="flex justify-end items-center pointer-events-auto">
+            {/* 3. Right: Book Tour Action & Mobile Language Switcher */}
+            <div className="flex flex-col justify-end items-end pointer-events-auto gap-2">
               <a 
                 href="https://wa.me/12509612351"
                 target="_blank"
@@ -121,6 +124,33 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                 <span className="md:hidden">RESERVAR</span>
                 <MessageCircle size={18} strokeWidth={1.5} />
               </a>
+              
+              <div className="flex md:hidden items-center gap-3">
+                {['es', 'en', 'de'].map((l) => {
+                  const isActive = lang === l;
+                  return (
+                    <button 
+                      key={l}
+                      onClick={() => changeLanguage(l)}
+                      className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
+                        isActive ? 'opacity-100 grayscale-0 scale-110' : 'opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
+                      }`}
+                    >
+                      <span className="text-sm leading-none block">{l === 'es' ? '🇲🇽' : l === 'en' ? '🇺🇸' : '🇩🇪'}</span>
+                      <div className="h-1 mt-1 w-full flex justify-center items-center">
+                        {isActive && (
+                          <motion.div 
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ duration: 0.2 }}
+                            className={`w-1 h-1 rounded-full ${scrolled ? 'bg-[#1A1816]' : 'bg-[#F9F7F4] shadow-[0_0_4px_rgba(0,0,0,0.6)]'}`}
+                          />
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
           </div>
@@ -173,7 +203,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                 <div className="w-12 h-px bg-[#9B7E67] mx-auto lg:mx-0 mt-8 lg:mt-10"></div>
               </div>
               <div className="order-1 lg:order-2 flex items-center justify-center relative w-full aspect-square lg:h-[500px]">
-                <MexicoMap className="w-full max-w-lg h-auto drop-shadow-xl" />
+                <MexicoMap className="w-full h-full max-w-lg object-contain drop-shadow-xl" />
               </div>
             </div>
           </section>

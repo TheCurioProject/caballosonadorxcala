@@ -117,7 +117,7 @@ export const Services = () => {
             className="w-full flex overflow-x-auto snap-x snap-mandatory touch-pan-x pb-12 pt-4 gap-6 md:gap-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
             {/* Spacer before first card */}
-            <div className="flex-shrink-0 w-12 md:w-24 xl:w-[calc((100vw-1400px)/2+4rem)]"></div>
+            <div className="flex-shrink-0 w-6 md:w-16 lg:w-24 2xl:w-[calc((100vw-1400px)/2+4rem)]"></div>
           {serviceItems.map((service, index) => {
             const Icon = service.icon;
             
@@ -165,7 +165,7 @@ export const Services = () => {
           })}
           
           {/* Spacer after last card */}
-          <div className="flex-shrink-0 w-12 md:w-24 xl:w-[calc((100vw-1400px)/2+4rem)]"></div>
+          <div className="flex-shrink-0 w-6 md:w-16 lg:w-24 2xl:w-[calc((100vw-1400px)/2+4rem)]"></div>
         </div>
       </div>
       </section>
