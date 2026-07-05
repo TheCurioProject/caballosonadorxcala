@@ -7,7 +7,7 @@ import { DayPicker, DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import FluidHorseAnimation from '../FluidHorseAnimation';
 import { format, differenceInDays } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { es, enUS, de } from 'date-fns/locale';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { useScrollLock } from '@/hooks/useScrollLock';
 
@@ -162,14 +162,14 @@ const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; total
     {Array.from({ length: totalSteps }, (_, i) => i + 1).map((step) => (
       <React.Fragment key={step}>
         <motion.div
-          className="flex items-center justify-center relative"
+          className="flex items-center justify-center relative shrink-0"
           animate={{
             scale: currentStep === step ? 1 : 0.85,
           }}
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
           <motion.div
-            className="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] md:text-xs font-bold relative overflow-hidden"
+            className="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] md:text-xs font-bold relative overflow-hidden shrink-0"
             animate={{
               backgroundColor: currentStep >= step ? '#23211F' : '#E5E7EB',
               color: currentStep >= step ? '#F9F7F4' : '#9CA3AF',
@@ -201,7 +201,7 @@ const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; total
           </motion.div>
           {currentStep === step && (
             <motion.div
-              className="absolute inset-0 rounded-full border-2 border-[#9B7E67]"
+              className="absolute inset-0 rounded-full border-2 border-[#9B7E67] shrink-0"
               initial={{ scale: 1, opacity: 0.5 }}
               animate={{ scale: 1.5, opacity: 0 }}
               transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut' }}
@@ -210,7 +210,7 @@ const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; total
         </motion.div>
         {step < totalSteps && (
           <motion.div
-            className="h-[2px] flex-1 rounded-full overflow-hidden bg-gray-200"
+            className="h-[2px] w-full min-w-[20px] max-w-full rounded-full overflow-hidden bg-gray-200"
           >
             <motion.div
               className="h-full bg-[#23211F] rounded-full"
@@ -232,12 +232,14 @@ const PremiumButton = ({
   disabled = false,
   type = 'button',
   variant = 'primary',
+  backText = 'Volver'
 }: {
   children?: React.ReactNode;
   onClick?: () => void;
   disabled?: boolean;
   type?: 'button' | 'submit';
   variant?: 'primary' | 'back';
+  backText?: string;
 }) => {
   if (variant === 'back') {
     return (
@@ -253,7 +255,7 @@ const PremiumButton = ({
         >
           ←
         </motion.span>
-        Volver
+        {backText}
       </motion.button>
     );
   }
@@ -293,7 +295,12 @@ const PremiumButton = ({
 export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const dragControls = useDragControls();
-  const dict = useDictionary();
+  const dictContext = useDictionary();
+  const dict = dictContext as any; // Cast for dynamic additions
+
+  // Detect correct locale based on dictionary (fallback to es)
+  const currentLangCode = dict.nav?.rooms === 'Rooms' ? 'en' : dict.nav?.rooms === 'Zimmer' ? 'de' : 'es';
+  const localeObj = currentLangCode === 'en' ? enUS : currentLangCode === 'de' ? de : es;
 
   const [step, setStep] = useState(1);
   const [range, setRange] = useState<DateRange | undefined>(undefined);
@@ -315,7 +322,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
   const [wantsATV, setWantsATV] = useState<boolean | null>(null);
   const [atvPeople, setAtvPeople] = useState(1);
-  const [atvDestination, setAtvDestination] = useState('');
+  const [atvSelections, setAtvSelections] = useState<Record<string, number>>({});
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -361,7 +368,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         setChefDinners(0);
         setWantsATV(null);
         setAtvPeople(1);
-        setAtvDestination('');
+        setAtvSelections({});
         setError(null);
         setIsSuccess(false);
         setShowConfetti(false);
@@ -393,7 +400,15 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   };
 
   const chefTotal = wantsChef ? (chefBreakfasts * getAddonPrice('CHEF_BREAKFAST') + chefLunches * getAddonPrice('CHEF_LUNCH') + chefDinners * getAddonPrice('CHEF_DINNER')) : 0;
-  const atvTotal = (wantsATV && atvDestination) ? (atvPeople * getAddonPrice(atvDestination)) : 0;
+  
+  let atvTotal = 0;
+  if (wantsATV) {
+    Object.entries(atvSelections).forEach(([type, count]) => {
+      if (count > 0) {
+        atvTotal += count * atvPeople * getAddonPrice(type);
+      }
+    });
+  }
   
   const grandTotal = accommodationTotal + chefTotal + atvTotal;
 
@@ -414,8 +429,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
       if (chefLunches > 0) selectedAddons.push({ type: 'CHEF_LUNCH', name: getAddonName('CHEF_LUNCH'), quantity: chefLunches, unitPrice: getAddonPrice('CHEF_LUNCH'), price: chefLunches * getAddonPrice('CHEF_LUNCH') });
       if (chefDinners > 0) selectedAddons.push({ type: 'CHEF_DINNER', name: getAddonName('CHEF_DINNER'), quantity: chefDinners, unitPrice: getAddonPrice('CHEF_DINNER'), price: chefDinners * getAddonPrice('CHEF_DINNER') });
     }
-    if (wantsATV && atvDestination) {
-      selectedAddons.push({ type: atvDestination, name: getAddonName(atvDestination), quantity: atvPeople, unitPrice: getAddonPrice(atvDestination), price: atvPeople * getAddonPrice(atvDestination), details: JSON.stringify({ people: atvPeople, destination: atvDestination }) });
+    if (wantsATV) {
+      Object.entries(atvSelections).forEach(([type, count]) => {
+        if (count > 0) {
+          selectedAddons.push({ type: type, name: getAddonName(type), quantity: count * atvPeople, unitPrice: getAddonPrice(type), price: count * atvPeople * getAddonPrice(type), details: JSON.stringify({ people: atvPeople, destination: type, instances: count }) });
+        }
+      });
     }
 
     try {
@@ -444,15 +463,22 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         window.location.href = data.url;
       }, 2500);
     } catch (err: any) {
-      setError(err.message || 'Error occurred while booking. Please try again.');
+      setError(err.message || dict.modal?.errorTitle || 'Error occurred while booking. Please try again.');
       setIsLoading(false);
     }
   };
 
   const nextStep = () => setStep(s => Math.min(s + 1, 5));
-  const prevStep = () => setStep(s => Math.max(s - 1, 1));
+  const prevStep = () => {
+    setStep(s => {
+      const newStep = Math.max(s - 1, 1);
+      // Reset the answer of the step we are going back to so user can choose again
+      if (newStep === 2) setWantsChef(null);
+      if (newStep === 3) setWantsATV(null);
+      return newStep;
+    });
+  };
 
-  // --- Step 2: Chef ---
   const handleWantsChef = (wants: boolean) => {
     setWantsChef(wants);
     if (!wants) {
@@ -463,20 +489,31 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     }
   };
 
-  const Counter = ({ label, value, onChange, max }: { label: string, value: number, onChange: (v: number) => void, max: number }) => (
-    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
-      <span className="font-medium text-[#23211F]">{label}</span>
-      <div className="flex items-center gap-4">
+  const handleWantsATV = (wants: boolean) => {
+    setWantsATV(wants);
+    if (!wants) {
+      setAtvSelections({});
+      nextStep();
+    }
+  };
+
+  const Counter = ({ label, value, onChange, max, sublabel = null }: { label: string, value: number, onChange: (v: number) => void, max: number, sublabel?: string | null }) => (
+    <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+      <div className="flex flex-col">
+        <span className="font-bold text-sm text-[#23211F]">{label}</span>
+        {sublabel && <span className="text-xs text-gray-400 mt-1">{sublabel}</span>}
+      </div>
+      <div className="flex items-center gap-3">
         <button 
           onClick={() => onChange(Math.max(0, value - 1))}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-500 hover:text-black hover:border-gray-400 transition-colors"
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 border border-gray-200 text-gray-500 hover:text-black hover:border-gray-400 transition-colors shrink-0"
         >
           <Minus size={16} />
         </button>
         <span className="w-4 text-center font-bold text-[#9B7E67]">{value}</span>
         <button 
           onClick={() => onChange(Math.min(max, value + 1))}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-[#23211F] text-white hover:bg-[#9B7E67] transition-colors"
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-[#23211F] text-white hover:bg-[#9B7E67] transition-colors shrink-0"
         >
           <Plus size={16} />
         </button>
@@ -484,10 +521,16 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     </div>
   );
 
+  const handleAtvChange = (type: string, val: number) => {
+    setAtvSelections(prev => ({ ...prev, [type]: val }));
+  };
+
+  const totalAtvTours = Object.values(atvSelections).reduce((a, b) => a + b, 0);
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center sm:p-4 perspective-[1000px]">
+        <div className="fixed inset-0 z-[200] flex items-end justify-center md:items-center p-0 md:p-4 touch-none perspective-[1000px]">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
@@ -498,11 +541,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
             onClick={onClose}
           />
 
-          {/* Modal Container */}
+          {/* Modal Container: Restored original height boundaries */}
           <motion.div
-            initial={isMobile ? { y: '100%' } : { opacity: 0, y: 40, scale: 0.95, rotateX: 10 }}
-            animate={isMobile ? { y: 0 } : { opacity: 1, y: 0, scale: 1, rotateX: 0 }}
-            exit={isMobile ? { y: '100%' } : { opacity: 0, y: 40, scale: 0.95, rotateX: -10 }}
+            initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.92, y: 30 }}
+            animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+            exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.92, y: 30 }}
             transition={{ type: 'spring', stiffness: 350, damping: 30 }}
             drag={isMobile ? 'y' : false}
             dragControls={dragControls}
@@ -514,19 +557,26 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 onClose();
               }
             }}
-            className="relative w-full sm:w-[95vw] md:w-[85vw] lg:w-[1000px] max-w-full bg-[#F9F7F4] sm:rounded-[32px] rounded-t-[32px] overflow-hidden shadow-2xl flex flex-col sm:flex-row min-h-[85vh] sm:min-h-0 h-full sm:h-auto z-10"
+            className="relative w-full max-w-5xl bg-[#23211F] md:bg-[#F9F7F4] rounded-t-[2rem] md:rounded-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.2)] md:shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[92dvh] h-[92dvh] md:h-[650px] mt-auto md:mt-0 z-10"
           >
             {isMobile && (
               <div 
-                className="w-full flex justify-center py-3 sm:hidden absolute top-0 z-50 cursor-grab active:cursor-grabbing"
+                className="w-full h-6 sticky top-0 left-0 z-50 flex justify-center items-center touch-none bg-[#23211F] rounded-t-[2rem]"
                 onPointerDown={(e) => dragControls.start(e)}
               >
-                <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
+                <div className="w-12 h-1.5 bg-white/30 rounded-full" />
               </div>
             )}
 
+            <button
+              onClick={onClose}
+              className={`absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 md:bg-transparent shadow-md sm:shadow-none sm:hover:bg-gray-200 transition-colors z-[60] ${isMobile ? 'text-white' : 'text-gray-500'}`}
+            >
+              <X size={20} />
+            </button>
+
             {/* Left Panel - Premium Brand Presentation */}
-            <div className="hidden sm:flex w-5/12 bg-[#23211F] text-[#F9F7F4] flex-col justify-between p-12 relative overflow-hidden">
+            <div className="hidden md:flex w-5/12 bg-[#23211F] text-[#F9F7F4] flex-col justify-between p-12 relative overflow-hidden shrink-0">
               <div className="absolute inset-0 opacity-20 pointer-events-none">
                 <FluidHorseAnimation />
               </div>
@@ -536,7 +586,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
                 >
-                  <h3 className="text-xs uppercase tracking-[0.3em] font-bold text-[#9B7E67] mb-2">{(dict as any).modal?.hotelName}</h3>
+                  <h3 className="text-xs uppercase tracking-[0.3em] font-bold text-[#9B7E67] mb-2">{dict.modal?.hotelName}</h3>
                   <h2 className="text-4xl font-serif leading-tight">Tu Refugio<br/>Privado en<br/>Chacala</h2>
                 </motion.div>
                 
@@ -551,8 +601,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       <CalendarDays size={16} className="text-[#9B7E67]" />
                     </div>
                     <div>
-                      <p className="font-bold text-white mb-1 uppercase tracking-widest text-xs">{(dict as any).modal?.dates}</p>
-                      <p>{range?.from ? format(range.from, "d 'de' MMMM", { locale: es }) : 'Selecciona'} - {range?.to ? format(range.to, "d 'de' MMMM", { locale: es }) : 'Selecciona'}</p>
+                      <p className="font-bold text-white mb-1 uppercase tracking-widest text-xs">{dict.modal?.dates}</p>
+                      <p>{range?.from ? format(range.from, "d MMM yyyy", { locale: localeObj }) : '-'} — {range?.to ? format(range.to, "d MMM yyyy", { locale: localeObj }) : '-'}</p>
                     </div>
                   </div>
                   
@@ -561,8 +611,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       <User size={16} className="text-[#9B7E67]" />
                     </div>
                     <div>
-                      <p className="font-bold text-white mb-1 uppercase tracking-widest text-xs">{(dict as any).modal?.guests}</p>
-                      <p>{(dict as any).modal?.guestsCount}</p>
+                      <p className="font-bold text-white mb-1 uppercase tracking-widest text-xs">{dict.modal?.guests}</p>
+                      <p>{dict.modal?.guestsCount}</p>
                     </div>
                   </div>
 
@@ -571,37 +621,44 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       <Utensils size={16} className="text-[#9B7E67]" />
                     </div>
                     <div>
-                      <p className="font-bold text-white mb-1 uppercase tracking-widest text-xs">Extras (Opcional)</p>
-                      <p>Chef privado y tours en ATV.</p>
+                      <p className="font-bold text-white mb-1 uppercase tracking-widest text-xs">{dict.addons?.optional}</p>
+                      <p>{dict.addons?.optionalDesc}</p>
                     </div>
                   </div>
                 </motion.div>
               </div>
 
               <div className="relative z-10 pt-12 mt-auto border-t border-white/10">
-                <div className="flex justify-between items-end">
-                  <div>
-                    <p className="text-xs uppercase tracking-widest font-bold text-gray-400 mb-2">{(dict as any).modal?.total}</p>
-                    <div className="text-3xl font-serif text-[#9B7E67] flex items-baseline gap-2">
-                      <AnimatedCounter value={grandTotal} prefix={currency === 'EUR' ? '€' : '$'} />
-                      <span className="text-sm font-sans font-light text-gray-400">{currency}</span>
+                <div className="flex justify-between items-end mb-2">
+                  <div className="flex flex-col gap-1">
+                    <p className="text-xs uppercase tracking-widest font-bold text-gray-400">{dict.modal?.total} {nights > 0 && `(${nights} ${dict.modal?.nights})`}</p>
+                    <div className="flex gap-2 items-center mt-2">
+                      {['MXN', 'USD', 'EUR'].map((c) => (
+                        <button
+                          key={c}
+                          onClick={() => setCurrency(c)}
+                          className={`text-[10px] font-bold tracking-widest transition-colors ${
+                            currency === c ? 'text-[#9B7E67]' : 'text-gray-500 hover:text-gray-300'
+                          }`}
+                        >
+                          {c}
+                        </button>
+                      ))}
                     </div>
                   </div>
-                  {nights > 0 && <span className="text-xs text-gray-400 bg-white/5 px-3 py-1 rounded-full">{nights} {(dict as any).modal?.nights}</span>}
+                  <div className="flex flex-col items-end">
+                    <span className="font-serif text-3xl text-[#9B7E67] flex items-baseline gap-1">
+                      <AnimatedCounter value={grandTotal} prefix={currency === 'EUR' ? '€' : '$'} />
+                    </span>
+                    <span className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">{dict.modal?.taxesIncluded}</span>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Right Panel - Interactive Flow */}
-            <div className="w-full sm:w-7/12 flex flex-col h-full overflow-hidden relative pt-12 sm:pt-0">
-              <button
-                onClick={onClose}
-                className="absolute top-4 right-4 sm:top-6 sm:right-6 w-10 h-10 flex items-center justify-center rounded-full bg-white sm:bg-transparent shadow-md sm:shadow-none sm:hover:bg-gray-200 transition-colors z-50 text-gray-500"
-              >
-                <X size={20} />
-              </button>
-
-              <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 sm:p-12 pb-24 sm:pb-12 scroll-smooth">
+            <div className="w-full md:w-7/12 flex flex-col h-full bg-[#F9F7F4] relative">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-12 pb-32 md:pb-12 scroll-smooth">
                 <AnimatePresence mode="wait">
                   {step === 1 && (
                     <motion.div
@@ -613,14 +670,14 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       className="h-full flex flex-col"
                     >
                       <StepIndicator currentStep={1} totalSteps={5} />
-                      <h3 className="text-2xl font-serif text-[#23211F] mb-6">{(dict as any).modal?.selectDates}</h3>
-                      <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-sm border border-gray-100">
+                      <h3 className="text-2xl font-serif text-[#23211F] mb-6">{dict.modal?.selectDates}</h3>
+                      <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-sm border border-gray-100 min-h-[350px]">
                         <DayPicker
                           mode="range"
                           selected={range}
                           onSelect={setRange}
                           disabled={[{ before: new Date() }, ...disabledRanges]}
-                          numberOfMonths={isMobile ? 1 : 2}
+                          numberOfMonths={1}
                           className="premium-calendar !m-0"
                           modifiersClassNames={{
                             selected: 'bg-[#9B7E67] text-white font-bold rounded-full',
@@ -632,13 +689,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         />
                         {range?.from && !range?.to && (
                           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#9B7E67] text-sm mt-6 font-medium animate-pulse">
-                            {(dict as any).modal?.minStay}
+                            {dict.modal?.minStay}
                           </motion.p>
                         )}
                       </div>
                       <div className="mt-8">
                         <PremiumButton onClick={nextStep} disabled={!range?.from || !range?.to || nights < 2}>
-                          Continuar <ArrowRight size={16} />
+                          {dict.modal?.continue} <ArrowRight size={16} />
                         </PremiumButton>
                       </div>
                     </motion.div>
@@ -653,35 +710,38 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       transition={{ duration: 0.4 }}
                       className="h-full flex flex-col"
                     >
-                      <PremiumButton variant="back" onClick={prevStep} />
+                      <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
                       <StepIndicator currentStep={2} totalSteps={5} />
-                      <div className="mb-8">
+                      <div className="mb-8 shrink-0">
                         <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] mb-4 shadow-sm border border-[#E8D5B7]">
                           <ChefHat size={24} />
                         </div>
-                        <h3 className="text-3xl font-serif text-[#23211F] mb-2">Servicio de Chef</h3>
-                        <p className="text-gray-500 font-light">¿Te gustaría añadir el servicio de Chef Privado a tu estancia? Disfruta de deliciosos platillos preparados en la casa (Cargo extra por comida).</p>
+                        <h3 className="text-3xl font-serif text-[#23211F] mb-2">{dict.addons?.chefTitle}</h3>
+                        <p className="text-gray-500 font-light">{dict.addons?.chefDesc}</p>
                       </div>
 
                       {wantsChef === null ? (
-                        <div className="grid grid-cols-2 gap-4">
-                          <button onClick={() => handleWantsChef(true)} className="p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-lg transition-colors flex flex-col items-center gap-2 group">
+                        <div className="grid grid-cols-2 gap-4 mt-auto md:mt-0 pb-4">
+                          <button onClick={() => handleWantsChef(true)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
                             <span className="w-8 h-8 rounded-full border-2 border-gray-300 group-hover:border-[#9B7E67] flex items-center justify-center text-transparent group-hover:bg-[#9B7E67] group-hover:text-white transition-all">✓</span>
-                            Sí, por favor
+                            {dict.addons?.yesPlease}
                           </button>
-                          <button onClick={() => handleWantsChef(false)} className="p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-lg transition-colors flex flex-col items-center gap-2 group">
+                          <button onClick={() => handleWantsChef(false)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
                             <span className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-transparent group-hover:bg-gray-400 group-hover:text-white transition-all">✕</span>
-                            No, gracias
+                            {dict.addons?.noThanks}
                           </button>
                         </div>
                       ) : wantsChef === true ? (
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 flex-1">
-                          <Counter label="Desayunos" value={chefBreakfasts} onChange={setChefBreakfasts} max={nights} />
-                          <Counter label="Comidas" value={chefLunches} onChange={setChefLunches} max={nights} />
-                          <Counter label="Cenas" value={chefDinners} onChange={setChefDinners} max={nights} />
-                          <div className="mt-8">
+                          <div className="bg-amber-50 text-amber-800 text-xs px-4 py-2 rounded-lg font-medium">
+                            Máximo 1 por día ({nights} disponibles)
+                          </div>
+                          <Counter label={dict.addons?.breakfasts} value={chefBreakfasts} onChange={setChefBreakfasts} max={nights} sublabel={`+$${getAddonPrice('CHEF_BREAKFAST')} USD`} />
+                          <Counter label={dict.addons?.lunches} value={chefLunches} onChange={setChefLunches} max={nights} sublabel={`+$${getAddonPrice('CHEF_LUNCH')} USD`} />
+                          <Counter label={dict.addons?.dinners} value={chefDinners} onChange={setChefDinners} max={nights} sublabel={`+$${getAddonPrice('CHEF_DINNER')} USD`} />
+                          <div className="mt-8 pb-4">
                             <PremiumButton onClick={nextStep} disabled={chefBreakfasts === 0 && chefLunches === 0 && chefDinners === 0}>
-                              Confirmar Chef <ArrowRight size={16} />
+                              {dict.addons?.confirmChef} <ArrowRight size={16} />
                             </PremiumButton>
                           </div>
                         </motion.div>
@@ -698,48 +758,69 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       transition={{ duration: 0.4 }}
                       className="h-full flex flex-col"
                     >
-                      <PremiumButton variant="back" onClick={prevStep} />
+                      <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
                       <StepIndicator currentStep={3} totalSteps={5} />
-                      <div className="mb-8">
+                      <div className="mb-6 shrink-0">
                         <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] mb-4 shadow-sm border border-[#E8D5B7]">
                           <Map size={24} />
                         </div>
-                        <h3 className="text-3xl font-serif text-[#23211F] mb-2">Aventura ATV</h3>
-                        <p className="text-gray-500 font-light">Tenemos rutas exclusivas de ATV para explorar Chacala. ¿Deseas reservar una aventura? (Cargo extra).</p>
+                        <h3 className="text-3xl font-serif text-[#23211F] mb-2">{dict.addons?.atvTitle}</h3>
+                        <p className="text-gray-500 font-light">{dict.addons?.atvDesc}</p>
                       </div>
 
                       {wantsATV === null ? (
-                        <div className="grid grid-cols-2 gap-4">
-                          <button onClick={() => setWantsATV(true)} className="p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-lg transition-colors flex flex-col items-center gap-2 group">
+                        <div className="grid grid-cols-2 gap-4 mt-auto md:mt-0 pb-4">
+                          <button onClick={() => handleWantsATV(true)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
                             <span className="w-8 h-8 rounded-full border-2 border-gray-300 group-hover:border-[#9B7E67] flex items-center justify-center text-transparent group-hover:bg-[#9B7E67] group-hover:text-white transition-all">✓</span>
-                            Sí, explorar
+                            {dict.addons?.yesExplore}
                           </button>
-                          <button onClick={() => { setWantsATV(false); nextStep(); }} className="p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-lg transition-colors flex flex-col items-center gap-2 group">
+                          <button onClick={() => handleWantsATV(false)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
                             <span className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-transparent group-hover:bg-gray-400 group-hover:text-white transition-all">✕</span>
-                            No, gracias
+                            {dict.addons?.noThanks}
                           </button>
                         </div>
                       ) : wantsATV === true ? (
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 flex-1 overflow-y-auto pr-2 pb-8">
-                          <Counter label="¿Cuántas personas? (Máx 10)" value={atvPeople} onChange={setAtvPeople} max={10} />
-                          <div>
-                            <p className="font-bold text-sm text-[#23211F] mb-4">Selecciona tu destino (1 ruta por grupo)</p>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              {addonsData.filter(a => a.type.startsWith('ATV_')).map(tour => (
-                                <button 
-                                  key={tour.type}
-                                  onClick={() => setAtvDestination(tour.type)}
-                                  className={`p-4 rounded-xl border text-left transition-all ${atvDestination === tour.type ? 'border-[#9B7E67] bg-[#9B7E67]/5' : 'border-gray-200 hover:border-gray-300 bg-white'}`}
-                                >
-                                  <div className="font-bold text-[#23211F] text-sm">{tour.name.replace(' (por persona)', '').replace('ATV - ', '')}</div>
-                                  <div className="text-[#9B7E67] font-medium text-xs mt-1">+${tour.price} USD / persona</div>
-                                </button>
-                              ))}
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 flex-1 flex flex-col">
+                          <div className="bg-amber-50 text-amber-800 text-xs px-4 py-2 rounded-lg font-medium shrink-0">
+                            Máximo 1 recorrido por día ({nights - totalAtvTours} disponibles)
+                          </div>
+                          
+                          <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm shrink-0">
+                            <div className="font-bold text-sm text-[#23211F] mb-2">{dict.addons?.howManyPeople}</div>
+                            <div className="flex items-center gap-3">
+                              <button 
+                                onClick={() => setAtvPeople(Math.max(1, atvPeople - 1))}
+                                className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 border border-gray-200 text-gray-500 hover:text-black transition-colors"
+                              >
+                                <Minus size={16} />
+                              </button>
+                              <span className="w-4 text-center font-bold text-[#9B7E67]">{atvPeople}</span>
+                              <button 
+                                onClick={() => setAtvPeople(Math.min(10, atvPeople + 1))}
+                                className="w-8 h-8 flex items-center justify-center rounded-full bg-[#23211F] text-white hover:bg-[#9B7E67] transition-colors"
+                              >
+                                <Plus size={16} />
+                              </button>
                             </div>
                           </div>
-                          <div className="mt-8">
-                            <PremiumButton onClick={nextStep} disabled={!atvDestination || atvPeople < 1}>
-                              Continuar <ArrowRight size={16} />
+                          
+                          <div className="flex-1 space-y-3 pb-4">
+                            <p className="font-bold text-sm text-[#23211F] mb-2">{dict.addons?.selectDestination}</p>
+                            {addonsData.filter(a => a.type.startsWith('ATV_')).map(tour => (
+                              <Counter 
+                                key={tour.type}
+                                label={tour.name.replace(' (por persona)', '').replace('ATV - ', '')} 
+                                value={atvSelections[tour.type] || 0} 
+                                onChange={(val) => handleAtvChange(tour.type, val)} 
+                                max={(atvSelections[tour.type] || 0) + (nights - totalAtvTours)} 
+                                sublabel={`+$${tour.price} USD / pax`} 
+                              />
+                            ))}
+                          </div>
+
+                          <div className="mt-4 pb-4 shrink-0">
+                            <PremiumButton onClick={nextStep} disabled={totalAtvTours === 0 || atvPeople < 1}>
+                              {dict.modal?.continue} <ArrowRight size={16} />
                             </PremiumButton>
                           </div>
                         </motion.div>
@@ -756,15 +837,15 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       transition={{ duration: 0.4 }}
                       className="h-full flex flex-col"
                     >
-                      <PremiumButton variant="back" onClick={prevStep} />
+                      <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
                       <StepIndicator currentStep={4} totalSteps={5} />
-                      <h3 className="text-3xl font-serif text-[#23211F] mb-8">{(dict as any).modal?.yourData}</h3>
+                      <h3 className="text-3xl font-serif text-[#23211F] mb-8 shrink-0">{dict.modal?.yourData}</h3>
                       
-                      <div className="space-y-6 flex-1">
+                      <div className="space-y-6 flex-1 pb-4">
                         <PremiumInput
                           id="name"
                           type="text"
-                          label={(dict as any).modal?.fullName}
+                          label={dict.modal?.fullName}
                           placeholder="Ej. Juan Pérez"
                           value={guestName}
                           onChange={setGuestName}
@@ -774,7 +855,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         <PremiumInput
                           id="email"
                           type="email"
-                          label={(dict as any).modal?.email}
+                          label={dict.modal?.email}
                           placeholder="correo@ejemplo.com"
                           value={guestEmail}
                           onChange={setGuestEmail}
@@ -798,7 +879,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             <PremiumInput
                               id="phone"
                               type="tel"
-                              label={(dict as any).modal?.phone}
+                              label={dict.modal?.phone}
                               placeholder="55 1234 5678"
                               value={guestPhone}
                               onChange={setGuestPhone}
@@ -809,7 +890,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </div>
                       </div>
 
-                      <div className="mt-12">
+                      <div className="mt-8 pb-4 shrink-0">
                         <PremiumButton onClick={nextStep} disabled={!isFormValid}>
                           Ver Resumen <ArrowRight size={16} />
                         </PremiumButton>
@@ -831,7 +912,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       ))}
 
                       {isLoading || isSuccess ? (
-                        <div className="flex-1 flex flex-col items-center justify-center h-full text-center space-y-6">
+                        <div className="flex-1 flex flex-col items-center justify-center h-full text-center space-y-6 pb-4">
                           <motion.div
                             animate={{ rotate: isSuccess ? 0 : 360, scale: isSuccess ? 1.2 : 1 }}
                             transition={isSuccess ? { type: 'spring', stiffness: 300 } : { duration: 2, repeat: Infinity, ease: 'linear' }}
@@ -843,66 +924,70 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </motion.div>
                           <div>
                             <h3 className="text-3xl font-serif text-[#23211F] mb-2">
-                              {isSuccess ? (dict as any).modal?.allReady : (dict as any).modal?.preparing}
+                              {isSuccess ? dict.modal?.allReady : dict.modal?.preparing}
                             </h3>
                             <p className="text-gray-500 font-light">
-                              {isSuccess ? (dict as any).modal?.redirecting : (dict as any).modal?.securePayments}
+                              {isSuccess ? dict.modal?.redirecting : dict.modal?.securePayments}
                             </p>
                           </div>
                         </div>
                       ) : (
                         <div className="flex flex-col h-full">
-                          <PremiumButton variant="back" onClick={prevStep} />
+                          <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
                           <StepIndicator currentStep={5} totalSteps={5} />
-                          <h3 className="text-3xl font-serif text-[#23211F] mb-6">Resumen</h3>
+                          <h3 className="text-3xl font-serif text-[#23211F] mb-6 shrink-0">Resumen</h3>
                           
                           <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex-1 overflow-y-auto space-y-6 mb-8">
                             <div className="flex justify-between items-center pb-6 border-b border-gray-100">
                               <div>
-                                <h4 className="font-bold text-[#23211F]">Hospedaje</h4>
-                                <p className="text-sm text-gray-500">{nights} {(dict as any).modal?.nights}</p>
+                                <h4 className="font-bold text-[#23211F]">{dict.addons?.accommodation}</h4>
+                                <p className="text-sm text-gray-500">{nights} {dict.modal?.nights}</p>
                               </div>
                               <div className="font-serif text-xl text-[#9B7E67]">${accommodationTotal.toLocaleString('en-US')} {currency}</div>
                             </div>
                             
                             {wantsChef && (chefBreakfasts > 0 || chefLunches > 0 || chefDinners > 0) && (
                               <div className="pb-6 border-b border-gray-100">
-                                <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><ChefHat size={16}/> Servicio de Chef</h4>
-                                {chefBreakfasts > 0 && <div className="flex justify-between text-sm text-gray-600 mb-1"><span>{chefBreakfasts}x Desayuno</span><span>${(chefBreakfasts * getAddonPrice('CHEF_BREAKFAST')).toLocaleString('en-US')}</span></div>}
-                                {chefLunches > 0 && <div className="flex justify-between text-sm text-gray-600 mb-1"><span>{chefLunches}x Comida</span><span>${(chefLunches * getAddonPrice('CHEF_LUNCH')).toLocaleString('en-US')}</span></div>}
-                                {chefDinners > 0 && <div className="flex justify-between text-sm text-gray-600"><span>{chefDinners}x Cena</span><span>${(chefDinners * getAddonPrice('CHEF_DINNER')).toLocaleString('en-US')}</span></div>}
+                                <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><ChefHat size={16}/> {dict.addons?.chefTitle}</h4>
+                                {chefBreakfasts > 0 && <div className="flex justify-between text-sm text-gray-600 mb-1"><span>{chefBreakfasts}x {dict.addons?.breakfasts}</span><span>${(chefBreakfasts * getAddonPrice('CHEF_BREAKFAST')).toLocaleString('en-US')}</span></div>}
+                                {chefLunches > 0 && <div className="flex justify-between text-sm text-gray-600 mb-1"><span>{chefLunches}x {dict.addons?.lunches}</span><span>${(chefLunches * getAddonPrice('CHEF_LUNCH')).toLocaleString('en-US')}</span></div>}
+                                {chefDinners > 0 && <div className="flex justify-between text-sm text-gray-600"><span>{chefDinners}x {dict.addons?.dinners}</span><span>${(chefDinners * getAddonPrice('CHEF_DINNER')).toLocaleString('en-US')}</span></div>}
                               </div>
                             )}
 
-                            {wantsATV && atvDestination && (
+                            {wantsATV && Object.values(atvSelections).some(v => v > 0) && (
                               <div className="pb-6 border-b border-gray-100">
-                                <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><Map size={16}/> Tour ATV</h4>
-                                <div className="flex justify-between text-sm text-gray-600">
-                                  <span>{atvPeople}x {getAddonName(atvDestination).replace(' (por persona)', '').replace('ATV - ', '')}</span>
-                                  <span>${(atvPeople * getAddonPrice(atvDestination)).toLocaleString('en-US')}</span>
-                                </div>
+                                <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><Map size={16}/> {dict.addons?.atvTour}</h4>
+                                {Object.entries(atvSelections).map(([type, count]) => count > 0 && (
+                                  <div key={type} className="flex justify-between text-sm text-gray-600 mb-1">
+                                    <span>{count}x {atvPeople} pax - {getAddonName(type).replace(' (por persona)', '').replace('ATV - ', '')}</span>
+                                    <span>${(count * atvPeople * getAddonPrice(type)).toLocaleString('en-US')}</span>
+                                  </div>
+                                ))}
                               </div>
                             )}
 
                             <div className="flex justify-between items-center pt-2">
                               <div>
-                                <h4 className="font-bold text-2xl text-[#23211F]">Total</h4>
-                                <p className="text-xs text-gray-400 uppercase tracking-widest">{(dict as any).modal?.taxesIncluded}</p>
+                                <h4 className="font-bold text-2xl text-[#23211F]">{dict.modal?.total}</h4>
+                                <p className="text-xs text-gray-400 uppercase tracking-widest">{dict.modal?.taxesIncluded}</p>
                               </div>
                               <div className="font-serif text-3xl text-[#23211F]">${grandTotal.toLocaleString('en-US')} {currency}</div>
                             </div>
                           </div>
 
                           {error && (
-                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium mb-6 text-center">
+                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium mb-6 text-center shrink-0">
                               {error}
                             </motion.div>
                           )}
 
-                          <PremiumButton onClick={handleCheckout} disabled={!isFormValid || isLoading || grandTotal === 0}>
-                            <CreditCard size={18} />
-                            {(dict as any).modal?.proceedPayment}
-                          </PremiumButton>
+                          <div className="shrink-0 pb-4">
+                            <PremiumButton onClick={handleCheckout} disabled={!isFormValid || isLoading || grandTotal === 0}>
+                              <CreditCard size={18} />
+                              {dict.modal?.proceedPayment}
+                            </PremiumButton>
+                          </div>
                         </div>
                       )}
                     </motion.div>
@@ -916,29 +1001,29 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
               <motion.div 
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}
-                className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-6 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-20"
+                className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-8 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-20"
               >
                 <div>
                   <p className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-1">Total Parcial</p>
                   <div className="font-serif text-xl text-[#23211F] leading-none">${grandTotal.toLocaleString('en-US')}</div>
                 </div>
                 {step === 1 && (
-                  <button onClick={nextStep} disabled={!range?.from || !range?.to || nights < 2} className="bg-[#23211F] text-white px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50">
+                  <button onClick={nextStep} disabled={!range?.from || !range?.to || nights < 2} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                     Siguiente
                   </button>
                 )}
                 {step === 2 && (
-                  <button onClick={nextStep} disabled={wantsChef === null || (wantsChef && chefBreakfasts === 0 && chefLunches === 0 && chefDinners === 0)} className="bg-[#23211F] text-white px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50">
+                  <button onClick={nextStep} disabled={wantsChef === null || (wantsChef && chefBreakfasts === 0 && chefLunches === 0 && chefDinners === 0)} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                     Siguiente
                   </button>
                 )}
                 {step === 3 && (
-                  <button onClick={nextStep} disabled={wantsATV === null || (wantsATV && (!atvDestination || atvPeople < 1))} className="bg-[#23211F] text-white px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50">
+                  <button onClick={nextStep} disabled={wantsATV === null || (wantsATV && (totalAtvTours === 0 || atvPeople < 1))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                     Siguiente
                   </button>
                 )}
                 {step === 4 && (
-                  <button onClick={nextStep} disabled={!isFormValid} className="bg-[#23211F] text-white px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50">
+                  <button onClick={nextStep} disabled={!isFormValid} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                     Resumen
                   </button>
                 )}

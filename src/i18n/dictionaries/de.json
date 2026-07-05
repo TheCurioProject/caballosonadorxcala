@@ -288,5 +288,24 @@
         "a": "In unserem Dorf wird tagsüber immer wieder gebaut, aber die Abende sind normalerweise ruhig. Unsere Casa liegt näher am Dschungel am Stadtrand und ist tendenziell ruhiger."
       }
     ]
+  },
+  "addons": {
+    "optional": "Extras (Optional)",
+    "optionalDesc": "Privatkoch und ATV-Touren.",
+    "chefTitle": "Kochservice",
+    "chefDesc": "Möchten Sie einen Privatkoch für Ihren Aufenthalt buchen? Genießen Sie köstliche Mahlzeiten im Haus (Aufpreis pro Mahlzeit).",
+    "yesPlease": "Ja, bitte",
+    "noThanks": "Nein, danke",
+    "breakfasts": "Frühstück",
+    "lunches": "Mittagessen",
+    "dinners": "Abendessen",
+    "confirmChef": "Koch bestätigen",
+    "atvTitle": "ATV-Abenteuer",
+    "atvDesc": "Wir bieten exklusive ATV-Routen zur Erkundung von Chacala an. Möchten Sie ein Abenteuer buchen? (Aufpreis).",
+    "yesExplore": "Ja, erkunden",
+    "howManyPeople": "Wie viele Personen? (Max 10)",
+    "selectDestination": "Wählen Sie Ihr Ziel (1 Route pro Gruppe)",
+    "accommodation": "Unterkunft",
+    "atvTour": "ATV-Tour"
   }
 }

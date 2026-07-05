@@ -297,5 +297,24 @@
         "a": "Our town always has construction going on during the day, but evenings are normally quiet. Our Casa is closer to the jungle on the outskirts and tend to be quieter."
       }
     ]
+  },
+  "addons": {
+    "optional": "Extras (Optional)",
+    "optionalDesc": "Private chef and ATV tours.",
+    "chefTitle": "Chef Service",
+    "chefDesc": "Would you like to add a Private Chef service to your stay? Enjoy delicious meals prepared at the house (Extra charge per meal).",
+    "yesPlease": "Yes, please",
+    "noThanks": "No, thanks",
+    "breakfasts": "Breakfasts",
+    "lunches": "Lunches",
+    "dinners": "Dinners",
+    "confirmChef": "Confirm Chef",
+    "atvTitle": "ATV Adventure",
+    "atvDesc": "We have exclusive ATV routes to explore Chacala. Would you like to book an adventure? (Extra charge).",
+    "yesExplore": "Yes, explore",
+    "howManyPeople": "How many people? (Max 10)",
+    "selectDestination": "Select your destination (1 route per group)",
+    "accommodation": "Accommodation",
+    "atvTour": "ATV Tour"
   }
 }

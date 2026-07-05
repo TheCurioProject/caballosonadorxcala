@@ -298,5 +298,24 @@
         "a": "Nuestro pueblo siempre tiene construcción durante el día, pero las noches son normalmente tranquilas. Nuestra Casa está más cerca de la jungla en las afueras y tiende a ser más silenciosa."
       }
     ]
+  },
+  "addons": {
+    "optional": "Extras (Opcional)",
+    "optionalDesc": "Chef privado y tours en ATV.",
+    "chefTitle": "Servicio de Chef",
+    "chefDesc": "¿Te gustaría añadir el servicio de Chef Privado a tu estancia? Disfruta de deliciosos platillos preparados en la casa (Cargo extra por comida).",
+    "yesPlease": "Sí, por favor",
+    "noThanks": "No, gracias",
+    "breakfasts": "Desayunos",
+    "lunches": "Comidas",
+    "dinners": "Cenas",
+    "confirmChef": "Confirmar Chef",
+    "atvTitle": "Aventura ATV",
+    "atvDesc": "Tenemos rutas exclusivas de ATV para explorar Chacala. ¿Deseas reservar una aventura? (Cargo extra).",
+    "yesExplore": "Sí, explorar",
+    "howManyPeople": "¿Cuántas personas? (Máx 10)",
+    "selectDestination": "Selecciona tu destino (1 ruta por grupo)",
+    "accommodation": "Hospedaje",
+    "atvTour": "Tour ATV"
   }
 }
