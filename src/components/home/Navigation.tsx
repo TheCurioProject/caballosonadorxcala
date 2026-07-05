@@ -188,6 +188,8 @@ export const HomeNavigation = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY, menuOpen]);
 
+  const isSolid = scrolled || menuOpen;
+
   return (
     <>
       <AnimatePresence>
@@ -214,21 +216,21 @@ export const HomeNavigation = () => {
       </AnimatePresence>
 
       <header className={`fixed top-0 w-full z-40 transition-transform duration-500 ease-in-out ${hidden ? '-translate-y-full' : 'translate-y-0'}`}>
-        <div className={`transition-all duration-500 ${scrolled ? 'py-4 bg-[#F9F7F4]/95 backdrop-blur-lg shadow-sm' : 'py-10 bg-transparent'}`}>
-          <div className={`max-w-[1400px] mx-auto px-6 md:px-16 grid grid-cols-3 items-center transition-colors duration-500 relative ${scrolled ? 'text-[#2C2927]' : 'text-[#F9F7F4]'}`}>
+        <div className={`transition-all duration-500 ${isSolid ? 'py-4 bg-[#F9F7F4]/95 backdrop-blur-lg shadow-sm' : 'py-6 md:py-10 bg-transparent'}`}>
+          <div className={`max-w-[1400px] mx-auto px-6 md:px-16 grid grid-cols-2 md:grid-cols-3 items-start md:items-center transition-colors duration-500 relative ${isSolid ? 'text-[#2C2927]' : 'text-[#F9F7F4]'}`}>
             
             {/* Logo a la izquierda */}
             <div className="flex justify-start">
               <Link href={`/${pathname.split('/')[1] || 'es'}`} aria-label="Inicio" className="flex items-center">
                 <LogoCompleto 
-                  solidWhite={!scrolled}
-                  className={`w-auto transition-all duration-700 ease-[0.76,0,0.24,1] drop-shadow-lg hover:scale-105 ${scrolled ? 'h-10 md:h-12' : 'h-12 md:h-16'}`} 
+                  solidWhite={!isSolid}
+                  className={`w-auto transition-all duration-700 ease-[0.76,0,0.24,1] drop-shadow-lg hover:scale-105 ${isSolid ? 'h-10 md:h-12' : 'h-10 md:h-16'}`} 
                 />
               </Link>
             </div>
 
-            {/* Minimalist Centered Language Switcher */}
-            <div className="flex justify-center z-20 pointer-events-auto">
+            {/* Minimalist Centered Language Switcher (Desktop) */}
+            <div className="hidden md:flex justify-center z-20 pointer-events-auto">
               <div className="flex items-center gap-3 md:gap-5">
                 {['es', 'en', 'de'].map((l) => {
                   const currentLang = pathname.split('/')[1] || 'es';
@@ -249,7 +251,7 @@ export const HomeNavigation = () => {
                             animate={{ scale: 1 }}
                             transition={{ duration: 0.2 }}
                             className={`w-1.5 h-1.5 rounded-full ${
-                              scrolled 
+                              isSolid 
                                 ? 'bg-[#2C2927]' 
                                 : 'bg-[#F9F7F4] shadow-[0_0_4px_rgba(0,0,0,0.6)]'
                             }`} 
@@ -263,22 +265,57 @@ export const HomeNavigation = () => {
             </div>
 
             {/* Header Right Content */}
-            <div className="flex justify-end items-center gap-4 md:gap-6 z-10">
-              {/* Desktop Booking Button */}
-              <button 
-                onClick={() => openBookingModal()}
-                className={`hidden md:block uppercase tracking-widest text-[10px] font-bold border rounded-full px-5 py-2 hover:opacity-70 transition-all ${scrolled ? 'border-[#2C2927] text-[#2C2927]' : 'border-[#F9F7F4] text-[#F9F7F4]'}`}
-              >
-                {dict?.nav?.reserveBtn || 'RESERVAR'}
-              </button>
+            <div className="flex flex-col items-end gap-3 z-10">
+              <div className="flex justify-end items-center gap-4 md:gap-6">
+                {/* Desktop Booking Button */}
+                <button 
+                  onClick={() => openBookingModal()}
+                  className={`hidden md:block uppercase tracking-widest text-[10px] font-bold border rounded-full px-5 py-2 hover:opacity-70 transition-all ${isSolid ? 'border-[#2C2927] text-[#2C2927]' : 'border-[#F9F7F4] text-[#F9F7F4]'}`}
+                >
+                  {dict?.nav?.reserveBtn || 'RESERVAR'}
+                </button>
 
-              {/* Hamburger Menu */}
-              <button 
-                onClick={() => setMenuOpen(true)}
-                className="uppercase tracking-widest text-xs font-bold flex items-center gap-2 hover:opacity-70 transition-all"
-              >
-                MENU <Menu size={20} />
-              </button>
+                {/* Hamburger Menu */}
+                <button 
+                  onClick={() => setMenuOpen(true)}
+                  className="uppercase tracking-widest text-xs font-bold flex items-center gap-2 hover:opacity-70 transition-all"
+                >
+                  MENU <Menu size={20} />
+                </button>
+              </div>
+
+              {/* Mobile Language Switcher */}
+              <div className="flex md:hidden items-center gap-3 z-20 pointer-events-auto mr-1">
+                {['es', 'en', 'de'].map((l) => {
+                  const currentLang = pathname.split('/')[1] || 'es';
+                  const isActive = currentLang === l;
+                  return (
+                    <button 
+                      key={l}
+                      onClick={() => changeLanguage(l)}
+                      className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
+                        isActive ? 'opacity-100 grayscale-0 scale-110' : 'opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
+                      }`}
+                    >
+                      <span className="text-[13px] leading-none block">{l === 'es' ? '🇲🇽' : l === 'en' ? '🇺🇸' : '🇩🇪'}</span>
+                      <div className="h-1 mt-1 w-full flex justify-center items-center">
+                        {isActive && (
+                          <motion.div 
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ duration: 0.2 }}
+                            className={`w-1 h-1 rounded-full ${
+                              isSolid 
+                                ? 'bg-[#2C2927]' 
+                                : 'bg-[#F9F7F4] shadow-[0_0_4px_rgba(0,0,0,0.6)]'
+                            }`} 
+                          />
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
@@ -287,7 +324,7 @@ export const HomeNavigation = () => {
       {/* Mobile Floating Booking Button */}
       <button
         onClick={() => openBookingModal()}
-        className={`md:hidden fixed bottom-6 left-6 z-40 bg-[#9B7E67] text-[#F9F7F4] px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg hover:scale-105 transition-all duration-500 ${hidden ? 'translate-y-24' : 'translate-y-0'}`}
+        className={`md:hidden fixed bottom-6 left-6 z-40 bg-[#9B7E67] text-[#F9F7F4] px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg hover:scale-105 transition-all duration-500 ${hidden ? 'translate-y-24' : 'translate-y-0'}`}
       >
         {dict?.nav?.reserveBtn || 'RESERVAR'}
       </button>

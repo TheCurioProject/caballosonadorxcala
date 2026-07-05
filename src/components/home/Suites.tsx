@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { useDictionary } from '@/i18n/DictionaryContext';
+import { RoomModal } from './RoomModal';
 
 export const Suites = ({ rooms }: { rooms: any[] }) => {
   const dict = useDictionary();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [selectedRoom, setSelectedRoom] = useState<any | null>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
@@ -71,7 +73,7 @@ export const Suites = ({ rooms }: { rooms: any[] }) => {
             onScroll={checkScroll}
             className="flex items-stretch w-full overflow-x-auto snap-x snap-mandatory touch-pan-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
-            <div className="flex-shrink-0 w-6 md:w-16 xl:w-[calc((100vw-1400px)/2+4rem)] border-r border-[#E5E0D8]"></div>
+            <div className="flex-shrink-0 w-12 md:w-24 xl:w-[calc((100vw-1400px)/2+4rem)] border-r border-[#E5E0D8]"></div>
             {rooms.map((room, index) => (
               <div 
                 key={`room-${room.id}`}
@@ -81,15 +83,28 @@ export const Suites = ({ rooms }: { rooms: any[] }) => {
                 <h4 className="font-serif text-4xl md:text-5xl text-[#23211F] mb-8 leading-tight">
                   {room.name.split(' (')[0]}
                 </h4>
-                <p className="text-[#524D48] font-light text-base md:text-lg mb-12 opacity-80 leading-relaxed flex-grow line-clamp-4">
+                <p className="text-[#524D48] font-light text-base md:text-lg mb-8 opacity-80 leading-relaxed flex-grow line-clamp-4">
                   {room.desc || room.description}
                 </p>
+                <button 
+                  onClick={() => setSelectedRoom(room)}
+                  className="mt-auto group/btn flex items-center gap-3 w-fit"
+                >
+                  <div className="w-10 h-10 rounded-full border border-[#23211F]/20 flex items-center justify-center group-hover/btn:bg-[#23211F] group-hover/btn:text-[#F9F7F4] transition-all duration-300">
+                    <Plus size={18} />
+                  </div>
+                  <span className="text-xs uppercase tracking-widest font-bold text-[#23211F] opacity-70 group-hover/btn:opacity-100 transition-opacity">
+                    {(dict as any).services?.explore || 'Ver Detalles'}
+                  </span>
+                </button>
               </div>
             ))}
-            <div className="flex-shrink-0 w-6 md:w-16 xl:w-[calc((100vw-1400px)/2+4rem)] border-l border-[#E5E0D8] ml-[-1px]"></div>
+            <div className="flex-shrink-0 w-12 md:w-24 xl:w-[calc((100vw-1400px)/2+4rem)] border-l border-[#E5E0D8] ml-[-1px]"></div>
           </div>
         </div>
       </div>
+
+      <RoomModal room={selectedRoom} onClose={() => setSelectedRoom(null)} />
     </section>
   );
 };
