@@ -18,13 +18,12 @@ const images = [
   '/imagenes/05_amenities/amenity_05_guest_kitchen.jpg',
   '/imagenes/05_amenities/amenity_06_wifi.jpg',
   '/imagenes/05_amenities/amenity_07_sunset_tour.jpg',
-  '/imagenes/05_amenities/amenity_08_beach_umbrellas.jpg',
   '/imagenes/05_amenities/amenity_09_rooftop_terrace.jpg'
 ];
 
 const icons = [
   BedDouble, ChefHat, Waves, Droplets, 
-  Utensils, Wifi, Sun, Umbrella, MoonStar
+  Utensils, Wifi, Sun, MoonStar
 ];
 
 export const Services = () => {

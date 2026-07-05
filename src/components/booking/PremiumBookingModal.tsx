@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useDragControls } from 'framer-motion';
-import { X, CalendarDays, ArrowRight, Check, Shield, CreditCard, Calendar, User } from 'lucide-react';
+import { X, CalendarDays, ArrowRight, Check, Shield, CreditCard, Calendar, User, ChefHat, Map, Utensils, Minus, Plus } from 'lucide-react';
 import { DayPicker, DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import FluidHorseAnimation from '../FluidHorseAnimation';
@@ -54,7 +54,6 @@ const ConfettiParticle = ({ delay, index }: { delay: number; index: number }) =>
 /* ─── Animated Counter ─── */
 const AnimatedCounter = ({ value, prefix = '$' }: { value: number; prefix?: string }) => {
   const motionValue = useMotionValue(0);
-  const rounded = useTransform(motionValue, (v) => `${prefix}${Math.round(v).toLocaleString('en-US')}`);
   const [display, setDisplay] = useState(`${prefix}0`);
 
   useEffect(() => {
@@ -159,7 +158,7 @@ const PremiumInput = ({
 
 /* ─── Step Progress Indicator ─── */
 const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; totalSteps: number }) => (
-  <div className="flex items-center gap-3 mb-8">
+  <div className="flex items-center gap-2 md:gap-3 mb-6 md:mb-8">
     {Array.from({ length: totalSteps }, (_, i) => i + 1).map((step) => (
       <React.Fragment key={step}>
         <motion.div
@@ -170,7 +169,7 @@ const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; total
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
           <motion.div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold relative overflow-hidden"
+            className="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] md:text-xs font-bold relative overflow-hidden"
             animate={{
               backgroundColor: currentStep >= step ? '#23211F' : '#E5E7EB',
               color: currentStep >= step ? '#F9F7F4' : '#9CA3AF',
@@ -246,7 +245,7 @@ const PremiumButton = ({
         onClick={onClick}
         type={type}
         whileHover={{ x: -4 }}
-        className="text-xs font-bold text-gray-400 hover:text-[#23211F] uppercase tracking-widest mb-8 text-left transition-colors flex items-center gap-2"
+        className="text-[10px] md:text-xs font-bold text-gray-400 hover:text-[#23211F] uppercase tracking-widest mb-6 md:mb-8 text-left transition-colors flex items-center gap-2"
       >
         <motion.span
           animate={{ x: [0, -3, 0] }}
@@ -254,7 +253,7 @@ const PremiumButton = ({
         >
           ←
         </motion.span>
-        Volver a Calendario
+        Volver
       </motion.button>
     );
   }
@@ -299,10 +298,25 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [step, setStep] = useState(1);
   const [range, setRange] = useState<DateRange | undefined>(undefined);
   const [disabledRanges, setDisabledRanges] = useState<{from: Date, to: Date}[]>([]);
+  
+  // Form Data
   const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
   const [countryCode, setCountryCode] = useState('+52');
   const [guestPhone, setGuestPhone] = useState('');
+  
+  // Extras state
+  const [addonsData, setAddonsData] = useState<any[]>([]);
+  
+  const [wantsChef, setWantsChef] = useState<boolean | null>(null);
+  const [chefBreakfasts, setChefBreakfasts] = useState(0);
+  const [chefLunches, setChefLunches] = useState(0);
+  const [chefDinners, setChefDinners] = useState(0);
+
+  const [wantsATV, setWantsATV] = useState<boolean | null>(null);
+  const [atvPeople, setAtvPeople] = useState(1);
+  const [atvDestination, setAtvDestination] = useState('');
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -311,23 +325,15 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
   useScrollLock(isOpen);
 
-  // Calculate base price dynamically based on currency
-  const basePrice = useMemo(() => {
-    switch(currency) {
-      case 'USD': return 800;
-      case 'EUR': return 750;
-      case 'MXN': 
-      default: return 15000;
-    }
-  }, [currency]);
+  // Fetch addons on mount
+  useEffect(() => {
+    fetch('/api/admin/addons')
+      .then(res => res.json())
+      .then(data => setAddonsData(data))
+      .catch(console.error);
+  }, []);
 
-  const nights = (range?.from && range?.to) ? differenceInDays(range.to, range.from) : 0;
-  const total = nights > 0 ? nights * basePrice : 0;
-
-  const isNameValid = guestName.trim().length >= 2;
-  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail);
-  const isPhoneValid = guestPhone.trim().length >= 7;
-
+  // Fetch blocked dates on open
   useEffect(() => {
     if (isOpen) {
       fetch('/api/availability')
@@ -349,496 +355,595 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         setGuestName('');
         setGuestEmail('');
         setGuestPhone('');
-        setCountryCode('+52');
-        setIsLoading(false);
+        setWantsChef(null);
+        setChefBreakfasts(0);
+        setChefLunches(0);
+        setChefDinners(0);
+        setWantsATV(null);
+        setAtvPeople(1);
+        setAtvDestination('');
         setError(null);
         setIsSuccess(false);
         setShowConfetti(false);
-      }, 400);
+      }, 500);
     }
   }, [isOpen]);
 
-  const handleNext = useCallback(() => {
-    if (step === 1 && range?.from && range?.to && nights >= 2) {
-      setStep(2);
+  const basePrice = useMemo(() => {
+    switch(currency) {
+      case 'USD': return 800;
+      case 'EUR': return 750;
+      case 'MXN': 
+      default: return 15000;
     }
-  }, [step, range, nights]);
+  }, [currency]);
 
-  const handleCheckout = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const nights = (range?.from && range?.to) ? differenceInDays(range.to, range.from) : 0;
+  const accommodationTotal = nights > 0 ? nights * basePrice : 0;
+
+  // Calculate Extra Costs
+  const getAddonPrice = (type: string) => {
+    const addon = addonsData.find(a => a.type === type);
+    return addon ? addon.price : 0;
+  };
+  
+  const getAddonName = (type: string) => {
+    const addon = addonsData.find(a => a.type === type);
+    return addon ? addon.name : '';
+  };
+
+  const chefTotal = wantsChef ? (chefBreakfasts * getAddonPrice('CHEF_BREAKFAST') + chefLunches * getAddonPrice('CHEF_LUNCH') + chefDinners * getAddonPrice('CHEF_DINNER')) : 0;
+  const atvTotal = (wantsATV && atvDestination) ? (atvPeople * getAddonPrice(atvDestination)) : 0;
+  
+  const grandTotal = accommodationTotal + chefTotal + atvTotal;
+
+  const isNameValid = guestName.trim().length >= 2;
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail);
+  const isPhoneValid = guestPhone.trim().length >= 7;
+  const isFormValid = isNameValid && isEmailValid && isPhoneValid;
+
+  const handleCheckout = async () => {
+    if (!range?.from || !range?.to || !isFormValid) return;
+
     setIsLoading(true);
     setError(null);
+
+    const selectedAddons = [];
+    if (wantsChef) {
+      if (chefBreakfasts > 0) selectedAddons.push({ type: 'CHEF_BREAKFAST', name: getAddonName('CHEF_BREAKFAST'), quantity: chefBreakfasts, unitPrice: getAddonPrice('CHEF_BREAKFAST'), price: chefBreakfasts * getAddonPrice('CHEF_BREAKFAST') });
+      if (chefLunches > 0) selectedAddons.push({ type: 'CHEF_LUNCH', name: getAddonName('CHEF_LUNCH'), quantity: chefLunches, unitPrice: getAddonPrice('CHEF_LUNCH'), price: chefLunches * getAddonPrice('CHEF_LUNCH') });
+      if (chefDinners > 0) selectedAddons.push({ type: 'CHEF_DINNER', name: getAddonName('CHEF_DINNER'), quantity: chefDinners, unitPrice: getAddonPrice('CHEF_DINNER'), price: chefDinners * getAddonPrice('CHEF_DINNER') });
+    }
+    if (wantsATV && atvDestination) {
+      selectedAddons.push({ type: atvDestination, name: getAddonName(atvDestination), quantity: atvPeople, unitPrice: getAddonPrice(atvDestination), price: atvPeople * getAddonPrice(atvDestination), details: JSON.stringify({ people: atvPeople, destination: atvDestination }) });
+    }
 
     try {
       const res = await fetch('/api/checkout_sessions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          checkIn: range?.from,
-          checkOut: range?.to,
+          checkIn: format(range.from, 'yyyy-MM-dd'),
+          checkOut: format(range.to, 'yyyy-MM-dd'),
           guestName,
           guestEmail,
           guestPhone: `${countryCode} ${guestPhone}`,
-          totalPrice: total,
-          currency
+          accommodationTotal,
+          totalPrice: grandTotal,
+          addons: selectedAddons,
+          currency: currency.toLowerCase(),
         }),
       });
+
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Checkout initialization failed');
       
-      if (res.ok && data.url) {
-        setIsSuccess(true);
-        setShowConfetti(true);
-        setTimeout(() => {
-          window.location.href = data.url;
-        }, 2500);
-      } else {
-        setError(data.error || 'Ocurrió un error al procesar tu reserva.');
-        setIsLoading(false);
-      }
-    } catch (err) {
-      console.error(err);
-      setError('Error de conexión. Inténtalo de nuevo.');
+      setIsSuccess(true);
+      setShowConfetti(true);
+      setTimeout(() => {
+        window.location.href = data.url;
+      }, 2500);
+    } catch (err: any) {
+      setError(err.message || 'Error occurred while booking. Please try again.');
       setIsLoading(false);
     }
   };
 
+  const nextStep = () => setStep(s => Math.min(s + 1, 5));
+  const prevStep = () => setStep(s => Math.max(s - 1, 1));
+
+  // --- Step 2: Chef ---
+  const handleWantsChef = (wants: boolean) => {
+    setWantsChef(wants);
+    if (!wants) {
+      setChefBreakfasts(0);
+      setChefLunches(0);
+      setChefDinners(0);
+      nextStep();
+    }
+  };
+
+  const Counter = ({ label, value, onChange, max }: { label: string, value: number, onChange: (v: number) => void, max: number }) => (
+    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
+      <span className="font-medium text-[#23211F]">{label}</span>
+      <div className="flex items-center gap-4">
+        <button 
+          onClick={() => onChange(Math.max(0, value - 1))}
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-500 hover:text-black hover:border-gray-400 transition-colors"
+        >
+          <Minus size={16} />
+        </button>
+        <span className="w-4 text-center font-bold text-[#9B7E67]">{value}</span>
+        <button 
+          onClick={() => onChange(Math.min(max, value + 1))}
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-[#23211F] text-white hover:bg-[#9B7E67] transition-colors"
+        >
+          <Plus size={16} />
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[200] flex items-end md:items-center justify-center p-0 md:p-12 overflow-hidden touch-none">
+        <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center sm:p-4 perspective-[1000px]">
+          {/* Backdrop */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
+            initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+            animate={{ opacity: 1, backdropFilter: 'blur(12px)' }}
+            exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            className="absolute inset-0 bg-[#23211F]/60"
             onClick={onClose}
-            className="absolute inset-0 bg-black/50 backdrop-blur-lg cursor-pointer"
           />
 
+          {/* Modal Container */}
           <motion.div
-            initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.92, y: 30 }}
-            animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
-            exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.92, y: 30 }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            drag={isMobile ? "y" : false}
+            initial={isMobile ? { y: '100%' } : { opacity: 0, y: 40, scale: 0.95, rotateX: 10 }}
+            animate={isMobile ? { y: 0 } : { opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+            exit={isMobile ? { y: '100%' } : { opacity: 0, y: 40, scale: 0.95, rotateX: -10 }}
+            transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+            drag={isMobile ? 'y' : false}
             dragControls={dragControls}
             dragListener={false}
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={0.2}
             onDragEnd={(e, info) => {
-              if (info.offset.y > 60 || info.velocity.y > 300) onClose();
+              if (info.offset.y > 100 && info.velocity.y > 20) {
+                onClose();
+              }
             }}
-            className="relative w-full max-w-4xl bg-[#23211F] md:bg-[#F9F7F4] rounded-t-[2rem] md:rounded-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.2)] md:shadow-2xl overflow-visible flex flex-col md:flex-row max-h-[92dvh] md:h-[600px] mt-auto md:mt-0"
+            className="relative w-full sm:w-[95vw] md:w-[85vw] lg:w-[1000px] max-w-full bg-[#F9F7F4] sm:rounded-[32px] rounded-t-[32px] overflow-hidden shadow-2xl flex flex-col sm:flex-row min-h-[85vh] sm:min-h-0 h-full sm:h-auto z-10"
           >
             {isMobile && (
               <div 
-                className="w-full h-6 sticky top-0 left-0 z-50 flex justify-center items-center touch-none bg-[#23211F] rounded-t-[2rem]"
+                className="w-full flex justify-center py-3 sm:hidden absolute top-0 z-50 cursor-grab active:cursor-grabbing"
                 onPointerDown={(e) => dragControls.start(e)}
               >
-                <div className="w-12 h-1.5 bg-white/30 rounded-full" />
+                <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
               </div>
             )}
 
-            <motion.button
-              onClick={onClose}
-              whileHover={{ scale: 1.1, rotate: 90 }}
-              whileTap={{ scale: 0.9 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-              className={`absolute top-4 right-4 md:top-6 md:right-6 z-[60] p-3 bg-black/10 hover:bg-black/20 backdrop-blur-md rounded-full transition-colors ${isMobile ? 'text-white' : 'text-[#23211F]'}`}
-            >
-              <X size={20} />
-            </motion.button>
-
-            <div className="w-full md:w-1/3 bg-[#23211F] text-[#F9F7F4] p-6 md:p-12 flex flex-col relative overflow-hidden pt-10 md:pt-12 shrink-0">
-              <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#9B7E67]/10 blur-3xl" />
-              <div className="absolute -bottom-16 -left-16 w-40 h-40 rounded-full bg-[#9B7E67]/5 blur-2xl" />
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#9B7E67]/30 to-transparent" />
-              
-              <div className="relative z-10 flex-1">
-                <h2 className="font-serif text-3xl md:text-5xl font-medium tracking-tight leading-[1.1] max-w-[80%]">
-                  {dict.modal.yourReservation}
-                </h2>
+            {/* Left Panel - Premium Brand Presentation */}
+            <div className="hidden sm:flex w-5/12 bg-[#23211F] text-[#F9F7F4] flex-col justify-between p-12 relative overflow-hidden">
+              <div className="absolute inset-0 opacity-20 pointer-events-none">
+                <FluidHorseAnimation />
               </div>
-
-              <div className="hidden md:flex flex-col gap-6 w-full flex-grow pt-4">
-                  <div className="bg-white/5 p-4 rounded-xl backdrop-blur-sm">
-                    <p className="text-xs uppercase tracking-[0.2em] opacity-60 mb-1">{dict.modal.hotelName}</p>
-                    <p className="font-serif text-xl">Suite Exclusiva</p>
-                  </div>
-                  
-                  <div className="bg-white/5 p-4 rounded-xl backdrop-blur-sm">
-                    <p className="text-xs uppercase tracking-[0.2em] opacity-60 mb-1">{dict.modal.dates}</p>
-                    <p className="font-light text-sm flex items-center gap-2">
-                      <Calendar size={14} className="text-[#9B7E67]"/>
-                      {range?.from ? format(range.from, 'dd MMM yyyy') : 'Check-in'} — {range?.to ? format(range.to, 'dd MMM yyyy') : 'Check-out'}
-                    </p>
-                  </div>
-
-                  <div className="bg-white/5 p-4 rounded-xl backdrop-blur-sm">
-                    <p className="text-xs uppercase tracking-[0.2em] opacity-60 mb-1">{dict.modal.guests}</p>
-                    <p className="font-light text-sm flex items-center gap-2">
-                      <User size={14} className="text-[#9B7E67]"/>
-                      {dict.modal.guestsCount}
-                    </p>
-                  </div>
-                </div>
-
+              <div className="relative z-10">
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                  className="relative z-10 border-t border-white/10 pt-4 md:pt-6 mt-4 md:mt-auto"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
                 >
-                <div className="flex justify-between items-end mb-2">
-                  <div className="flex flex-col gap-1">
-                    <span className="font-light text-sm opacity-80">{dict.modal.total} ({nights} {dict.modal.nights})</span>
-                    <div className="flex gap-2 items-center">
-                      {['MXN', 'USD', 'EUR'].map((c) => (
-                        <button
-                          key={c}
-                          onClick={() => setCurrency(c)}
-                          className={`text-[10px] font-bold tracking-widest transition-colors ${
-                            currency === c ? 'text-[#9B7E67]' : 'text-gray-500 hover:text-gray-300'
-                          }`}
-                        >
-                          {c}
-                        </button>
-                      ))}
+                  <h3 className="text-xs uppercase tracking-[0.3em] font-bold text-[#9B7E67] mb-2">{(dict as any).modal?.hotelName}</h3>
+                  <h2 className="text-4xl font-serif leading-tight">Tu Refugio<br/>Privado en<br/>Chacala</h2>
+                </motion.div>
+                
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                  className="mt-12 space-y-6"
+                >
+                  <div className="flex items-start gap-4 text-sm font-light text-gray-300">
+                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                      <CalendarDays size={16} className="text-[#9B7E67]" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-white mb-1 uppercase tracking-widest text-xs">{(dict as any).modal?.dates}</p>
+                      <p>{range?.from ? format(range.from, "d 'de' MMMM", { locale: es }) : 'Selecciona'} - {range?.to ? format(range.to, "d 'de' MMMM", { locale: es }) : 'Selecciona'}</p>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end">
-                    <span className="font-serif text-3xl text-[#9B7E67]">
-                      <AnimatedCounter value={total} prefix={currency === 'EUR' ? '€' : currency === 'USD' ? 'US$' : '$'} />
-                    </span>
-                    <span className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">{dict.modal.taxesIncluded}</span>
+                  
+                  <div className="flex items-start gap-4 text-sm font-light text-gray-300">
+                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                      <User size={16} className="text-[#9B7E67]" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-white mb-1 uppercase tracking-widest text-xs">{(dict as any).modal?.guests}</p>
+                      <p>{(dict as any).modal?.guestsCount}</p>
+                    </div>
                   </div>
+
+                  <div className="flex items-start gap-4 text-sm font-light text-gray-300">
+                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                      <Utensils size={16} className="text-[#9B7E67]" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-white mb-1 uppercase tracking-widest text-xs">Extras (Opcional)</p>
+                      <p>Chef privado y tours en ATV.</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+
+              <div className="relative z-10 pt-12 mt-auto border-t border-white/10">
+                <div className="flex justify-between items-end">
+                  <div>
+                    <p className="text-xs uppercase tracking-widest font-bold text-gray-400 mb-2">{(dict as any).modal?.total}</p>
+                    <div className="text-3xl font-serif text-[#9B7E67] flex items-baseline gap-2">
+                      <AnimatedCounter value={grandTotal} prefix={currency === 'EUR' ? '€' : '$'} />
+                      <span className="text-sm font-sans font-light text-gray-400">{currency}</span>
+                    </div>
+                  </div>
+                  {nights > 0 && <span className="text-xs text-gray-400 bg-white/5 px-3 py-1 rounded-full">{nights} {(dict as any).modal?.nights}</span>}
                 </div>
-              </motion.div>
+              </div>
             </div>
 
-            <div className="w-full md:w-2/3 p-8 md:p-12 overflow-y-auto relative bg-[#F9F7F4]">
-              {/* Step Progress Indicator */}
-              <StepIndicator currentStep={step} totalSteps={2} />
+            {/* Right Panel - Interactive Flow */}
+            <div className="w-full sm:w-7/12 flex flex-col h-full overflow-hidden relative pt-12 sm:pt-0">
+              <button
+                onClick={onClose}
+                className="absolute top-4 right-4 sm:top-6 sm:right-6 w-10 h-10 flex items-center justify-center rounded-full bg-white sm:bg-transparent shadow-md sm:shadow-none sm:hover:bg-gray-200 transition-colors z-50 text-gray-500"
+              >
+                <X size={20} />
+              </button>
 
-              <AnimatePresence mode="wait">
-                {step === 1 && (
-                  <motion.div
-                    key="step-1"
-                    initial={{ opacity: 0, x: 40 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -40 }}
-                    transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-                    className="h-full flex flex-col"
-                  >
-                    <motion.h3
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 }}
-                      className="text-2xl font-serif text-[#23211F] mb-6"
-                    >
-                      {dict.modal.selectDates}
-                    </motion.h3>
-
+              <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 sm:p-12 pb-24 sm:pb-12 scroll-smooth">
+                <AnimatePresence mode="wait">
+                  {step === 1 && (
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.2, duration: 0.5 }}
-                      className="flex-1 flex justify-center items-center"
+                      key="step1"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.4 }}
+                      className="h-full flex flex-col"
                     >
-                      <DayPicker
-                        mode="range"
-                        selected={range}
-                        onSelect={setRange}
-                        disabled={[{ before: new Date() }, ...disabledRanges]}
-                        className="font-sans"
-                        modifiersClassNames={{
-                          selected: 'bg-[#9B7E67] text-white',
-                          today: 'font-bold text-[#9B7E67]'
-                        }}
-                      />
-                    </motion.div>
-
-                    {/* Minimum nights notice */}
-                    <AnimatePresence>
-                      {range?.from && range?.to && nights < 2 && (
-                        <motion.p
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="text-center text-sm text-amber-600 font-medium mb-4"
-                        >
-                          {dict.modal.minStay}
-                        </motion.p>
-                      )}
-                    </AnimatePresence>
-
-                    <PremiumButton
-                      onClick={handleNext}
-                      disabled={!range?.from || !range?.to || nights < 2}
-                    >
-                      {dict.modal.continue} <ArrowRight size={16} />
-                    </PremiumButton>
-                  </motion.div>
-                )}
-
-                {step === 2 && (
-                  <motion.div
-                    key="step-2"
-                    initial={{ opacity: 0, x: 40 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -40 }}
-                    transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-                    className="h-full flex flex-col"
-                  >
-                    <PremiumButton variant="back" onClick={() => setStep(1)} />
-
-                    <motion.h3
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 }}
-                      className="text-2xl font-serif text-[#23211F] mb-8"
-                    >
-                      {dict.modal.yourData}
-                    </motion.h3>
-                    
-                    <form onSubmit={handleCheckout} className="space-y-8 flex-1 flex flex-col">
-                      <PremiumInput
-                        id="guestName"
-                        type="text"
-                        label={dict.modal.fullName}
-                        placeholder={dict.modal.fullName}
-                        value={guestName}
-                        onChange={setGuestName}
-                        isValid={isNameValid}
-                        delay={0.15}
-                      />
-                      <PremiumInput
-                        id="guestEmail"
-                        type="email"
-                        label={dict.modal.email}
-                        placeholder={dict.modal.email}
-                        value={guestEmail}
-                        onChange={setGuestEmail}
-                        isValid={isEmailValid}
-                        delay={0.25}
-                      />
-
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.35, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-                        className="relative group flex gap-2"
-                      >
-                        <select
-                          value={countryCode}
-                          onChange={(e) => setCountryCode(e.target.value)}
-                          className="bg-transparent border-b-2 border-gray-200 py-4 text-[#23211F] text-lg focus:outline-none transition-colors w-24 font-light cursor-pointer appearance-none text-center"
-                        >
-                          <option value="+52">🇲🇽 +52</option>
-                          <option value="+1">🇺🇸 +1</option>
-                          <option value="+34">🇪🇸 +34</option>
-                          <option value="+44">🇬🇧 +44</option>
-                          <option value="+54">🇦🇷 +54</option>
-                          <option value="+57">🇨🇴 +57</option>
-                          <option value="+56">🇨🇱 +56</option>
-                        </select>
-                        <div className="flex-1">
-                          <PremiumInput
-                            id="guestPhone"
-                            type="tel"
-                            label={dict.modal.phone}
-                            placeholder={dict.modal.phone}
-                            value={guestPhone}
-                            onChange={setGuestPhone}
-                            isValid={isPhoneValid}
-                            delay={0}
-                          />
-                        </div>
-                      </motion.div>
-                      
-                      <div className="mt-auto pt-4">
-                        <PremiumButton
-                          type="submit"
-                          disabled={isLoading || !isNameValid || !isEmailValid || !isPhoneValid}
-                        >
-                          <CreditCard size={16} />
-                          {dict.modal.proceedPayment}
-                        </PremiumButton>
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.4 }}
-                          className="flex items-center justify-center gap-2 mt-4"
-                        >
-                          <Shield size={12} className="text-[#9B7E67]/50" />
-                          <span className="text-[9px] font-bold uppercase tracking-widest text-[#23211F]/40">Pagos seguros mediante Stripe</span>
-                        </motion.div>
+                      <StepIndicator currentStep={1} totalSteps={5} />
+                      <h3 className="text-2xl font-serif text-[#23211F] mb-6">{(dict as any).modal?.selectDates}</h3>
+                      <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-sm border border-gray-100">
+                        <DayPicker
+                          mode="range"
+                          selected={range}
+                          onSelect={setRange}
+                          disabled={[{ before: new Date() }, ...disabledRanges]}
+                          numberOfMonths={isMobile ? 1 : 2}
+                          className="premium-calendar !m-0"
+                          modifiersClassNames={{
+                            selected: 'bg-[#9B7E67] text-white font-bold rounded-full',
+                            range_start: 'bg-[#23211F] text-white',
+                            range_end: 'bg-[#23211F] text-white',
+                            range_middle: 'bg-[#F9F7F4] text-[#9B7E67]',
+                            disabled: 'text-gray-300 line-through opacity-50',
+                          }}
+                        />
+                        {range?.from && !range?.to && (
+                          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#9B7E67] text-sm mt-6 font-medium animate-pulse">
+                            {(dict as any).modal?.minStay}
+                          </motion.p>
+                        )}
                       </div>
-                    </form>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                      <div className="mt-8">
+                        <PremiumButton onClick={nextStep} disabled={!range?.from || !range?.to || nights < 2}>
+                          Continuar <ArrowRight size={16} />
+                        </PremiumButton>
+                      </div>
+                    </motion.div>
+                  )}
 
-              {/* ─── Overlay States ─── */}
-              <AnimatePresence>
-                {(isLoading || isSuccess || error) && (
-                  <motion.div
-                    key="state-overlay"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="absolute inset-0 z-50 bg-[#F9F7F4]/95 backdrop-blur-sm flex flex-col items-center justify-center p-8"
-                  >
-                    {/* Loading */}
-                    {isLoading && !isSuccess && !error && (
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="flex flex-col items-center text-center"
-                      >
-                        <div className="w-28 md:w-36 mb-8 text-[#9B7E67]">
-                          <FluidHorseAnimation />
+                  {step === 2 && (
+                    <motion.div
+                      key="step2"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.4 }}
+                      className="h-full flex flex-col"
+                    >
+                      <PremiumButton variant="back" onClick={prevStep} />
+                      <StepIndicator currentStep={2} totalSteps={5} />
+                      <div className="mb-8">
+                        <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] mb-4 shadow-sm border border-[#E8D5B7]">
+                          <ChefHat size={24} />
                         </div>
-                        <motion.h3 
-                          className="text-xl font-serif text-[#23211F] mb-4"
-                        >
-                          {dict.modal.preparing}
-                        </motion.h3>
-                        {/* Animated dots */}
-                        <div className="flex gap-1.5 mb-6">
-                          {[0, 1, 2].map((i) => (
-                            <motion.div
-                              key={i}
-                              className="w-2 h-2 rounded-full bg-[#9B7E67]"
-                              animate={{ scale: [1, 1.4, 1], opacity: [0.4, 1, 0.4] }}
-                              transition={{ duration: 1, repeat: Infinity, delay: i * 0.2, ease: 'easeInOut' }}
+                        <h3 className="text-3xl font-serif text-[#23211F] mb-2">Servicio de Chef</h3>
+                        <p className="text-gray-500 font-light">¿Te gustaría añadir el servicio de Chef Privado a tu estancia? Disfruta de deliciosos platillos preparados en la casa (Cargo extra por comida).</p>
+                      </div>
+
+                      {wantsChef === null ? (
+                        <div className="grid grid-cols-2 gap-4">
+                          <button onClick={() => handleWantsChef(true)} className="p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-lg transition-colors flex flex-col items-center gap-2 group">
+                            <span className="w-8 h-8 rounded-full border-2 border-gray-300 group-hover:border-[#9B7E67] flex items-center justify-center text-transparent group-hover:bg-[#9B7E67] group-hover:text-white transition-all">✓</span>
+                            Sí, por favor
+                          </button>
+                          <button onClick={() => handleWantsChef(false)} className="p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-lg transition-colors flex flex-col items-center gap-2 group">
+                            <span className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-transparent group-hover:bg-gray-400 group-hover:text-white transition-all">✕</span>
+                            No, gracias
+                          </button>
+                        </div>
+                      ) : wantsChef === true ? (
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 flex-1">
+                          <Counter label="Desayunos" value={chefBreakfasts} onChange={setChefBreakfasts} max={nights} />
+                          <Counter label="Comidas" value={chefLunches} onChange={setChefLunches} max={nights} />
+                          <Counter label="Cenas" value={chefDinners} onChange={setChefDinners} max={nights} />
+                          <div className="mt-8">
+                            <PremiumButton onClick={nextStep} disabled={chefBreakfasts === 0 && chefLunches === 0 && chefDinners === 0}>
+                              Confirmar Chef <ArrowRight size={16} />
+                            </PremiumButton>
+                          </div>
+                        </motion.div>
+                      ) : null}
+                    </motion.div>
+                  )}
+
+                  {step === 3 && (
+                    <motion.div
+                      key="step3"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.4 }}
+                      className="h-full flex flex-col"
+                    >
+                      <PremiumButton variant="back" onClick={prevStep} />
+                      <StepIndicator currentStep={3} totalSteps={5} />
+                      <div className="mb-8">
+                        <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] mb-4 shadow-sm border border-[#E8D5B7]">
+                          <Map size={24} />
+                        </div>
+                        <h3 className="text-3xl font-serif text-[#23211F] mb-2">Aventura ATV</h3>
+                        <p className="text-gray-500 font-light">Tenemos rutas exclusivas de ATV para explorar Chacala. ¿Deseas reservar una aventura? (Cargo extra).</p>
+                      </div>
+
+                      {wantsATV === null ? (
+                        <div className="grid grid-cols-2 gap-4">
+                          <button onClick={() => setWantsATV(true)} className="p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-lg transition-colors flex flex-col items-center gap-2 group">
+                            <span className="w-8 h-8 rounded-full border-2 border-gray-300 group-hover:border-[#9B7E67] flex items-center justify-center text-transparent group-hover:bg-[#9B7E67] group-hover:text-white transition-all">✓</span>
+                            Sí, explorar
+                          </button>
+                          <button onClick={() => { setWantsATV(false); nextStep(); }} className="p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-lg transition-colors flex flex-col items-center gap-2 group">
+                            <span className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-transparent group-hover:bg-gray-400 group-hover:text-white transition-all">✕</span>
+                            No, gracias
+                          </button>
+                        </div>
+                      ) : wantsATV === true ? (
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 flex-1 overflow-y-auto pr-2 pb-8">
+                          <Counter label="¿Cuántas personas? (Máx 10)" value={atvPeople} onChange={setAtvPeople} max={10} />
+                          <div>
+                            <p className="font-bold text-sm text-[#23211F] mb-4">Selecciona tu destino (1 ruta por grupo)</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {addonsData.filter(a => a.type.startsWith('ATV_')).map(tour => (
+                                <button 
+                                  key={tour.type}
+                                  onClick={() => setAtvDestination(tour.type)}
+                                  className={`p-4 rounded-xl border text-left transition-all ${atvDestination === tour.type ? 'border-[#9B7E67] bg-[#9B7E67]/5' : 'border-gray-200 hover:border-gray-300 bg-white'}`}
+                                >
+                                  <div className="font-bold text-[#23211F] text-sm">{tour.name.replace(' (por persona)', '').replace('ATV - ', '')}</div>
+                                  <div className="text-[#9B7E67] font-medium text-xs mt-1">+${tour.price} USD / persona</div>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="mt-8">
+                            <PremiumButton onClick={nextStep} disabled={!atvDestination || atvPeople < 1}>
+                              Continuar <ArrowRight size={16} />
+                            </PremiumButton>
+                          </div>
+                        </motion.div>
+                      ) : null}
+                    </motion.div>
+                  )}
+
+                  {step === 4 && (
+                    <motion.div
+                      key="step4"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.4 }}
+                      className="h-full flex flex-col"
+                    >
+                      <PremiumButton variant="back" onClick={prevStep} />
+                      <StepIndicator currentStep={4} totalSteps={5} />
+                      <h3 className="text-3xl font-serif text-[#23211F] mb-8">{(dict as any).modal?.yourData}</h3>
+                      
+                      <div className="space-y-6 flex-1">
+                        <PremiumInput
+                          id="name"
+                          type="text"
+                          label={(dict as any).modal?.fullName}
+                          placeholder="Ej. Juan Pérez"
+                          value={guestName}
+                          onChange={setGuestName}
+                          isValid={isNameValid}
+                          delay={0.1}
+                        />
+                        <PremiumInput
+                          id="email"
+                          type="email"
+                          label={(dict as any).modal?.email}
+                          placeholder="correo@ejemplo.com"
+                          value={guestEmail}
+                          onChange={setGuestEmail}
+                          isValid={isEmailValid}
+                          delay={0.2}
+                        />
+                        <div className="flex gap-4">
+                          <div className="w-1/3">
+                            <PremiumInput
+                              id="countryCode"
+                              type="text"
+                              label="Lada"
+                              placeholder="+52"
+                              value={countryCode}
+                              onChange={setCountryCode}
+                              isValid={countryCode.length >= 2}
+                              delay={0.3}
                             />
-                          ))}
+                          </div>
+                          <div className="w-2/3">
+                            <PremiumInput
+                              id="phone"
+                              type="tel"
+                              label={(dict as any).modal?.phone}
+                              placeholder="55 1234 5678"
+                              value={guestPhone}
+                              onChange={setGuestPhone}
+                              isValid={isPhoneValid}
+                              delay={0.3}
+                            />
+                          </div>
                         </div>
-                        {/* Indeterminate progress bar */}
-                        <div className="w-48 h-1 bg-gray-200 rounded-full overflow-hidden">
+                      </div>
+
+                      <div className="mt-12">
+                        <PremiumButton onClick={nextStep} disabled={!isFormValid}>
+                          Ver Resumen <ArrowRight size={16} />
+                        </PremiumButton>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {step === 5 && (
+                    <motion.div
+                      key="step5"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.4 }}
+                      className="h-full flex flex-col"
+                    >
+                      {showConfetti && Array.from({ length: 40 }).map((_, i) => (
+                        <ConfettiParticle key={i} index={i} delay={Math.random() * 0.5} />
+                      ))}
+
+                      {isLoading || isSuccess ? (
+                        <div className="flex-1 flex flex-col items-center justify-center h-full text-center space-y-6">
                           <motion.div
-                            className="h-full bg-[#9B7E67] rounded-full"
-                            animate={{ x: ['-100%', '200%'] }}
-                            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                            style={{ width: '40%' }}
-                          />
+                            animate={{ rotate: isSuccess ? 0 : 360, scale: isSuccess ? 1.2 : 1 }}
+                            transition={isSuccess ? { type: 'spring', stiffness: 300 } : { duration: 2, repeat: Infinity, ease: 'linear' }}
+                            className={`w-20 h-20 rounded-full flex items-center justify-center shadow-xl ${
+                              isSuccess ? 'bg-[#9B7E67] text-white' : 'bg-white text-[#9B7E67]'
+                            }`}
+                          >
+                            {isSuccess ? <Check size={40} /> : <div className="w-10 h-10 border-4 border-[#9B7E67] border-t-transparent rounded-full animate-spin" />}
+                          </motion.div>
+                          <div>
+                            <h3 className="text-3xl font-serif text-[#23211F] mb-2">
+                              {isSuccess ? (dict as any).modal?.allReady : (dict as any).modal?.preparing}
+                            </h3>
+                            <p className="text-gray-500 font-light">
+                              {isSuccess ? (dict as any).modal?.redirecting : (dict as any).modal?.securePayments}
+                            </p>
+                          </div>
                         </div>
-                      </motion.div>
-                    )}
+                      ) : (
+                        <div className="flex flex-col h-full">
+                          <PremiumButton variant="back" onClick={prevStep} />
+                          <StepIndicator currentStep={5} totalSteps={5} />
+                          <h3 className="text-3xl font-serif text-[#23211F] mb-6">Resumen</h3>
+                          
+                          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex-1 overflow-y-auto space-y-6 mb-8">
+                            <div className="flex justify-between items-center pb-6 border-b border-gray-100">
+                              <div>
+                                <h4 className="font-bold text-[#23211F]">Hospedaje</h4>
+                                <p className="text-sm text-gray-500">{nights} {(dict as any).modal?.nights}</p>
+                              </div>
+                              <div className="font-serif text-xl text-[#9B7E67]">${accommodationTotal.toLocaleString('en-US')} {currency}</div>
+                            </div>
+                            
+                            {wantsChef && (chefBreakfasts > 0 || chefLunches > 0 || chefDinners > 0) && (
+                              <div className="pb-6 border-b border-gray-100">
+                                <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><ChefHat size={16}/> Servicio de Chef</h4>
+                                {chefBreakfasts > 0 && <div className="flex justify-between text-sm text-gray-600 mb-1"><span>{chefBreakfasts}x Desayuno</span><span>${(chefBreakfasts * getAddonPrice('CHEF_BREAKFAST')).toLocaleString('en-US')}</span></div>}
+                                {chefLunches > 0 && <div className="flex justify-between text-sm text-gray-600 mb-1"><span>{chefLunches}x Comida</span><span>${(chefLunches * getAddonPrice('CHEF_LUNCH')).toLocaleString('en-US')}</span></div>}
+                                {chefDinners > 0 && <div className="flex justify-between text-sm text-gray-600"><span>{chefDinners}x Cena</span><span>${(chefDinners * getAddonPrice('CHEF_DINNER')).toLocaleString('en-US')}</span></div>}
+                              </div>
+                            )}
 
-                    {/* Success */}
-                    {isSuccess && (
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="flex flex-col items-center text-center relative"
-                      >
-                        {/* Confetti */}
-                        {showConfetti && Array.from({ length: 50 }).map((_, i) => ({ id: i, delay: Math.random() * 0.5 })).map(({ id, delay }) => (
-                          <ConfettiParticle key={id} index={id} delay={delay} />
-                        ))}
+                            {wantsATV && atvDestination && (
+                              <div className="pb-6 border-b border-gray-100">
+                                <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><Map size={16}/> Tour ATV</h4>
+                                <div className="flex justify-between text-sm text-gray-600">
+                                  <span>{atvPeople}x {getAddonName(atvDestination).replace(' (por persona)', '').replace('ATV - ', '')}</span>
+                                  <span>${(atvPeople * getAddonPrice(atvDestination)).toLocaleString('en-US')}</span>
+                                </div>
+                              </div>
+                            )}
 
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
-                          className="w-24 h-24 bg-[#9B7E67]/10 text-[#9B7E67] rounded-full flex items-center justify-center mb-6"
-                        >
-                          <Check size={48} />
-                        </motion.div>
+                            <div className="flex justify-between items-center pt-2">
+                              <div>
+                                <h4 className="font-bold text-2xl text-[#23211F]">Total</h4>
+                                <p className="text-xs text-gray-400 uppercase tracking-widest">{(dict as any).modal?.taxesIncluded}</p>
+                              </div>
+                              <div className="font-serif text-3xl text-[#23211F]">${grandTotal.toLocaleString('en-US')} {currency}</div>
+                            </div>
+                          </div>
 
-                        {/* Staggered text reveal */}
-                        <motion.h3
-                          initial={{ opacity: 0, y: 15 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.6, duration: 0.5 }}
-                          className="text-2xl font-serif text-[#23211F] mb-2"
-                        >
-                          ¡Todo listo!
-                        </motion.h3>
-                        <motion.p
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.8, duration: 0.5 }}
-                          className="text-gray-500 text-sm font-light mb-6"
-                        >
-                          Redirigiendo a pago seguro...
-                        </motion.p>
+                          {error && (
+                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium mb-6 text-center">
+                              {error}
+                            </motion.div>
+                          )}
 
-                        {/* Redirect progress bar */}
-                        <div className="w-48 h-1 bg-gray-200 rounded-full overflow-hidden">
-                          <motion.div
-                            className="h-full bg-[#9B7E67] rounded-full"
-                            initial={{ width: '0%' }}
-                            animate={{ width: '100%' }}
-                            transition={{ duration: 2.5, ease: 'linear' }}
-                          />
+                          <PremiumButton onClick={handleCheckout} disabled={!isFormValid || isLoading || grandTotal === 0}>
+                            <CreditCard size={18} />
+                            {(dict as any).modal?.proceedPayment}
+                          </PremiumButton>
                         </div>
-                      </motion.div>
-                    )}
-
-                    {/* Error */}
-                    {error && (
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1, x: [0, -8, 8, -6, 6, -3, 3, 0] }}
-                        transition={{ 
-                          default: { duration: 0.3 },
-                          x: { duration: 0.5, ease: 'easeOut' }
-                        }}
-                        className="flex flex-col items-center text-center max-w-sm"
-                      >
-                        <motion.div 
-                          initial={{ scale: 0, rotate: -90 }}
-                          animate={{ scale: 1, rotate: 0 }}
-                          transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                          className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-6 border-2 border-red-100"
-                        >
-                          <X size={32} />
-                        </motion.div>
-                        <motion.h3
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.2 }}
-                          className="text-2xl font-serif text-[#23211F] mb-4"
-                        >
-                          Uy, algo salió mal
-                        </motion.h3>
-                        <motion.p
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.3 }}
-                          className="text-gray-500 text-sm font-light mb-8"
-                        >
-                          {error}
-                        </motion.p>
-                        <motion.button
-                          onClick={() => setError(null)}
-                          whileHover={{ scale: 1.03, y: -2 }}
-                          whileTap={{ scale: 0.97 }}
-                          className="w-full py-4 rounded-full bg-[#23211F] text-[#F9F7F4] hover:bg-[#9B7E67] font-bold text-xs uppercase tracking-widest transition-colors relative overflow-hidden"
-                        >
-                          {/* Pulse glow */}
-                          <motion.div
-                            className="absolute inset-0 rounded-full"
-                            animate={{
-                              boxShadow: [
-                                '0 0 0 0px rgba(155,126,103,0.3)',
-                                '0 0 0 8px rgba(155,126,103,0)',
-                              ],
-                            }}
-                            transition={{ duration: 1.5, repeat: Infinity }}
-                          />
-                          <span className="relative z-10">Intentar de nuevo</span>
-                        </motion.button>
-                      </motion.div>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
 
+            {/* Mobile Fixed Bottom Summary (Only shows on step 1 to 4) */}
+            {isMobile && step < 5 && (
+              <motion.div 
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-6 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-20"
+              >
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-1">Total Parcial</p>
+                  <div className="font-serif text-xl text-[#23211F] leading-none">${grandTotal.toLocaleString('en-US')}</div>
+                </div>
+                {step === 1 && (
+                  <button onClick={nextStep} disabled={!range?.from || !range?.to || nights < 2} className="bg-[#23211F] text-white px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50">
+                    Siguiente
+                  </button>
+                )}
+                {step === 2 && (
+                  <button onClick={nextStep} disabled={wantsChef === null || (wantsChef && chefBreakfasts === 0 && chefLunches === 0 && chefDinners === 0)} className="bg-[#23211F] text-white px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50">
+                    Siguiente
+                  </button>
+                )}
+                {step === 3 && (
+                  <button onClick={nextStep} disabled={wantsATV === null || (wantsATV && (!atvDestination || atvPeople < 1))} className="bg-[#23211F] text-white px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50">
+                    Siguiente
+                  </button>
+                )}
+                {step === 4 && (
+                  <button onClick={nextStep} disabled={!isFormValid} className="bg-[#23211F] text-white px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50">
+                    Resumen
+                  </button>
+                )}
+              </motion.div>
+            )}
           </motion.div>
         </div>
       )}

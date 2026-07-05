@@ -30,6 +30,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Bookings', href: '/admin/bookings', icon: Book },
     { name: 'Calendar', href: '/admin/calendar', icon: CalendarDays },
+    { name: 'Experiencias', href: '/admin/experiencias', icon: Book }, // New tab
     { name: 'Payments', href: '/admin/stripe', icon: CreditCard },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
     { name: 'iCal', href: '/admin/ical', icon: CalendarSync },
@@ -38,6 +39,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const mobileNavItems = [
     { name: 'Inicio', href: '/admin', icon: LayoutDashboard },
     { name: 'Reservas', href: '/admin/bookings', icon: Book },
+    { name: 'Extras', href: '/admin/experiencias', icon: CalendarDays },
     { name: 'Fechas', href: '/admin/calendar', icon: CalendarDays },
     { name: 'Ajustes', href: '/admin/settings', icon: Settings },
   ];

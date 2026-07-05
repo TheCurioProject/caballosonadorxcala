@@ -6,7 +6,10 @@ import prisma from '@/lib/prisma';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { checkIn, checkOut, guestName, guestEmail, guestPhone, totalPrice, currency = 'mxn' } = body;
+    const { checkIn, checkOut, guestName, guestEmail, guestPhone, totalPrice, accommodationTotal, addons = [], currency = 'mxn' } = body;
+
+    // Use accommodationTotal for the room line item if provided, otherwise fallback to totalPrice (for backward compatibility)
+    const baseRoomPrice = accommodationTotal || totalPrice;
 
     if (!checkIn || !checkOut || !guestName || !guestEmail || !guestPhone || !totalPrice) {
       return NextResponse.json({ error: 'Faltan datos requeridos' }, { status: 400 });
@@ -62,9 +65,17 @@ export async function POST(req: Request) {
           guestName,
           guestEmail,
           guestPhone,
-          totalPrice,
+          totalPrice, // Grand total including addons
           payment_status: 'PENDING',
           origin: 'WEBSITE',
+          addons: {
+            create: addons.map((a: any) => ({
+              type: a.type,
+              quantity: a.quantity,
+              details: a.details || null,
+              price: a.price // This is the total price for this addon line (quantity * unit_price)
+            }))
+          }
         }
       });
     } catch (dbError: any) {
@@ -88,10 +99,23 @@ export async function POST(req: Request) {
                 name: 'Reserva - Casa del Caballo Soñador',
                 description: `Fechas: ${new Date(checkIn).toLocaleDateString()} al ${new Date(checkOut).toLocaleDateString()}`,
               },
-              unit_amount: Math.round(totalPrice * 100), // Stripe expects cents
+              unit_amount: Math.round(baseRoomPrice * 100), // Stripe expects cents
             },
             quantity: 1,
           },
+          ...addons.map((a: any) => ({
+            price_data: {
+              currency: currency.toLowerCase(),
+              product_data: {
+                name: a.name || `Extra: ${a.type}`,
+              },
+              // We assume a.price passed from frontend is the UNIT price because Stripe takes unit_amount and quantity
+              // Wait, if a.price in DB is total price, we need to pass unit_price to Stripe.
+              // We'll require frontend to send a.unitPrice.
+              unit_amount: Math.round((a.unitPrice || (a.price / a.quantity)) * 100),
+            },
+            quantity: a.quantity,
+          }))
         ],
         mode: 'payment',
         success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}&booking_id=${booking.id}`,

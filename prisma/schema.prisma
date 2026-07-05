@@ -45,6 +45,8 @@ model Booking {
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
 
+  addons         BookingAddon[]
+
   @@map("reservas")
   @@index([checkIn, checkOut])
   @@index([propertyId])
@@ -113,4 +115,30 @@ model AdminUser {
   role         String    @default("ADMIN") @db.VarChar(50)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+}
+
+model BookingAddon {
+  id        Int      @id @default(autoincrement())
+  bookingId Int      @map("booking_id")
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  type      String   @db.VarChar(50) // e.g., "CHEF_BREAKFAST", "CHEF_LUNCH", "CHEF_DINNER", "ATV_TOUR"
+  quantity  Int
+  details   String?  @db.Text // JSON string with specific details (like number of people, destination, dates)
+  price     Float    // Total price applied for this addon
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("booking_addons")
+  @@index([bookingId])
+}
+
+model AddonPricing {
+  id        Int      @id @default(autoincrement())
+  type      String   @unique @db.VarChar(50) // "CHEF_BREAKFAST", "CHEF_LUNCH", "ATV_OJO_DE_AGUA", etc.
+  name      String   @db.VarChar(255)
+  price     Float
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("addon_pricing")
 }

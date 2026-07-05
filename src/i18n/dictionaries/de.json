@@ -123,6 +123,55 @@
     "cocinaName": "Hausküche",
     "cocinaDesc": "Ein privater Gemeinschaftsraum, voll ausgestattet, damit Sie Ihre eigenen Gerichte zubereiten oder einfach die Atmosphäre des Hauses in absoluter Privatsphäre genießen können."
   },
+  "services": {
+    "subtitle": "Annehmlichkeiten",
+    "title": "Während Ihres Aufenthalts",
+    "explore": "Details anzeigen",
+    "mobileInstruction": "Wischen zum Entdecken",
+    "desktopInstruction": "Pfeile zum Entdecken nutzen",
+    "items": [
+      {
+        "title": "6 Private Zimmer",
+        "short": "Exklusive Räume für Ihre Erholung.",
+        "desc": "Genießen Sie Exklusivität und Privatsphäre in unseren 6 sorgfältig gestalteten Zimmern. Weiche Bettwäsche, lokaler Stein und warme Holzelemente sorgen für perfekte Entspannung."
+      },
+      {
+        "title": "Chef-Service & Küche",
+        "short": "Authentische Aromen aus unserer voll ausgestatteten Küche.",
+        "desc": "Unser hauseigener Chefkoch bereitet authentische lokale und internationale Gerichte aus frischen, saisonalen Zutaten zu, serviert direkt aus unserer offenen Küche."
+      },
+      {
+        "title": "Pool & Loungebereich",
+        "short": "Entspannen Sie in der Sonne oder im Schatten.",
+        "desc": "Erholen Sie sich in unserem großzügigen Poolbereich. Ob beim Schwimmen, Lesen unter den Palmen oder Sonnenbaden – dies ist Ihre persönliche Oase."
+      },
+      {
+        "title": "Whirlpool & Entspannung",
+        "short": "Tauchen Sie ein in die Ruhe.",
+        "desc": "Lassen Sie das warme Wasser und das sanfte Rauschen des Wasserfalls Ihren Stress in unserem wunderschönen, steinernen Whirlpool wegschmelzen."
+      },
+      {
+        "title": "Gästeküche",
+        "short": "Ein gemeinschaftlicher Raum für Ihre kulinarischen Kreationen.",
+        "desc": "Fühlen Sie sich wie zu Hause in unserer zweiten Gästeküche. Voll ausgestattet und immer bereit für Ihren Morgenkaffee oder eigene Gerichte."
+      },
+      {
+        "title": "Schnelles WLAN",
+        "short": "Bleiben Sie auf dem gesamten Anwesen verbunden.",
+        "desc": "Egal ob Sie arbeiten müssen oder Erinnerungen teilen möchten – genießen Sie zuverlässiges, schnelles Internet in allen Zimmern und Gemeinschaftsbereichen."
+      },
+      {
+        "title": "Sonnenuntergangs-Tour",
+        "short": "Unvergessliche Pazifik-Aussichten (ab 7 Nächten inklusive).",
+        "desc": "Für Gäste ab 7 Nächten bieten wir eine kostenlose geführte Sonnenuntergangs-Tour. Erleben Sie die atemberaubenden Farben der Küste Nayarits."
+      },
+      {
+        "title": "Dachterrasse",
+        "short": "Der perfekte Ort für Sternenbeobachtung und Meeresbrisen.",
+        "desc": "Gehen Sie auf die Dachterrasse für einen Panoramablick über das Dorf und den Ozean. Der ideale Ort für Yoga am Morgen oder Cocktails unter den Sternen."
+      }
+    ]
+  },
   "toursPage": {
     "heroSuperTitle": "Das Abenteuer Wartet",
     "heroTitle": "EINZIGARTIGE ATV-TOUREN ZU DEN WENIGER ERKUNDETEN SEHENSWÜRDIGKEITEN IN CHACALA",

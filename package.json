@@ -48,6 +48,7 @@
     "svg-path-bbox": "^2.1.0",
     "svg-path-properties": "^2.0.2",
     "svgpath": "^2.6.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vercel": "^54.20.1"
   }
 }
