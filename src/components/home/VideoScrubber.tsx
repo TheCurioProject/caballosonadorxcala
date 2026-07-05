@@ -308,7 +308,7 @@ export const VideoScrubber: React.FC<VideoScrubberProps> = ({ roomId, poster, ch
       {/* Fullscreen Toggle Buttons (Faded in when loaded) */}
       <button 
         onClick={toggleFullscreen}
-        className={`absolute top-4 left-4 md:top-6 md:left-6 z-50 w-10 h-10 bg-black/40 hover:bg-black/70 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center text-white transition-all duration-700 ${isLoaded ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        className={`absolute top-4 left-4 md:top-6 md:left-6 z-30 w-10 h-10 bg-black/40 hover:bg-black/70 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center text-white transition-all duration-700 ${isLoaded ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         aria-label={isFullscreen ? "Cerrar pantalla completa" : "Pantalla completa"}
       >
         {isFullscreen ? (

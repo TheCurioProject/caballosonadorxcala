@@ -3,8 +3,9 @@ import { Hero } from '@/components/home/Hero';
 import dynamic from 'next/dynamic';
 
 const About = dynamic(() => import('@/components/home/About').then(mod => mod.About));
+const Concept = dynamic(() => import('@/components/home/Concept').then(mod => mod.Concept));
+const Services = dynamic(() => import('@/components/home/Services').then(mod => mod.Services));
 const Suites = dynamic(() => import('@/components/home/Suites').then(mod => mod.Suites));
-const Amenities = dynamic(() => import('@/components/home/Amenities').then(mod => mod.Amenities));
 const Experiences = dynamic(() => import('@/components/home/Experiences').then(mod => mod.Experiences));
 const Reviews = dynamic(() => import('@/components/home/Reviews').then(mod => mod.Reviews));
 const FAQ = dynamic(() => import('@/components/home/FAQ').then(mod => mod.FAQ));
@@ -29,26 +30,25 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
     console.error("Failed to fetch data from Prisma", error);
   }
 
-  const getRoom = (id: number, basePrice: number, video: string, downVideo?: string) => {
+  const getRoom = (id: number, basePrice: number, images: string[]) => {
     const r = (dict.roomsData as any)[id.toString()];
     return {
       id,
       name: r.name,
       price: basePrice,
       description: r.description,
-      videoUrl: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${video}`,
-      ...(downVideo ? { videoDownUrl: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${downVideo}` } : {}),
+      images: images.map(img => `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${img}`),
       details: { guests: r.guests, beds: r.beds, bath: r.bath, ...(r.extra ? { extra: r.extra } : {}) }
     };
   };
 
   const rooms = [
-    getRoom(1, 0, '/habitaciones/1.webm'),
-    getRoom(2, 0, '/habitaciones/2.webm'),
-    getRoom(3, 0, '/habitaciones/3.webm'),
-    getRoom(4, 0, '/habitaciones/4.webm'),
-    getRoom(6, 0, '/habitaciones/6.webm'),
-    getRoom(7, 0, '/habitaciones/suite.webm', '/habitaciones/suite-down.webm')
+    getRoom(1, 0, ['/imagenes/03_rooms/room1_paso_suave.webp', '/imagenes/03_rooms/room_extra_img_3549.webp']),
+    getRoom(2, 0, ['/imagenes/03_rooms/room2_estrella.webp', '/imagenes/03_rooms/room_extra_img_3549.webp']),
+    getRoom(3, 0, ['/imagenes/03_rooms/room3_la_luna.webp', '/imagenes/03_rooms/room_extra_img_3549.webp']),
+    getRoom(4, 0, ['/imagenes/03_rooms/room4_campo_abierto.webp', '/imagenes/03_rooms/room_extra_img_3549.webp']),
+    getRoom(6, 0, ['/imagenes/03_rooms/room6_madera_viva.webp', '/imagenes/03_rooms/room_extra_img_3549.webp']),
+    getRoom(7, 0, ['/imagenes/03_rooms/room7_el_sueno_del_mar.webp', '/imagenes/03_rooms/room_extra_img_3549.webp'])
   ];
 
   if (experiences.length === 0) {
@@ -66,8 +66,9 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
       <main>
         <Hero />
         <About />
+        <Concept />
+        <Services />
         <Suites rooms={rooms} />
-        <Amenities />
         <Experiences experiences={experiences} />
         <Reviews />
         <FAQ />

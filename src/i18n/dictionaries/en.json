@@ -21,8 +21,10 @@
   },
   "suites": {
     "subtitle": "6 Unique Retreats",
-    "title": "Our Suites",
-    "explore": "Swipe to explore"
+    "title": "Discover the rooms",
+    "explore": "View Details",
+    "mobileInstruction": "Swipe to explore",
+    "desktopInstruction": "Scroll down to explore"
   },
   "amenities": {
     "title": "Designed for your comfort",
@@ -76,6 +78,67 @@
     "preparing": "Preparing your reservation",
     "preparingTour": "Preparing Virtual Tour"
   },
+  "concept": {
+    "title": "A Place to Pause, Breathe, and Belong",
+    "p1": "Inspired by the spirit of the dreaming horse—peaceful, untamed, and deeply connected—our space is a place to pause, breathe, and belong.",
+    "p2": "Crafted with care using local stone, warm wood, and soft natural linens, each of our six rooms reflects the quiet strength of the land around us. The architecture is simple yet soulful, with arched doorways, curved balconies, and textures that invite touch. Two rooms offer shaded terraces for enjoying the still mornings or golden light at day’s end.",
+    "p3": "At the heart of the property, a pool and waterfall jacuzzi offer cool relief under the palms. Views stretch to the ocean, just a short walk away, while birdsong and the scent of sun-warmed earth surround you.",
+    "p4": "Welcome to Casa del Caballo Soñador, a boutique hotel in a small Mexican fishing village where life moves slower and nature sets the rhythm."
+  },
+  "services": {
+    "subtitle": "Everything You'll Enjoy",
+    "title": "During Your Stay",
+    "explore": "View Details",
+    "mobileInstruction": "Swipe to explore",
+    "desktopInstruction": "Use arrows to explore",
+    "items": [
+      {
+        "title": "6 Private Rooms",
+        "short": "Exclusive spaces designed for your rest.",
+        "desc": "Enjoy exclusivity and privacy in our 6 carefully designed rooms. Soft linens, local stone, and warm wood details ensure every moment is perfectly restful."
+      },
+      {
+        "title": "Chef Service & Kitchen",
+        "short": "Authentic flavors prepared in our fully equipped kitchen.",
+        "desc": "Our in-house chef crafts authentic local and international flavors using fresh, seasonal ingredients, served right from our fully equipped, open-concept kitchen."
+      },
+      {
+        "title": "Pool & Lounge Area",
+        "short": "Relax under the sun or enjoy the shade.",
+        "desc": "Unwind in our spacious pool area. Whether you are swimming laps, reading under the palm trees, or soaking up the golden hour sun, this is your personal oasis."
+      },
+      {
+        "title": "Jacuzzi & Relaxation",
+        "short": "Immerse yourself in tranquility.",
+        "desc": "Let the warm waters and gentle sound of the cascading waterfall melt away your stress in our beautiful stone-crafted jacuzzi."
+      },
+      {
+        "title": "Guest Kitchen",
+        "short": "A collaborative space for your own culinary creations.",
+        "desc": "Feel at home in our secondary guest kitchen. Fully equipped and always available for you to store your snacks, prepare a morning coffee, or cook your own meals."
+      },
+      {
+        "title": "Fast WiFi",
+        "short": "Stay connected throughout the property.",
+        "desc": "Whether you need to catch up on work or share your memories, enjoy reliable, high-speed internet access across all rooms and common areas."
+      },
+      {
+        "title": "Sunset Tour",
+        "short": "Unforgettable Pacific views (included on 7+ day stays).",
+        "desc": "For guests staying 7 nights or longer, we offer a complimentary guided sunset tour. Experience the breathtaking colors of the Nayarit coast from the best vantage points."
+      },
+      {
+        "title": "Beach Umbrellas",
+        "short": "Everything ready for your perfect beach day.",
+        "desc": "We provide premium beach umbrellas, chairs, and towels. The ocean is just a short walk away, and we make sure you have everything you need for comfort on the sand."
+      },
+      {
+        "title": "Rooftop Terrace",
+        "short": "The perfect spot for stargazing and sea breezes.",
+        "desc": "Head up to the rooftop terrace for panoramic views of the village and the ocean. It's the ideal setting for a morning yoga session or evening cocktails under the stars."
+      }
+    ]
+  },
   "roomsData": {
     "1": {
       "name": "Room 1",
@@ -122,5 +185,76 @@
     },
     "cocinaName": "House Kitchen",
     "cocinaDesc": "A private communal space, fully equipped for you to prepare your own dishes or simply enjoy the house's ambiance in total privacy and absolute comfort."
+  },
+  "toursPage": {
+    "heroSuperTitle": "Adventure Awaits",
+    "heroTitle": "UNIQUE ATV TOURS TO THE LESS EXPLORED SIGHTS IN CHACALA",
+    "introTitle": "Experience Chacala",
+    "introText1": "Tucked away in a small cove along the Pacific coast in the State of Nayarit, Chacala stands out for its unique charm and pristine beauty. Providing a serene getaway, the town boasts uncrowded beaches and a welcoming ambiance.",
+    "introText2": "The town's name, meaning \"where there are shrimp\" in Nahuatl, reflects its connection to the local culture and abundant marine life, adding to the distinctive character of this coastal gem.",
+    "explore": "Explore",
+    "bookTour": "Book Tour",
+    "backToHome": "Back to home",
+    "tours": [
+      {
+        "id": 1,
+        "title": "Ojo de Agua",
+        "description": "Orchards to a pristine cold-water spring. Uncover hidden petroglyphs."
+      },
+      {
+        "id": 2,
+        "title": "Molote River",
+        "description": "Thermal inlets and refreshing downstream waters."
+      },
+      {
+        "id": 3,
+        "title": "El Capomo",
+        "description": "Plunge pool beneath a majestic 50ft jungle waterfall."
+      },
+      {
+        "id": 4,
+        "title": "Las Cuevas",
+        "description": "Hidden gem beneath a volcanic plug for uninterrupted beach time."
+      },
+      {
+        "id": 5,
+        "title": "Jumurrca",
+        "description": "Explore hidden paths and spectacular views of the local wildlife."
+      },
+      {
+        "id": 6,
+        "title": "Alta Vista",
+        "description": "Ancient petroglyphs and sacred sites hidden in the lush Nayarit jungle."
+      },
+      {
+        "id": 7,
+        "title": "Volcano",
+        "description": "Conquer the crater and experience breathtaking panoramic vistas."
+      }
+    ],
+    "socialProofTitle": "Social Proof",
+    "socialProofSubtitle": "What Our Explorers Say",
+    "reviews": [
+      {
+        "id": 1,
+        "author": "Elena R.",
+        "text": "An unforgettable journey through the jungle! The ATVs were top-notch and the secret beaches were pristine.",
+        "rating": 5
+      },
+      {
+        "id": 2,
+        "author": "Mark S.",
+        "text": "Highly recommended if you stay in Chacala. Discovering the ancient petroglyphs was a surreal experience.",
+        "rating": 5
+      },
+      {
+        "id": 3,
+        "author": "Sofia G.",
+        "text": "The perfect mix of adrenaline and nature. Our guide was incredibly knowledgeable. 10/10!",
+        "rating": 5
+      }
+    ],
+    "editorialTitle": "Into the Wild",
+    "editorialText": "Experience the untamed beauty of Riviera Nayarit. Our off-road expeditions are designed to connect you deeply with nature while preserving its pristine condition."
   }
 }

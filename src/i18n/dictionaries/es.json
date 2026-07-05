@@ -4,6 +4,7 @@
     "tours": "Experiencias",
     "gallery": "Galería",
     "book": "Reservar Ahora",
+    "reserveBtn": "Reservar",
     "changingLanguage": "Cambiando idioma"
   },
   "hero": {
@@ -21,8 +22,10 @@
   },
   "suites": {
     "subtitle": "6 Retiros Únicos",
-    "title": "Nuestras Suites",
-    "explore": "Desliza para explorar"
+    "title": "Conoce las habitaciones",
+    "explore": "Ver Detalles",
+    "mobileInstruction": "Desliza para explorar",
+    "desktopInstruction": "Sigue bajando para explorar"
   },
   "amenities": {
     "title": "Diseñado para tu confort",
@@ -76,6 +79,67 @@
     "preparing": "Preparando tu Reserva",
     "preparingTour": "Preparando Recorrido Virtual"
   },
+  "concept": {
+    "title": "Un lugar para pausar, respirar y pertenecer",
+    "p1": "Inspirado en el espíritu del caballo soñador—pacífico, indomable y profundamente conectado—nuestro espacio es un lugar para hacer una pausa, respirar y pertenecer.",
+    "p2": "Creado con cuidado utilizando piedra local, madera cálida y suaves linos naturales, cada una de nuestras seis habitaciones refleja la fuerza tranquila de la tierra que nos rodea. La arquitectura es simple pero llena de alma, con puertas arqueadas, balcones curvos y texturas que invitan al tacto. Dos habitaciones ofrecen terrazas sombreadas para disfrutar de las mañanas tranquilas o de la luz dorada al final del día.",
+    "p3": "En el corazón de la propiedad, una piscina y un jacuzzi tipo cascada ofrecen un refrescante alivio bajo las palmeras. Las vistas se extienden hasta el océano, a solo una corta caminata, mientras el canto de los pájaros y el aroma de la tierra bañada por el sol te rodean.",
+    "p4": "Bienvenido a Casa del Caballo Soñador, un hotel boutique en un pequeño pueblo pesquero mexicano donde la vida se mueve más despacio y la naturaleza marca el ritmo."
+  },
+  "services": {
+    "subtitle": "Todo lo que disfrutarás",
+    "title": "Durante Tu Estancia",
+    "explore": "Ver Detalles",
+    "mobileInstruction": "Desliza para explorar",
+    "desktopInstruction": "Usa las flechas para explorar",
+    "items": [
+      {
+        "title": "6 Habitaciones Privadas",
+        "short": "Espacios exclusivos diseñados para tu descanso.",
+        "desc": "Disfruta de la exclusividad y privacidad en nuestras 6 habitaciones cuidadosamente diseñadas. Linos suaves, piedra local y madera cálida aseguran un descanso perfecto."
+      },
+      {
+        "title": "Servicio de Chef y Cocina",
+        "short": "Sabores auténticos preparados en nuestra cocina equipada.",
+        "desc": "Nuestro chef prepara auténticos sabores locales e internacionales utilizando ingredientes frescos de temporada, servidos directamente desde nuestra cocina de concepto abierto."
+      },
+      {
+        "title": "Piscina y Zona Lounge",
+        "short": "Relájate bajo el sol o disfruta de la sombra.",
+        "desc": "Desconecta en nuestra amplia zona de piscina. Ya sea nadando, leyendo bajo las palmeras o disfrutando del sol al atardecer, este es tu oasis personal."
+      },
+      {
+        "title": "Jacuzzi y Relajación",
+        "short": "Sumérgete en la más profunda tranquilidad.",
+        "desc": "Deja que las aguas cálidas y el suave sonido de la cascada disuelvan tu estrés en nuestro hermoso jacuzzi con acabados en piedra."
+      },
+      {
+        "title": "Cocina para Huéspedes",
+        "short": "Un espacio colaborativo para tus propias creaciones.",
+        "desc": "Siéntete como en casa en nuestra cocina secundaria. Completamente equipada y siempre disponible para preparar un café matutino o tus propios platillos."
+      },
+      {
+        "title": "WiFi de Alta Velocidad",
+        "short": "Mantente conectado en toda la propiedad.",
+        "desc": "Ya sea que necesites trabajar o compartir tus recuerdos, disfruta de acceso a internet confiable y rápido en todas las habitaciones y áreas comunes."
+      },
+      {
+        "title": "Tour al Atardecer",
+        "short": "Vistas inolvidables (incluido en estancias de 7+ días).",
+        "desc": "Para estancias de 7 noches o más, ofrecemos un tour guiado de cortesía al atardecer. Experimenta los impresionantes colores de la costa nayarita."
+      },
+      {
+        "title": "Sombrillas de Playa",
+        "short": "Todo listo para tu día de playa perfecto.",
+        "desc": "Proporcionamos sombrillas premium, sillas y toallas. El océano está a solo unos minutos a pie, y nos aseguramos de que tengas todo lo necesario."
+      },
+      {
+        "title": "Terraza en la Azotea",
+        "short": "El lugar perfecto para admirar las estrellas.",
+        "desc": "Sube a la terraza para disfrutar de vistas panorámicas del pueblo y el océano. El escenario ideal para yoga matutino o cócteles bajo las estrellas."
+      }
+    ]
+  },
   "roomsData": {
     "1": {
       "name": "Habitación 1",
@@ -122,5 +186,76 @@
     },
     "cocinaName": "Cocina de la Casa",
     "cocinaDesc": "Un espacio comunal privado, totalmente equipado para que prepares tus propios platillos o simplemente disfrutes del ambiente de la casa en total privacidad y confort absoluto."
+  },
+  "toursPage": {
+    "heroSuperTitle": "La Aventura Aguarda",
+    "heroTitle": "TOURS EN ATV ÚNICOS HACIA LOS LUGARES MENOS EXPLORADOS DE CHACALA",
+    "introTitle": "Experimenta Chacala",
+    "introText1": "Escondida en una pequeña cala a lo largo de la costa del Pacífico en el estado de Nayarit, Chacala destaca por su encanto único y belleza prístina. Al proporcionar una escapada serena, el pueblo cuenta con playas sin aglomeraciones y un ambiente acogedor.",
+    "introText2": "El nombre del pueblo, que significa \"donde hay camarones\" en náhuatl, refleja su conexión con la cultura local y la abundante vida marina, añadiendo al carácter distintivo de esta joya costera.",
+    "explore": "Explorar",
+    "bookTour": "Reservar Tour",
+    "backToHome": "Volver al inicio",
+    "tours": [
+      {
+        "id": 1,
+        "title": "Ojo de Agua",
+        "description": "Huertos hacia un manantial prístino de agua fría. Descubre petroglifos ocultos."
+      },
+      {
+        "id": 2,
+        "title": "Río Molote",
+        "description": "Entradas termales y refrescantes aguas río abajo."
+      },
+      {
+        "id": 3,
+        "title": "El Capomo",
+        "description": "Piscina natural bajo una majestuosa cascada de 15 metros en la jungla."
+      },
+      {
+        "id": 4,
+        "title": "Las Cuevas",
+        "description": "Joya escondida bajo un tapón volcánico para disfrutar de la playa sin interrupciones."
+      },
+      {
+        "id": 5,
+        "title": "Jumurrca",
+        "description": "Explora caminos ocultos y vistas espectaculares de la vida silvestre local."
+      },
+      {
+        "id": 6,
+        "title": "Alta Vista",
+        "description": "Antiguos petroglifos y sitios sagrados ocultos en la exuberante jungla de Nayarit."
+      },
+      {
+        "id": 7,
+        "title": "Volcán",
+        "description": "Conquista el cráter y experimenta impresionantes vistas panorámicas."
+      }
+    ],
+    "socialProofTitle": "Testimonios",
+    "socialProofSubtitle": "Lo que Dicen Nuestros Exploradores",
+    "reviews": [
+      {
+        "id": 1,
+        "author": "Elena R.",
+        "text": "¡Un viaje inolvidable por la jungla! Los vehículos ATV eran de primera y las playas secretas estaban inmaculadas.",
+        "rating": 5
+      },
+      {
+        "id": 2,
+        "author": "Mark S.",
+        "text": "Totalmente recomendado si te quedas en Chacala. Descubrir los antiguos petroglifos fue una experiencia surrealista.",
+        "rating": 5
+      },
+      {
+        "id": 3,
+        "author": "Sofia G.",
+        "text": "La mezcla perfecta de adrenalina y naturaleza. Nuestro guía fue increíblemente experto. ¡10/10!",
+        "rating": 5
+      }
+    ],
+    "editorialTitle": "Hacia lo Salvaje",
+    "editorialText": "Experimenta la belleza indomable de la Riviera Nayarit. Nuestras expediciones todoterreno están diseñadas para conectarte profundamente con la naturaleza preservando su condición prístina."
   }
 }

@@ -122,5 +122,76 @@
     },
     "cocinaName": "Hausküche",
     "cocinaDesc": "Ein privater Gemeinschaftsraum, voll ausgestattet, damit Sie Ihre eigenen Gerichte zubereiten oder einfach die Atmosphäre des Hauses in absoluter Privatsphäre genießen können."
+  },
+  "toursPage": {
+    "heroSuperTitle": "Das Abenteuer Wartet",
+    "heroTitle": "EINZIGARTIGE ATV-TOUREN ZU DEN WENIGER ERKUNDETEN SEHENSWÜRDIGKEITEN IN CHACALA",
+    "introTitle": "Erlebe Chacala",
+    "introText1": "Versteckt in einer kleinen Bucht an der Pazifikküste im Bundesstaat Nayarit, zeichnet sich Chacala durch seinen einzigartigen Charme und seine unberührte Schönheit aus. Die Stadt bietet einen ruhigen Rückzugsort und besticht durch menschenleere Strände und ein einladendes Ambiente.",
+    "introText2": "Der Name der Stadt, was auf Nahuatl \"wo es Garnelen gibt\" bedeutet, spiegelt die Verbundenheit zur lokalen Kultur und dem reichen Meeresleben wider und verleiht diesem Küstenjuwel einen unverwechselbaren Charakter.",
+    "explore": "Entdecken",
+    "bookTour": "Tour Buchen",
+    "backToHome": "Zurück zur Startseite",
+    "tours": [
+      {
+        "id": 1,
+        "title": "Ojo de Agua",
+        "description": "Obstgärten zu einer unberührten Kaltwasserquelle. Entdecke versteckte Petroglyphen."
+      },
+      {
+        "id": 2,
+        "title": "Molote Fluss",
+        "description": "Thermalzuläufe und erfrischendes flussabwärts fließendes Wasser."
+      },
+      {
+        "id": 3,
+        "title": "El Capomo",
+        "description": "Naturbecken unter einem majestätischen 15-Meter-Dschungelwasserfall."
+      },
+      {
+        "id": 4,
+        "title": "Las Cuevas",
+        "description": "Verstecktes Juwel unter einem vulkanischen Pfropfen für ungestörte Strandzeit."
+      },
+      {
+        "id": 5,
+        "title": "Jumurrca",
+        "description": "Erkunde verborgene Pfade und spektakuläre Ausblicke auf die lokale Tierwelt."
+      },
+      {
+        "id": 6,
+        "title": "Alta Vista",
+        "description": "Antike Petroglyphen und heilige Stätten, verborgen im üppigen Dschungel Nayarits."
+      },
+      {
+        "id": 7,
+        "title": "Vulkan",
+        "description": "Erobere den Krater und erlebe atemberaubende Panoramaaussichten."
+      }
+    ],
+    "socialProofTitle": "Erfahrungsberichte",
+    "socialProofSubtitle": "Was Unsere Entdecker Sagen",
+    "reviews": [
+      {
+        "id": 1,
+        "author": "Elena R.",
+        "text": "Eine unvergessliche Reise durch den Dschungel! Die ATVs waren erstklassig und die geheimen Strände makellos.",
+        "rating": 5
+      },
+      {
+        "id": 2,
+        "author": "Mark S.",
+        "text": "Sehr zu empfehlen, wenn man in Chacala übernachtet. Das Entdecken der antiken Petroglyphen war eine surreale Erfahrung.",
+        "rating": 5
+      },
+      {
+        "id": 3,
+        "author": "Sofia G.",
+        "text": "Die perfekte Mischung aus Adrenalin und Natur. Unser Führer war unglaublich sachkundig. 10/10!",
+        "rating": 5
+      }
+    ],
+    "editorialTitle": "Ab In Die Wildnis",
+    "editorialText": "Erlebe die ungezähmte Schönheit der Riviera Nayarit. Unsere Offroad-Expeditionen sind darauf ausgelegt, dich tief mit der Natur zu verbinden und gleichzeitig ihren unberührten Zustand zu bewahren."
   }
 }
