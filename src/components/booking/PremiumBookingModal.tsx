@@ -577,8 +577,18 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
             {/* Left Panel - Premium Brand Presentation */}
             <div className="hidden md:flex w-5/12 bg-[#23211F] text-[#F9F7F4] flex-col justify-between p-12 relative overflow-hidden shrink-0">
-              <div className="absolute inset-0 opacity-20 pointer-events-none">
-                <FluidHorseAnimation />
+              <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <svg viewBox="0 0 800 1200" preserveAspectRatio="xMidYMid slice" className="w-full h-full opacity-10">
+                  <path d="M-100,200 C200,0 600,400 900,200" fill="none" stroke="#F9F7F4" strokeWidth="2" />
+                  <path d="M-100,250 C200,50 600,450 900,250" fill="none" stroke="#F9F7F4" strokeWidth="1.5" />
+                  <path d="M-100,300 C200,100 600,500 900,300" fill="none" stroke="#F9F7F4" strokeWidth="1" />
+                  <path d="M-100,350 C200,150 600,550 900,350" fill="none" stroke="#F9F7F4" strokeWidth="0.5" />
+                  
+                  <path d="M-100,800 C300,1000 500,600 900,800" fill="none" stroke="#9B7E67" strokeWidth="2" />
+                  <path d="M-100,850 C300,1050 500,650 900,850" fill="none" stroke="#9B7E67" strokeWidth="1.5" />
+                  <path d="M-100,900 C300,1100 500,700 900,900" fill="none" stroke="#9B7E67" strokeWidth="1" />
+                </svg>
+                <div className="absolute inset-0 bg-gradient-to-br from-[#23211F]/50 via-transparent to-[#23211F]" />
               </div>
               <div className="relative z-10">
                 <motion.div
