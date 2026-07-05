@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useDragControls } from 'framer-motion';
-import { X, CalendarDays, ArrowRight, Check, Shield, CreditCard, Calendar, User, ChefHat, Map, Utensils, Minus, Plus } from 'lucide-react';
+import { X, CalendarDays, ArrowRight, Check, Shield, CreditCard, Calendar, User, ChefHat, Map, Utensils, Minus, Plus, Lock } from 'lucide-react';
 import { DayPicker, DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import FluidHorseAnimation from '../FluidHorseAnimation';
