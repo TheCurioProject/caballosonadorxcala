@@ -557,20 +557,20 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 onClose();
               }
             }}
-            className="relative w-full max-w-5xl bg-[#23211F] md:bg-[#F9F7F4] rounded-t-[2rem] md:rounded-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.2)] md:shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[92dvh] h-[92dvh] md:h-[650px] mt-auto md:mt-0 z-10"
+            className="relative w-full max-w-5xl bg-[#F9F7F4] rounded-t-[2rem] md:rounded-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.2)] md:shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[100dvh] h-[100dvh] md:h-[650px] mt-auto md:mt-0 z-10"
           >
             {isMobile && (
-              <div 
-                className="w-full h-6 sticky top-0 left-0 z-50 flex justify-center items-center touch-none bg-[#23211F] rounded-t-[2rem]"
+              <div
+                className="w-full flex justify-center py-4 bg-[#F9F7F4] rounded-t-[2rem] md:hidden cursor-grab active:cursor-grabbing touch-none shrink-0"
                 onPointerDown={(e) => dragControls.start(e)}
               >
-                <div className="w-12 h-1.5 bg-white/30 rounded-full" />
+                <div className="w-12 h-1.5 bg-black/20 rounded-full" />
               </div>
             )}
 
             <button
               onClick={onClose}
-              className={`absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 md:bg-transparent shadow-md sm:shadow-none sm:hover:bg-gray-200 transition-colors z-[60] ${isMobile ? 'text-white' : 'text-gray-500'}`}
+              className={`absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 flex items-center justify-center rounded-full bg-black/10 backdrop-blur-md md:bg-transparent shadow-sm sm:shadow-none sm:hover:bg-gray-200 transition-colors z-[60] text-gray-700 md:text-gray-500`}
             >
               <X size={20} />
             </button>

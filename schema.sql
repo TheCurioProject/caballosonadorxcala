@@ -7,6 +7,8 @@ CREATE TABLE `properties` (
     `base_capacity` INTEGER NOT NULL DEFAULT 12,
     `ical_token` VARCHAR(255) NULL,
     `is_active` BOOLEAN NOT NULL DEFAULT true,
+    `check_in_time` VARCHAR(5) NOT NULL DEFAULT '15:00',
+    `check_out_time` VARCHAR(5) NOT NULL DEFAULT '12:00',
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 

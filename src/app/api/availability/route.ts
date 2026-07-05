@@ -51,7 +51,13 @@ export async function GET() {
       disabledRanges.push({ from: b.checkIn, to: b.checkOut });
     }
 
-    return NextResponse.json({ disabledRanges });
+    return NextResponse.json({ 
+      disabledRanges,
+      propertySettings: {
+        checkInTime: property.checkInTime || "15:00",
+        checkOutTime: property.checkOutTime || "12:00"
+      }
+    });
   } catch (error) {
     console.error('Error fetching availability:', error);
     return NextResponse.json({ error: 'Failed to fetch availability' }, { status: 500 });

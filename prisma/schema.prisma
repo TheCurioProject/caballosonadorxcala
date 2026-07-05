@@ -16,6 +16,8 @@ model Property {
   baseCapacity          Int      @default(12) @map("base_capacity") // 6 habitaciones * 2
   icalToken             String?  @unique @map("ical_token") @db.VarChar(255)
   isActive              Boolean  @default(true) @map("is_active")
+  checkInTime           String   @default("15:00") @map("check_in_time")
+  checkOutTime          String   @default("12:00") @map("check_out_time")
   createdAt             DateTime @default(now()) @map("created_at")
   updatedAt             DateTime @updatedAt @map("updated_at")
 
