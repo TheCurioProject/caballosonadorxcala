@@ -76,7 +76,7 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
           key={img + idx}
           src={img}
           alt={`Room image ${idx + 1}`}
-          className="absolute inset-0 w-full h-full object-cover"
+          className={`absolute inset-0 w-full h-full ${isFullscreen ? 'object-contain' : 'object-cover'}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: currentImageIndex === idx ? 1 : 0 }}
           transition={{ duration: 0.5 }}
@@ -139,14 +139,14 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
               <X size={24} />
             </button>
 
-            {/* Top Section: Carousel (55vh / 65vh) */}
-            <div className="w-full h-[55vh] md:h-[65vh] relative bg-black shrink-0">
+            {/* Top Section: Carousel */}
+            <div className="w-full h-[45vh] md:h-[55vh] relative bg-black shrink-0">
                {carouselContent}
             </div>
 
-            {/* Bottom Section: Info (45vh / 35vh) */}
-            <div className="w-full flex-1 overflow-y-auto overscroll-contain touch-pan-y bg-[#F9F7F4]">
-              <div className="max-w-5xl mx-auto p-8 md:p-12 w-full flex flex-col min-h-full">
+            {/* Bottom Section: Info */}
+            <div className="w-full flex-1 bg-[#F9F7F4] flex flex-col justify-center">
+              <div className="max-w-5xl mx-auto p-6 md:p-12 w-full flex flex-col">
                 
                 {/* Tabs for Room 7 */}
                 {isRoom7 && (
@@ -191,15 +191,6 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
                       {!isCocina && room.price !== undefined && (
                         <span className="font-serif italic text-2xl text-[#23211F]">{room.price === 0 ? '' : room.price}</span>
                       )}
-                      <button 
-                        onClick={() => {
-                          onClose();
-                          openBookingModal();
-                        }}
-                        className="bg-[#23211F] text-[#F9F7F4] px-8 py-4 uppercase tracking-widest text-xs font-bold hover:bg-[#9B7E67] transition-colors w-full text-center mt-2"
-                      >
-                        {dict.nav.book}
-                      </button>
                     </div>
                   </div>
                 </div>

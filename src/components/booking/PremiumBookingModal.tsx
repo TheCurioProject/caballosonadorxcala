@@ -677,7 +677,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="h-full flex flex-col"
+                      className="min-h-full flex flex-col"
                     >
                       <StepIndicator currentStep={1} totalSteps={5} />
                       <h3 className="text-2xl font-serif text-[#23211F] mb-6">{dict.modal?.selectDates}</h3>
@@ -718,7 +718,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="h-full flex flex-col"
+                      className="min-h-full flex flex-col"
                     >
                       <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
                       <StepIndicator currentStep={2} totalSteps={5} />
@@ -766,7 +766,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="h-full flex flex-col"
+                      className="min-h-full flex flex-col"
                     >
                       <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
                       <StepIndicator currentStep={3} totalSteps={5} />
@@ -845,7 +845,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="h-full flex flex-col"
+                      className="min-h-full flex flex-col"
                     >
                       <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
                       <StepIndicator currentStep={4} totalSteps={5} />
@@ -915,29 +915,32 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="h-full flex flex-col"
+                      className="min-h-full flex flex-col"
                     >
                       {showConfetti && Array.from({ length: 40 }).map((_, i) => (
                         <ConfettiParticle key={i} index={i} delay={Math.random() * 0.5} />
                       ))}
 
                       {isLoading || isSuccess ? (
-                        <div className="flex-1 flex flex-col items-center justify-center h-full text-center space-y-6 pb-4">
+                        <div className="flex-1 flex flex-col items-center justify-center min-h-full text-center space-y-8 pb-4">
                           <motion.div
-                            animate={{ rotate: isSuccess ? 0 : 360, scale: isSuccess ? 1.2 : 1 }}
-                            transition={isSuccess ? { type: 'spring', stiffness: 300 } : { duration: 2, repeat: Infinity, ease: 'linear' }}
-                            className={`w-20 h-20 rounded-full flex items-center justify-center shadow-xl ${
-                              isSuccess ? 'bg-[#9B7E67] text-white' : 'bg-white text-[#9B7E67]'
-                            }`}
+                            animate={{ scale: isSuccess ? 1.1 : 1, opacity: 1 }}
+                            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                            className="relative flex flex-col items-center"
                           >
-                            {isSuccess ? <Check size={40} /> : <div className="w-10 h-10 border-4 border-[#9B7E67] border-t-transparent rounded-full animate-spin" />}
+                            <FluidHorseAnimation className="w-32 h-32 md:w-40 md:h-40 text-[#9B7E67] drop-shadow-xl" />
                           </motion.div>
-                          <div>
-                            <h3 className="text-3xl font-serif text-[#23211F] mb-2">
-                              {isSuccess ? dict.modal?.allReady : dict.modal?.preparing}
-                            </h3>
-                            <p className="text-gray-500 font-light">
-                              {isSuccess ? dict.modal?.redirecting : dict.modal?.securePayments}
+                          
+                          <div className="space-y-3 px-4">
+                            <motion.h3 
+                              animate={{ opacity: [0.7, 1, 0.7] }}
+                              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                              className="text-2xl md:text-3xl font-serif text-[#23211F]"
+                            >
+                              {isSuccess ? "Reserva Confirmada" : "Procesando entorno seguro..."}
+                            </motion.h3>
+                            <p className="text-gray-500 font-light flex items-center justify-center gap-2 text-sm md:text-base">
+                              <Lock size={16} className="text-[#9B7E67]" /> Conectando con Stripe (256-bit SSL)
                             </p>
                           </div>
                         </div>
