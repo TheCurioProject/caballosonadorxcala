@@ -54,8 +54,8 @@ export async function GET() {
     return NextResponse.json({ 
       disabledRanges,
       propertySettings: {
-        checkInTime: property.checkInTime || "15:00",
-        checkOutTime: property.checkOutTime || "12:00"
+        checkInTime: "15:00",
+        checkOutTime: "12:00"
       }
     });
   } catch (error) {
