@@ -135,9 +135,7 @@ export default function AdminLogin() {
                   Iniciar Sesión
                 </button>
               </form>
-            </motion.div>
           </motion.div>
-        </AnimatePresence>
       </div>
 
       <ActionLoadingScreen 
