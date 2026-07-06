@@ -9,11 +9,22 @@ export function LoadingScreen() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const handleLoad = () => setIsLoading(false);
+    const minDuration = 2500; // Garantizar al menos 2.5s para apreciar la animación
+    const startTime = Date.now();
+
+    const handleLoad = () => {
+      const elapsed = Date.now() - startTime;
+      const remaining = minDuration - elapsed;
+
+      if (remaining > 0) {
+        setTimeout(() => setIsLoading(false), remaining);
+      } else {
+        setIsLoading(false);
+      }
+    };
     
     if (document.readyState === 'complete') {
-      // If already loaded, give it a tiny tick for paint
-      setTimeout(handleLoad, 100);
+      handleLoad();
     } else {
       window.addEventListener('load', handleLoad);
       return () => window.removeEventListener('load', handleLoad);
