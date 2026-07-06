@@ -7,86 +7,80 @@ datasource db {
   provider = "mysql"
 }
 
-// Representa la propiedad entera (Casa del Caballo Soñador)
 model Property {
-  id                    Int      @id @default(autoincrement())
-  name                  String   @db.VarChar(255)
-  description           String?  @db.Text
-  basePrice             Float    @map("base_price") @default(15000) // Precio por defecto
-  baseCapacity          Int      @default(12) @map("base_capacity") // 6 habitaciones * 2
-  icalToken             String?  @unique @map("ical_token") @db.VarChar(255)
-  isActive              Boolean  @default(true) @map("is_active")
-  checkInTime           String   @default("15:00") @map("check_in_time")
-  checkOutTime          String   @default("12:00") @map("check_out_time")
-  createdAt             DateTime @default(now()) @map("created_at")
-  updatedAt             DateTime @updatedAt @map("updated_at")
-
-  bookings      Booking[]
-  blockedDates  BlockedDate[]
-  pricingRules  PricingRule[]
-  icalSources   IcalSource[]
+  id           Int           @id @default(autoincrement())
+  name         String        @db.VarChar(255)
+  description  String?       @db.Text
+  basePrice    Float         @default(15000) @map("base_price")
+  baseCapacity Int           @default(12) @map("base_capacity")
+  icalToken    String?       @unique @map("ical_token") @db.VarChar(255)
+  isActive     Boolean       @default(true) @map("is_active")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  blockedDates BlockedDate[]
+  icalSources  IcalSource[]
+  pricingRules PricingRule[]
+  bookings     Booking[]
 
   @@map("properties")
 }
 
 model Booking {
-  id             Int       @id @default(autoincrement())
-  propertyId     Int       @default(1) @map("property_id")
-  property       Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  checkIn        DateTime  @map("start_date")
-  checkOut       DateTime  @map("end_date")
-  guestName      String    @db.VarChar(255)
-  guestEmail     String    @db.VarChar(255)
-  guestPhone     String?   @db.VarChar(50)
-  payment_status String    @default("PENDING") @db.VarChar(50)
-  origin         String    @db.VarChar(100) // Origen de la reserva: WEBSITE, BOOKING_COM, etc.
+  id             Int            @id @default(autoincrement())
+  propertyId     Int            @default(1) @map("property_id")
+  checkIn        DateTime       @map("start_date")
+  checkOut       DateTime       @map("end_date")
+  guestName      String         @db.VarChar(255)
+  guestEmail     String         @db.VarChar(255)
+  guestPhone     String?        @db.VarChar(50)
+  payment_status String         @default("PENDING") @db.VarChar(50)
+  origin         String         @db.VarChar(100)
   totalPrice     Float
-  externalId     String?   @unique @db.VarChar(255) // ID único para reservas importadas vía iCal
-  idCardUrl      String?   @db.VarChar(500) // URL o ruta de la foto de credencial
-  notes          String?   @db.Text
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-
+  externalId     String?        @unique @db.VarChar(255)
+  idCardUrl      String?        @db.VarChar(500)
+  notes          String?        @db.Text
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
   addons         BookingAddon[]
+  property       Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
-  @@map("reservas")
   @@index([checkIn, checkOut])
   @@index([propertyId])
+  @@map("reservas")
 }
 
 model BlockedDate {
-  id         Int       @id @default(autoincrement())
-  propertyId Int       @default(1) @map("property_id")
-  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  startDate  DateTime  @map("start_date")
-  endDate    DateTime  @map("end_date")
-  reason     String?   @db.VarChar(500)
-  source     String?   @default("manual") @db.VarChar(50) // manual, airbnb, booking, other
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @updatedAt @map("updated_at")
+  id         Int      @id @default(autoincrement())
+  propertyId Int      @default(1) @map("property_id")
+  startDate  DateTime @map("start_date")
+  endDate    DateTime @map("end_date")
+  reason     String?  @db.VarChar(500)
+  source     String?  @default("manual") @db.VarChar(50)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
-  @@map("blocked_dates")
   @@index([startDate, endDate])
   @@index([propertyId])
+  @@map("blocked_dates")
 }
 
 model PricingRule {
-  id            Int       @id @default(autoincrement())
-  propertyId    Int       @default(1) @map("property_id")
-  property      Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  id            Int      @id @default(autoincrement())
+  propertyId    Int      @default(1) @map("property_id")
   date          DateTime
-  priceOverride Float     @map("price_override")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  priceOverride Float    @map("price_override")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  property      Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
-  @@map("pricing_rules")
   @@unique([propertyId, date])
+  @@map("pricing_rules")
 }
 
 model IcalSource {
   id         Int       @id @default(autoincrement())
   propertyId Int       @default(1) @map("property_id")
-  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   name       String    @db.VarChar(255)
   url        String    @db.Text
   lastSync   DateTime? @map("last_sync")
@@ -94,53 +88,54 @@ model IcalSource {
   syncError  String?   @map("sync_error") @db.Text
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
-  @@map("ical_sources")
   @@index([propertyId])
+  @@map("ical_sources")
 }
 
 model Experience {
-  id          Int       @id @default(autoincrement())
-  title       String    @db.VarChar(255)
-  description String?   @db.Text
-  price       String?   @db.VarChar(50)
-  imageUrl    String?   @db.VarChar(500)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(255)
+  description String?  @db.Text
+  price       String?  @db.VarChar(50)
+  imageUrl    String?  @db.VarChar(500)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model AdminUser {
-  id           Int       @id @default(autoincrement())
-  email        String    @unique @db.VarChar(255)
-  passwordHash String    @db.VarChar(255)
-  name         String?   @db.VarChar(255)
-  role         String    @default("ADMIN") @db.VarChar(50)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id           Int      @id @default(autoincrement())
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @db.VarChar(255)
+  name         String?  @db.VarChar(255)
+  role         String   @default("ADMIN") @db.VarChar(50)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model BookingAddon {
   id        Int      @id @default(autoincrement())
   bookingId Int      @map("booking_id")
-  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  type      String   @db.VarChar(50) // e.g., "CHEF_BREAKFAST", "CHEF_LUNCH", "CHEF_DINNER", "ATV_TOUR"
+  type      String   @db.VarChar(50)
   quantity  Int
-  details   String?  @db.Text // JSON string with specific details (like number of people, destination, dates)
-  price     Float    // Total price applied for this addon
+  details   String?  @db.Text
+  price     Float
   createdAt DateTime @default(now()) @map("created_at")
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 
-  @@map("booking_addons")
   @@index([bookingId])
+  @@map("booking_addons")
 }
 
 model AddonPricing {
   id        Int      @id @default(autoincrement())
-  type      String   @unique @db.VarChar(50) // "CHEF_BREAKFAST", "CHEF_LUNCH", "ATV_OJO_DE_AGUA", etc.
+  type      String   @unique @db.VarChar(50)
   name      String   @db.VarChar(255)
   price     Float
   isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("addon_pricing")
 }
