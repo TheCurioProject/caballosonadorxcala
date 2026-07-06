@@ -23,7 +23,7 @@ const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, 
     setIsSwitchingLang(true);
     // pathname es /es/algo o /en/algo, reemplazamos el primer segmento
     const segments = pathname.split('/');
-    if (segments.length > 1 && ['es', 'en', 'de'].includes(segments[1])) {
+    if (segments.length > 1 && ['es', 'en'].includes(segments[1])) {
       segments[1] = lang;
     } else {
       segments.splice(1, 0, lang);
@@ -46,7 +46,7 @@ const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, 
     open: (i: number) => ({ x: 0, opacity: 1, transition: { delay: 0.3 + (i * 0.1), duration: 0.5 } })
   };
 
-  const langMatch = pathname.match(/^\/(es|en|de)/);
+  const langMatch = pathname.match(/^\/(es|en)/);
   const langPrefix = langMatch ? langMatch[0] : '/es';
 
   return (
@@ -85,6 +85,24 @@ const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, 
               >
                 <span className="font-serif text-3xl md:text-4xl text-[#2C2927] group-hover:text-[#9B7E67] transition-colors duration-500">
                   {dict?.nav?.tours || 'Experiencias'}
+                </span>
+                <span className="text-[#9B7E67] opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </span>
+              </Link>
+
+              <Link
+                href={`/#location`}
+                onClick={() => {
+                  setIsOpen(false);
+                  setTimeout(() => {
+                    document.getElementById('location')?.scrollIntoView({ behavior: 'smooth' });
+                  }, 500);
+                }}
+                className="group flex items-center justify-between py-4"
+              >
+                <span className="font-serif text-3xl md:text-4xl text-[#2C2927] group-hover:text-[#9B7E67] transition-colors duration-500">
+                  {dict?.nav?.findUs || 'Encuentranos'}
                 </span>
                 <span className="text-[#9B7E67] opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
@@ -142,7 +160,7 @@ export const HomeNavigation = () => {
   const changeLanguage = (lang: string) => {
     setIsSwitchingLang(true);
     const segments = pathname.split('/');
-    if (segments.length > 1 && ['es', 'en', 'de'].includes(segments[1])) {
+    if (segments.length > 1 && ['es', 'en'].includes(segments[1])) {
       segments[1] = lang;
     } else {
       segments.splice(1, 0, lang);
@@ -232,7 +250,7 @@ export const HomeNavigation = () => {
             {/* Minimalist Centered Language Switcher (Desktop) */}
             <div className="hidden md:flex justify-center z-20 pointer-events-auto">
               <div className="flex items-center gap-3 md:gap-5">
-                {['es', 'en', 'de'].map((l) => {
+                {['es', 'en'].map((l) => {
                   const currentLang = pathname.split('/')[1] || 'es';
                   const isActive = currentLang === l;
                   return (
@@ -240,10 +258,10 @@ export const HomeNavigation = () => {
                       key={l}
                       onClick={() => changeLanguage(l)}
                       className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
-                        isActive ? 'opacity-100 grayscale-0 scale-110' : 'opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
+                        isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
                       }`}
                     >
-                      <span className="text-sm md:text-base leading-none block">{l === 'es' ? '🇲🇽' : l === 'en' ? '🇺🇸' : '🇩🇪'}</span>
+                      <span className="text-sm md:text-base leading-none block tracking-widest">{l.toUpperCase()}</span>
                       <div className="h-1.5 mt-1 w-full flex justify-center items-center">
                         {isActive && (
                           <motion.div 
@@ -286,7 +304,7 @@ export const HomeNavigation = () => {
 
               {/* Mobile Language Switcher */}
               <div className="flex md:hidden items-center gap-3 z-20 pointer-events-auto mr-1">
-                {['es', 'en', 'de'].map((l) => {
+                {['es', 'en'].map((l) => {
                   const currentLang = pathname.split('/')[1] || 'es';
                   const isActive = currentLang === l;
                   return (
@@ -294,10 +312,10 @@ export const HomeNavigation = () => {
                       key={l}
                       onClick={() => changeLanguage(l)}
                       className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
-                        isActive ? 'opacity-100 grayscale-0 scale-110' : 'opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
+                        isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
                       }`}
                     >
-                      <span className="text-[13px] leading-none block">{l === 'es' ? '🇲🇽' : l === 'en' ? '🇺🇸' : '🇩🇪'}</span>
+                      <span className="text-[13px] leading-none block tracking-widest">{l.toUpperCase()}</span>
                       <div className="h-1 mt-1 w-full flex justify-center items-center">
                         {isActive && (
                           <motion.div 

@@ -332,12 +332,21 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
   useScrollLock(isOpen);
 
-  // Fetch addons on mount
   useEffect(() => {
     fetch('/api/admin/addons')
       .then(res => res.json())
-      .then(data => setAddonsData(data))
-      .catch(console.error);
+      .then(data => {
+        if (Array.isArray(data)) {
+          setAddonsData(data);
+        } else {
+          console.error("Addons API returned non-array:", data);
+          setAddonsData([]);
+        }
+      })
+      .catch(err => {
+        console.error("Addons fetch failed:", err);
+        setAddonsData([]);
+      });
   }, []);
 
   // Fetch blocked dates on open
@@ -819,7 +828,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             {addonsData.filter(a => a.type.startsWith('ATV_')).map(tour => (
                               <Counter 
                                 key={tour.type}
-                                label={tour.name.replace(' (por persona)', '').replace('ATV - ', '')} 
+                                label={(tour.name || '').replace(' (por persona)', '').replace('ATV - ', '')} 
                                 value={atvSelections[tour.type] || 0} 
                                 onChange={(val) => handleAtvChange(tour.type, val)} 
                                 max={(atvSelections[tour.type] || 0) + (nights - totalAtvTours)} 

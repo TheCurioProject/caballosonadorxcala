@@ -38,7 +38,7 @@ export default async function RootLayout({
 }>) {
   // Use cookie to determine lang for the HTML tag since this layout wraps everything
   const cookieStore = await cookies();
-  const lang = (cookieStore.get('NEXT_LOCALE')?.value as 'es' | 'en' | 'de') || 'es';
+  const lang = (cookieStore.get('NEXT_LOCALE')?.value as 'es' | 'en') || 'es';
   const dict = await getDictionary(lang);
 
   return (

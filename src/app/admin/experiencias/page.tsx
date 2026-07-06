@@ -11,6 +11,9 @@ const DEFAULT_ADDONS = [
   { type: 'ATV_RIO_MOLOTE', name: 'ATV - Río Molote (por persona)' },
   { type: 'ATV_EL_CAPOMO', name: 'ATV - El Capomo (por persona)' },
   { type: 'ATV_LAS_CUEVAS', name: 'ATV - Las Cuevas (por persona)' },
+  { type: 'ATV_JUMURRCA', name: 'ATV - Jumurrca (por persona)' },
+  { type: 'ATV_ALTA_VISTA', name: 'ATV - Alta Vista (por persona)' },
+  { type: 'ATV_VOLCANO', name: 'ATV - Volcán Sunset (por persona)' },
 ];
 
 export default function AdminExperiencias() {

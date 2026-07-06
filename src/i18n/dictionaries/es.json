@@ -5,7 +5,8 @@
     "gallery": "Galería",
     "book": "Reservar Ahora",
     "reserveBtn": "Reservar",
-    "changingLanguage": "Cambiando idioma"
+    "changingLanguage": "Cambiando idioma",
+    "findUs": "Encuéntranos"
   },
   "hero": {
     "title": "Casa del Caballo Soñador | Hotel Boutique en Chacala, Nayarit",
@@ -193,38 +194,109 @@
     "tours": [
       {
         "id": 1,
+        "type": "ATV_OJO_DE_AGUA",
         "title": "Ojo de Agua",
-        "description": "Huertos hacia un manantial prístino de agua fría. Descubre petroglifos ocultos."
+        "description": "Huertos hacia un manantial prístino de agua fría. Descubre petroglifos ocultos.",
+        "longDescription": "Ojo de Agua es un paraíso selvático de agua dulce. Relativamente cerca de Chacala en distancia, recorremos extensamente la zona antes de llegar. Saliendo hacia el sur justo a las afueras de Chacala transitamos por los hermosos huertos de mangos y guanábanas de El Divisadero y sus alrededores. A lo lejos se puede ver el pueblo montañoso de Alta Vista, así como las playas de Guayabitos y La Peñita. Esta experiencia al aire libre seguramente refrescará tus sentidos y te reconectará con la naturaleza. ¡Ah, y también hay marcas históricas aquí en las rocas!",
+        "duration": "3-4 hrs",
+        "capacity": "Máximo 5 pasajeros por unidad (hasta 10 por grupo)",
+        "includes": [
+          "Hielera con agua y hielo",
+          "Accesorios de playa",
+          "Entradas incluidas",
+          "Guía/Conductor"
+        ],
+        "learnMoreBtn": "Saber más"
       },
       {
         "id": 2,
+        "type": "ATV_RIO_MOLOTE",
         "title": "Río Molote",
-        "description": "Entradas termales y refrescantes aguas río abajo."
+        "description": "Entradas termales y refrescantes aguas río abajo.",
+        "longDescription": "Mesillas es un pequeño pueblo a 25km al norte de Chacala con una red de ríos de aguas termales. Dejando Chacala viajamos 18km al norte hacia Molote con un aumento de elevación de aproximadamente 1500 pies. Desde Mesillas descendemos al fondo del valle por una serie de curvas montañosas. ¡Las vistas en este tramo son espectaculares! Una vez en el río, caminamos 1.5 km por un laberinto de afluentes termales. Hay pozas excavadas en el río ideales para sumergirse. De regreso, conducimos por el fondo del valle hasta Zacualpan, cruzando algunas de las tierras de cultivo más ricas y fértiles del estado.",
+        "duration": "6-8 hrs",
+        "capacity": "Máximo 5 pasajeros por unidad (hasta 10 por grupo)",
+        "includes": [
+          "Hielera con agua y hielo",
+          "Entradas incluidas",
+          "Guía/Conductor"
+        ],
+        "learnMoreBtn": "Saber más"
       },
       {
         "id": 3,
+        "type": "ATV_EL_CAPOMO",
         "title": "El Capomo",
-        "description": "Piscina natural bajo una majestuosa cascada de 15 metros en la jungla."
+        "description": "Piscina natural bajo una majestuosa cascada en la jungla.",
+        "longDescription": "Este tour a la comunidad agrícola de El Capomo es la oportunidad perfecta para entrar al agua y refrescarse. Conducimos campo a través por los huertos de El Divisadero para llegar al pueblo de El Capomo, donde hacemos un recorrido rápido antes de dirigirnos a las faldas de la montaña, paralelos al río. Las cascadas de El Capomo requieren caminar por el lecho del río durante aproximadamente 1km hasta llegar a la poza profunda donde puedes nadar bajo la cascada.",
+        "duration": "4-5 hrs",
+        "capacity": "Máximo 5 pasajeros por unidad (hasta 10 por grupo)",
+        "includes": [
+          "Hielera con agua y hielo",
+          "Entradas incluidas",
+          "Guía/Conductor"
+        ],
+        "learnMoreBtn": "Saber más"
       },
       {
         "id": 4,
+        "type": "ATV_LAS_CUEVAS",
         "title": "Las Cuevas",
-        "description": "Joya escondida bajo un tapón volcánico para disfrutar de la playa sin interrupciones."
+        "description": "Playa secreta bajo un tapón volcánico para disfrutar sin interrupciones.",
+        "longDescription": "Ubicada a 1 hora de viaje desde Chacala, esta playa relativamente desconocida es un lugar donde el agua se ha mezclado con el fuego y ambos han dejado su huella en la tierra. Rocas volcánicas cubren el área y la lava que una vez fluyó aquí todavía es visible. Ubicada en una caleta bajo un tapón volcánico, la energía de la tierra es fuerte y los practicantes de trabajo energético querrán explorar este lugar. Las Cuevas es ideal para grupos que buscan pasar un día de playa sin interferencias.",
+        "duration": "4-6 hrs",
+        "capacity": "Máximo 5 pasajeros por unidad (hasta 10 por grupo)",
+        "includes": [
+          "Hielera con agua y hielo",
+          "Sombrillas y sillas de playa",
+          "Entradas incluidas",
+          "Guía/Conductor"
+        ],
+        "learnMoreBtn": "Saber más"
       },
       {
         "id": 5,
+        "type": "ATV_JUMURRCA",
         "title": "Jumurrca",
-        "description": "Explora caminos ocultos y vistas espectaculares de la vida silvestre local."
+        "description": "Explora un hermoso balneario moderno en medio de la naturaleza.",
+        "longDescription": "Las aguas termales de Jumurrca es una hermosa instalación moderna y actualizada. Jumurrca cuenta con 2 piscinas principales, un jacuzzi superior y 2 piscinas para niños con sombrillas. Esta instalación tiene refugios estilo cabaña paralelos a ambos lados de las áreas de la piscina, completos con sillas y mesas. Hay varias áreas verdes creando separación y privacidad. Al fondo de la instalación hay una hermosa área común con altas palmeras. No se agregan productos químicos a las aguas; las piscinas se enjuagan y limpian regularmente.",
+        "duration": "4-5 hrs",
+        "capacity": "Máximo 5 pasajeros por unidad (hasta 10 por grupo)",
+        "includes": [
+          "Hielera con agua y hielo",
+          "Entradas incluidas",
+          "Guía/Conductor"
+        ],
+        "learnMoreBtn": "Saber más"
       },
       {
         "id": 6,
+        "type": "ATV_ALTA_VISTA",
         "title": "Alta Vista",
-        "description": "Antiguos petroglifos y sitios sagrados ocultos en la exuberante jungla de Nayarit."
+        "description": "Antiguos petroglifos y sitios sagrados en la exuberante jungla.",
+        "longDescription": "Alta Vista es un complejo de petroglifos que se originó en una época anterior a la historia registrada. Este sitio ha sido utilizado por los pueblos en busca de conexión espiritual e iluminación durante miles de años. Los tallados en estas rocas son indicadores de las energías de la naturaleza y sirven como mapas de carreteras para las generaciones venideras, indicando recursos estacionales. También hay evidencia de la conquista española del siglo XVI. Es un lugar imperdible para interesados en culturas antiguas.",
+        "duration": "4-5 hrs",
+        "capacity": "Máximo 5 pasajeros por unidad (hasta 10 por grupo)",
+        "includes": [
+          "Hielera con agua y hielo",
+          "Entradas incluidas",
+          "Guía/Conductor"
+        ],
+        "learnMoreBtn": "Saber más"
       },
       {
         "id": 7,
+        "type": "ATV_VOLCANO",
         "title": "Volcán",
-        "description": "Conquista el cráter y experimenta impresionantes vistas panorámicas."
+        "description": "Conquista el cráter y experimenta impresionantes vistas panorámicas al atardecer.",
+        "longDescription": "Si visitas Chacala definitivamente no querrás perderte el momento más mágico del día... ¡El atardecer! Hacemos un hermoso recorrido nocturno por la jungla y huertos de Chacala hasta la cima del volcán que domina la bahía. Desde aquí tienes una vista despejada de un espectáculo que dura más de 30 minutos. Ven con nosotros al borde del mundo donde la tierra se encuentra con el mar, observa las energías del Sol y la Luna bailar sobre el agua bajo las estrellas.",
+        "duration": "2-3 hrs",
+        "capacity": "Máximo 5 pasajeros por unidad (hasta 10 por grupo)",
+        "includes": [
+          "Hielera con agua y hielo",
+          "Guía/Conductor"
+        ],
+        "learnMoreBtn": "Saber más"
       }
     ],
     "socialProofTitle": "Testimonios",
@@ -250,7 +322,16 @@
       }
     ],
     "editorialTitle": "Hacia lo Salvaje",
-    "editorialText": "Experimenta la belleza indomable de la Riviera Nayarit. Nuestras expediciones todoterreno están diseñadas para conectarte profundamente con la naturaleza preservando su condición prístina."
+    "editorialText": "Experimenta la belleza indomable de la Riviera Nayarit. Nuestras expediciones todoterreno están diseñadas para conectarte profundamente con la naturaleza preservando su condición prístina.",
+    "modal": {
+      "close": "Cerrar",
+      "duration": "Duración",
+      "price": "Precio Base",
+      "capacity": "Capacidad",
+      "includes": "Qué Incluye",
+      "bookNow": "Reservar vía WhatsApp",
+      "whatsappMessage": "¡Hola! Estoy interesado en el tour de"
+    }
   },
   "faq": {
     "title": "Preguntas Frecuentes",

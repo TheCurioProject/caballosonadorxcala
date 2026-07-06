@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { getDictionary } from '@/i18n/dictionaries';
 
-export async function generateMetadata({ params }: { params: Promise<{ lang: 'es' | 'en' | 'de' }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ lang: 'es' | 'en' }> }): Promise<Metadata> {
   const { lang } = await params;
   const safeLang = lang || 'es';
   const dict = await getDictionary(safeLang);
@@ -16,7 +16,6 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: 'es
       languages: {
         'es': `${siteUrl}/es`,
         'en': `${siteUrl}/en`,
-        'de': `${siteUrl}/de`,
       },
     },
     openGraph: {
@@ -32,7 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: 'es
           alt: 'Casa del Caballo Soñador',
         },
       ],
-      locale: safeLang === 'es' ? 'es_MX' : safeLang === 'de' ? 'de_DE' : 'en_US',
+      locale: safeLang === 'es' ? 'es_MX' : 'en_US',
       type: 'website',
     },
     twitter: {
@@ -54,7 +53,7 @@ export default async function LangLayout({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
-  const safeLang = (lang as 'es' | 'en' | 'de') || 'es';
+  const safeLang = (lang as 'es' | 'en') || 'es';
   const dict = await getDictionary(safeLang);
 
   return (

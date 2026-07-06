@@ -4,7 +4,8 @@
     "tours": "Experiences",
     "gallery": "Gallery",
     "book": "Book Now",
-    "changingLanguage": "Changing language"
+    "changingLanguage": "Changing language",
+    "findUs": "Find Us"
   },
   "hero": {
     "title": "Casa del Caballo Soñador | Boutique Hotel in Chacala, Nayarit",
@@ -192,38 +193,109 @@
     "tours": [
       {
         "id": 1,
+        "type": "ATV_OJO_DE_AGUA",
         "title": "Ojo de Agua",
-        "description": "Orchards to a pristine cold-water spring. Uncover hidden petroglyphs."
+        "description": "Orchards leading to a pristine cold water spring. Discover hidden petroglyphs.",
+        "longDescription": "Ojo De Agua is a sweet water Jungle Paradise! Located relatively close to Chacala in distance we tour the area extensively before arriving. Turning south just outside of Chacala we transit through the beautiful Mango and Guanabana orchards of El Divisidaro and surrounding area. In the distance you can see the mountain town of Alta Vista as well as the beaches of Guayabitos & La Penita. This open air experience is sure to refresh your senses and get you reconnected with nature. Oh! did we mention... The Marks are here on the rocks also!",
+        "duration": "3-4 hrs",
+        "capacity": "Maximum 5 passengers per unit (up to 10 per group)",
+        "includes": [
+          "Cooler with ice & water",
+          "Beach Accessories",
+          "Entry Fees Included",
+          "Guide/Driver"
+        ],
+        "learnMoreBtn": "Learn More"
       },
       {
         "id": 2,
-        "title": "Molote River",
-        "description": "Thermal inlets and refreshing downstream waters."
+        "type": "ATV_RIO_MOLOTE",
+        "title": "Río Molote",
+        "description": "Thermal inlets and refreshing downstream river waters.",
+        "longDescription": "Mesillas is a small town 25km North of Chacala with a Thermal Spring River Network. Leaving Chacala via Highway 200 we travel 18 kms north to Molote. From Mesillas we descend to the valley floor using a series of mountain switchbacks. Once at the river we disembark and start our hike. The 1.5 km walk is a maze of thermal tributaries entering the main channel. There are a series of dug outs in the river that are used as wading pools. From here we drive out the valley floor over to Zacualpan witnessing some of the richest farmland in the state.",
+        "duration": "6-8 hrs",
+        "capacity": "Maximum 5 passengers per unit (up to 10 per group)",
+        "includes": [
+          "Cooler with ice & water",
+          "Entry Fees Included",
+          "Guide/Driver"
+        ],
+        "learnMoreBtn": "Learn More"
       },
       {
         "id": 3,
+        "type": "ATV_EL_CAPOMO",
         "title": "El Capomo",
-        "description": "Plunge pool beneath a majestic 50ft jungle waterfall."
+        "description": "Natural plunge pool under a majestic 50ft jungle waterfall.",
+        "longDescription": "This tour to the farming community of El Capomo is the perfect opportunity to get in the water and cool down. We ride cross country through the orchards of El Divisidaro to get to the town of El Capomo where we do a quick tour of town. Then it is off into the foothills where we parallel the lazy river until we come to our parking area. El Capomo falls requires you to walk up the river bed for approximately 1km until we reach the plunge pool where you can swim under the falls.",
+        "duration": "4-5 hrs",
+        "capacity": "Maximum 5 passengers per unit (up to 10 per group)",
+        "includes": [
+          "Cooler with ice & water",
+          "Entry Fees Included",
+          "Guide/Driver"
+        ],
+        "learnMoreBtn": "Learn More"
       },
       {
         "id": 4,
+        "type": "ATV_LAS_CUEVAS",
         "title": "Las Cuevas",
-        "description": "Hidden gem beneath a volcanic plug for uninterrupted beach time."
+        "description": "Hidden gem under a volcanic plug for uninterrupted beach time.",
+        "longDescription": "Located 1hr. ride from Chacala this relatively unknown beach is a place where water has mixed with fire and both have left their mark upon the earth. Volcanic rock litters the area and the lava that once flowed here is still visible. Nestled in a cove below a volcanic plug the energy of the earth is strong and practitioners looking to perform energy type work will want to scout this location. Los Cuevas is Ideal for groups looking to spend some time at the beach without a lot of interference.",
+        "duration": "4-6 hrs",
+        "capacity": "Maximum 5 passengers per unit (up to 10 per group)",
+        "includes": [
+          "Cooler with ice & water",
+          "Beach umbrellas and chairs",
+          "Entry Fees Included",
+          "Guide/Driver"
+        ],
+        "learnMoreBtn": "Learn More"
       },
       {
         "id": 5,
+        "type": "ATV_JUMURRCA",
         "title": "Jumurrca",
-        "description": "Explore hidden paths and spectacular views of the local wildlife."
+        "description": "Explore hidden paths and spectacular views of local wildlife.",
+        "longDescription": "Jumurrca Agua's Terminales is a beautiful up to date modern facility. Jumurrca boasts 2 main pools, an upper hot tub and 2 lower wading pools with sun shades for kids of all ages. This facility has cabana style shelters paralleling both sides of the pool areas. There are several grassy areas with walk ways creating separation allowing for privacy. At the far end of the facility there is a beautiful common area with high palm trees producing shade. No chemical is added to the waters and pools are flushed regularly.",
+        "duration": "4-5 hrs",
+        "capacity": "Maximum 5 passengers per unit (up to 10 per group)",
+        "includes": [
+          "Cooler with ice & water",
+          "Entry Fees Included",
+          "Guide/Driver"
+        ],
+        "learnMoreBtn": "Learn More"
       },
       {
         "id": 6,
+        "type": "ATV_ALTA_VISTA",
         "title": "Alta Vista",
-        "description": "Ancient petroglyphs and sacred sites hidden in the lush Nayarit jungle."
+        "description": "Ancient petroglyphs and sacred sites hidden in Nayarit's lush jungle.",
+        "longDescription": "Alta Vista is a Petroglyph Complex originating at a time that existed before recorded history. This site has been used by peoples' seeking spiritual connection and enlightenment for thousands of years. The carvings on these rocks are indicators of the energies that exist in nature and double as seasonal calendars. Also at this site is evidence of the Spanish conquest of Mexico dating to the early 16th century. This is a must see location for anyone interested in ancient cultures and civilizations.",
+        "duration": "4-5 hrs",
+        "capacity": "Maximum 5 passengers per unit (up to 10 per group)",
+        "includes": [
+          "Cooler with ice & water",
+          "Entry Fees Included",
+          "Guide/Driver"
+        ],
+        "learnMoreBtn": "Learn More"
       },
       {
         "id": 7,
-        "title": "Volcano",
-        "description": "Conquer the crater and experience breathtaking panoramic vistas."
+        "type": "ATV_VOLCANO",
+        "title": "Volcano Sunset",
+        "description": "Conquer the crater and experience breathtaking panoramic sunset views.",
+        "longDescription": "If you are visiting Chacala you definitely do not want to miss out on the most magical time of day... Sunset !!! Chacala Adventure Tours does a beautiful evening cruise through the jungle and orchards of Chacala to the top of the Volcano that over looks Chacala Bay. From here you have an unobstructed view of a spectacle that can last more than 30 minutes. Watch as the energies of Sun and Moon dance upon the water and reflect in the sky as the stars come to greet the evening.",
+        "duration": "2-3 hrs",
+        "capacity": "Maximum 5 passengers per unit (up to 10 per group)",
+        "includes": [
+          "Cooler with ice & water",
+          "Guide/Driver"
+        ],
+        "learnMoreBtn": "Learn More"
       }
     ],
     "socialProofTitle": "Social Proof",
@@ -249,7 +321,16 @@
       }
     ],
     "editorialTitle": "Into the Wild",
-    "editorialText": "Experience the untamed beauty of Riviera Nayarit. Our off-road expeditions are designed to connect you deeply with nature while preserving its pristine condition."
+    "editorialText": "Experience the untamed beauty of Riviera Nayarit. Our off-road expeditions are designed to connect you deeply with nature while preserving its pristine condition.",
+    "modal": {
+      "close": "Close",
+      "duration": "Duration",
+      "price": "Base Price",
+      "capacity": "Capacity",
+      "includes": "What's Included",
+      "bookNow": "Book via WhatsApp",
+      "whatsappMessage": "Hi! I'm interested in the"
+    }
   },
   "faq": {
     "title": "Frequently Asked Questions",
