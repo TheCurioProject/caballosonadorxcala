@@ -8,12 +8,15 @@ export function LoadingScreen() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Tiempo de carga cinematográfico (más largo para poder apreciar el logo nuevo)
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
+    const handleLoad = () => setIsLoading(false);
     
-    return () => clearTimeout(timer);
+    if (document.readyState === 'complete') {
+      // If already loaded, give it a tiny tick for paint
+      setTimeout(handleLoad, 100);
+    } else {
+      window.addEventListener('load', handleLoad);
+      return () => window.removeEventListener('load', handleLoad);
+    }
   }, []);
 
   return (
