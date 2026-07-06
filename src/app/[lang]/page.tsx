@@ -1,16 +1,14 @@
 import prisma from '@/lib/prisma';
 import { Hero } from '@/components/home/Hero';
-import dynamic from 'next/dynamic';
-
-const About = dynamic(() => import('@/components/home/About').then(mod => mod.About));
-const Concept = dynamic(() => import('@/components/home/Concept').then(mod => mod.Concept));
-const Services = dynamic(() => import('@/components/home/Services').then(mod => mod.Services));
-const Suites = dynamic(() => import('@/components/home/Suites').then(mod => mod.Suites));
-const Experiences = dynamic(() => import('@/components/home/Experiences').then(mod => mod.Experiences));
-const Reviews = dynamic(() => import('@/components/home/Reviews').then(mod => mod.Reviews));
-const FAQ = dynamic(() => import('@/components/home/FAQ').then(mod => mod.FAQ));
-const Location = dynamic(() => import('@/components/home/Location').then(mod => mod.Location));
-const Footer = dynamic(() => import('@/components/home/Footer').then(mod => mod.Footer));
+import { About } from '@/components/home/About';
+import { Concept } from '@/components/home/Concept';
+import { Services } from '@/components/home/Services';
+import { Suites } from '@/components/home/Suites';
+import { Experiences } from '@/components/home/Experiences';
+import { Reviews } from '@/components/home/Reviews';
+import { FAQ } from '@/components/home/FAQ';
+import { Location } from '@/components/home/Location';
+import { Footer } from '@/components/home/Footer';
 
 import { getDictionary } from '@/i18n/dictionaries';
 
@@ -25,11 +23,14 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
   let experiences = [];
   
   try {
-    experiences = await prisma.experience.findMany();
+    // Timeout prisma query after 1.5 seconds to prevent server-side hang
+    const fetchExperiences = prisma.experience.findMany();
+    const timeout = new Promise<any[]>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 1500));
+    experiences = await Promise.race([fetchExperiences, timeout]);
   } catch (error) {
     // Next.js dev server intercepts console.error and displays a full-screen overlay.
     // Since we have a fallback for experiences, we log a warning instead.
-    console.warn("Failed to fetch data from Prisma, using fallback data.");
+    console.warn("Failed to fetch data from Prisma or timed out, using fallback data.");
   }
 
   const getRoom = (id: number, basePrice: number, images: string[]) => {

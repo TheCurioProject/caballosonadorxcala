@@ -11,7 +11,7 @@ export function LoadingScreen() {
     // Tiempo de carga cinematográfico (más largo para poder apreciar el logo nuevo)
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 3500);
+    }, 800);
     
     return () => clearTimeout(timer);
   }, []);
