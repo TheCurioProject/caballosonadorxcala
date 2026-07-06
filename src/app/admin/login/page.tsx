@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Lock, User, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogoCompleto } from '@/components/ui/LogoCompleto';
-import { AnimatedHorse } from '@/components/ui/AnimatedHorse';
+import { ActionLoadingScreen } from '@/components/ui/ActionLoadingScreen';
 
 export default function AdminLogin() {
   const [username, setUsername] = useState('');
@@ -56,36 +56,13 @@ export default function AdminLogin() {
       </div>
 
       <div className="bg-white p-10 md:p-14 rounded-[2rem] shadow-2xl border border-[#E5E0D8] w-full max-w-md relative z-10 mx-4 min-h-[450px] flex flex-col justify-center">
-        <AnimatePresence mode="wait">
-          {(isLoading || isSuccess) ? (
-            <motion.div
-              key="loading-success"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.4 }}
-              className="flex flex-col items-center justify-center text-center space-y-8"
-            >
-              <div className="text-[#9B7E67]">
-                <AnimatedHorse size="lg" />
-              </div>
-              <div>
-                <h3 className="font-serif text-2xl text-[#23211F] mb-2">
-                  {isSuccess ? 'Acceso Concedido' : 'Validando...'}
-                </h3>
-                <p className="text-[#9B7E67] text-sm uppercase tracking-widest font-medium">
-                  {isSuccess ? 'Ingresando al panel...' : 'Preparando su establo...'}
-                </p>
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="login-form"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
-            >
+          <motion.div
+            key="login-form"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+          >
               <div className="text-center mb-10">
                 <h2 className="text-[#9B7E67] uppercase tracking-[0.3em] text-xs font-bold mb-2">Panel de Control</h2>
                 <h1 className="font-serif text-4xl text-[#23211F]">Acceso Seguro</h1>
@@ -159,9 +136,15 @@ export default function AdminLogin() {
                 </button>
               </form>
             </motion.div>
-          )}
+          </motion.div>
         </AnimatePresence>
       </div>
+
+      <ActionLoadingScreen 
+        isOpen={isLoading || isSuccess}
+        message={isSuccess ? 'Acceso Concedido' : 'Validando...'}
+        subMessage={isSuccess ? 'Ingresando al panel...' : 'Iniciando sesión segura'}
+      />
     </div>
   );
 }

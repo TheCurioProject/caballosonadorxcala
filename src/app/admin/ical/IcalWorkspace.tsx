@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { saveIcalFeeds } from '@/lib/actions';
 import { Loader2, Link2, Plus, Trash2, Copy, Check } from 'lucide-react';
+import { ActionLoadingScreen } from '@/components/ui/ActionLoadingScreen';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type Feed = { name: string; url: string };
@@ -134,6 +135,12 @@ export default function IcalWorkspace({ roomId, initialFeeds }: { roomId: number
           </button>
         </div>
       </div>
+      
+      <ActionLoadingScreen 
+        isOpen={isLoading}
+        message="Sincronizando iCal..."
+        subMessage="Actualizando disponibilidad con Airbnb / Booking"
+      />
     </div>
   );
 }

@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useDragControls } from 'framer-motion';
-import { X, CalendarDays, ArrowRight, Check, Shield, CreditCard, Calendar, User, ChefHat, Map, Utensils, Minus, Plus, Lock } from 'lucide-react';
+import { X, CalendarDays, ArrowRight, Check, ChefHat, CreditCard, User, Map, Utensils, Minus, Plus } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { ActionLoadingScreen } from '../ui/ActionLoadingScreen';
 import { DayPicker, DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
-import FluidHorseAnimation from '../FluidHorseAnimation';
+const FluidHorseAnimation = dynamic(() => import('../FluidHorseAnimation'), { ssr: false });
 import { format, differenceInDays } from 'date-fns';
 import { es, enUS, de } from 'date-fns/locale';
 import { useDictionary } from '@/i18n/DictionaryContext';
@@ -550,7 +552,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
             onClick={onClose}
           />
 
-          {/* Modal Container: Restored original height boundaries */}
+          {/* Modal Container */}
           <motion.div
             initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.92, y: 30 }}
             animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
@@ -584,7 +586,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
               <X size={20} />
             </button>
 
-            {/* Left Panel - Premium Brand Presentation */}
+            {/* Left Panel */}
             <div className="hidden md:flex w-5/12 bg-[#23211F] text-[#F9F7F4] flex-col justify-between p-12 relative overflow-hidden shrink-0">
               <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 <svg viewBox="0 0 800 1200" preserveAspectRatio="xMidYMid slice" className="w-full h-full opacity-10">
@@ -675,7 +677,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
               </div>
             </div>
 
-            {/* Right Panel - Interactive Flow */}
+            {/* Right Panel */}
             <div className="w-full md:w-7/12 flex flex-col h-full bg-[#F9F7F4] relative">
               <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-12 pb-32 md:pb-12 scroll-smooth">
                 <AnimatePresence mode="wait">
@@ -930,95 +932,70 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         <ConfettiParticle key={i} index={i} delay={Math.random() * 0.5} />
                       ))}
 
-                      {isLoading || isSuccess ? (
-                        <div className="flex-1 flex flex-col items-center justify-center min-h-full text-center space-y-8 pb-4">
-                          <motion.div
-                            animate={{ scale: isSuccess ? 1.1 : 1, opacity: 1 }}
-                            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-                            className="relative flex flex-col items-center"
-                          >
-                            <FluidHorseAnimation className="w-32 h-32 md:w-40 md:h-40 text-[#9B7E67] drop-shadow-xl" />
-                          </motion.div>
-                          
-                          <div className="space-y-3 px-4">
-                            <motion.h3 
-                              animate={{ opacity: [0.7, 1, 0.7] }}
-                              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                              className="text-2xl md:text-3xl font-serif text-[#23211F]"
-                            >
-                              {isSuccess ? "Reserva Confirmada" : "Procesando entorno seguro..."}
-                            </motion.h3>
-                            <p className="text-gray-500 font-light flex items-center justify-center gap-2 text-sm md:text-base">
-                              <Lock size={16} className="text-[#9B7E67]" /> Conectando con Stripe (256-bit SSL)
-                            </p>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col h-full">
-                          <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
-                          <StepIndicator currentStep={5} totalSteps={5} />
-                          <h3 className="text-3xl font-serif text-[#23211F] mb-6 shrink-0">Resumen</h3>
-                          
-                          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex-1 overflow-y-auto space-y-6 mb-8">
-                            <div className="flex justify-between items-center pb-6 border-b border-gray-100">
-                              <div>
-                                <h4 className="font-bold text-[#23211F]">{dict.addons?.accommodation}</h4>
-                                <p className="text-sm text-gray-500">{nights} {dict.modal?.nights}</p>
-                              </div>
-                              <div className="font-serif text-xl text-[#9B7E67]">${accommodationTotal.toLocaleString('en-US')} {currency}</div>
+                      <div className="flex flex-col h-full">
+                        <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
+                        <StepIndicator currentStep={5} totalSteps={5} />
+                        <h3 className="text-3xl font-serif text-[#23211F] mb-6 shrink-0">Resumen</h3>
+                        
+                        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex-1 overflow-y-auto space-y-6 mb-8">
+                          <div className="flex justify-between items-center pb-6 border-b border-gray-100">
+                            <div>
+                              <h4 className="font-bold text-[#23211F]">{dict.addons?.accommodation}</h4>
+                              <p className="text-sm text-gray-500">{nights} {dict.modal?.nights}</p>
                             </div>
-                            
-                            {wantsChef && (chefBreakfasts > 0 || chefLunches > 0 || chefDinners > 0) && (
-                              <div className="pb-6 border-b border-gray-100">
-                                <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><ChefHat size={16}/> {dict.addons?.chefTitle}</h4>
-                                {chefBreakfasts > 0 && <div className="flex justify-between text-sm text-gray-600 mb-1"><span>{chefBreakfasts}x {dict.addons?.breakfasts}</span><span>${(chefBreakfasts * getAddonPrice('CHEF_BREAKFAST')).toLocaleString('en-US')}</span></div>}
-                                {chefLunches > 0 && <div className="flex justify-between text-sm text-gray-600 mb-1"><span>{chefLunches}x {dict.addons?.lunches}</span><span>${(chefLunches * getAddonPrice('CHEF_LUNCH')).toLocaleString('en-US')}</span></div>}
-                                {chefDinners > 0 && <div className="flex justify-between text-sm text-gray-600"><span>{chefDinners}x {dict.addons?.dinners}</span><span>${(chefDinners * getAddonPrice('CHEF_DINNER')).toLocaleString('en-US')}</span></div>}
-                              </div>
-                            )}
-
-                            {wantsATV && Object.values(atvSelections).some(v => v > 0) && (
-                              <div className="pb-6 border-b border-gray-100">
-                                <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><Map size={16}/> {dict.addons?.atvTour}</h4>
-                                {Object.entries(atvSelections).map(([type, count]) => count > 0 && (
-                                  <div key={type} className="flex justify-between text-sm text-gray-600 mb-1">
-                                    <span>{count}x {atvPeople} pax - {getAddonName(type).replace(' (por persona)', '').replace('ATV - ', '')}</span>
-                                    <span>${(count * atvPeople * getAddonPrice(type)).toLocaleString('en-US')}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-
-                            <div className="flex justify-between items-center pt-2">
-                              <div>
-                                <h4 className="font-bold text-2xl text-[#23211F]">{dict.modal?.total}</h4>
-                                <p className="text-xs text-gray-400 uppercase tracking-widest">{dict.modal?.taxesIncluded}</p>
-                              </div>
-                              <div className="font-serif text-3xl text-[#23211F]">${grandTotal.toLocaleString('en-US')} {currency}</div>
-                            </div>
+                            <div className="font-serif text-xl text-[#9B7E67]">${accommodationTotal.toLocaleString('en-US')} {currency}</div>
                           </div>
-
-                          {error && (
-                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium mb-6 text-center shrink-0">
-                              {error}
-                            </motion.div>
+                          
+                          {wantsChef && (chefBreakfasts > 0 || chefLunches > 0 || chefDinners > 0) && (
+                            <div className="pb-6 border-b border-gray-100">
+                              <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><ChefHat size={16}/> {dict.addons?.chefTitle}</h4>
+                              {chefBreakfasts > 0 && <div className="flex justify-between text-sm text-gray-600 mb-1"><span>{chefBreakfasts}x {dict.addons?.breakfasts}</span><span>${(chefBreakfasts * getAddonPrice('CHEF_BREAKFAST')).toLocaleString('en-US')}</span></div>}
+                              {chefLunches > 0 && <div className="flex justify-between text-sm text-gray-600 mb-1"><span>{chefLunches}x {dict.addons?.lunches}</span><span>${(chefLunches * getAddonPrice('CHEF_LUNCH')).toLocaleString('en-US')}</span></div>}
+                              {chefDinners > 0 && <div className="flex justify-between text-sm text-gray-600"><span>{chefDinners}x {dict.addons?.dinners}</span><span>${(chefDinners * getAddonPrice('CHEF_DINNER')).toLocaleString('en-US')}</span></div>}
+                            </div>
                           )}
 
-                          <div className="shrink-0 pb-4">
-                            <PremiumButton onClick={handleCheckout} disabled={!isFormValid || isLoading || grandTotal === 0}>
-                              <CreditCard size={18} />
-                              {dict.modal?.proceedPayment}
-                            </PremiumButton>
+                          {wantsATV && Object.values(atvSelections).some(v => v > 0) && (
+                            <div className="pb-6 border-b border-gray-100">
+                              <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><Map size={16}/> {dict.addons?.atvTour}</h4>
+                              {Object.entries(atvSelections).map(([type, count]) => count > 0 && (
+                                <div key={type} className="flex justify-between text-sm text-gray-600 mb-1">
+                                  <span>{count}x {atvPeople} pax - {getAddonName(type).replace(' (por persona)', '').replace('ATV - ', '')}</span>
+                                  <span>${(count * atvPeople * getAddonPrice(type)).toLocaleString('en-US')}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="flex justify-between items-center pt-2">
+                            <div>
+                              <h4 className="font-bold text-2xl text-[#23211F]">{dict.modal?.total}</h4>
+                              <p className="text-xs text-gray-400 uppercase tracking-widest">{dict.modal?.taxesIncluded}</p>
+                            </div>
+                            <div className="font-serif text-3xl text-[#23211F]">${grandTotal.toLocaleString('en-US')} {currency}</div>
                           </div>
                         </div>
-                      )}
+
+                        {error && (
+                          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium mb-6 text-center shrink-0">
+                            {error}
+                          </motion.div>
+                        )}
+
+                        <div className="shrink-0 pb-4">
+                          <PremiumButton onClick={handleCheckout} disabled={!isFormValid || isLoading || grandTotal === 0}>
+                            <CreditCard size={18} />
+                            {dict.modal?.proceedPayment}
+                          </PremiumButton>
+                        </div>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
             </div>
 
-            {/* Mobile Fixed Bottom Summary (Only shows on step 1 to 4) */}
+            {/* Mobile Fixed Bottom Summary */}
             {isMobile && step < 5 && (
               <motion.div 
                 initial={{ y: '100%' }}
@@ -1031,26 +1008,31 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 </div>
                 {step === 1 && (
                   <button onClick={nextStep} disabled={!range?.from || !range?.to || nights < 2} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
-                    Siguiente
+                    {dictContext?.modal?.next || 'Siguiente'}
                   </button>
                 )}
                 {step === 2 && (
                   <button onClick={nextStep} disabled={wantsChef === null || (wantsChef && chefBreakfasts === 0 && chefLunches === 0 && chefDinners === 0)} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
-                    Siguiente
+                    {dictContext?.modal?.next || 'Siguiente'}
                   </button>
                 )}
                 {step === 3 && (
                   <button onClick={nextStep} disabled={wantsATV === null || (wantsATV && (totalAtvTours === 0 || atvPeople < 1))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
-                    Siguiente
+                    {dictContext?.modal?.next || 'Siguiente'}
                   </button>
                 )}
                 {step === 4 && (
                   <button onClick={nextStep} disabled={!isFormValid} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
-                    Resumen
+                    {dictContext?.modal?.summary || 'Resumen'}
                   </button>
                 )}
               </motion.div>
             )}
+            <ActionLoadingScreen 
+              isOpen={isLoading || isSuccess} 
+              message={isSuccess ? "Reserva Confirmada" : dictContext?.modal?.redirecting}
+              subMessage={isSuccess ? "¡Todo listo!" : dictContext?.modal?.securePayments}
+            />
           </motion.div>
         </div>
       )}

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, addDays, parseISO } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, X, Loader2 } from 'lucide-react';
+import { ActionLoadingScreen } from '@/components/ui/ActionLoadingScreen';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toggleBlockDate, setCustomPrice } from './actions';
 
@@ -277,6 +278,12 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
           </>
         )}
       </AnimatePresence>
+
+      <ActionLoadingScreen 
+        isOpen={isLoading}
+        message="Guardando Cambios..."
+        subMessage="Sincronizando calendario y tarifas"
+      />
     </div>
   );
 }
