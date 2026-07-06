@@ -7,7 +7,11 @@ import {
   Utensils, Wifi, Sun, MoonStar 
 } from 'lucide-react';
 import { useDictionary } from '@/i18n/DictionaryContext';
-import { ServiceModal, ServiceItem } from './ServiceModal';
+import Image from 'next/image';
+import dynamic from 'next/dynamic';
+import type { ServiceItem } from './ServiceModal';
+
+const ServiceModal = dynamic(() => import('./ServiceModal').then(mod => mod.ServiceModal), { ssr: false });
 
 const images = [
   '/imagenes/05_amenities/amenity_01_kitchen.webp', // Chef
@@ -95,9 +99,11 @@ export const Services = () => {
                   className={`group relative rounded-[2rem] overflow-hidden cursor-pointer shadow-2xl ${getBentoClasses(index)}`}
                 >
                   {/* Background Image */}
-                  <img 
+                  <Image 
                     src={service.image} 
                     alt={service.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                   />
                   

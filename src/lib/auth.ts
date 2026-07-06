@@ -1,19 +1,24 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
-const secretKey = process.env.JWT_SECRET || 'fallback-secret-caballosonador-2024';
-const key = new TextEncoder().encode(secretKey);
+function getSecretKey() {
+  const secretKey = process.env.JWT_SECRET;
+  if (!secretKey && process.env.NODE_ENV === 'production') {
+    throw new Error('CRITICAL: JWT_SECRET environment variable is not set in production');
+  }
+  return new TextEncoder().encode(secretKey || 'fallback-secret-caballosonador-2024');
+}
 
 export async function encrypt(payload: any) {
   return await new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('24h')
-    .sign(key);
+    .sign(getSecretKey());
 }
 
 export async function decrypt(input: string): Promise<any> {
-  const { payload } = await jwtVerify(input, key, {
+  const { payload } = await jwtVerify(input, getSecretKey(), {
     algorithms: ['HS256'],
   });
   return payload;

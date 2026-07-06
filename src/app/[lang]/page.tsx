@@ -7,8 +7,10 @@ import { Suites } from '@/components/home/Suites';
 import { Experiences } from '@/components/home/Experiences';
 import { Reviews } from '@/components/home/Reviews';
 import { FAQ } from '@/components/home/FAQ';
-import { Location } from '@/components/home/Location';
-import { Footer } from '@/components/home/Footer';
+import dynamic from 'next/dynamic';
+
+const Location = dynamic(() => import('@/components/home/Location').then(mod => mod.Location), { ssr: true });
+const Footer = dynamic(() => import('@/components/home/Footer').then(mod => mod.Footer), { ssr: true });
 
 import { getDictionary } from '@/i18n/dictionaries';
 

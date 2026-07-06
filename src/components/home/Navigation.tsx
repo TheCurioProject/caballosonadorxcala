@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Globe } from 'lucide-react';
 import { LogoCompleto } from '../ui/LogoCompleto';
@@ -8,7 +8,8 @@ import { useBooking } from '@/context/BookingContext';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import FluidHorseAnimation from '../FluidHorseAnimation';
+import dynamic from 'next/dynamic';
+const FluidHorseAnimation = dynamic(() => import('../FluidHorseAnimation'), { ssr: false });
 import { useScrollLock } from '@/hooks/useScrollLock';
 
 const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, setIsOpen: (v: boolean) => void, setIsSwitchingLang: (v: boolean) => void }) => {
@@ -150,7 +151,7 @@ export const HomeNavigation = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollY = useRef(0);
   const [isSwitchingLang, setIsSwitchingLang] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -194,17 +195,17 @@ export const HomeNavigation = () => {
         setHidden(false);
       } else if (hideForSuites) {
         setHidden(true);
-      } else if (currentScrollY > lastScrollY && currentScrollY > 500) {
+      } else if (currentScrollY > lastScrollY.current && currentScrollY > 500) {
         setHidden(true);
       } else {
         setHidden(false);
       }
-      setLastScrollY(currentScrollY);
+      lastScrollY.current = currentScrollY;
     };
     
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY, menuOpen]);
+  }, [menuOpen]);
 
   const isSolid = scrolled || menuOpen;
 

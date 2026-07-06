@@ -2,7 +2,7 @@
 
 import React, { useRef } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import Image from 'next/image';
 import { RevealText } from './RevealText';
 import { useDictionary } from '@/i18n/DictionaryContext';
 
@@ -37,20 +37,20 @@ export const About = () => {
         {/* Desktop Animated Images */}
         <div className="relative h-[600px] w-full hidden md:block">
           <motion.div style={{ y: yImage1 }} className="absolute top-0 right-0 w-[70%] h-[80%] z-10">
-            <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/04_about/DSC_0300.JPG`} alt="El Santuario - Vista principal" className="w-full h-full object-cover shadow-2xl rounded-2xl" />
+            <Image src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/04_about/DSC_0300.webp`} alt="El Santuario - Vista principal" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover shadow-2xl rounded-2xl" />
           </motion.div>
           <motion.div style={{ y: yImage2 }} className="absolute bottom-0 left-0 w-[50%] h-[60%] z-20">
-            <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/04_about/DSC_0307.JPG`} alt="El Santuario - Detalles" className="w-full h-full object-cover shadow-xl border-8 border-[#F9F7F4] rounded-2xl" />
+            <Image src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/04_about/DSC_0307.webp`} alt="El Santuario - Detalles" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover shadow-xl border-8 border-[#F9F7F4] rounded-2xl" />
           </motion.div>
         </div>
 
         {/* Mobile Animated Images */}
         <div className="relative h-[600px] w-full mt-12 block md:hidden">
           <motion.div style={{ y: yImage1 }} className="absolute top-4 right-0 w-[75%] h-[60%] z-10">
-            <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/04_about/DSC_0300.JPG`} alt="El Santuario - Vista principal" className="w-full h-full object-cover shadow-2xl rounded-2xl" />
+            <Image src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/04_about/DSC_0300.webp`} alt="El Santuario - Vista principal" fill sizes="100vw" className="object-cover shadow-2xl rounded-2xl" />
           </motion.div>
           <motion.div style={{ y: yImage2 }} className="absolute bottom-4 left-0 w-[65%] h-[55%] z-20">
-            <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/04_about/DSC_0307.JPG`} alt="El Santuario - Detalles" className="w-full h-full object-cover shadow-xl border-[6px] border-[#F9F7F4] rounded-2xl" />
+            <Image src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/04_about/DSC_0307.webp`} alt="El Santuario - Detalles" fill sizes="100vw" className="object-cover shadow-xl border-[6px] border-[#F9F7F4] rounded-2xl" />
           </motion.div>
         </div>
       </div>

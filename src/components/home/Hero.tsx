@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Image from 'next/image';
 import { RevealText } from './RevealText';
@@ -8,14 +8,15 @@ import { useDictionary } from '@/i18n/DictionaryContext';
 
 export const Hero = () => {
   const dict = useDictionary();
-  const { scrollYProgress } = useScroll();
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
   // Parallax enhanced: translate Y and Scale for depth
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
   const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
   return (
-    <section className="relative min-h-[100dvh] w-full overflow-hidden bg-[#1A1817]">
+    <section ref={ref} className="relative min-h-[100dvh] w-full overflow-hidden bg-[#1A1817]">
       <motion.div style={{ y, scale, opacity }} className="absolute inset-0 w-full h-full transform-gpu origin-top">
         <Image 
           src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/casaexterior.webp`}

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Logo } from './ui/Logo';
 
 export default function Footer() {
@@ -58,9 +59,15 @@ export default function Footer() {
               Instagram
             </a>
             <div className="grid grid-cols-3 gap-2 mt-4">
-              <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/12_footer/instagram_thumb_1.webp`} alt="Instagram 1" className="w-full h-auto aspect-square object-cover" />
-              <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/12_footer/instagram_thumb_2.webp`} alt="Instagram 2" className="w-full h-auto aspect-square object-cover" />
-              <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/12_footer/instagram_thumb_3.webp`} alt="Instagram 3" className="w-full h-auto aspect-square object-cover" />
+              <div className="relative aspect-square">
+                <Image src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/12_footer/instagram_thumb_1.webp`} alt="Instagram 1" fill sizes="15vw" className="object-cover" />
+              </div>
+              <div className="relative aspect-square">
+                <Image src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/12_footer/instagram_thumb_2.webp`} alt="Instagram 2" fill sizes="15vw" className="object-cover" />
+              </div>
+              <div className="relative aspect-square">
+                <Image src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/12_footer/instagram_thumb_3.webp`} alt="Instagram 3" fill sizes="15vw" className="object-cover" />
+              </div>
             </div>
           </div>
 

@@ -3,7 +3,8 @@
 import React, { useTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
-import FluidHorseAnimation from '@/components/FluidHorseAnimation';
+import dynamic from 'next/dynamic';
+const FluidHorseAnimation = dynamic(() => import('@/components/FluidHorseAnimation'), { ssr: false });
 import { removeBooking } from './actions';
 
 export default function DeleteBookingButton({ bookingId }: { bookingId: number }) {

@@ -3,6 +3,7 @@
 import React, { useRef } from 'react';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { Leaf, Wind, Droplets } from 'lucide-react';
+import Image from 'next/image';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { RevealText } from './RevealText';
 
@@ -98,11 +99,12 @@ export const Concept = () => {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="w-full lg:w-1/2 h-[500px] md:h-[700px] relative rounded-2xl overflow-hidden shadow-2xl group"
         >
-          <img
+          <Image
             src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/casaexterior.webp`}
             alt="Concepto Hotel Soñador"
-            className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
-            loading="lazy"
+            fill
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
           />
           <div className="absolute inset-0 pointer-events-none border border-black/10 rounded-2xl group-hover:border-[#9B7E67]/50 transition-colors duration-500 z-20"></div>
         </motion.div>

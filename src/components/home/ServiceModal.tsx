@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import { X } from 'lucide-react';
 import { useScrollLock } from '@/hooks/useScrollLock';
 
@@ -58,10 +59,12 @@ export const ServiceModal = ({ service, onClose }: ServiceModalProps) => {
 
             {/* Image Section (Top on mobile, Left on desktop) */}
             <div className="w-full md:w-1/2 h-64 md:h-[500px] relative bg-black shrink-0">
-              <img 
+              <Image 
                 src={service.image} 
                 alt={service.title}
-                className="w-full h-full object-cover opacity-90"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover opacity-90"
               />
               {/* Subtle overlay */}
               <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#2C2621] via-transparent to-transparent opacity-80 pointer-events-none"></div>
