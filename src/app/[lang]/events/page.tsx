@@ -25,7 +25,7 @@ export default function Events() {
       {/* Hero */}
       <section className="relative h-[60vh] flex items-center justify-center">
         <div className="absolute inset-0 z-0">
-          <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/09_events/events_retreat_intro.jpg`} alt="Retiros de Bienestar" className="w-full h-full object-cover" style={{ objectPosition: 'center 40%' }} />
+          <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/09_events/events_retreat_intro.webp`} alt="Retiros de Bienestar" className="w-full h-full object-cover" style={{ objectPosition: 'center 40%' }} />
           <div className="absolute inset-0 bg-black/50"></div>
         </div>
         <motion.div 
@@ -68,7 +68,7 @@ export default function Events() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row gap-16 items-center">
             <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="w-full md:w-1/2">
-              <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/09_events/events_retreat.jpg`} alt="Yoga y Bienestar" className="w-full h-auto object-cover shadow-2xl" />
+              <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/09_events/events_retreat.webp`} alt="Yoga y Bienestar" className="w-full h-auto object-cover shadow-2xl" />
             </motion.div>
             <motion.div initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="w-full md:w-1/2">
               <h2 className="text-3xl md:text-5xl font-serif mb-8 text-brand-white">Todo Preparado para Tu Éxito</h2>
@@ -96,13 +96,13 @@ export default function Events() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl mx-auto mb-16">
            <div className="relative h-96 group overflow-hidden">
-             <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/11_blog/blog_elle_and_shawn.jpg`} alt="Boda Íntima" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+             <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/11_blog/blog_elle_and_shawn.webp`} alt="Boda Íntima" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
                <h3 className="text-white text-2xl font-serif opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-md">Bodas Íntimas</h3>
              </div>
            </div>
            <div className="relative h-96 group overflow-hidden">
-             <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/07_tours/tour_molote_alt_rtrt001.jpg`} alt="Retiros Grupales" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+             <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/07_tours/tour_molote_alt_rtrt001.webp`} alt="Retiros Grupales" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
                <h3 className="text-white text-2xl font-serif opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-md">Retiros Grupales</h3>
              </div>

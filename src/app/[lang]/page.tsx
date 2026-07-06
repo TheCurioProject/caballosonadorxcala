@@ -27,7 +27,9 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
   try {
     experiences = await prisma.experience.findMany();
   } catch (error) {
-    console.error("Failed to fetch data from Prisma", error);
+    // Next.js dev server intercepts console.error and displays a full-screen overlay.
+    // Since we have a fallback for experiences, we log a warning instead.
+    console.warn("Failed to fetch data from Prisma, using fallback data.");
   }
 
   const getRoom = (id: number, basePrice: number, images: string[]) => {
@@ -54,13 +56,13 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
   if (experiences.length === 0) {
     experiences = dict.toursPage.tours.map((t: any, i: number) => {
       const images = [
-        '/imagenes/07_tours/tour_ojo_de_agua.jpg',
-        '/imagenes/07_tours/tour_molote.jpg',
-        '/imagenes/07_tours/tour_el_capomo.jpg',
-        '/imagenes/07_tours/tour_los_cuevas.jpg',
-        '/imagenes/07_tours/tour_ojo_de_agua.jpg',
-        '/imagenes/07_tours/tour_molote.jpg',
-        '/imagenes/07_tours/tour_el_capomo.jpg'
+        '/imagenes/07_tours/tour_ojo_de_agua.webp',
+        '/imagenes/07_tours/tour_molote.webp',
+        '/imagenes/07_tours/tour_el_capomo.webp',
+        '/imagenes/07_tours/tour_los_cuevas.webp',
+        '/imagenes/07_tours/tour_ojo_de_agua.webp',
+        '/imagenes/07_tours/tour_molote.webp',
+        '/imagenes/07_tours/tour_el_capomo.webp'
       ];
       return {
         id: t.id,

@@ -9,7 +9,7 @@
     "findUs": "Encuéntranos"
   },
   "hero": {
-    "title": "Casa del Caballo Soñador | Hotel Boutique en Chacala, Nayarit",
+    "title": "Casa del Caballo Soñador | Casa Boutique en Chacala, Nayarit",
     "breathe": "Respira.",
     "belong": "Pertenece.",
     "discover": "Descubre",
@@ -17,8 +17,8 @@
   },
   "about": {
     "subtitle": "El Santuario",
-    "title": "Un lugar para pausar, respirar y pertenecer",
-    "p1": "Bienvenidos a Casa del Caballo Soñador, un hotel boutique en un pequeño pueblo pesquero mexicano donde la vida se mueve más lento y la naturaleza marca el ritmo."
+    "title": "Bienvenidos a Casa del Caballo Soñador",
+    "p1": "Una Casa Boutique de renta exclusiva en un sereno pueblo pesquero mexicano donde la naturaleza marca el ritmo. El escenario perfecto para retiros de bienestar, reuniones familiares, talleres creativos y grupos de aventura. Ya sea para descansar, escribir o reconectar, es más que un hospedaje: un espacio para aterrizar suavemente y vivir ligero."
   },
   "suites": {
     "subtitle": "6 Retiros Únicos",
@@ -83,8 +83,7 @@
     "title": "Un lugar para pausar, respirar y pertenecer",
     "p1": "Inspirado en el espíritu del caballo soñador—pacífico, indomable y profundamente conectado—nuestro espacio es un lugar para hacer una pausa, respirar y pertenecer.",
     "p2": "Nuestras seis habitaciones, creadas con piedra, madera cálida y linos naturales, reflejan la fuerza tranquila de la tierra. Su arquitectura simple y llena de alma ofrece texturas que invitan al tacto y terrazas sombreadas para disfrutar de la luz dorada.",
-    "p3": "En el corazón de la propiedad, relájate en nuestra piscina y jacuzzi bajo las palmeras. Disfruta de vistas al océano a corta distancia, rodeado por el canto de los pájaros y el aroma de la cálida tierra.",
-    "p4": "Bienvenido a Casa del Caballo Soñador, un hotel boutique en un pequeño pueblo pesquero mexicano donde la vida se mueve más despacio y la naturaleza marca el ritmo."
+    "p3": "En el corazón de la propiedad, relájate en nuestra piscina y jacuzzi bajo las palmeras. Disfruta de vistas al océano a corta distancia, rodeado por el canto de los pájaros y el aroma de la cálida tierra."
   },
   "services": {
     "subtitle": "Todo lo que disfrutarás",
@@ -94,24 +93,14 @@
     "desktopInstruction": "Usa las flechas para explorar",
     "items": [
       {
-        "title": "6 Habitaciones Privadas",
-        "short": "Espacios exclusivos diseñados para tu descanso.",
-        "desc": "Disfruta de la exclusividad y privacidad en nuestras 6 habitaciones cuidadosamente diseñadas. Linos suaves, piedra local y madera cálida aseguran un descanso perfecto."
-      },
-      {
         "title": "Servicio de Chef y Cocina",
         "short": "Sabores auténticos preparados en nuestra cocina equipada.",
         "desc": "Nuestro chef prepara auténticos sabores locales e internacionales utilizando ingredientes frescos de temporada, servidos directamente desde nuestra cocina de concepto abierto."
       },
       {
-        "title": "Piscina y Zona Lounge",
-        "short": "Relájate bajo el sol o disfruta de la sombra.",
-        "desc": "Desconecta en nuestra amplia zona de piscina. Ya sea nadando, leyendo bajo las palmeras o disfrutando del sol al atardecer, este es tu oasis personal."
-      },
-      {
-        "title": "Jacuzzi y Relajación",
-        "short": "Sumérgete en la más profunda tranquilidad.",
-        "desc": "Deja que las aguas cálidas y el suave sonido de la cascada disuelvan tu estrés en nuestro hermoso jacuzzi con acabados en piedra."
+        "title": "Piscina, Jacuzzi y Lounge",
+        "short": "Relájate bajo el sol, disfruta de la sombra y sumérgete en el jacuzzi.",
+        "desc": "Desconecta en nuestra amplia zona de piscina. Ya sea nadando, leyendo bajo las palmeras o dejando que las aguas cálidas del jacuzzi disuelvan tu estrés, este es tu oasis personal."
       },
       {
         "title": "Cocina para Huéspedes",
@@ -165,7 +154,7 @@
       "bath": "1 Baño"
     },
     "6": {
-      "name": "Habitación 6",
+      "name": "Habitación 5",
       "description": "SUITE KING. Nombrada por la madera viva utilizada en toda la habitación, Madera Viva ofrece una atmósfera tranquila y terrenal con una cama king y acentos de piedra.",
       "guests": "2",
       "beds": "1 King",
@@ -186,10 +175,23 @@
     "heroSuperTitle": "La Aventura Aguarda",
     "heroTitle": "TOURS EN ATV ÚNICOS HACIA LOS LUGARES MENOS EXPLORADOS DE CHACALA",
     "introTitle": "Experimenta Chacala",
-    "introText1": "Escondida en una pequeña cala a lo largo de la costa del Pacífico en el estado de Nayarit, Chacala destaca por su encanto único y belleza prístina. Al proporcionar una escapada serena, el pueblo cuenta con playas sin aglomeraciones y un ambiente acogedor.",
-    "introText2": "El nombre del pueblo, que significa \"donde hay camarones\" en náhuatl, refleja su conexión con la cultura local y la abundante vida marina, añadiendo al carácter distintivo de esta joya costera.",
+    "introText1": "Chacala Adventure Tours tiene actualmente 7 destinos disponibles para elegir, con duraciones que varían de 4 a 7 horas según la ubicación. Nuestros guías locales comparten su conocimiento sobre las costumbres de la zona durante todo el recorrido para asegurar que obtengas la mejor experiencia posible.",
+    "infoCustomToursTitle": "Tours Personalizados",
+    "infoCustomToursText": "Para grupos grandes o peticiones especiales. Podemos organizar comidas preparadas en ruta, tiempo extendido o rutas alternativas. Cuéntanos tus necesidades al reservar y haremos realidad tus deseos.",
+    "infoVehiclesTitle": "Nuestros Vehículos",
+    "infoVehiclesText": "Utilizamos UTVs Can-AM de 6 plazas equipados con cinturones y redes de seguridad. Realizamos revisiones diarias y mantenimiento programado regular en cada unidad.",
+    "infoBringTitle": "Qué Llevar Contigo",
+    "infoBringItems": [
+      "Traje de baño, zapatos de agua y toalla",
+      "Zapatos cerrados",
+      "Protector solar y repelente de insectos",
+      "Efectivo para almuerzos y recuerdos",
+      "Agua, snacks o almuerzo (si no está incluido)"
+    ],
     "explore": "Explorar",
     "bookTour": "Reservar Tour",
+    "bookTourShort": "Reservar",
+    "scroll": "Explorar",
     "backToHome": "Volver al inicio",
     "tours": [
       {
@@ -330,7 +332,8 @@
       "capacity": "Capacidad",
       "includes": "Qué Incluye",
       "bookNow": "Reservar vía WhatsApp",
-      "whatsappMessage": "¡Hola! Estoy interesado en el tour de"
+      "whatsappMessage": "¡Hola! Estoy interesado en el tour de",
+      "about": "Acerca del Recorrido"
     }
   },
   "faq": {

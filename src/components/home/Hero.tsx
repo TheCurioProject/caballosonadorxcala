@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import Image from 'next/image';
 import { RevealText } from './RevealText';
 import { useDictionary } from '@/i18n/DictionaryContext';
 
@@ -16,10 +17,12 @@ export const Hero = () => {
   return (
     <section className="relative min-h-[100dvh] w-full overflow-hidden bg-[#1A1817]">
       <motion.div style={{ y, scale, opacity }} className="absolute inset-0 w-full h-full transform-gpu origin-top">
-        <img 
+        <Image 
           src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/casaexterior.webp`}
           alt="Casa del Caballo Soñador - Hotel Boutique" 
-          className="w-full h-full object-cover opacity-70"
+          fill
+          priority
+          className="object-cover opacity-70"
         />
         {/* Refined gradient overlay for high contrast and elegant moody feel */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#1A1817] via-[#1A1817]/40 to-transparent"></div>

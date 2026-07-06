@@ -2,8 +2,8 @@
 
 import React, { use, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, MessageCircle, X, Clock, Users, CheckCircle2, DollarSign } from 'lucide-react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { ArrowLeft, MessageCircle, X, Clock, Users, CheckCircle2, DollarSign, Compass, ShieldCheck, Backpack } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { usePathname, useRouter } from 'next/navigation';
@@ -11,13 +11,13 @@ import { usePathname, useRouter } from 'next/navigation';
 const Footer = dynamic(() => import('@/components/home/Footer').then(mod => mod.Footer));
 
 const TOUR_IMAGES: Record<string, string[]> = {
-  "ATV_OJO_DE_AGUA": ["/imagenes/07_tours/tour_ojo_de_agua.jpg", "/imagenes/07_tours/tour_el_capomo.jpg"],
-  "ATV_RIO_MOLOTE": ["/imagenes/07_tours/tour_molote.jpg", "/imagenes/07_tours/tour_los_cuevas.jpg"],
-  "ATV_EL_CAPOMO": ["/imagenes/07_tours/tour_el_capomo.jpg", "/imagenes/07_tours/tour_ojo_de_agua.jpg"],
-  "ATV_LAS_CUEVAS": ["/imagenes/07_tours/tour_los_cuevas.jpg", "/imagenes/07_tours/tour_molote.jpg"],
-  "ATV_JUMURRCA": ["/imagenes/07_tours/tour_ojo_de_agua.jpg"], // Placeholder
-  "ATV_ALTA_VISTA": ["/imagenes/07_tours/tour_el_capomo.jpg"], // Placeholder
-  "ATV_VOLCANO": ["/imagenes/07_tours/tour_molote.jpg"] // Placeholder
+  "ATV_OJO_DE_AGUA": ["/imagenes/07_tours/tour_ojo_de_agua_1.webp", "/imagenes/07_tours/tour_ojo_de_agua.webp"],
+  "ATV_RIO_MOLOTE": ["/imagenes/07_tours/tour_rio_molote_1.webp", "/imagenes/07_tours/tour_molote.webp"],
+  "ATV_EL_CAPOMO": ["/imagenes/07_tours/tour_el_capomo_1.webp", "/imagenes/07_tours/tour_el_capomo.webp"],
+  "ATV_LAS_CUEVAS": ["/imagenes/07_tours/tour_las_cuevas_1.webp", "/imagenes/07_tours/tour_los_cuevas.webp"],
+  "ATV_JUMURRCA": ["/imagenes/07_tours/tour_jumurrca_1.webp", "/imagenes/07_tours/tour_jumurrca_2.webp"],
+  "ATV_ALTA_VISTA": ["/imagenes/07_tours/tour_alta_vista_1.webp", "/imagenes/07_tours/tour_alta_vista_2.webp"],
+  "ATV_VOLCANO": ["/imagenes/07_tours/tour_volcano_1.webp", "/imagenes/07_tours/tour_volcano_sunset.webp"]
 };
 
 export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | 'en' }> }) {
@@ -29,10 +29,13 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
 
   const [prices, setPrices] = useState<Record<string, number>>({});
   const [selectedTour, setSelectedTour] = useState<any | null>(null);
-  const [scrolled, setScrolled] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const t = dict?.toursPage;
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [0, 1000], [0, 400]);
+  const y2 = useTransform(scrollY, [0, 1000], [0, 200]);
+  const opacity = useTransform(scrollY, [0, 600], [1, 0]);
   
   useEffect(() => {
     // Fetch prices from DB
@@ -54,13 +57,14 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
     fetchPrices();
   }, []);
 
+
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    if (!selectedTour || selectedTour.images.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveImageIndex((prev) => (prev + 1) % selectedTour.images.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [selectedTour]);
 
   if (!t) return null;
 
@@ -92,11 +96,11 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
   }));
 
   return (
-    <div className="bg-[#FAF9F6] text-[#1A1816] font-sans min-h-screen antialiased selection:bg-[#9B7E67] selection:text-[#F9F7F4]">
+    <div className="bg-[#0A0908] text-[#F9F7F4] font-sans min-h-screen antialiased selection:bg-[#9B7E67] selection:text-[#0A0908]">
       
       {/* Floating Navigation */}
-      <nav className={`fixed top-0 w-full z-[100] transition-colors duration-500 ease-in-out pointer-events-none ${scrolled ? 'text-[#1A1816]' : 'text-[#F9F7F4]'}`}>
-        <div className="py-6">
+      <nav className="fixed top-0 w-full z-[100] bg-transparent text-[#F9F7F4] pointer-events-none">
+        <div className="py-5 md:py-6">
           <div className="max-w-[1400px] mx-auto px-6 md:px-16 grid grid-cols-3 items-center relative">
             
             <div className="flex justify-start pointer-events-auto">
@@ -106,7 +110,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                 aria-label={t.backToHome}
               >
                 <ArrowLeft strokeWidth={1.5} className="w-5 h-5 md:w-6 md:h-6 transform group-hover:-translate-x-1 transition-transform" />
-                <span className="hidden md:block uppercase tracking-[0.2em] text-xs font-bold">
+                <span className="hidden md:block uppercase tracking-[0.2em] text-xs font-bold text-[#9B7E67]">
                   {t.backToHome || 'INICIO'}
                 </span>
               </Link>
@@ -116,26 +120,37 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
               <div className="flex items-center gap-5">
                 {['es', 'en'].map((l) => {
                   const isActive = lang === l;
+                  
+                  // Construct new path
+                  const segments = pathname.split('/');
+                  if (segments.length > 1 && ['es', 'en'].includes(segments[1])) {
+                    segments[1] = l;
+                  } else {
+                    segments.splice(1, 0, l);
+                  }
+                  const newPath = segments.join('/') || '/';
+
                   return (
-                    <button 
+                    <Link 
                       key={l}
-                      onClick={() => changeLanguage(l)}
+                      href={newPath}
+                      prefetch={true}
                       className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
-                        isActive ? 'opacity-100 grayscale-0 scale-110' : 'opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
+                        isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
                       }`}
                     >
-                      <span className="text-base leading-none block">{l === 'es' ? '🇲🇽' : '🇺🇸'}</span>
+                      <span className="text-sm md:text-base leading-none block tracking-widest">{l.toUpperCase()}</span>
                       <div className="h-1.5 mt-1 w-full flex justify-center items-center">
                         {isActive && (
                           <motion.div 
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ duration: 0.2 }}
-                            className={`w-1.5 h-1.5 rounded-full ${scrolled ? 'bg-[#1A1816]' : 'bg-[#F9F7F4] shadow-[0_0_4px_rgba(0,0,0,0.6)]'}`}
+                            className="w-1.5 h-1.5 rounded-full bg-[#9B7E67] shadow-sm"
                           />
                         )}
                       </div>
-                    </button>
+                    </Link>
                   );
                 })}
               </div>
@@ -144,40 +159,53 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
             <div className="md:hidden"></div>
 
             <div className="flex flex-col justify-end items-end pointer-events-auto gap-2">
-              <a 
-                href="https://wa.me/12509612351"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="uppercase tracking-widest text-xs font-bold flex items-center gap-2 hover:opacity-70 transition-opacity"
-              >
-                <span className="hidden md:inline">{t.bookTour}</span>
-                <span className="md:hidden">RESERVAR</span>
-                <MessageCircle size={18} strokeWidth={1.5} />
-              </a>
+              <div className="flex items-center gap-4">
+                <a 
+                  href="https://wa.me/12509612351"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="uppercase tracking-widest text-[10px] md:text-xs font-bold flex items-center gap-2 text-[#F9F7F4] hover:text-[#9B7E67] transition-colors"
+                >
+                  <span className="hidden md:inline">{t.bookTour}</span>
+                  <span className="md:hidden">{t.bookTourShort || t.bookTour}</span>
+                  <MessageCircle size={18} strokeWidth={1.5} />
+                </a>
+              </div>
               
-              <div className="flex md:hidden items-center gap-3">
+              <div className="flex md:hidden items-center gap-4 mt-1">
                 {['es', 'en'].map((l) => {
                   const isActive = lang === l;
+                  
+                  // Construct new path
+                  const segments = pathname.split('/');
+                  if (segments.length > 1 && ['es', 'en'].includes(segments[1])) {
+                    segments[1] = l;
+                  } else {
+                    segments.splice(1, 0, l);
+                  }
+                  const newPath = segments.join('/') || '/';
+
                   return (
-                    <button 
+                    <Link 
                       key={l}
-                      onClick={() => changeLanguage(l)}
+                      href={newPath}
+                      prefetch={true}
                       className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
-                        isActive ? 'opacity-100 grayscale-0 scale-110' : 'opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
+                        isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
                       }`}
                     >
-                      <span className="text-sm leading-none block">{l === 'es' ? '🇲🇽' : '🇺🇸'}</span>
+                      <span className="text-[11px] leading-none block tracking-widest">{l.toUpperCase()}</span>
                       <div className="h-1 mt-1 w-full flex justify-center items-center">
                         {isActive && (
                           <motion.div 
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ duration: 0.2 }}
-                            className={`w-1 h-1 rounded-full ${scrolled ? 'bg-[#1A1816]' : 'bg-[#F9F7F4] shadow-[0_0_4px_rgba(0,0,0,0.6)]'}`}
+                            className="w-1 h-1 rounded-full bg-[#9B7E67] shadow-sm"
                           />
                         )}
                       </div>
-                    </button>
+                    </Link>
                   );
                 })}
               </div>
@@ -188,105 +216,182 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
       </nav>
 
       {/* Hero Section */}
-      <header className="relative w-full h-[85svh] bg-[#1A1816] flex items-center justify-center overflow-hidden">
+      <header className="relative w-full h-screen bg-[#0A0908] flex items-center justify-center overflow-hidden border-b border-white/5">
         <motion.div 
-          initial={{ scale: 1.1, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1.5, ease: 'easeOut' }}
+          style={{ y: y1 }}
           className="absolute inset-0 z-0"
         >
           <img 
             src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/07_tours/atvhero.webp`}
             alt="ATV Tours Chacala"
-            className="w-full h-full object-cover opacity-70 object-[center_30%]"
+            className="w-full h-full object-cover opacity-50 object-[center_30%]"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#FAF9F6] via-transparent to-transparent opacity-100"></div>
-          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0908] via-black/40 to-black/80 opacity-100"></div>
         </motion.div>
 
-        <div className="relative z-10 text-center px-6 max-w-4xl pt-24">
+        <motion.div 
+          style={{ y: y2, opacity }}
+          className="relative z-10 text-center px-4 md:px-6 max-w-5xl pt-32 md:pt-40"
+        >
            <motion.h1 
              initial={{ y: 20, opacity: 0 }}
              animate={{ y: 0, opacity: 1 }}
              transition={{ delay: 0.3, duration: 0.8 }}
-             className="text-white/90 uppercase tracking-[0.4em] text-xs md:text-sm font-bold mb-6 drop-shadow-lg"
+             className="text-[#9B7E67] uppercase tracking-[0.4em] text-[10px] md:text-xs font-bold mb-6 drop-shadow-lg"
            >
              {t.heroSuperTitle}
            </motion.h1>
            <motion.h2 
-             initial={{ y: 30, opacity: 0 }}
-             animate={{ y: 0, opacity: 1 }}
-             transition={{ delay: 0.5, duration: 1 }}
-             className="font-serif text-5xl md:text-7xl lg:text-[6rem] leading-[1.05] text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+             initial={{ y: 30, opacity: 0, scale: 0.95 }}
+             animate={{ y: 0, opacity: 1, scale: 1 }}
+             transition={{ delay: 0.5, duration: 1.2, ease: "easeOut" }}
+             className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[4.5rem] leading-[1.1] text-[#F9F7F4] drop-shadow-xl"
            >
              {t.heroTitle}
            </motion.h2>
-        </div>
+        </motion.div>
+
+        {/* Scroll Indicator */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5, duration: 1 }}
+          className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 opacity-70"
+        >
+          <span className="text-[#9B7E67] uppercase tracking-[0.3em] text-[8px] font-bold">{t.scroll}</span>
+          <div className="w-[1px] h-8 md:h-12 bg-white/10 relative overflow-hidden">
+            <motion.div 
+              animate={{ y: ["-100%", "100%"] }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+              className="absolute inset-0 w-full h-full bg-[#9B7E67]"
+            />
+          </div>
+        </motion.div>
       </header>
 
       {/* Main Content */}
-      <main className="pb-32 relative z-20 bg-[#FAF9F6] -mt-16 rounded-t-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.05)] pt-20">
+      <main className="relative z-20 bg-[#0A0908] pt-20 pb-32">
         
         {/* Intro Block */}
-        <section className="max-w-3xl mx-auto px-6 py-12 md:py-16 text-center text-[#1A1816]">
-          <h3 className="font-serif italic text-[#9B7E67] text-3xl md:text-4xl mb-8">{t.introTitle}</h3>
-          <p className="font-light text-lg md:text-xl leading-relaxed mb-6">
+        <section className="max-w-4xl mx-auto px-6 py-16 md:py-24 text-center">
+          <h3 className="font-serif italic text-[#9B7E67] text-3xl md:text-5xl mb-10">{t.introTitle}</h3>
+          <p className="font-light text-lg md:text-2xl leading-relaxed text-[#F9F7F4]/90">
             {t.introText1}
-          </p>
-          <p className="font-light text-lg md:text-xl leading-relaxed opacity-80">
-            {t.introText2}
           </p>
         </section>
 
+        {/* Tour Information Grid */}
+        <section className="max-w-7xl mx-auto px-6 pb-24 md:pb-32">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            {/* Custom Tours */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1, duration: 0.8 }}
+              className="bg-[#131110] p-10 rounded-[2rem] border border-white/5 hover:border-[#9B7E67]/30 transition-colors duration-500 group"
+            >
+              <div className="w-14 h-14 bg-[#9B7E67]/10 rounded-full flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-[#9B7E67]/20 transition-all duration-500">
+                <Compass className="text-[#9B7E67]" size={24} />
+              </div>
+              <h4 className="font-serif text-2xl text-[#F9F7F4] mb-4">{t.infoCustomToursTitle}</h4>
+              <p className="font-light text-[#F9F7F4]/60 leading-relaxed text-sm">
+                {t.infoCustomToursText}
+              </p>
+            </motion.div>
+
+            {/* The Vehicles */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2, duration: 0.8 }}
+              className="bg-[#131110] p-10 rounded-[2rem] border border-white/5 hover:border-[#9B7E67]/30 transition-colors duration-500 group"
+            >
+              <div className="w-14 h-14 bg-[#9B7E67]/10 rounded-full flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-[#9B7E67]/20 transition-all duration-500">
+                <ShieldCheck className="text-[#9B7E67]" size={24} />
+              </div>
+              <h4 className="font-serif text-2xl text-[#F9F7F4] mb-4">{t.infoVehiclesTitle}</h4>
+              <p className="font-light text-[#F9F7F4]/60 leading-relaxed text-sm">
+                {t.infoVehiclesText}
+              </p>
+            </motion.div>
+
+            {/* What to Bring */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+              className="bg-[#131110] p-10 rounded-[2rem] border border-white/5 hover:border-[#9B7E67]/30 transition-colors duration-500 group"
+            >
+              <div className="w-14 h-14 bg-[#9B7E67]/10 rounded-full flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-[#9B7E67]/20 transition-all duration-500">
+                <Backpack className="text-[#9B7E67]" size={24} />
+              </div>
+              <h4 className="font-serif text-2xl text-[#F9F7F4] mb-5">{t.infoBringTitle}</h4>
+              <ul className="space-y-4">
+                {t.infoBringItems && t.infoBringItems.map((item: string, i: number) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <CheckCircle2 className="text-[#9B7E67] shrink-0 mt-0.5" size={16} />
+                    <span className="font-light text-[#F9F7F4]/70 text-sm leading-tight">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+
+          </div>
+        </section>
+
         {/* Editorial Zigzag Grid */}
-        <section className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20 py-16">
-          <div className="flex flex-col gap-24 md:gap-32">
+        <section className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20 pb-24">
+          <div className="flex flex-col gap-32 md:gap-40">
             {tours.map((tour: any, index: number) => {
               const isEven = index % 2 === 0;
               return (
                 <motion.article 
-                  initial={{ opacity: 0, y: 50 }}
+                  initial={{ opacity: 0, y: 80 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                   key={tour.id} 
-                  className={`flex flex-col ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-10 md:gap-16 group`}
+                  className={`flex flex-col ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-12 md:gap-20 group`}
                 >
                   
                   {/* Image Block */}
-                  <div className="w-full md:w-1/2 overflow-hidden rounded-2xl relative aspect-[4/5] md:aspect-[3/4]">
-                    <div className="absolute inset-0 bg-[#9B7E67]/10 group-hover:bg-transparent transition-colors duration-500 z-10 pointer-events-none"></div>
+                  <div className="w-full md:w-1/2 overflow-hidden rounded-3xl relative aspect-[4/5] md:aspect-[3/4] shadow-2xl shadow-black/50 border border-white/5">
+                    <div className="absolute inset-0 bg-[#9B7E67]/20 group-hover:bg-transparent transition-colors duration-700 z-10 pointer-events-none mix-blend-overlay"></div>
                     <img 
                       src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${tour.images[0]}`}
                       alt={tour.title}
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3s] ease-out group-hover:scale-110 filter brightness-90 group-hover:brightness-100"
                     />
                   </div>
 
                   {/* Text Block */}
                   <div className="w-full md:w-1/2 flex flex-col justify-center">
-                    <div className="flex items-center gap-4 mb-6">
-                      <span className="text-[#9B7E67] font-serif italic text-3xl md:text-5xl opacity-50">
+                    <div className="flex items-center gap-6 mb-8">
+                      <span className="text-[#9B7E67] font-serif italic text-4xl md:text-6xl opacity-40">
                         {tour.id.toString().padStart(2, '0')}
                       </span>
-                      <div className="h-px bg-[#1A1816]/10 flex-grow"></div>
+                      <div className="h-px bg-white/10 flex-grow"></div>
                     </div>
                     
-                    <h3 className="font-serif text-4xl md:text-5xl lg:text-6xl mb-6 leading-tight text-[#1A1816]">
+                    <h3 className="font-serif text-5xl md:text-6xl lg:text-[4.5rem] mb-8 leading-[1.1] text-[#F9F7F4]">
                       {tour.title}
                     </h3>
                     
-                    <p className="font-light text-lg text-[#1A1816]/80 leading-relaxed mb-10 max-w-xl">
+                    <p className="font-light text-lg md:text-xl text-[#F9F7F4]/60 leading-relaxed mb-12 max-w-xl">
                       {tour.description}
                     </p>
 
-                    <div className="flex items-center gap-6 text-[#1A1816]/60 mb-10 text-sm tracking-widest uppercase font-bold">
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-8 text-[#9B7E67] mb-12 text-sm tracking-widest uppercase font-bold">
+                      <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/5">
                         <Clock size={16} />
                         <span>{tour.duration}</span>
                       </div>
                       {tour.price > 0 && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/5">
                           <DollarSign size={16} />
                           <span>${tour.price} USD</span>
                         </div>
@@ -296,7 +401,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                     <div>
                       <button 
                         onClick={() => openModal(tour)}
-                        className="inline-flex items-center gap-4 text-xs uppercase tracking-[0.2em] text-[#F9F7F4] font-bold bg-[#1A1816] px-8 py-4 rounded-full hover:bg-[#9B7E67] transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1"
+                        className="inline-flex items-center gap-4 text-xs uppercase tracking-[0.2em] text-[#0A0908] font-bold bg-[#9B7E67] px-10 py-5 rounded-full hover:bg-[#F9F7F4] transition-all duration-300 shadow-md hover:shadow-xl hover:shadow-white/10 transform hover:-translate-y-1"
                       >
                         {tour.learnMoreBtn} <ArrowLeft className="w-4 h-4 rotate-180" />
                       </button>
@@ -310,25 +415,25 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
         </section>
 
         {/* Reviews Section */}
-        <section className="mt-20 max-w-6xl mx-auto px-6 pb-20">
-          <div className="text-center mb-16">
-            <h3 className="text-[#9B7E67] uppercase tracking-[0.3em] text-xs font-bold mb-4">{t.socialProofTitle}</h3>
-            <h4 className="font-serif text-4xl md:text-5xl text-[#1A1816]">{t.socialProofSubtitle}</h4>
+        <section className="mt-32 max-w-7xl mx-auto px-6 pb-20">
+          <div className="text-center mb-20">
+            <h3 className="text-[#9B7E67] uppercase tracking-[0.4em] text-[10px] font-bold mb-6">{t.socialProofTitle}</h3>
+            <h4 className="font-serif text-5xl md:text-6xl text-[#F9F7F4]">{t.socialProofSubtitle}</h4>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {t.reviews.map((review: any) => (
-              <div key={review.id} className="bg-white p-10 rounded-2xl shadow-sm border border-[#1A1816]/5 relative hover:-translate-y-2 transition-transform duration-500">
+              <div key={review.id} className="bg-[#131110] p-10 md:p-12 rounded-[2rem] shadow-xl shadow-black/40 border border-white/5 relative hover:-translate-y-3 transition-transform duration-500">
                 <div className="flex gap-1 mb-8 text-[#9B7E67]">
                   {[...Array(review.rating)].map((_, i) => (
                     <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                   ))}
                 </div>
-                <p className="font-light text-[#1A1816]/80 text-lg leading-relaxed mb-10 italic">
+                <p className="font-light text-[#F9F7F4]/70 text-lg md:text-xl leading-relaxed mb-10 italic">
                   "{review.text}"
                 </p>
-                <div className="flex items-center gap-3 font-serif font-medium text-[#1A1816]">
-                  <div className="w-8 h-8 rounded-full bg-[#1A1816] flex items-center justify-center text-white text-xs">
+                <div className="flex items-center gap-4 font-serif text-[#F9F7F4]">
+                  <div className="w-10 h-10 rounded-full bg-[#9B7E67] flex items-center justify-center text-[#0A0908] font-bold text-sm">
                     {review.author.charAt(0)}
                   </div>
                   {review.author}
@@ -354,7 +459,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
           >
             {/* Backdrop */}
             <div 
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
               onClick={closeModal}
             ></div>
 
@@ -364,26 +469,26 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
               animate={{ y: 0, scale: 1, opacity: 1 }}
               exit={{ y: 20, scale: 0.95, opacity: 0 }}
               transition={{ duration: 0.5, type: 'spring', bounce: 0.3 }}
-              className="relative w-full max-w-4xl max-h-[90vh] bg-[#FAF9F6] rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row"
+              className="relative w-full max-w-5xl max-h-[90vh] bg-[#131110] rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl shadow-black/80 flex flex-col md:flex-row"
             >
               
               {/* Close Button */}
               <button 
                 onClick={closeModal}
-                className="absolute top-4 right-4 z-50 w-10 h-10 bg-white/20 hover:bg-white backdrop-blur-md rounded-full flex items-center justify-center text-[#1A1816] transition-all shadow-sm"
+                className="absolute top-6 right-6 z-50 w-12 h-12 bg-black/40 hover:bg-[#9B7E67] backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all shadow-lg"
               >
                 <X size={20} strokeWidth={2} />
               </button>
 
               {/* Left/Top: Image Carousel */}
-              <div className="w-full md:w-5/12 h-64 md:h-auto relative bg-[#1A1816] overflow-hidden">
+              <div className="w-full md:w-5/12 h-72 md:h-auto relative bg-[#0A0908] overflow-hidden">
                 <AnimatePresence mode="wait">
                   <motion.img 
                     key={activeImageIndex}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
+                    initial={{ opacity: 0, scale: 1.05 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.7 }}
                     src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${selectedTour.images[activeImageIndex]}`}
                     alt={selectedTour.title}
                     className="absolute inset-0 w-full h-full object-cover"
@@ -392,61 +497,61 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                 
                 {/* Carousel controls */}
                 {selectedTour.images.length > 1 && (
-                  <div className="absolute bottom-4 left-0 w-full flex justify-center gap-2 z-10">
+                  <div className="absolute bottom-6 left-0 w-full flex justify-center gap-3 z-10">
                     {selectedTour.images.map((_: any, idx: number) => (
                       <button 
                         key={idx}
                         onClick={() => setActiveImageIndex(idx)}
-                        className={`w-2 h-2 rounded-full transition-all ${idx === activeImageIndex ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/80'}`}
+                        className={`h-2 rounded-full transition-all ${idx === activeImageIndex ? 'w-8 bg-[#9B7E67]' : 'w-2 bg-white/50 hover:bg-white/80'}`}
                       />
                     ))}
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
               </div>
 
               {/* Right/Bottom: Content */}
-              <div className="w-full md:w-7/12 p-8 md:p-12 overflow-y-auto">
-                <span className="text-[#9B7E67] uppercase tracking-[0.2em] text-xs font-bold mb-2 block">
+              <div className="w-full md:w-7/12 p-8 md:p-14 overflow-y-auto">
+                <span className="text-[#9B7E67] uppercase tracking-[0.3em] text-[10px] font-bold mb-4 block">
                   {t.editorialTitle || "Chacala Adventure"}
                 </span>
-                <h2 className="font-serif text-4xl md:text-5xl text-[#1A1816] mb-6 leading-tight">
+                <h2 className="font-serif text-4xl md:text-6xl text-[#F9F7F4] mb-8 leading-tight">
                   {selectedTour.title}
                 </h2>
                 
                 {/* Stats Row */}
-                <div className="flex flex-wrap gap-4 mb-8">
-                  <div className="bg-white border border-[#1A1816]/10 rounded-xl p-4 flex-1 min-w-[120px]">
-                    <Clock size={20} className="text-[#9B7E67] mb-2" />
-                    <span className="block text-[10px] uppercase tracking-widest text-[#1A1816]/50 font-bold mb-1">{t.modal.duration}</span>
-                    <span className="font-medium text-[#1A1816]">{selectedTour.duration}</span>
+                <div className="flex flex-wrap gap-4 mb-10">
+                  <div className="bg-[#0A0908] border border-white/5 rounded-2xl p-5 flex-1 min-w-[120px]">
+                    <Clock size={20} className="text-[#9B7E67] mb-3" />
+                    <span className="block text-[9px] uppercase tracking-widest text-[#F9F7F4]/40 font-bold mb-1">{t.modal.duration}</span>
+                    <span className="font-medium text-[#F9F7F4] text-sm">{selectedTour.duration}</span>
                   </div>
                   {selectedTour.price > 0 && (
-                    <div className="bg-white border border-[#1A1816]/10 rounded-xl p-4 flex-1 min-w-[120px]">
-                      <DollarSign size={20} className="text-[#9B7E67] mb-2" />
-                      <span className="block text-[10px] uppercase tracking-widest text-[#1A1816]/50 font-bold mb-1">{t.modal.price}</span>
-                      <span className="font-medium text-[#1A1816]">${selectedTour.price} USD</span>
+                    <div className="bg-[#0A0908] border border-white/5 rounded-2xl p-5 flex-1 min-w-[120px]">
+                      <DollarSign size={20} className="text-[#9B7E67] mb-3" />
+                      <span className="block text-[9px] uppercase tracking-widest text-[#F9F7F4]/40 font-bold mb-1">{t.modal.price}</span>
+                      <span className="font-medium text-[#F9F7F4] text-sm">${selectedTour.price} USD</span>
                     </div>
                   )}
-                  <div className="bg-white border border-[#1A1816]/10 rounded-xl p-4 flex-1 min-w-[120px]">
-                    <Users size={20} className="text-[#9B7E67] mb-2" />
-                    <span className="block text-[10px] uppercase tracking-widest text-[#1A1816]/50 font-bold mb-1">{t.modal.capacity}</span>
-                    <span className="font-medium text-[#1A1816] text-xs leading-tight">{selectedTour.capacity}</span>
+                  <div className="bg-[#0A0908] border border-white/5 rounded-2xl p-5 flex-1 min-w-[120px]">
+                    <Users size={20} className="text-[#9B7E67] mb-3" />
+                    <span className="block text-[9px] uppercase tracking-widest text-[#F9F7F4]/40 font-bold mb-1">{t.modal.capacity}</span>
+                    <span className="font-medium text-[#F9F7F4] text-xs leading-tight">{selectedTour.capacity}</span>
                   </div>
                 </div>
 
-                <div className="h-px bg-[#1A1816]/10 w-full mb-8"></div>
+                <div className="h-px bg-white/5 w-full mb-10"></div>
 
-                <h4 className="font-serif text-xl mb-4 text-[#1A1816]">Acerca del Recorrido</h4>
-                <p className="font-light text-[#1A1816]/80 leading-relaxed mb-8">
+                <h4 className="font-serif text-2xl mb-5 text-[#F9F7F4]">{t.modal?.about || "Acerca del Recorrido"}</h4>
+                <p className="font-light text-[#F9F7F4]/70 leading-relaxed mb-10 text-lg">
                   {selectedTour.longDescription}
                 </p>
 
-                <h4 className="font-serif text-xl mb-4 text-[#1A1816]">{t.modal.includes}</h4>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-10">
+                <h4 className="font-serif text-2xl mb-5 text-[#F9F7F4]">{t.modal.includes}</h4>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
                   {selectedTour.includes.map((item: string, idx: number) => (
-                    <li key={idx} className="flex items-start gap-2 text-sm font-light text-[#1A1816]/80">
-                      <CheckCircle2 size={16} className="text-[#9B7E67] shrink-0 mt-0.5" />
+                    <li key={idx} className="flex items-start gap-3 text-sm font-light text-[#F9F7F4]/70">
+                      <CheckCircle2 size={18} className="text-[#9B7E67] shrink-0 mt-0.5" />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -456,9 +561,9 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                   href={`https://wa.me/12509612351?text=${encodeURIComponent(t.modal.whatsappMessage + ' ' + selectedTour.title)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full inline-flex justify-center items-center gap-3 text-xs uppercase tracking-[0.2em] text-white font-bold bg-[#9B7E67] px-8 py-5 rounded-xl hover:bg-[#1A1816] transition-colors duration-300"
+                  className="w-full inline-flex justify-center items-center gap-4 text-xs uppercase tracking-[0.2em] text-[#0A0908] font-bold bg-[#9B7E67] px-8 py-6 rounded-2xl hover:bg-[#F9F7F4] transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-white/10 hover:-translate-y-1"
                 >
-                  <MessageCircle size={18} /> {t.modal.bookNow}
+                  <MessageCircle size={20} /> {t.modal.bookNow}
                 </a>
 
               </div>

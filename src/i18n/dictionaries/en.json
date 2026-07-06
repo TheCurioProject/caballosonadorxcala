@@ -8,7 +8,7 @@
     "findUs": "Find Us"
   },
   "hero": {
-    "title": "Casa del Caballo Soñador | Boutique Hotel in Chacala, Nayarit",
+    "title": "Casa del Caballo Soñador | Casa Boutique in Chacala, Nayarit",
     "breathe": "Breathe.",
     "belong": "Belong.",
     "discover": "Discover",
@@ -16,8 +16,8 @@
   },
   "about": {
     "subtitle": "The Sanctuary",
-    "title": "A place to pause, breathe, and belong",
-    "p1": "Welcome to Casa del Caballo Soñador, a boutique hotel in a small Mexican fishing village where life moves slower and nature sets the rhythm."
+    "title": "Welcome to Casa del Caballo Soñador",
+    "p1": "An exclusive-rental Casa Boutique in a serene Mexican fishing village where nature sets the rhythm. The perfect backdrop for wellness retreats, family reunions, creative workshops, and adventure groups. Whether to rest, write, or reconnect, it's more than just a stay—it's a space to land gently and live lightly."
   },
   "suites": {
     "subtitle": "6 Unique Retreats",
@@ -82,8 +82,7 @@
     "title": "A Place to Pause, Breathe, and Belong",
     "p1": "Inspired by the spirit of the dreaming horse—peaceful, untamed, and deeply connected—our space is a place to pause, breathe, and belong.",
     "p2": "Crafted with local stone, warm wood, and natural linens, our six rooms reflect the earth's quiet strength. The soulful architecture offers inviting textures and shaded terraces to enjoy the golden light.",
-    "p3": "At the heart of the property, relax by the pool and waterfall jacuzzi under the palms. Enjoy ocean views just a short walk away, surrounded by birdsong and the scent of sun-warmed earth.",
-    "p4": "Welcome to Casa del Caballo Soñador, a boutique hotel in a small Mexican fishing village where life moves slower and nature sets the rhythm."
+    "p3": "At the heart of the property, relax by the pool and waterfall jacuzzi under the palms. Enjoy ocean views just a short walk away, surrounded by birdsong and the scent of sun-warmed earth."
   },
   "services": {
     "subtitle": "Everything You'll Enjoy",
@@ -93,24 +92,14 @@
     "desktopInstruction": "Use arrows to explore",
     "items": [
       {
-        "title": "6 Private Rooms",
-        "short": "Exclusive spaces designed for your rest.",
-        "desc": "Enjoy exclusivity and privacy in our 6 carefully designed rooms. Soft linens, local stone, and warm wood details ensure every moment is perfectly restful."
-      },
-      {
         "title": "Chef Service & Kitchen",
         "short": "Authentic flavors prepared in our fully equipped kitchen.",
         "desc": "Our in-house chef crafts authentic local and international flavors using fresh, seasonal ingredients, served right from our fully equipped, open-concept kitchen."
       },
       {
-        "title": "Pool & Lounge Area",
-        "short": "Relax under the sun or enjoy the shade.",
-        "desc": "Unwind in our spacious pool area. Whether you are swimming laps, reading under the palm trees, or soaking up the golden hour sun, this is your personal oasis."
-      },
-      {
-        "title": "Jacuzzi & Relaxation",
-        "short": "Immerse yourself in tranquility.",
-        "desc": "Let the warm waters and gentle sound of the cascading waterfall melt away your stress in our beautiful stone-crafted jacuzzi."
+        "title": "Pool, Jacuzzi & Lounge",
+        "short": "Relax under the sun, enjoy the shade, or soak in the jacuzzi.",
+        "desc": "Unwind in our spacious pool area. Whether you are swimming laps, reading under the palm trees, or letting the warm waters of the jacuzzi melt away your stress, this is your personal oasis."
       },
       {
         "title": "Guest Kitchen",
@@ -164,7 +153,7 @@
       "bath": "1 Bath"
     },
     "6": {
-      "name": "Room 6",
+      "name": "Room 5",
       "description": "KING SUITE. Named after the living wood used throughout the room, Madera Viva offers a quiet and grounded atmosphere with a king-size bed and stone accents.",
       "guests": "2",
       "beds": "1 King",
@@ -185,11 +174,24 @@
     "heroSuperTitle": "Adventure Awaits",
     "heroTitle": "UNIQUE ATV TOURS TO THE LESS EXPLORED SIGHTS IN CHACALA",
     "introTitle": "Experience Chacala",
-    "introText1": "Tucked away in a small cove along the Pacific coast in the State of Nayarit, Chacala stands out for its unique charm and pristine beauty. Providing a serene getaway, the town boasts uncrowded beaches and a welcoming ambiance.",
-    "introText2": "The town's name, meaning \"where there are shrimp\" in Nahuatl, reflects its connection to the local culture and abundant marine life, adding to the distinctive character of this coastal gem.",
+    "introText1": "Chacala Adventure Tours currently has 7 destinations available to choose from, varying from 4 to 7 hours in length depending on the location. Our local guides share their knowledge of area customs throughout the trip to ensure you get the best experience possible.",
+    "infoCustomToursTitle": "Custom Tours",
+    "infoCustomToursText": "Large groups will often have special requests. A prepared lunch, breakfast en-route, extended time, or alternate routes can all be accommodated. Let us know your needs when booking.",
+    "infoVehiclesTitle": "The Vehicles",
+    "infoVehiclesText": "We use Can-AM 6 seat UTV’s equipped with seatbelts for each passenger and catch nets. Daily checks are performed on each unit and maintenance is scheduled regularly.",
+    "infoBringTitle": "What to Bring",
+    "infoBringItems": [
+      "Swimsuit, water shoes & towel",
+      "Closed toed shoes",
+      "Sunscreen and insect repellent",
+      "Cash for lunch and souvenirs",
+      "Water, snacks or lunch (if not included)"
+    ],
     "explore": "Explore",
     "bookTour": "Book Tour",
-    "backToHome": "Back to home",
+    "bookTourShort": "Book",
+    "scroll": "Scroll",
+    "backToHome": "Back to Home",
     "tours": [
       {
         "id": 1,
@@ -329,7 +331,8 @@
       "capacity": "Capacity",
       "includes": "What's Included",
       "bookNow": "Book via WhatsApp",
-      "whatsappMessage": "Hi! I'm interested in the"
+      "whatsappMessage": "Hi! I'm interested in the",
+      "about": "About the Tour"
     }
   },
   "faq": {

@@ -2,10 +2,9 @@
 
 import React, { useRef } from 'react';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
-import { Leaf, Wind, Droplets, Sun } from 'lucide-react';
+import { Leaf, Wind, Droplets } from 'lucide-react';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { RevealText } from './RevealText';
-import { VideoScrubber } from './VideoScrubber';
 
 export const Concept = () => {
   const dict = useDictionary();
@@ -90,32 +89,21 @@ export const Concept = () => {
             </p>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="flex gap-6 group cursor-pointer">
-            <motion.div 
-              variants={iconVariants} 
-              initial="rest" 
-              whileHover="hover" 
-              className="mt-1 text-[#524D48]"
-            >
-              <Sun size={28} strokeWidth={1.5} />
-            </motion.div>
-            <p className="text-[#524D48] font-light text-lg leading-relaxed group-hover:text-[#23211F] transition-colors duration-300 font-medium">
-              {(dict as any).concept.p4}
-            </p>
-          </motion.div>
         </motion.div>
 
-        {/* Virtual Tour Section */}
+        {/* Image Section */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.8, delay: 0.4 }}
           className="w-full lg:w-1/2 h-[500px] md:h-[700px] relative rounded-2xl overflow-hidden shadow-2xl group"
         >
-          {/* We reuse the suite tour as a placeholder mockup */}
-          <VideoScrubber roomId="suite" />
-          
-          {/* Overlay to encourage interaction if not full screen (handled partially by VideoScrubber, but we can add a subtle border or effect) */}
+          <img
+            src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/casaexterior.webp`}
+            alt="Concepto Hotel Soñador"
+            className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
+            loading="lazy"
+          />
           <div className="absolute inset-0 pointer-events-none border border-black/10 rounded-2xl group-hover:border-[#9B7E67]/50 transition-colors duration-500 z-20"></div>
         </motion.div>
 

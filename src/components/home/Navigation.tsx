@@ -61,8 +61,8 @@ const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, 
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             style={{ transformOrigin: 'top right' }}
             className="fixed z-50 bg-[#F9F7F4]/95 backdrop-blur-2xl border border-white/40 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col
-                       top-[100px] right-4 w-[calc(100vw-32px)] sm:w-[360px] rounded-3xl p-8
-                       md:top-[120px] md:right-16 md:rounded-[2rem] md:p-10 pointer-events-auto"
+                       top-20 right-4 w-[calc(100vw-32px)] sm:w-[360px] rounded-3xl p-8 overflow-y-auto max-h-[calc(100vh-90px)]
+                       md:top-[100px] md:right-16 md:rounded-[2rem] md:p-10 pointer-events-auto"
           >
             <div className="flex justify-between items-center mb-10">
               <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-[#9B7E67]">
