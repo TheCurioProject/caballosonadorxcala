@@ -29,24 +29,28 @@ function useMediaQuery(query: string) {
 const ConfettiParticle = ({ delay, index }: { delay: number; index: number }) => {
   const colors = ['#9B7E67', '#D4A574', '#C9B99A', '#E8D5B7', '#F5E6D0', '#B8956A'];
   const color = colors[index % colors.length];
-  const x = (Math.random() - 0.5) * 300;
-  const y = -(Math.random() * 200 + 100);
+  
+  // Use window size if available (safe since this only renders on client interaction)
+  const w = typeof window !== 'undefined' ? window.innerWidth : 1000;
+  const h = typeof window !== 'undefined' ? window.innerHeight : 800;
+  
+  const x = (Math.random() - 0.5) * w;
+  const y = -(Math.random() * (h / 2) + 100);
   const rotate = Math.random() * 720 - 360;
-  const size = Math.random() * 6 + 4;
+  const size = Math.random() * 8 + 6;
 
   return (
     <motion.div
       initial={{ opacity: 1, x: 0, y: 0, rotate: 0, scale: 1 }}
-      animate={{ opacity: [1, 1, 0], x, y: [0, y, y + 60], rotate, scale: [1, 1.2, 0.5] }}
-      transition={{ duration: 2.2, delay, ease: 'easeOut' }}
-      className="absolute pointer-events-none"
+      animate={{ opacity: [1, 1, 0], x, y: [0, y, y + 200], rotate, scale: [1, 1.2, 0.5] }}
+      transition={{ duration: 2.5, delay, ease: 'easeOut' }}
+      className="fixed top-1/2 left-1/2 z-[999999] pointer-events-none"
       style={{
         width: size,
         height: size * 1.5,
         backgroundColor: color,
         borderRadius: Math.random() > 0.5 ? '50%' : '2px',
-        left: '50%',
-        top: '50%',
+        transform: 'translate(-50%, -50%)',
       }}
     />
   );
@@ -306,6 +310,9 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [step, setStep] = useState(1);
   const [range, setRange] = useState<DateRange | undefined>(undefined);
   const [disabledRanges, setDisabledRanges] = useState<{from: Date, to: Date}[]>([]);
+  const [bookedRanges, setBookedRanges] = useState<{from: Date, to: Date}[]>([]);
+  const [bufferRanges, setBufferRanges] = useState<{from: Date, to: Date}[]>([]);
+  const [blockedRanges, setBlockedRanges] = useState<{from: Date, to: Date}[]>([]);
   
   // Form Data
   const [guestName, setGuestName] = useState('');
@@ -357,11 +364,16 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         .then(res => res.json())
         .then(data => {
           if (data.disabledRanges) {
-            const ranges = data.disabledRanges.map((r: any) => ({
-              from: new Date(r.from),
-              to: new Date(r.to)
-            }));
-            setDisabledRanges(ranges);
+            setDisabledRanges(data.disabledRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })));
+          }
+          if (data.bookedRanges) {
+            setBookedRanges(data.bookedRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })));
+          }
+          if (data.bufferRanges) {
+            setBufferRanges(data.bufferRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })));
+          }
+          if (data.blockedRanges) {
+            setBlockedRanges(data.blockedRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })));
           }
         })
         .catch(console.error);
@@ -697,6 +709,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           selected={range}
                           onSelect={setRange}
                           disabled={[{ before: new Date() }, ...disabledRanges]}
+                          modifiers={{
+                            booked: bookedRanges,
+                            buffer: bufferRanges,
+                            blocked: blockedRanges
+                          }}
                           numberOfMonths={1}
                           className="premium-calendar !m-0"
                           modifiersClassNames={{
@@ -704,7 +721,10 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             range_start: 'bg-[#23211F] text-white',
                             range_end: 'bg-[#23211F] text-white',
                             range_middle: 'bg-[#F9F7F4] text-[#9B7E67]',
-                            disabled: 'text-gray-300 line-through opacity-50',
+                            booked: '!text-red-500 !font-bold line-through !opacity-80',
+                            buffer: '!text-[#D4A574] !font-bold line-through !opacity-80',
+                            blocked: '!text-gray-400 line-through !opacity-60',
+                            disabled: 'text-gray-300 opacity-50', // Fallback for past dates
                           }}
                         />
                         {range?.from && !range?.to && (
@@ -712,6 +732,20 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             {dict.modal?.minStay}
                           </motion.p>
                         )}
+                        <div className="flex flex-wrap items-center justify-center gap-4 mt-8 pt-6 border-t border-gray-50 text-[9px] font-bold uppercase tracking-widest text-gray-500 w-full">
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-2.5 h-2.5 rounded-full bg-red-500 opacity-80"></div>
+                            <span>Reservado</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-2.5 h-2.5 rounded-full bg-[#D4A574] opacity-80"></div>
+                            <span>Limpieza / Margen</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-2.5 h-2.5 rounded-full bg-gray-400 opacity-60"></div>
+                            <span>Bloqueado</span>
+                          </div>
+                        </div>
                       </div>
                       <div className="mt-8">
                         <PremiumButton onClick={nextStep} disabled={!range?.from || !range?.to || nights < 2}>

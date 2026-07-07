@@ -40,19 +40,36 @@ export async function GET() {
       }
     });
 
-    // We will send back a list of blocked ranges
+    // We will send back a list of blocked ranges split by type
     const disabledRanges = [];
+    const bookedRanges = [];
+    const bufferRanges = [];
+    const blockedRanges = [];
 
     for (const b of blocks) {
       disabledRanges.push({ from: b.startDate, to: b.endDate });
+      blockedRanges.push({ from: b.startDate, to: b.endDate });
     }
 
     for (const b of bookings) {
       disabledRanges.push({ from: b.checkIn, to: b.checkOut });
+      
+      // The booked nights
+      const checkoutMinusOne = new Date(b.checkOut);
+      checkoutMinusOne.setDate(checkoutMinusOne.getDate() - 1);
+      if (b.checkIn <= checkoutMinusOne) {
+        bookedRanges.push({ from: b.checkIn, to: checkoutMinusOne });
+      }
+      
+      // The buffer day (checkout day itself)
+      bufferRanges.push({ from: b.checkOut, to: b.checkOut });
     }
 
     return NextResponse.json({ 
       disabledRanges,
+      bookedRanges,
+      bufferRanges,
+      blockedRanges,
       propertySettings: {
         checkInTime: "15:00",
         checkOutTime: "12:00"

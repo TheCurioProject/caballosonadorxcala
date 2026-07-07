@@ -38,16 +38,16 @@ export async function POST(req: Request) {
         where: {
           propertyId: property.id,
           payment_status: { in: ['CONFIRMED', 'PENDING'] },
-          checkIn: { lt: new Date(checkOut) },
-          checkOut: { gt: new Date(checkIn) }
+          checkIn: { lte: new Date(checkOut) },
+          checkOut: { gte: new Date(checkIn) }
         }
       });
 
       const overlappingBlocks = await prisma.blockedDate.findMany({
         where: {
           propertyId: property.id,
-          startDate: { lt: new Date(checkOut) },
-          endDate: { gt: new Date(checkIn) }
+          startDate: { lte: new Date(checkOut) },
+          endDate: { gte: new Date(checkIn) }
         }
       });
 

@@ -37,11 +37,8 @@ export async function POST(request: Request) {
     const conflictingBookings = await prisma.booking.findMany({
       where: {
         propertyId: data.propertyId,
-        OR: [
-          { checkIn: { lt: new Date(data.checkOut), gte: new Date(data.checkIn) } },
-          { checkOut: { gt: new Date(data.checkIn), lte: new Date(data.checkOut) } },
-          { checkIn: { lte: new Date(data.checkIn) }, checkOut: { gte: new Date(data.checkOut) } },
-        ]
+          checkIn: { lte: new Date(data.checkOut) },
+          checkOut: { gte: new Date(data.checkIn) }
       }
     });
 

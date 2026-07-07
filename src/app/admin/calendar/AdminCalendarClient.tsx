@@ -37,13 +37,29 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
   const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
 
-  // Determine what's on a specific day
   const getDayInfo = (day: Date) => {
-    // Check bookings
+    // Check bookings and buffer
+    let isBooked = false;
+    let isCheckoutBuffer = false;
+    let bookingOrigin = undefined;
+
     const booking = bookings.find(b => {
       const checkIn = new Date(b.checkIn);
       const checkOut = new Date(b.checkOut);
-      return day >= checkIn && day < checkOut; // Checkout day is usually available for next checkin
+      const isNight = day >= checkIn && day < checkOut;
+      const isBuffer = isSameDay(day, checkOut);
+      
+      if (isNight) {
+        isBooked = true;
+        bookingOrigin = b.origin;
+        return true;
+      }
+      if (isBuffer) {
+        isCheckoutBuffer = true;
+        bookingOrigin = b.origin;
+        return true;
+      }
+      return false;
     });
 
     // Check blocks
@@ -68,8 +84,9 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
     else if (holiday) price = holiday.price;
 
     return {
-      isBooked: !!booking,
-      bookingOrigin: booking?.origin,
+      isBooked,
+      isCheckoutBuffer,
+      bookingOrigin,
       isBlocked: !!block,
       blockReason: block?.reason,
       isHoliday: !!holiday,
@@ -153,14 +170,18 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
             if (!isCurrentMonth) {
               bgClass = "bg-transparent opacity-30 shadow-none";
             } else if (info.isBlocked) {
-              bgClass = "bg-[#c1121f] shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3)]"; // Deep red block
+              bgClass = "bg-gray-400 shadow-[inset_3px_3px_6px_rgba(0,0,0,0.2)]"; // Gray block
               textClass = "text-white";
               label = info.blockReason || "Blocked";
             } else if (info.isBooked) {
-              const color = info.bookingOrigin === 'MANUAL' ? 'bg-[#c1121f]' : 'bg-[#a30b17]';
+              const color = info.bookingOrigin === 'MANUAL' ? 'bg-[#c1121f]' : 'bg-red-500';
               bgClass = `${color} shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3)]`; 
               textClass = "text-white";
               label = info.bookingOrigin;
+            } else if (info.isCheckoutBuffer) {
+              bgClass = "bg-[#D4A574] shadow-[inset_3px_3px_6px_rgba(0,0,0,0.2)]"; 
+              textClass = "text-white";
+              label = "Limpieza / Margen";
             } else if (info.isHoliday) {
               bgClass = "bg-[#e5d9c5] shadow-[5px_5px_10px_#e3e1de,-5px_-5px_10px_#ffffff] border border-[#d4c3ab]";
               textClass = "text-[#9B7E67]";
@@ -186,7 +207,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
                         {label}
                       </span>
                     )}
-                    <span className={`text-xs font-serif ${textClass} mt-1 ${info.isBlocked || info.isBooked ? 'opacity-50' : 'opacity-100'}`}>
+                    <span className={`text-xs font-serif ${textClass} mt-1 ${info.isBlocked || info.isBooked || info.isCheckoutBuffer ? 'opacity-50' : 'opacity-100'}`}>
                       ${info.price}
                     </span>
                   </div>
@@ -194,6 +215,26 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
               </motion.div>
             );
           })}
+          </div>
+          
+          {/* Admin Legend */}
+          <div className="flex flex-wrap items-center justify-center gap-6 mt-8 pt-6 border-t border-gray-200 text-[10px] font-bold uppercase tracking-widest text-gray-500 w-full">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-red-500 shadow-inner"></div>
+              <span>Reservado (Stripe)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#c1121f] shadow-inner"></div>
+              <span>Reservado (Manual)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#D4A574] shadow-inner"></div>
+              <span>Limpieza / Margen</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-gray-400 shadow-inner"></div>
+              <span>Bloqueado (Manual)</span>
+            </div>
           </div>
         </div>
       </div>
