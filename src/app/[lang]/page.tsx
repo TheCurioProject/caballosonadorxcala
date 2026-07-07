@@ -60,13 +60,13 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
   if (experiences.length === 0) {
     experiences = dict.toursPage.tours.map((t: any, i: number) => {
       const images = [
-        '/imagenes/07_tours/tour_ojo_de_agua.webp',
-        '/imagenes/07_tours/tour_molote.webp',
-        '/imagenes/07_tours/tour_el_capomo.webp',
-        '/imagenes/07_tours/tour_los_cuevas.webp',
-        '/imagenes/07_tours/tour_ojo_de_agua.webp',
-        '/imagenes/07_tours/tour_molote.webp',
-        '/imagenes/07_tours/tour_el_capomo.webp'
+        '/tours_gallery/01_ojo_de_agua/00_ojoagua_002.webp',
+        '/tours_gallery/02_molote_river/00_molote_002.webp',
+        '/tours_gallery/03_el_capomo/00_capomof001.webp',
+        '/tours_gallery/04_las_cuevas/01_loscuevas016.webp',
+        '/tours_gallery/05_jamurrca/00_jumurrca001.webp',
+        '/tours_gallery/06_alta_vista/00_altavista_002.webp',
+        '/tours_gallery/07_volcano/00_sunset_019.webp'
       ];
       return {
         id: t.id,

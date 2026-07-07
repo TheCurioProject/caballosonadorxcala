@@ -11,13 +11,84 @@ import { usePathname, useRouter } from 'next/navigation';
 const Footer = dynamic(() => import('@/components/home/Footer').then(mod => mod.Footer));
 
 const TOUR_IMAGES: Record<string, string[]> = {
-  "ATV_OJO_DE_AGUA": ["/imagenes/07_tours/tour_ojo_de_agua_1.webp", "/imagenes/07_tours/tour_ojo_de_agua.webp"],
-  "ATV_RIO_MOLOTE": ["/imagenes/07_tours/tour_rio_molote_1.webp", "/imagenes/07_tours/tour_molote.webp"],
-  "ATV_EL_CAPOMO": ["/imagenes/07_tours/tour_el_capomo_1.webp", "/imagenes/07_tours/tour_el_capomo.webp"],
-  "ATV_LAS_CUEVAS": ["/imagenes/07_tours/tour_las_cuevas_1.webp", "/imagenes/07_tours/tour_los_cuevas.webp"],
-  "ATV_JUMURRCA": ["/imagenes/07_tours/tour_jumurrca_1.webp", "/imagenes/07_tours/tour_jumurrca_2.webp"],
-  "ATV_ALTA_VISTA": ["/imagenes/07_tours/tour_alta_vista_1.webp", "/imagenes/07_tours/tour_alta_vista_2.webp"],
-  "ATV_VOLCANO": ["/imagenes/07_tours/tour_volcano_1.webp", "/imagenes/07_tours/tour_volcano_sunset.webp"]
+  "ATV_OJO_DE_AGUA": [
+    "/tours_gallery/01_ojo_de_agua/00_ojoagua_002.webp",
+    "/tours_gallery/01_ojo_de_agua/01_ojoagua_001.webp",
+    "/tours_gallery/01_ojo_de_agua/02_ojoagua_012.webp",
+    "/tours_gallery/01_ojo_de_agua/03_ojoagua_003.webp",
+    "/tours_gallery/01_ojo_de_agua/04_ojoagua_015.webp",
+    "/tours_gallery/01_ojo_de_agua/05_ojoagua_014.webp",
+    "/tours_gallery/01_ojo_de_agua/06_ojoagua_004.webp",
+    "/tours_gallery/01_ojo_de_agua/07_ojoagua_005.webp",
+    "/tours_gallery/01_ojo_de_agua/08_ojoagua_008.webp"
+  ],
+  "ATV_RIO_MOLOTE": [
+    "/tours_gallery/02_molote_river/00_molote_002.webp",
+    "/tours_gallery/02_molote_river/01_molote_001.webp",
+    "/tours_gallery/02_molote_river/02_molote_003.webp",
+    "/tours_gallery/02_molote_river/03_molote_004.webp",
+    "/tours_gallery/02_molote_river/04_molote_005.webp",
+    "/tours_gallery/02_molote_river/05_molote_006.webp",
+    "/tours_gallery/02_molote_river/06_molote_007.webp",
+    "/tours_gallery/02_molote_river/07_molote_008.webp",
+    "/tours_gallery/02_molote_river/08_molote_010.webp"
+  ],
+  "ATV_EL_CAPOMO": [
+    "/tours_gallery/03_el_capomo/00_capomof001.webp",
+    "/tours_gallery/03_el_capomo/01_capomof003.webp",
+    "/tours_gallery/03_el_capomo/02_capomof002.webp",
+    "/tours_gallery/03_el_capomo/03_capomof008.webp",
+    "/tours_gallery/03_el_capomo/04_capomof006.webp",
+    "/tours_gallery/03_el_capomo/05_capomof005.webp",
+    "/tours_gallery/03_el_capomo/06_capomof011.webp",
+    "/tours_gallery/03_el_capomo/07_capomof010.webp",
+    "/tours_gallery/03_el_capomo/08_capomof009.webp",
+    "/tours_gallery/03_el_capomo/09_capomof004.webp"
+  ],
+  "ATV_LAS_CUEVAS": [
+    "/tours_gallery/04_las_cuevas/01_loscuevas016.webp",
+    "/tours_gallery/04_las_cuevas/02_loscuevas005.webp",
+    "/tours_gallery/04_las_cuevas/03_loscuevas002.webp",
+    "/tours_gallery/04_las_cuevas/04_loscuevas012.webp",
+    "/tours_gallery/04_las_cuevas/05_loscuevas014.webp",
+    "/tours_gallery/04_las_cuevas/06_loscuevas010.webp",
+    "/tours_gallery/04_las_cuevas/07_loscuevas009.webp",
+    "/tours_gallery/04_las_cuevas/08_loscuevas007.webp",
+    "/tours_gallery/04_las_cuevas/09_loscuevas003.webp"
+  ],
+  "ATV_JUMURRCA": [
+    "/tours_gallery/05_jamurrca/00_jumurrca001.webp",
+    "/tours_gallery/05_jamurrca/01_jumurrca002.webp",
+    "/tours_gallery/05_jamurrca/02_jumurrca006.webp",
+    "/tours_gallery/05_jamurrca/03_jumurrca008.webp",
+    "/tours_gallery/05_jamurrca/04_jumurrca004.webp",
+    "/tours_gallery/05_jamurrca/05_jumurrca005.webp",
+    "/tours_gallery/05_jamurrca/06_jumurrca007.webp",
+    "/tours_gallery/05_jamurrca/07_jumurrca009.webp",
+    "/tours_gallery/05_jamurrca/08_jumurrca003.webp"
+  ],
+  "ATV_ALTA_VISTA": [
+    "/tours_gallery/06_alta_vista/00_altavista_002.webp",
+    "/tours_gallery/06_alta_vista/01_altavista_010.webp",
+    "/tours_gallery/06_alta_vista/02_altavista_004.webp",
+    "/tours_gallery/06_alta_vista/03_altavista_005.webp",
+    "/tours_gallery/06_alta_vista/04_altavista_007.webp",
+    "/tours_gallery/06_alta_vista/05_altavista_006.webp",
+    "/tours_gallery/06_alta_vista/06_altavista_001.webp",
+    "/tours_gallery/06_alta_vista/07_altavista_003.webp",
+    "/tours_gallery/06_alta_vista/08_alta_vista009.webp"
+  ],
+  "ATV_VOLCANO": [
+    "/tours_gallery/07_volcano/00_sunset_019.webp",
+    "/tours_gallery/07_volcano/01_sunset_006.webp",
+    "/tours_gallery/07_volcano/02_sunset_008.webp",
+    "/tours_gallery/07_volcano/03_sunset_015.webp",
+    "/tours_gallery/07_volcano/04_sunset_017.webp",
+    "/tours_gallery/07_volcano/05_sunset_005.webp",
+    "/tours_gallery/07_volcano/06_sunset_011.webp",
+    "/tours_gallery/07_volcano/07_sunset_016.webp",
+    "/tours_gallery/07_volcano/08_sunset_009.webp"
+  ]
 };
 
 export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | 'en' }> }) {
