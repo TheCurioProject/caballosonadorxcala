@@ -3,17 +3,18 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  ChefHat, Waves, 
+  BedDouble, ChefHat, Waves, 
   Utensils, Wifi, Sun, MoonStar 
 } from 'lucide-react';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
-import type { ServiceItem } from './ServiceModal';
+export type { ServiceItem } from './ServiceModal';
 
 const ServiceModal = dynamic(() => import('./ServiceModal').then(mod => mod.ServiceModal), { ssr: false });
 
 const images = [
+  '/imagenes/03_rooms/room1_paso_suave.webp', // Rooms
   '/imagenes/05_amenities/amenity_01_kitchen.webp', // Chef
   '/imagenes/05_amenities/amenity_02_pool_lounge.webp', // Pool
   '/imagenes/05_amenities/amenity_05_guest_kitchen.webp', // Guest Kitchen
@@ -23,18 +24,18 @@ const images = [
 ];
 
 const icons = [
-  ChefHat, Waves, 
+  BedDouble, ChefHat, Waves, 
   Utensils, Wifi, Sun, MoonStar
 ];
 
 export const Services = () => {
   const dict = useDictionary();
-  const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
+  const [selectedService, setSelectedService] = useState<any | null>(null);
 
   const servicesData = (dict as any).services.items;
 
   // Build the full service items
-  const serviceItems: ServiceItem[] = servicesData.map((item: any, index: number) => ({
+  const serviceItems: any[] = servicesData.map((item: any, index: number) => ({
     id: `service-${index}`,
     title: item.title,
     short: item.short,
@@ -54,7 +55,8 @@ export const Services = () => {
       case 4:
         return "md:col-span-1 lg:col-span-1 h-[400px]";
       case 5:
-        return "md:col-span-2 lg:col-span-3 h-[400px] md:h-[500px]";
+      case 6:
+        return "md:col-span-1 lg:col-span-2 h-[400px] md:h-[500px]";
       default:
         return "col-span-1 h-[400px]";
     }
