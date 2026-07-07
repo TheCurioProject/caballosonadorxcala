@@ -8,7 +8,7 @@ function getLocale(request: NextRequest) {
   return defaultLocale;
 }
 
-export default async function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // 1. Manejo de Auth para /admin

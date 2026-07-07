@@ -141,7 +141,7 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
           {logoBase64 && (
             <Image 
               src={`data:image/png;base64,${logoBase64}`} 
-              style={{ width: 60, height: 'auto', marginBottom: 5 }} 
+              style={{ width: 80, height: 'auto', marginBottom: 5 }} 
             />
           )}
           <Text style={styles.logoText}>CASA CABALLO SOÑADOR</Text>
