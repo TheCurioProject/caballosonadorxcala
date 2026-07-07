@@ -12,7 +12,7 @@ export default function FluidHorseAnimation({ className = '', duration = 3.5 }) 
     if (svgRef.current) {
       try {
         // Forzar el inicio inmediato de la animación SMIL al montarse (evita que se congele)
-        svgRef.current.setCurrentTime(0);
+        svgRef.current.setCurrentTime(0.1);
         svgRef.current.unpauseAnimations();
       } catch (e) {
         // Ignorar si el navegador no soporta estos métodos
@@ -30,7 +30,7 @@ export default function FluidHorseAnimation({ className = '', duration = 3.5 }) 
         >
           {/* Synchronized ViewBox Animation */}
           <animate
-            begin="0s"
+            begin="0.1s"
             attributeName="viewBox"
             dur={`${cycleDuration}s`}
             repeatCount="indefinite"
@@ -41,7 +41,7 @@ export default function FluidHorseAnimation({ className = '', duration = 3.5 }) 
           <g>
             {/* Synchronized Transform (Translate) Animation */}
             <animateTransform
-              begin="0s"
+              begin="0.1s"
               attributeName="transform"
               type="translate"
               dur={`${cycleDuration}s`}
@@ -53,7 +53,7 @@ export default function FluidHorseAnimation({ className = '', duration = 3.5 }) 
             <path fill="currentColor">
               {/* Synchronized Path Data Animation */}
               <animate
-                begin="0s"
+                begin="0.1s"
                 attributeName="d"
                 dur={`${cycleDuration}s`}
                 repeatCount="indefinite"

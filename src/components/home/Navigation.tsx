@@ -278,7 +278,7 @@ export const HomeNavigation = () => {
                         isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
                       }`}
                     >
-                      <span className="text-sm md:text-base leading-none block tracking-widest">{l.toUpperCase()}</span>
+                      <span className="text-[11px] md:text-sm leading-none block tracking-widest">{l.toUpperCase()}</span>
                       <div className="h-1.5 mt-1 w-full flex justify-center items-center">
                         {isActive && (
                           <motion.div 
@@ -315,7 +315,7 @@ export const HomeNavigation = () => {
                   onClick={() => setMenuOpen(true)}
                   className="uppercase tracking-widest text-xs font-bold flex items-center gap-2 hover:opacity-70 transition-all"
                 >
-                  MENU <Menu size={20} />
+                  {dict?.nav?.menu || 'MENU'} <Menu size={20} />
                 </button>
               </div>
 
@@ -332,7 +332,7 @@ export const HomeNavigation = () => {
                         isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
                       }`}
                     >
-                      <span className="text-[13px] leading-none block tracking-widest">{l.toUpperCase()}</span>
+                      <span className="text-[10px] leading-none block tracking-widest">{l.toUpperCase()}</span>
                       <div className="h-1 mt-1 w-full flex justify-center items-center">
                         {isActive && (
                           <motion.div 

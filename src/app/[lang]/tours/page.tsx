@@ -224,9 +224,9 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
           <img 
             src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/07_tours/atvhero.webp`}
             alt="ATV Tours Chacala"
-            className="w-full h-full object-cover opacity-50 object-[center_30%]"
+            className="w-full h-full object-cover opacity-60 object-[center_30%]"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0908] via-black/40 to-black/80 opacity-100"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0908] via-black/20 to-black/60 opacity-100"></div>
         </motion.div>
 
         <motion.div 
