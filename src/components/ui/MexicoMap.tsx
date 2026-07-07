@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 export const MexicoMap = ({ className }: { className?: string }) => {
   return (
-    <svg className={className} viewBox="50 50 450 450" xmlns="http://www.w3.org/2000/svg">
+    <svg className={className} viewBox="50 50 450 450" overflow="visible" xmlns="http://www.w3.org/2000/svg">
       
 	<motion.path fill="none" stroke="#1A1816" strokeWidth="1" strokeOpacity="0.3" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 4, ease: "easeInOut" }}
    
