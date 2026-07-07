@@ -1,6 +1,10 @@
 import { Metadata } from 'next';
 import { getDictionary } from '@/i18n/dictionaries';
 
+export async function generateStaticParams() {
+  return [{ lang: 'es' }, { lang: 'en' }];
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ lang: 'es' | 'en' }> }): Promise<Metadata> {
   const { lang } = await params;
   const safeLang = lang || 'es';
