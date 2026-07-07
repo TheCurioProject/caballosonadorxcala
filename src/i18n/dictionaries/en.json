@@ -42,7 +42,8 @@
   "tours": {
     "subtitle": "Adventures in Chacala",
     "title": "Explore the Unexplored",
-    "scroll": "Scroll down to discover"
+    "scroll": "Scroll down to discover",
+    "button": "Discover Experiences"
   },
   "footer": {
     "slogan": "A Haven of Peace",

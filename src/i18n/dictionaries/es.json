@@ -42,7 +42,8 @@
   "tours": {
     "subtitle": "Aventuras en Chacala",
     "title": "Explora lo Inexplorado",
-    "scroll": "Sigue bajando para descubrir"
+    "scroll": "Sigue bajando para descubrir",
+    "button": "Descubrir Experiencias"
   },
   "footer": {
     "slogan": "Un Refugio de Paz",

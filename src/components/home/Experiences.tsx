@@ -27,7 +27,7 @@ export const Experiences = ({ experiences }: { experiences?: any[] }) => {
                 href={`${langPrefix}/tours`}
                 className="mt-12 inline-block border border-white text-white px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] rounded-full hover:bg-white hover:text-[#23211F] transition-all duration-300"
              >
-                Descubrir Experiencias
+                {(dict as any).tours?.button || 'Descubrir Experiencias'}
              </Link>
           </RevealText>
         </div>
