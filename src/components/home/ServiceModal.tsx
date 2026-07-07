@@ -20,7 +20,7 @@ interface ServiceModalProps {
   onClose: () => void;
 }
 
-export default function ServiceModal({ service, onClose }: ServiceModalProps) {
+export const ServiceModal = ({ service, onClose }: ServiceModalProps) => {
   useScrollLock(!!service);
 
   return (
