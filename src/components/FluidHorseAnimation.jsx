@@ -50,10 +50,10 @@ export default function FluidHorseAnimation({ className = '', duration = 1.3 }) 
           ref={svgRef}
           className="w-full h-full drop-shadow-2xl overflow-visible"
           xmlns="http://www.w3.org/2000/svg"
-          viewBox={viewBoxes[0]}
+          viewBox={viewBoxFrames[0]}
         >
-          <g ref={groupRef} transform={`translate(${transforms[0]})`}>
-            <path ref={pathRef} fill="currentColor" d={paths[0]} />
+          <g ref={groupRef} transform={`translate(${transformFrames[0]})`}>
+            <path ref={pathRef} fill="currentColor" d={pathFrames[0]} />
           </g>
         </svg>
       </div>
