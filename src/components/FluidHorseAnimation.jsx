@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export default function FluidHorseAnimation({ className = '', duration = 3.5 }) {
   // PERFECT TRADITIONAL ANIMATION
@@ -6,16 +6,31 @@ export default function FluidHorseAnimation({ className = '', duration = 3.5 }) 
   // By looping the cycle at its natural speed, we get perfect fluidity 
   // without any mathematical morphing distortion.
   const cycleDuration = 1.3; // 0.6s per gallop loop
+  const svgRef = useRef(null);
+
+  useEffect(() => {
+    if (svgRef.current) {
+      try {
+        // Forzar el inicio inmediato de la animación SMIL al montarse (evita que se congele)
+        svgRef.current.setCurrentTime(0);
+        svgRef.current.unpauseAnimations();
+      } catch (e) {
+        // Ignorar si el navegador no soporta estos métodos
+      }
+    }
+  }, []);
 
   return (
     <div className={`flex flex-col items-center justify-center ${className || 'w-full h-full'}`}>
       <div className="relative w-full aspect-square">
         <svg
+          ref={svgRef}
           className="w-full h-full drop-shadow-2xl overflow-visible"
           xmlns="http://www.w3.org/2000/svg"
         >
           {/* Synchronized ViewBox Animation */}
           <animate
+            begin="0s"
             attributeName="viewBox"
             dur={`${cycleDuration}s`}
             repeatCount="indefinite"
@@ -26,6 +41,7 @@ export default function FluidHorseAnimation({ className = '', duration = 3.5 }) 
           <g>
             {/* Synchronized Transform (Translate) Animation */}
             <animateTransform
+              begin="0s"
               attributeName="transform"
               type="translate"
               dur={`${cycleDuration}s`}
@@ -37,6 +53,7 @@ export default function FluidHorseAnimation({ className = '', duration = 3.5 }) 
             <path fill="currentColor">
               {/* Synchronized Path Data Animation */}
               <animate
+                begin="0s"
                 attributeName="d"
                 dur={`${cycleDuration}s`}
                 repeatCount="indefinite"

@@ -22,14 +22,22 @@ const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, 
 
   const changeLanguage = (lang: string) => {
     setIsSwitchingLang(true);
-    // pathname es /es/algo o /en/algo, reemplazamos el primer segmento
+    
+    // Guardar cookie para que el RootLayout lo lea
+    document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000`;
+    
     const segments = pathname.split('/');
     if (segments.length > 1 && ['es', 'en'].includes(segments[1])) {
       segments[1] = lang;
     } else {
       segments.splice(1, 0, lang);
     }
-    router.push(segments.join('/') || '/');
+    
+    // Forzamos un reload completo tras un breve tiempo para mostrar la animación y
+    // asegurar que TODO el árbol de componentes (incluyendo RootLayout) se actualice con el nuevo idioma.
+    setTimeout(() => {
+      window.location.href = segments.join('/') || '/';
+    }, 800);
     setIsOpen(false);
   };
   const menuVariants: any = {
@@ -54,18 +62,18 @@ const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, 
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Premium Editorial Floating Menu */}
+          {/* Premium Editorial Floating Menu - Compact Version */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.7, y: -30, filter: 'blur(10px)' }}
+            initial={{ opacity: 0, scale: 0.9, y: -20, filter: 'blur(10px)' }}
             animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, scale: 0.7, y: -30, filter: 'blur(10px)' }}
+            exit={{ opacity: 0, scale: 0.9, y: -20, filter: 'blur(10px)' }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             style={{ transformOrigin: 'top right' }}
             className="fixed z-50 bg-[#F9F7F4]/95 backdrop-blur-2xl border border-white/40 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col
-                       top-20 right-4 w-[calc(100vw-32px)] sm:w-[360px] rounded-3xl p-8 overflow-y-auto max-h-[calc(100vh-90px)]
-                       md:top-[100px] md:right-16 md:rounded-[2rem] md:p-10 pointer-events-auto"
+                       top-20 right-4 w-[calc(100vw-32px)] sm:w-[320px] rounded-2xl p-6
+                       md:top-[85px] md:right-10 md:p-7 pointer-events-auto"
           >
-            <div className="flex justify-between items-center mb-10">
+            <div className="flex justify-between items-center mb-6">
               <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-[#9B7E67]">
                 Menú
               </span>
@@ -78,17 +86,17 @@ const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, 
               </button>
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
               <Link
                 href={`${langPrefix}/tours`}
                 onClick={() => setIsOpen(false)}
-                className="group flex items-center justify-between py-4"
+                className="group flex items-center justify-between py-3"
               >
-                <span className="font-serif text-3xl md:text-4xl text-[#2C2927] group-hover:text-[#9B7E67] transition-colors duration-500">
+                <span className="font-serif text-2xl md:text-3xl text-[#2C2927] group-hover:text-[#9B7E67] transition-colors duration-500">
                   {dict?.nav?.tours || 'Experiencias'}
                 </span>
                 <span className="text-[#9B7E67] opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </span>
               </Link>
 
@@ -100,41 +108,41 @@ const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, 
                     document.getElementById('location')?.scrollIntoView({ behavior: 'smooth' });
                   }, 500);
                 }}
-                className="group flex items-center justify-between py-4"
+                className="group flex items-center justify-between py-3"
               >
-                <span className="font-serif text-3xl md:text-4xl text-[#2C2927] group-hover:text-[#9B7E67] transition-colors duration-500">
+                <span className="font-serif text-2xl md:text-3xl text-[#2C2927] group-hover:text-[#9B7E67] transition-colors duration-500">
                   {dict?.nav?.findUs || 'Encuentranos'}
                 </span>
                 <span className="text-[#9B7E67] opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </span>
               </Link>
 
-              <div className="w-full h-px bg-[#2C2927]/10 my-6" />
+              <div className="w-full h-px bg-[#2C2927]/10 my-4" />
 
-              <div className="flex flex-col gap-6">
-                <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2C2927]/40">
+              <div className="flex flex-col gap-4">
+                <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#2C2927]/40">
                   {dict?.footer?.contact || 'Contacto'}
                 </p>
-                <div className="flex flex-col gap-5">
-                  <a href="mailto:info@hotel.com" className="font-light text-sm text-[#2C2927]/80 hover:text-[#9B7E67] transition-colors flex items-center gap-4 group">
-                    <div className="w-8 h-8 rounded-full bg-[#2C2927]/5 flex items-center justify-center group-hover:bg-[#9B7E67]/10 transition-colors">
-                      <svg className="w-4 h-4 text-[#2C2927] group-hover:text-[#9B7E67] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                <div className="flex flex-col gap-3">
+                  <a href="mailto:info@hotel.com" className="font-light text-sm text-[#2C2927]/80 hover:text-[#9B7E67] transition-colors flex items-center gap-3 group">
+                    <div className="w-7 h-7 rounded-full bg-[#2C2927]/5 flex items-center justify-center group-hover:bg-[#9B7E67]/10 transition-colors">
+                      <svg className="w-3.5 h-3.5 text-[#2C2927] group-hover:text-[#9B7E67] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </div>
                     info@hotel.com
                   </a>
-                  <a href="https://wa.me/12509612351" target="_blank" rel="noopener noreferrer" className="font-light text-sm text-[#2C2927]/80 hover:text-[#9B7E67] transition-colors flex items-center gap-4 group">
-                    <div className="w-8 h-8 rounded-full bg-[#2C2927]/5 flex items-center justify-center group-hover:bg-[#9B7E67]/10 transition-colors">
-                      <svg className="w-4 h-4 text-[#2C2927] group-hover:text-[#9B7E67] transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 3.825 0 6.938 3.112 6.938 6.938 0 3.825-3.113 6.938-6.938 6.938z"/></svg>
+                  <a href="https://wa.me/12509612351" target="_blank" rel="noopener noreferrer" className="font-light text-sm text-[#2C2927]/80 hover:text-[#9B7E67] transition-colors flex items-center gap-3 group">
+                    <div className="w-7 h-7 rounded-full bg-[#2C2927]/5 flex items-center justify-center group-hover:bg-[#9B7E67]/10 transition-colors">
+                      <svg className="w-3.5 h-3.5 text-[#2C2927] group-hover:text-[#9B7E67] transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 3.825 0 6.938 3.112 6.938 6.938 0 3.825-3.113 6.938-6.938 6.938z"/></svg>
                     </div>
                     +1(250)961-2351
                   </a>
-                  <div className="flex gap-4 mt-2">
-                    <a href="https://www.instagram.com/casacaballosonador/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-[#2C2927]/5 flex items-center justify-center text-[#2C2927] hover:bg-[#9B7E67] hover:text-white transition-all duration-300">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                  <div className="flex gap-3 mt-1">
+                    <a href="https://www.instagram.com/casacaballosonador/" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-[#2C2927]/5 flex items-center justify-center text-[#2C2927] hover:bg-[#9B7E67] hover:text-white transition-all duration-300">
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                     </a>
-                    <a href="https://www.facebook.com/AlexandKelliMexico/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-[#2C2927]/5 flex items-center justify-center text-[#2C2927] hover:bg-[#9B7E67] hover:text-white transition-all duration-300">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
+                    <a href="https://www.facebook.com/AlexandKelliMexico/" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-[#2C2927]/5 flex items-center justify-center text-[#2C2927] hover:bg-[#9B7E67] hover:text-white transition-all duration-300">
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
                     </a>
                   </div>
                 </div>
@@ -160,17 +168,25 @@ export const HomeNavigation = () => {
 
   const changeLanguage = (lang: string) => {
     setIsSwitchingLang(true);
+    document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000`;
     const segments = pathname.split('/');
     if (segments.length > 1 && ['es', 'en'].includes(segments[1])) {
       segments[1] = lang;
     } else {
       segments.splice(1, 0, lang);
     }
-    router.push(segments.join('/') || '/');
+    setTimeout(() => {
+      window.location.href = segments.join('/') || '/';
+    }, 800);
   };
 
   useEffect(() => {
-    setIsSwitchingLang(false);
+    // Ya no lo apagamos inmediatamente si estamos cambiando de idioma, 
+    // porque forzaremos un reload y queremos que la animación permanezca.
+    // Solo lo apagamos en el montaje inicial.
+    if (!isSwitchingLang) {
+      setIsSwitchingLang(false);
+    }
   }, [pathname]);
 
   useEffect(() => {
