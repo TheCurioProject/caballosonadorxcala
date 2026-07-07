@@ -2,8 +2,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useDictionary } from '@/i18n/DictionaryContext';
 
-const reviews = [
+const fallbackReviews = [
   {
     text: "An absolutely magical experience. The perfect blend of luxury and raw nature. We felt completely immersed in the beauty of Chacala while enjoying world-class comfort.",
     author: "Elena R.",
@@ -22,6 +23,13 @@ const reviews = [
 ];
 
 export const Reviews = () => {
+  const dict = useDictionary() as any;
+  const homeReviews = dict?.homeReviews || {
+    subtitle: "Guest Experiences",
+    title: "Reviews",
+    items: fallbackReviews
+  };
+
   return (
     <section id="reviews" className="py-16 md:py-24 bg-[#0A0908] text-[#F9F7F4] relative overflow-hidden">
       <div className="max-w-[1400px] mx-auto px-6 md:px-16">
@@ -39,10 +47,10 @@ export const Reviews = () => {
             transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }}
             className="uppercase text-[#9b6e2f] text-sm font-bold block mb-4"
           >
-            Guest Experiences
+            {homeReviews.subtitle}
           </motion.span>
           <h2 className="font-serif text-4xl md:text-7xl">
-            Reseñas
+            {homeReviews.title}
           </h2>
         </motion.div>
 
@@ -61,7 +69,7 @@ export const Reviews = () => {
           }}
           className="grid grid-cols-1 md:grid-cols-3 gap-12"
         >
-          {reviews.map((review, idx) => (
+          {homeReviews.items.map((review: any, idx: number) => (
             <motion.div
               key={idx}
               variants={{

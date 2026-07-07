@@ -45,6 +45,27 @@
     "scroll": "Sigue bajando para descubrir",
     "button": "Descubrir Experiencias"
   },
+  "homeReviews": {
+    "subtitle": "Experiencias de Huéspedes",
+    "title": "Reseñas",
+    "items": [
+      {
+        "text": "Una experiencia absolutamente mágica. La mezcla perfecta entre lujo y naturaleza. Nos sentimos completamente inmersos en la belleza de Chacala disfrutando de comodidad de clase mundial.",
+        "author": "Elena R.",
+        "location": "Los Ángeles, CA"
+      },
+      {
+        "text": "Casa Caballo Soñador es una joya escondida. La atención al detalle en la arquitectura y la calidez del personal hicieron que nuestra estancia fuera inolvidable.",
+        "author": "James M.",
+        "location": "Toronto, CAN"
+      },
+      {
+        "text": "Despertar con el sonido del océano y las aves de la selva fue espectacular. Cada suite es una obra de arte. Definitivamente regresaremos cada año.",
+        "author": "Sofía & Carlos",
+        "location": "Ciudad de México"
+      }
+    ]
+  },
   "footer": {
     "slogan": "Un Refugio de Paz",
     "location": "Ubicación",

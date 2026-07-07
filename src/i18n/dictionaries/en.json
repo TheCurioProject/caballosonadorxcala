@@ -45,6 +45,27 @@
     "scroll": "Scroll down to discover",
     "button": "Discover Experiences"
   },
+  "homeReviews": {
+    "subtitle": "Guest Experiences",
+    "title": "Reviews",
+    "items": [
+      {
+        "text": "An absolutely magical experience. The perfect blend of luxury and raw nature. We felt completely immersed in the beauty of Chacala while enjoying world-class comfort.",
+        "author": "Elena R.",
+        "location": "Los Angeles, CA"
+      },
+      {
+        "text": "Casa Caballo Soñador is a hidden gem. The attention to detail in the architecture and the warmth of the staff made our stay unforgettable.",
+        "author": "James M.",
+        "location": "Toronto, CAN"
+      },
+      {
+        "text": "Waking up to the sound of the ocean and the jungle birds was spectacular. Every suite is a piece of art. We will definitely be coming back every year.",
+        "author": "Sofía & Carlos",
+        "location": "Mexico City"
+      }
+    ]
+  },
   "footer": {
     "slogan": "A Haven of Peace",
     "location": "Location",
