@@ -8,8 +8,7 @@ import { useBooking } from '@/context/BookingContext';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
-const FluidHorseAnimation = dynamic(() => import('../FluidHorseAnimation'), { ssr: false });
+import FluidHorseAnimation from '../FluidHorseAnimation';
 import { useScrollLock } from '@/hooks/useScrollLock';
 
 const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, setIsOpen: (v: boolean) => void, setIsSwitchingLang: (v: boolean) => void }) => {

@@ -3,11 +3,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useDragControls } from 'framer-motion';
 import { X, CalendarDays, ArrowRight, Check, ChefHat, CreditCard, User, Map, Utensils, Minus, Plus } from 'lucide-react';
-import dynamic from 'next/dynamic';
 import { ActionLoadingScreen } from '../ui/ActionLoadingScreen';
 import { DayPicker, DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
-const FluidHorseAnimation = dynamic(() => import('../FluidHorseAnimation'), { ssr: false });
+import FluidHorseAnimation from '../FluidHorseAnimation';
 import { format, differenceInDays } from 'date-fns';
 import { es, enUS, de } from 'date-fns/locale';
 import { useDictionary } from '@/i18n/DictionaryContext';

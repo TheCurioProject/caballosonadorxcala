@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogoCompleto } from './LogoCompleto';
-import dynamic from 'next/dynamic';
-const FluidHorseAnimation = dynamic(() => import('../FluidHorseAnimation'), { ssr: false });
+import FluidHorseAnimation from '../FluidHorseAnimation';
 export function LoadingScreen() {
   const [isLoading, setIsLoading] = useState(true);
 
