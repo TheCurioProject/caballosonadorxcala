@@ -42,6 +42,7 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
       name: r.name,
       price: basePrice,
       description: r.description,
+      shortDescription: r.shortDescription,
       images: images.map(img => `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${img}`),
       details: { guests: r.guests, beds: r.beds, bath: r.bath, ...(r.extra ? { extra: r.extra } : {}) }
     };

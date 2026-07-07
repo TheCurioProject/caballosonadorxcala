@@ -118,6 +118,11 @@
     "desktopInstruction": "Use arrows to explore",
     "items": [
       {
+        "title": "6 Private Rooms",
+        "short": "Six unique, comfortable spaces designed for deep rest.",
+        "desc": "Our property features six distinct private rooms to accommodate up to 12 guests. Each room offers its own private bathroom, fast Wi-Fi, and air conditioning. From our luxurious King Suite with an ocean-view jacuzzi, to our versatile Twin and Queen rooms, every space is crafted with natural materials like local wood and stone to ensure a peaceful and restorative retreat."
+      },
+      {
         "title": "Chef Service & Kitchen",
         "short": "Authentic flavors prepared in our fully equipped kitchen.",
         "desc": "Our in-house chef crafts authentic local and international flavors using fresh, seasonal ingredients, served right from our fully equipped, open-concept kitchen."
@@ -152,42 +157,48 @@
   "roomsData": {
     "1": {
       "name": "Room 1",
-      "description": "TWIN ROOM (King-Convertible). Meaning \"gentle step\", Paso Suave is ideal for friends, siblings, or solo travelers sharing a restful escape. This airy space features two single beds, A/C, and Wi-Fi.",
+      "shortDescription": "TWIN ROOM (King-Convertible). Ideal for friends or solo travelers sharing a restful escape.",
+      "description": "TWIN ROOM (King-Convertible). Meaning \"gentle step\", Paso Suave is ideal for friends, siblings, or solo travelers sharing a restful escape. This airy space features two single beds, A/C, Wi-Fi, and a private bathroom.",
       "guests": "2",
       "beds": "2 Singles",
       "bath": "1 Bath"
     },
     "2": {
       "name": "Room 2",
-      "description": "Queen Room. Bright and welcoming, Estrella shines with a cozy charm and natural coastal textures. With a queen size bed, A/C, and Wi-Fi, it’s the perfect place to relax.",
+      "shortDescription": "Queen Room. Bright and welcoming, Estrella shines with a cozy charm and natural coastal textures.",
+      "description": "Queen Room. Bright and welcoming, Estrella shines with a cozy charm and natural coastal textures. With a queen size bed, A/C, Wi-Fi, and a private bathroom, it’s the perfect place to relax.",
       "guests": "2",
       "beds": "1 Queen",
       "bath": "1 Bath"
     },
     "3": {
       "name": "Room 3",
-      "description": "A peaceful retreat bathed in soft tones and gentle light, La Luna invites you to relax under the calming glow of the moon. Offers a queen-size bed, A/C, fast Wi-Fi.",
+      "shortDescription": "A peaceful retreat bathed in soft tones and gentle light, La Luna invites you to relax.",
+      "description": "A peaceful retreat bathed in soft tones and gentle light, La Luna invites you to relax under the calming glow of the moon. Offers a queen-size bed, A/C, fast Wi-Fi, and a private bathroom.",
       "guests": "2",
       "beds": "1 Queen",
       "bath": "1 Bath"
     },
     "4": {
       "name": "Room 4",
-      "description": "Matrimonial + Day Bed. Spacious and versatile, perfect for couples, friends, or small families. Natural materials and warm decor create a cozy retreat with A/C.",
+      "shortDescription": "Matrimonial + Day Bed. Spacious and versatile, perfect for couples, friends, or small families.",
+      "description": "Matrimonial + Day Bed. Spacious and versatile, perfect for couples, friends, or small families. Natural materials and warm decor create a cozy retreat with A/C and a private bathroom.",
       "guests": "2",
       "beds": "1 Full + 1 Day Bed",
       "bath": "1 Bath"
     },
     "6": {
       "name": "Room 5",
-      "description": "KING SUITE. Named after the living wood used throughout the room, Madera Viva offers a quiet and grounded atmosphere with a king-size bed and stone accents.",
+      "shortDescription": "KING SUITE. Madera Viva offers a quiet and grounded atmosphere with a king-size bed and stone accents.",
+      "description": "KING SUITE. Named after the living wood used throughout the room, Madera Viva offers a quiet and grounded atmosphere with a king-size bed, stone accents, and a private bathroom.",
       "guests": "2",
       "beds": "1 King",
       "bath": "1 Bath"
     },
     "7": {
       "name": "El Sueño del Mar Suite",
-      "description": "Deluxe King Suite (Jacuzzi + Ocean View). The crown jewel featuring a king bed, office space, and lounge with TV. Crafted from local wood and stone.",
+      "shortDescription": "Deluxe King Suite (Jacuzzi + Ocean View). The crown jewel featuring a king bed and lounge area.",
+      "description": "Deluxe King Suite (Jacuzzi + Ocean View). The crown jewel featuring a king bed, office space, lounge with TV, and a private bathroom. Crafted from local wood and stone.",
       "guests": "2",
       "beds": "1 King",
       "bath": "1 Bath",
@@ -200,7 +211,7 @@
     "heroSuperTitle": "Adventure Awaits",
     "heroTitle": "UNIQUE ATV TOURS TO THE LESS EXPLORED SIGHTS IN CHACALA",
     "introTitle": "Beyond the Beaten Path",
-    "introText1": "Venture where the maps end. Feel the adrenaline as you navigate the dense jungle canopy aboard our ATVs and cross hidden streams to uncover the secrets the Riviera Nayarit keeps hidden. Every route is crafted to quicken your pulse and immerse you in the untamed beauty of our coastal paradise.",
+    "introText1": "Venture where the maps end. Feel the adrenaline as you navigate the dense jungle canopy aboard our ATVs and cross hidden streams to uncover secrets the Riviera Nayarit keeps hidden. Every route is crafted to quicken your pulse and immerse you in the untamed beauty of our coastal paradise.",
     "infoCustomToursTitle": "Custom Tours",
     "infoCustomToursText": "Large groups will often have special requests. A prepared lunch, breakfast en-route, extended time, or alternate routes can all be accommodated. Let us know your needs when booking.",
     "infoVehiclesTitle": "The Vehicles",
@@ -224,7 +235,7 @@
         "type": "ATV_OJO_DE_AGUA",
         "title": "Ojo de Agua",
         "description": "Orchards leading to a pristine cold water spring. Discover hidden petroglyphs.",
-        "longDescription": "Ojo De Agua is a sweet water Jungle Paradise! Located relatively close to Chacala in distance we tour the area extensively before arriving. Turning south just outside of Chacala we transit through the beautiful Mango and Guanabana orchards of El Divisidaro and surrounding area. In the distance you can see the mountain town of Alta Vista as well as the beaches of Guayabitos & La Penita. This open air experience is sure to refresh your senses and get you reconnected with nature. Oh! did we mention... The Marks are here on the rocks also!",
+        "longDescription": "Ojo De Agua is a sweet water Jungle Paradise! Located relatively close to Chacala in distance we tour the area extensively before arriving. Turning south just outside of Chacala we transit through the beautiful Mango and Guanabana orchards of El Divisidaro and surrounding area. In the distance you can see the mountain town of Alta Vista as well as the beaches of Guayabitos & La Penita. This open air experience is sure to refresh your senses and get you reconnected with nature.",
         "duration": "3-4 hrs",
         "capacity": "Maximum 5 passengers per unit (up to 10 per group)",
         "includes": [
@@ -240,7 +251,7 @@
         "type": "ATV_RIO_MOLOTE",
         "title": "Río Molote",
         "description": "Thermal inlets and refreshing downstream river waters.",
-        "longDescription": "Mesillas is a small town 25km North of Chacala with a Thermal Spring River Network. Leaving Chacala via Highway 200 we travel 18 kms north to Molote. From Mesillas we descend to the valley floor using a series of mountain switchbacks. Once at the river we disembark and start our hike. The 1.5 km walk is a maze of thermal tributaries entering the main channel. There are a series of dug outs in the river that are used as wading pools. From here we drive out the valley floor over to Zacualpan witnessing some of the richest farmland in the state.",
+        "longDescription": "Mesillas is a small town 25km north of Chacala with a thermal spring river network. Leaving Chacala via highway 200 we travel 18 kms north to Mesilla. From Mesillas we descend to the valley floor using a series of mountain switchbacks. Once at the river we disembark and start our hike. The 1.5 km walk is a maze of thermal tributaries entering the main channel. There are a series of dug outs in the river that are used as wading pools. From here we drive out the valley floor over to Zacualpan witnessing some of the richest farmland in the state.",
         "duration": "6-8 hrs",
         "capacity": "Maximum 5 passengers per unit (up to 10 per group)",
         "includes": [

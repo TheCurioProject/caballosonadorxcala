@@ -84,7 +84,7 @@ export const Suites = ({ rooms }: { rooms: any[] }) => {
                   {room.name.split(' (')[0]}
                 </h4>
                 <p className="text-[#524D48] font-light text-base md:text-lg mb-8 opacity-80 leading-relaxed flex-grow line-clamp-4">
-                  {room.desc || room.description}
+                  {room.shortDescription || room.desc || room.description}
                 </p>
                 <button 
                   onClick={() => setSelectedRoom(room)}
