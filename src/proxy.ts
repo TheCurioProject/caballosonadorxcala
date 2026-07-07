@@ -45,7 +45,7 @@ export async function proxy(request: NextRequest) {
 
   if (!pathnameHasLocale) {
     const locale = request.cookies.get('NEXT_LOCALE')?.value || getLocale(request);
-    request.nextUrl.pathname = `/${locale}${pathname === '/' ? '' : pathname}`;
+    request.nextUrl.pathname = `/${locale}${pathname === '/' ? '/' : pathname.endsWith('/') ? pathname : pathname + '/'}`;
     const response = NextResponse.redirect(request.nextUrl);
     response.cookies.set('NEXT_LOCALE', locale, { path: '/' });
     return response;
