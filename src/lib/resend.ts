@@ -25,9 +25,9 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
     const formattedPrice = `${currencySymbol}${data.totalPrice.toLocaleString()}`;
     
     const { error } = await resend.emails.send({
-      from: 'Casa del Caballo Soñador <reservas@casacaballosonador.com>',
+      from: 'Casa Caballo Soñador <reservas@casacaballosonador.com>',
       to: [data.guestEmail],
-      subject: `Confirmación de Reserva #${data.bookingId} — Casa del Caballo Soñador`,
+      subject: `Confirmación de Reserva #${data.bookingId} — Casa Caballo Soñador`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -39,7 +39,7 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
           <div style="max-width:600px;margin:0 auto;padding:40px 24px;">
             <!-- Header -->
             <div style="text-align:center;margin-bottom:40px;">
-              <h1 style="font-size:28px;color:#23211F;margin:0;font-weight:300;letter-spacing:0.05em;">Casa del Caballo Soñador</h1>
+              <h1 style="font-size:28px;color:#23211F;margin:0;font-weight:300;letter-spacing:0.05em;">Casa Caballo Soñador</h1>
               <div style="width:60px;height:2px;background:#9B7E67;margin:16px auto;"></div>
             </div>
             
@@ -76,7 +76,7 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
 
             <!-- Footer -->
             <div style="text-align:center;margin-top:32px;">
-              <p style="color:#999;font-size:12px;margin:0;">Casa del Caballo Soñador — Chacala, Nayarit, México</p>
+              <p style="color:#999;font-size:12px;margin:0;">Casa Caballo Soñador — Chacala, Nayarit, México</p>
               <p style="color:#999;font-size:12px;margin:4px 0 0;">casacaballosonador.com</p>
             </div>
           </div>
@@ -109,9 +109,9 @@ export async function sendInvoiceEmail(data: BookingEmailData, pdfBuffer?: Buffe
     }] : [];
 
     const { error } = await resend.emails.send({
-      from: 'Casa del Caballo Soñador <facturas@casacaballosonador.com>',
+      from: 'Casa Caballo Soñador <facturas@casacaballosonador.com>',
       to: [data.guestEmail],
-      subject: `Factura de Reserva #${data.bookingId} — Casa del Caballo Soñador`,
+      subject: `Factura de Reserva #${data.bookingId} — Casa Caballo Soñador`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -119,7 +119,7 @@ export async function sendInvoiceEmail(data: BookingEmailData, pdfBuffer?: Buffe
         <body style="margin:0;padding:0;background-color:#F9F7F4;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
           <div style="max-width:600px;margin:0 auto;padding:40px 24px;">
             <div style="text-align:center;margin-bottom:40px;">
-              <h1 style="font-size:28px;color:#23211F;margin:0;font-weight:300;">Casa del Caballo Soñador</h1>
+              <h1 style="font-size:28px;color:#23211F;margin:0;font-weight:300;">Casa Caballo Soñador</h1>
               <div style="width:60px;height:2px;background:#9B7E67;margin:16px auto;"></div>
             </div>
             <div style="background:white;border-radius:16px;padding:32px;box-shadow:0 2px 12px rgba(0,0,0,0.06);text-align:center;">
@@ -127,7 +127,7 @@ export async function sendInvoiceEmail(data: BookingEmailData, pdfBuffer?: Buffe
               <p style="color:#666;font-size:14px;">Adjuntamos tu factura por ${formattedPrice} ${data.currency} correspondiente a la reserva #${data.bookingId}.</p>
             </div>
             <div style="text-align:center;margin-top:32px;">
-              <p style="color:#999;font-size:12px;">Casa del Caballo Soñador — Chacala, Nayarit, México</p>
+              <p style="color:#999;font-size:12px;">Casa Caballo Soñador — Chacala, Nayarit, México</p>
             </div>
           </div>
         </body>

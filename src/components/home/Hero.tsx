@@ -20,7 +20,7 @@ export const Hero = () => {
       <motion.div style={{ y, scale, opacity }} className="absolute inset-0 w-full h-full transform-gpu origin-top">
         <Image 
           src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/casaexterior.webp`}
-          alt="Casa del Caballo Soñador - Hotel Boutique" 
+          alt="Casa Caballo Soñador - Hotel Boutique" 
           fill
           priority
           className="object-cover opacity-70"

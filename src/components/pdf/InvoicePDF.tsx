@@ -144,7 +144,7 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
               style={{ width: 60, height: 'auto', marginBottom: 5 }} 
             />
           )}
-          <Text style={styles.logoText}>CASA DEL CABALLO SOÑADOR</Text>
+          <Text style={styles.logoText}>CASA CABALLO SOÑADOR</Text>
         </View>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>INVOICE</Text>
@@ -197,7 +197,7 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
       
       {/* FOOTER */}
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Casa del Caballo Soñador — Chacala, Nayarit, México</Text>
+        <Text style={styles.footerText}>Casa Caballo Soñador — Chacala, Nayarit, México</Text>
         <Text style={styles.footerText}>Si tiene alguna duda con su reserva, contáctenos en reservas@casacaballosonador.com</Text>
       </View>
     </Page>

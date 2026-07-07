@@ -24,7 +24,7 @@ export default async function AdminBookingsPage() {
   if (!property) {
     property = await prisma.property.create({
       data: {
-        name: 'Casa del Caballo Soñador',
+        name: 'Casa Caballo Soñador',
         baseCapacity: 12,
         basePrice: 1500,
       },

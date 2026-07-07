@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
 export const metadata = {
-  title: 'Políticas y Condiciones - Casa del Caballo Soñador',
-  description: 'Políticas de reservación y cancelación de Casa del Caballo Soñador.',
+  title: 'Políticas y Condiciones - Casa Caballo Soñador',
+  description: 'Políticas de reservación y cancelación de Casa Caballo Soñador.',
 };
 
 export default function PoliticasPage() {
@@ -22,7 +22,7 @@ export default function PoliticasPage() {
           <section>
             <h2 className="font-serif text-3xl text-[#23211F] mb-6">Política de Reservación</h2>
             <p>
-              En Casa del Caballo Soñador nos esforzamos por ofrecer una experiencia exclusiva, íntima y de la más alta calidad para todos nuestros huéspedes. Al confirmar tu reserva, aseguras un espacio en nuestro santuario que ha sido preparado cuidadosamente para ti.
+              En Casa Caballo Soñador nos esforzamos por ofrecer una experiencia exclusiva, íntima y de la más alta calidad para todos nuestros huéspedes. Al confirmar tu reserva, aseguras un espacio en nuestro santuario que ha sido preparado cuidadosamente para ti.
             </p>
           </section>
 

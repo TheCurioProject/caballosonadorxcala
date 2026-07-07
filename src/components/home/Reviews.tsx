@@ -10,7 +10,7 @@ const reviews = [
     location: "Los Angeles, CA"
   },
   {
-    text: "Casa del Caballo Soñador is a hidden gem. The attention to detail in the architecture and the warmth of the staff made our stay unforgettable.",
+    text: "Casa Caballo Soñador is a hidden gem. The attention to detail in the architecture and the warmth of the staff made our stay unforgettable.",
     author: "James M.",
     location: "Toronto, CAN"
   },

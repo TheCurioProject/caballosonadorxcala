@@ -18,7 +18,7 @@ export default async function AdminDashboard() {
   if (properties.length === 0) {
     const newProperty = await prisma.property.create({
       data: {
-        name: 'Casa del Caballo Soñador',
+        name: 'Casa Caballo Soñador',
         baseCapacity: 12,
         basePrice: 1500
       },

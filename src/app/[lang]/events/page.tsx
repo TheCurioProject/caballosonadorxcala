@@ -90,7 +90,7 @@ export default function Events() {
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn} className="max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-5xl font-serif text-brand-dark mb-6">Memorias Inolvidables</h2>
           <p className="text-gray-600 font-light text-lg">
-            Organiza tu próxima boda íntima, cumpleaños, fiesta de compromiso o retiro de sanación junto al océano. Deja volar tu imaginación y descubre las infinitas posibilidades que ofrece Casa del Caballo Soñador.
+            Organiza tu próxima boda íntima, cumpleaños, fiesta de compromiso o retiro de sanación junto al océano. Deja volar tu imaginación y descubre las infinitas posibilidades que ofrece Casa Caballo Soñador.
           </p>
         </motion.div>
 

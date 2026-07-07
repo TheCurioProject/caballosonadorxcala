@@ -74,7 +74,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
-          <p>© {new Date().getFullYear()} CASA DEL CABALLO SOÑADOR</p>
+          <p>© {new Date().getFullYear()} CASA CABALLO SOÑADOR</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link href="/terms" className="hover:text-white transition-colors">Términos y Condiciones</Link>
             <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-white transition-colors">

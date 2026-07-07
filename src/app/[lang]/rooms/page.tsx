@@ -55,7 +55,7 @@ export default function Rooms() {
     {
       id: 7,
       name: 'El Sueño del Mar | Room 7',
-      desc: 'La joya de Casa del Caballo Soñador. Un refugio sereno para estancias románticas o escapes conscientes. Elaborada con madera y piedra local, cuenta con espacio de oficina, sala de estar y vistas inspiradoras.',
+      desc: 'La joya de Casa Caballo Soñador. Un refugio sereno para estancias románticas o escapes conscientes. Elaborada con madera y piedra local, cuenta con espacio de oficina, sala de estar y vistas inspiradoras.',
       details: { guests: '2', beds: '1 King', bath: '1 Baño', extra: 'Jacuzzi Privado & Vista al Mar' },
       price: 'Desde $185 USD',
       img: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/03_rooms/room7_el_sueno_del_mar.webp`,

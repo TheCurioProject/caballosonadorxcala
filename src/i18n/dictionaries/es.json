@@ -10,7 +10,7 @@
     "findUs": "Encuéntranos"
   },
   "hero": {
-    "title": "Casa del Caballo Soñador | Casa Boutique en Chacala, Nayarit",
+    "title": "Casa Caballo Soñador | Casa Boutique en Chacala, Nayarit",
     "breathe": "Respira.",
     "belong": "Pertenece.",
     "discover": "Descubre",
@@ -18,8 +18,8 @@
   },
   "about": {
     "subtitle": "El Santuario",
-    "title": "Bienvenidos a Casa del Caballo Soñador",
-    "p1": "Casa del Caballo Soñador es tu santuario privado en Chacala. Una exclusiva Casa Boutique de renta completa diseñada para el descanso profundo, la conexión natural y retiros inolvidables en la Riviera Nayarit."
+    "title": "Bienvenidos a Casa Caballo Soñador",
+    "p1": "Casa Caballo Soñador es tu santuario privado en Chacala. Una exclusiva Casa Boutique de renta completa diseñada para el descanso profundo, la conexión natural y retiros inolvidables en la Riviera Nayarit."
   },
   "suites": {
     "subtitle": "6 Retiros Únicos",
@@ -56,7 +56,7 @@
   },
   "modal": {
     "yourReservation": "Tu Reserva",
-    "hotelName": "Casa del Caballo Soñador",
+    "hotelName": "Casa Caballo Soñador",
     "dates": "Fechas",
     "guests": "Huéspedes",
     "guestsCount": "Hasta 12 Personas",

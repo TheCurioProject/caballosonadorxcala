@@ -37,7 +37,7 @@ export function AnimatedHorse({ size = 'full', className = '', color = 'currentC
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 617 768"
       className={`${sizeMap[size]} h-auto ${className}`}
-      aria-label="Casa del Caballo Soñador"
+      aria-label="Casa Caballo Soñador"
       role="img"
     >
       {/* Master group with head lift animation */}

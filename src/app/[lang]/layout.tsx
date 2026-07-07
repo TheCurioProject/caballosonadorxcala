@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: 'es
   const siteUrl = 'https://casadelcaballosonador.com';
 
   return {
-    title: `Casa del Caballo Soñador | ${dict.hero.reserve}`,
+    title: `Casa Caballo Soñador | ${dict.hero.reserve}`,
     description: dict.about.p1,
     alternates: {
       canonical: `${siteUrl}/${lang}`,
@@ -19,16 +19,16 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: 'es
       },
     },
     openGraph: {
-      title: `Casa del Caballo Soñador | ${dict.hero.reserve}`,
+      title: `Casa Caballo Soñador | ${dict.hero.reserve}`,
       description: dict.about.p1,
       url: `${siteUrl}/${safeLang}`,
-      siteName: 'Casa del Caballo Soñador',
+      siteName: 'Casa Caballo Soñador',
       images: [
         {
           url: `${siteUrl}/imagenes/04_about/DSC_0300.JPG`,
           width: 1200,
           height: 630,
-          alt: 'Casa del Caballo Soñador',
+          alt: 'Casa Caballo Soñador',
         },
       ],
       locale: safeLang === 'es' ? 'es_MX' : 'en_US',
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: 'es
     },
     twitter: {
       card: 'summary_large_image',
-      title: `Casa del Caballo Soñador | ${dict.hero.reserve}`,
+      title: `Casa Caballo Soñador | ${dict.hero.reserve}`,
       description: dict.about.p1,
       images: [`${siteUrl}/imagenes/04_about/DSC_0300.JPG`],
     },

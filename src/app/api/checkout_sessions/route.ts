@@ -96,7 +96,7 @@ export async function POST(req: Request) {
             price_data: {
               currency: currency.toLowerCase(),
               product_data: {
-                name: 'Reserva - Casa del Caballo Soñador',
+                name: 'Reserva - Casa Caballo Soñador',
                 description: `Fechas: ${new Date(checkIn).toLocaleDateString()} al ${new Date(checkOut).toLocaleDateString()}`,
               },
               unit_amount: Math.round(baseRoomPrice * 100), // Stripe expects cents

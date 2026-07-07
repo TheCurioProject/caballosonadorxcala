@@ -44,7 +44,7 @@ export default async function CheckoutSuccessPage({
             </div>
             <h1 className="font-serif text-4xl text-[#23211F] mb-4">¡Reserva Confirmada!</h1>
             <p className="text-[#524D48] text-lg font-light mb-8 leading-relaxed">
-              Gracias, {guestName}. Tu pago se ha procesado con éxito y tu reserva en Casa del Caballo Soñador está asegurada. Te hemos enviado un correo con todos los detalles.
+              Gracias, {guestName}. Tu pago se ha procesado con éxito y tu reserva en Casa Caballo Soñador está asegurada. Te hemos enviado un correo con todos los detalles.
             </p>
             <Link 
               href="/"

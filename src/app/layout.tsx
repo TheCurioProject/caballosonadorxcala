@@ -21,7 +21,7 @@ const cormorant = Cormorant({
 });
 
 export const metadata: Metadata = {
-  title: "Casa del Caballo Soñador | Hotel Boutique en Chacala",
+  title: "Casa Caballo Soñador | Hotel Boutique en Chacala",
   description: "Renta Exclusiva de Villa en México: Un Refugio de Paz y Conexión para vacaciones de lujo en la naturaleza.",
 };
 

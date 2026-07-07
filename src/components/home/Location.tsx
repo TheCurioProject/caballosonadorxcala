@@ -72,7 +72,7 @@ export const Location = () => {
         >
           <div className="flex flex-col md:flex-row items-center justify-between mb-8 px-4">
             <h3 className="font-serif text-3xl md:text-4xl text-[#2C2927] mb-6 md:mb-0">
-              Casa del Caballo Soñador
+              Casa Caballo Soñador
             </h3>
             <a 
               href="https://maps.app.goo.gl/DLkrnoaMf2p9TynEA" 
