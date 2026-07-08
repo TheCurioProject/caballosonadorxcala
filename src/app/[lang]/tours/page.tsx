@@ -584,11 +584,11 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
               {/* Left/Top: Image Carousel */}
               <div 
                 className="w-full md:w-5/12 h-[45vh] min-h-[300px] md:min-h-0 md:h-auto relative bg-[#0A0908] overflow-hidden group cursor-pointer"
-                onClick={() => setIsFullscreen(true)}
               >
                 {selectedTour.images.map((img: string, idx: number) => (
                   <motion.img 
                     key={img + idx}
+                    onClick={() => setIsFullscreen(true)}
                     src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${img}`}
                     alt={`${selectedTour.title} image ${idx + 1}`}
                     className="absolute inset-0 w-full h-full object-cover"
@@ -598,7 +598,18 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                       scale: activeImageIndex === idx ? 1 : 1.05
                     }}
                     transition={{ duration: 0.7 }}
-                    style={{ pointerEvents: activeImageIndex === idx ? 'auto' : 'none' }}
+                    style={{ pointerEvents: activeImageIndex === idx ? 'auto' : 'none', touchAction: 'pan-y' }}
+                    drag={activeImageIndex === idx ? "x" : false}
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.2}
+                    onDragEnd={(e, { offset }) => {
+                      const swipe = offset.x;
+                      if (swipe < -50) {
+                        handleNextImage();
+                      } else if (swipe > 50) {
+                        handlePrevImage();
+                      }
+                    }}
                   />
                 ))}
                 
@@ -626,7 +637,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
               </div>
 
               {/* Right/Bottom: Content */}
-              <div className="w-full md:w-7/12 p-8 md:p-14 overflow-y-auto">
+              <div className="w-full md:w-7/12 p-8 md:p-14 overflow-y-auto overscroll-contain flex-1">
                 <span className="text-[#9B7E67] uppercase tracking-[0.3em] text-[10px] font-bold mb-4 block">
                   {t.editorialTitle || "Chacala Adventure"}
                 </span>
@@ -738,22 +749,6 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
               {/* Navigation Arrows */}
               {selectedTour.images.length > 1 && (
                 <>
-                  {/* Mobile Swipe Hint */}
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: [0, 1, 1, 0], y: [10, 0, 0, -10] }}
-                    transition={{ duration: 4, times: [0, 0.1, 0.8, 1], delay: 1 }}
-                    className="absolute top-[60%] left-1/2 -translate-x-1/2 -translate-y-1/2 md:hidden z-30 pointer-events-none flex flex-col items-center gap-2 bg-black/40 backdrop-blur-md px-6 py-4 rounded-full border border-white/20 shadow-2xl"
-                  >
-                    <div className="flex items-center gap-3 text-white">
-                      <ChevronLeft size={16} className="animate-pulse opacity-70" />
-                      <span className="text-[10px] font-bold tracking-[0.2em] uppercase">
-                        {lang === 'en' ? 'Swipe' : 'Desliza'}
-                      </span>
-                      <ChevronRight size={16} className="animate-pulse opacity-70" />
-                    </div>
-                  </motion.div>
-
                   {/* Desktop Arrows */}
                   <button 
                     onClick={handlePrevImage}
