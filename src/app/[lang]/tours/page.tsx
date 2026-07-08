@@ -190,7 +190,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
 
   return (
     <div className="bg-[#0A0908] text-[#F9F7F4] font-sans min-h-screen antialiased selection:bg-[#9B7E67] selection:text-[#0A0908]">
-      <ActionLoadingScreen isOpen={isNavigating} subMessage={lang === 'en' ? 'LOADING...' : 'CARGANDO...'} />
+      <ActionLoadingScreen isOpen={isNavigating} theme="dark" subMessage={lang === 'en' ? 'ONE MOMENT PLEASE...' : 'UN MOMENTO POR FAVOR...'} />
       
       {/* Floating Navigation */}
       <nav className="fixed top-0 w-full z-[100] bg-transparent text-[#F9F7F4] pointer-events-none">

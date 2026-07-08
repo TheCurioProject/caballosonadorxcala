@@ -80,6 +80,18 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: currentImageIndex === idx ? 1 : 0 }}
           transition={{ duration: 0.5 }}
+          style={{ pointerEvents: currentImageIndex === idx ? 'auto' : 'none', touchAction: 'pan-y' }}
+          drag={currentImageIndex === idx ? "x" : false}
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.2}
+          onDragEnd={(e, { offset }) => {
+            const swipe = offset.x;
+            if (swipe < -50) {
+              handleNextImage();
+            } else if (swipe > 50) {
+              handlePrevImage();
+            }
+          }}
         />
       ))}
 
@@ -94,14 +106,14 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
       {/* Navigation arrows */}
       <button 
         onClick={handlePrevImage}
-        className={`absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20 ${currentImageIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-0 group-hover:opacity-100 pointer-events-auto'}`}
+        className={`hidden md:block absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20 ${currentImageIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-0 group-hover:opacity-100 pointer-events-auto'}`}
       >
         <ChevronLeft size={24} />
       </button>
       
       <button 
         onClick={handleNextImage}
-        className={`absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20 ${currentImageIndex === images.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-0 group-hover:opacity-100 pointer-events-auto'}`}
+        className={`hidden md:block absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20 ${currentImageIndex === images.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-0 group-hover:opacity-100 pointer-events-auto'}`}
       >
         <ChevronRight size={24} />
       </button>
