@@ -570,7 +570,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
 
               {/* Left/Top: Image Carousel */}
               <div 
-                className="w-full md:w-5/12 h-72 md:h-auto relative bg-[#0A0908] overflow-hidden group cursor-pointer"
+                className="w-full md:w-5/12 h-[40vh] md:h-auto relative bg-[#0A0908] overflow-hidden group cursor-pointer"
                 onClick={() => setIsFullscreen(true)}
               >
                 {selectedTour.images.map((img: string, idx: number) => (
@@ -707,7 +707,18 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                     scale: activeImageIndex === idx ? 1 : 0.95
                   }}
                   transition={{ duration: 0.4 }}
-                  style={{ pointerEvents: activeImageIndex === idx ? 'auto' : 'none' }}
+                  style={{ pointerEvents: activeImageIndex === idx ? 'auto' : 'none', touchAction: 'pan-y' }}
+                  drag={activeImageIndex === idx ? "x" : false}
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(e, { offset }) => {
+                    const swipe = offset.x;
+                    if (swipe < -50) {
+                      handleNextImage();
+                    } else if (swipe > 50) {
+                      handlePrevImage();
+                    }
+                  }}
                 />
               ))}
               
@@ -716,14 +727,14 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                 <>
                   <button 
                     onClick={handlePrevImage}
-                    className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 p-4 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20"
+                    className="hidden md:block absolute left-4 md:left-8 top-1/2 -translate-y-1/2 p-4 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20"
                   >
                     <ChevronLeft size={32} />
                   </button>
                   
                   <button 
                     onClick={handleNextImage}
-                    className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 p-4 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20"
+                    className="hidden md:block absolute right-4 md:right-8 top-1/2 -translate-y-1/2 p-4 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20"
                   >
                     <ChevronRight size={32} />
                   </button>
