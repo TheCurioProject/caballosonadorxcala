@@ -7,6 +7,7 @@ import { ArrowLeft, MessageCircle, X, Clock, Users, CheckCircle2, DollarSign, Co
 import dynamic from 'next/dynamic';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { usePathname, useRouter } from 'next/navigation';
+import { ActionLoadingScreen } from '@/components/ui/ActionLoadingScreen';
 
 const Footer = dynamic(() => import('@/components/home/Footer').then(mod => mod.Footer));
 
@@ -102,6 +103,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
   const [selectedTour, setSelectedTour] = useState<any | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const t = dict?.toursPage;
   const { scrollY } = useScroll();
@@ -141,13 +143,16 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
   if (!t) return null;
 
   const changeLanguage = (newLang: string) => {
+    setIsNavigating(true);
     const segments = pathname.split('/');
     if (segments.length > 1 && ['es', 'en'].includes(segments[1])) {
       segments[1] = newLang;
     } else {
       segments.splice(1, 0, newLang);
     }
-    router.push(segments.join('/') || '/');
+    setTimeout(() => {
+      router.push(segments.join('/') || '/');
+    }, 100);
   };
 
   const openModal = (tour: any) => {
@@ -185,6 +190,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
 
   return (
     <div className="bg-[#0A0908] text-[#F9F7F4] font-sans min-h-screen antialiased selection:bg-[#9B7E67] selection:text-[#0A0908]">
+      <ActionLoadingScreen isOpen={isNavigating} subMessage={lang === 'en' ? 'LOADING...' : 'CARGANDO...'} />
       
       {/* Floating Navigation */}
       <nav className="fixed top-0 w-full z-[100] bg-transparent text-[#F9F7F4] pointer-events-none">
@@ -194,6 +200,13 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
             <div className="flex justify-start pointer-events-auto">
               <Link 
                 href={langPrefix}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsNavigating(true);
+                  setTimeout(() => {
+                    router.push(langPrefix);
+                  }, 100);
+                }}
                 className="group flex items-center gap-3 hover:opacity-70 transition-opacity duration-300"
                 aria-label={t.backToHome}
               >

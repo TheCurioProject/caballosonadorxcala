@@ -47,7 +47,7 @@ export const ServiceModal = ({ service, onClose }: ServiceModalProps) => {
               damping: 25, 
               stiffness: 250
             }}
-            className="relative w-full md:max-w-4xl bg-[#2C2621] rounded-t-3xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] z-10 pointer-events-auto md:flex-row"
+            className="relative w-full md:max-w-4xl bg-[#2C2621] rounded-t-3xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh] md:max-h-[90vh] z-10 pointer-events-auto md:flex-row"
           >
             {/* Close Button */}
             <button 
@@ -58,7 +58,7 @@ export const ServiceModal = ({ service, onClose }: ServiceModalProps) => {
             </button>
 
             {/* Image Section */}
-            <div className="w-full relative bg-black shrink-0 md:w-1/2 h-64 md:h-[500px]">
+            <div className="w-full relative bg-black shrink-0 md:w-1/2 h-[35vh] md:h-[500px]">
               <Image 
                 src={service.image} 
                 alt={service.title}
