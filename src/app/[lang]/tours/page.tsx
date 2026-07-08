@@ -3,7 +3,7 @@
 import React, { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { ArrowLeft, MessageCircle, X, Clock, Users, CheckCircle2, DollarSign, Compass, ShieldCheck, Backpack } from 'lucide-react';
+import { ArrowLeft, MessageCircle, X, Clock, Users, CheckCircle2, DollarSign, Compass, ShieldCheck, Backpack, Maximize2, Minimize2, ChevronLeft, ChevronRight } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { usePathname, useRouter } from 'next/navigation';
@@ -101,6 +101,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
   const [prices, setPrices] = useState<Record<string, number>>({});
   const [selectedTour, setSelectedTour] = useState<any | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const t = dict?.toursPage;
   const { scrollY } = useScroll();
@@ -130,12 +131,12 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
 
 
   useEffect(() => {
-    if (!selectedTour || selectedTour.images.length <= 1) return;
+    if (!selectedTour || selectedTour.images.length <= 1 || isFullscreen) return;
     const interval = setInterval(() => {
       setActiveImageIndex((prev) => (prev + 1) % selectedTour.images.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, [selectedTour]);
+  }, [selectedTour, isFullscreen]);
 
   if (!t) return null;
 
@@ -152,12 +153,28 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
   const openModal = (tour: any) => {
     setSelectedTour(tour);
     setActiveImageIndex(0);
+    setIsFullscreen(false);
     document.body.style.overflow = 'hidden';
   };
 
   const closeModal = () => {
     setSelectedTour(null);
+    setIsFullscreen(false);
     document.body.style.overflow = '';
+  };
+
+  const handleNextImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (selectedTour) {
+      setActiveImageIndex((prev) => (prev + 1) % selectedTour.images.length);
+    }
+  };
+
+  const handlePrevImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (selectedTour) {
+      setActiveImageIndex((prev) => (prev - 1 + selectedTour.images.length) % selectedTour.images.length);
+    }
   };
 
   const tours = t.tours.map((tourData: any) => ({
@@ -552,7 +569,10 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
               </button>
 
               {/* Left/Top: Image Carousel */}
-              <div className="w-full md:w-5/12 h-72 md:h-auto relative bg-[#0A0908] overflow-hidden">
+              <div 
+                className="w-full md:w-5/12 h-72 md:h-auto relative bg-[#0A0908] overflow-hidden group cursor-pointer"
+                onClick={() => setIsFullscreen(true)}
+              >
                 <AnimatePresence mode="wait">
                   <motion.img 
                     key={activeImageIndex}
@@ -566,13 +586,21 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                   />
                 </AnimatePresence>
                 
+                {/* Fullscreen icon hint */}
+                <div className="absolute top-6 left-6 z-20 p-2 bg-black/40 backdrop-blur-md rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity border border-white/20">
+                  <Maximize2 size={16} />
+                </div>
+                
                 {/* Carousel controls */}
                 {selectedTour.images.length > 1 && (
                   <div className="absolute bottom-6 left-0 w-full flex justify-center gap-3 z-10">
                     {selectedTour.images.map((_: any, idx: number) => (
                       <button 
                         key={idx}
-                        onClick={() => setActiveImageIndex(idx)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveImageIndex(idx);
+                        }}
                         className={`h-2 rounded-full transition-all ${idx === activeImageIndex ? 'w-8 bg-[#9B7E67]' : 'w-2 bg-white/50 hover:bg-white/80'}`}
                       />
                     ))}
@@ -640,6 +668,75 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
               </div>
 
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Fullscreen Image Overlay */}
+      <AnimatePresence>
+        {isFullscreen && selectedTour && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[300] bg-black flex flex-col items-center justify-center"
+          >
+            {/* Close Fullscreen */}
+            <button 
+              onClick={() => setIsFullscreen(false)}
+              className="absolute top-6 right-6 z-50 p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-colors border border-white/20"
+            >
+              <X size={24} />
+            </button>
+            
+            {/* Images */}
+            <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.img 
+                  key={activeImageIndex}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${selectedTour.images[activeImageIndex]}`}
+                  alt={selectedTour.title}
+                  className="absolute inset-0 w-full h-full object-contain"
+                />
+              </AnimatePresence>
+              
+              {/* Navigation Arrows */}
+              {selectedTour.images.length > 1 && (
+                <>
+                  <button 
+                    onClick={handlePrevImage}
+                    className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 p-4 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20"
+                  >
+                    <ChevronLeft size={32} />
+                  </button>
+                  
+                  <button 
+                    onClick={handleNextImage}
+                    className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 p-4 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20"
+                  >
+                    <ChevronRight size={32} />
+                  </button>
+                </>
+              )}
+              
+              {/* Dots */}
+              {selectedTour.images.length > 1 && (
+                <div className="absolute bottom-8 left-0 w-full flex justify-center gap-3 z-10">
+                  {selectedTour.images.map((_: any, idx: number) => (
+                    <button 
+                      key={idx}
+                      onClick={() => setActiveImageIndex(idx)}
+                      className={`h-2 rounded-full transition-all ${idx === activeImageIndex ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/80'}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

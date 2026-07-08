@@ -55,8 +55,9 @@ export const Services = () => {
       case 4:
         return "md:col-span-1 lg:col-span-1 h-[400px]";
       case 5:
-      case 6:
         return "md:col-span-1 lg:col-span-2 h-[400px] md:h-[500px]";
+      case 6:
+        return "md:col-span-1 lg:col-span-1 h-[400px] md:h-[500px]";
       default:
         return "col-span-1 h-[400px]";
     }
@@ -84,9 +85,13 @@ export const Services = () => {
           </motion.div>
         </div>
 
-        {/* Bento Grid */}
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 lg:px-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        {/* Services Layout (Slider on Mobile, Grid on Tablet/Desktop) */}
+        <div className="w-full relative">
+          <div className="flex items-stretch md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 overflow-x-auto snap-x snap-mandatory touch-pan-x md:overflow-visible md:snap-none md:max-w-[1400px] md:mx-auto px-4 sm:px-6 md:px-12 lg:px-16 pb-8 md:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            
+            {/* Spacer for proper left alignment on scroll in mobile */}
+            <div className="flex-shrink-0 w-1 md:hidden"></div>
+
             {serviceItems.map((service, index) => {
               const Icon = service.icon;
               
@@ -98,7 +103,7 @@ export const Services = () => {
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   onClick={() => setSelectedService(service)}
-                  className={`group relative rounded-[2rem] overflow-hidden cursor-pointer shadow-2xl ${getBentoClasses(index)}`}
+                  className={`group relative rounded-[2rem] overflow-hidden cursor-pointer shadow-2xl flex-shrink-0 w-[85vw] sm:w-[400px] md:w-auto snap-center md:snap-align-none ${getBentoClasses(index)}`}
                 >
                   {/* Background Image */}
                   <Image 
@@ -138,6 +143,9 @@ export const Services = () => {
                 </motion.div>
               );
             })}
+            
+            {/* Spacer for proper right padding on scroll in mobile */}
+            <div className="flex-shrink-0 w-1 md:hidden"></div>
           </div>
         </div>
       </section>
