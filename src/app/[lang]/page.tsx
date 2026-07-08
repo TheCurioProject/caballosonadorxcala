@@ -1,16 +1,18 @@
+import dynamic from 'next/dynamic';
 import prisma from '@/lib/prisma';
 import { Hero } from '@/components/home/Hero';
-import { About } from '@/components/home/About';
-import { Concept } from '@/components/home/Concept';
-import { Services } from '@/components/home/Services';
-import { Suites } from '@/components/home/Suites';
-import { Experiences } from '@/components/home/Experiences';
-import { Reviews } from '@/components/home/Reviews';
-import { FAQ } from '@/components/home/FAQ';
-import { Location } from '@/components/home/Location';
-import { Footer } from '@/components/home/Footer';
-
 import { getDictionary } from '@/i18n/dictionaries';
+
+// Dynamic imports for below-the-fold components to improve initial load performance
+const About = dynamic(() => import('@/components/home/About').then(mod => mod.About));
+const Concept = dynamic(() => import('@/components/home/Concept').then(mod => mod.Concept));
+const Services = dynamic(() => import('@/components/home/Services').then(mod => mod.Services));
+const Suites = dynamic(() => import('@/components/home/Suites').then(mod => mod.Suites));
+const Experiences = dynamic(() => import('@/components/home/Experiences').then(mod => mod.Experiences));
+const Reviews = dynamic(() => import('@/components/home/Reviews').then(mod => mod.Reviews));
+const FAQ = dynamic(() => import('@/components/home/FAQ').then(mod => mod.FAQ));
+const Location = dynamic(() => import('@/components/home/Location').then(mod => mod.Location));
+const Footer = dynamic(() => import('@/components/home/Footer').then(mod => mod.Footer));
 
 // Removed force-dynamic for static export
 

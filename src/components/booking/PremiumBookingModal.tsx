@@ -6,7 +6,11 @@ import { X, CalendarDays, ArrowRight, Check, ChefHat, CreditCard, User, Map, Ute
 import { ActionLoadingScreen } from '../ui/ActionLoadingScreen';
 import { DayPicker, DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
-import FluidHorseAnimation from '../FluidHorseAnimation';
+import dynamic from 'next/dynamic';
+
+const FluidHorseAnimation = dynamic(() => import('../FluidHorseAnimation'), {
+  ssr: false,
+});
 import { format, differenceInDays } from 'date-fns';
 import { es, enUS, de } from 'date-fns/locale';
 import { useDictionary } from '@/i18n/DictionaryContext';

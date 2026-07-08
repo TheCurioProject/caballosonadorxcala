@@ -47,7 +47,7 @@ export const ServiceModal = ({ service, onClose }: ServiceModalProps) => {
               damping: 25, 
               stiffness: 250
             }}
-            className={`relative w-full md:max-w-4xl bg-[#2C2621] rounded-t-3xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] z-10 pointer-events-auto ${service.id === 'service-0' ? '' : 'md:flex-row'}`}
+            className="relative w-full md:max-w-4xl bg-[#2C2621] rounded-t-3xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] z-10 pointer-events-auto md:flex-row"
           >
             {/* Close Button */}
             <button 
@@ -58,7 +58,7 @@ export const ServiceModal = ({ service, onClose }: ServiceModalProps) => {
             </button>
 
             {/* Image Section */}
-            <div className={`w-full relative bg-black shrink-0 ${service.id === 'service-0' ? 'h-[45vh] md:h-[55vh]' : 'md:w-1/2 h-64 md:h-[500px]'}`}>
+            <div className="w-full relative bg-black shrink-0 md:w-1/2 h-64 md:h-[500px]">
               <Image 
                 src={service.image} 
                 alt={service.title}
@@ -67,17 +67,17 @@ export const ServiceModal = ({ service, onClose }: ServiceModalProps) => {
                 className="object-cover opacity-90"
               />
               {/* Subtle overlay */}
-              <div className={`absolute inset-0 pointer-events-none opacity-80 ${service.id === 'service-0' ? 'bg-gradient-to-t from-[#2C2621] via-transparent to-transparent' : 'bg-gradient-to-t md:bg-gradient-to-r from-[#2C2621] via-transparent to-transparent'}`}></div>
+              <div className="absolute inset-0 pointer-events-none opacity-80 bg-gradient-to-t md:bg-gradient-to-r from-[#2C2621] via-transparent to-transparent"></div>
             </div>
 
             {/* Text Section */}
-            <div className={`w-full flex-1 overflow-y-auto overscroll-contain touch-pan-y bg-[#2C2621] flex flex-col justify-center ${service.id === 'service-0' ? 'p-8 md:p-12' : 'md:w-1/2 p-8 md:p-10'}`}>
+            <div className="w-full flex-1 overflow-y-auto overscroll-contain touch-pan-y bg-[#2C2621] flex flex-col justify-center md:w-1/2 p-8 md:p-10">
               
-              <div className={`flex items-center gap-4 ${service.id === 'service-0' ? 'mb-8' : 'mb-6'}`}>
-                <div className={`bg-[#9B7E67]/20 rounded-full text-[#E5E0D8] ${service.id === 'service-0' ? 'p-4' : 'p-3'}`}>
-                  {React.createElement(service.icon, { size: service.id === 'service-0' ? 28 : 24, strokeWidth: 1.5 })}
+              <div className="flex items-center gap-4 mb-6">
+                <div className="bg-[#9B7E67]/20 rounded-full text-[#E5E0D8] p-3">
+                  {React.createElement(service.icon, { size: 24, strokeWidth: 1.5 })}
                 </div>
-                <h2 className={`font-serif text-[#E5E0D8] leading-tight ${service.id === 'service-0' ? 'text-4xl md:text-5xl' : 'text-3xl md:text-4xl'}`}>
+                <h2 className="font-serif text-[#E5E0D8] leading-tight text-3xl md:text-4xl">
                   {service.title}
                 </h2>
               </div>

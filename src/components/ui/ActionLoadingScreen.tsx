@@ -2,7 +2,11 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import FluidHorseAnimation from '../FluidHorseAnimation';
+import dynamic from 'next/dynamic';
+
+const FluidHorseAnimation = dynamic(() => import('../FluidHorseAnimation'), {
+  ssr: false,
+});
 import { Loader2 } from 'lucide-react';
 
 interface ActionLoadingScreenProps {
