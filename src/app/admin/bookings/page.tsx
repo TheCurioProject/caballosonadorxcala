@@ -4,6 +4,7 @@ import React from 'react';
 import fs from 'fs/promises';
 import path from 'path';
 import BookingCalendarClient from './BookingCalendarClient';
+import ClearPendingButton from './ClearPendingButton';
 import DeleteBookingButton from './DeleteBookingButton';
 
 export const dynamic = 'force-dynamic';
@@ -113,12 +114,53 @@ export default async function AdminBookingsPage() {
           />
         </div>
 
-        {/* Right Column: Active Bookings Table */}
+        {/* Right Column: Active Bookings & Pending Locks */}
         <div className="lg:col-span-2 space-y-6">
+          
+          {/* Pending Locks Table */}
+          {property.bookings.filter(b => b.payment_status === 'PENDING').length > 0 && (
+            <div className="bg-white rounded-2xl shadow-sm border border-orange-200 overflow-hidden">
+              <div className="px-6 py-4 border-b border-orange-100 flex justify-between items-center bg-orange-50/30">
+                <h2 className="font-serif text-orange-900 text-xl">Bloqueos Temporales</h2>
+                <div className="flex gap-2">
+                  <ClearPendingButton />
+                  <ClearPendingButton all={true} label="Limpiar Todos" />
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-max">
+                  <thead>
+                    <tr className="bg-orange-50/50 text-[10px] font-bold text-orange-400 uppercase tracking-widest text-left">
+                      <th className="py-4 px-6">Invitado</th>
+                      <th className="py-4 px-6">Fecha Creación</th>
+                      <th className="py-4 px-6 text-right">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-orange-50 text-sm">
+                    {property.bookings.filter(b => b.payment_status === 'PENDING').map((b: any) => (
+                      <tr key={b.id} className="hover:bg-orange-50/30 transition-colors">
+                        <td className="py-4 px-6 font-medium text-orange-900">
+                          {b.guestName}
+                        </td>
+                        <td className="py-4 px-6 text-orange-600">
+                          {formatDate(b.createdAt)}
+                        </td>
+                        <td className="py-4 px-6 text-right">
+                          <DeleteBookingButton bookingId={b.id} />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Active Bookings Table */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-50 flex justify-between items-center">
               <h2 className="font-serif text-[#23211F] text-xl">Upcoming Bookings</h2>
-              <span className="text-xs text-gray-400 uppercase tracking-widest font-bold">Total: {property.bookings.length}</span>
+              <span className="text-xs text-gray-400 uppercase tracking-widest font-bold">Total: {property.bookings.filter(b => b.payment_status !== 'PENDING').length}</span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-max">
@@ -131,7 +173,7 @@ export default async function AdminBookingsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50 text-sm">
-                  {property.bookings.map((b: any) => (
+                  {property.bookings.filter(b => b.payment_status !== 'PENDING').map((b: any) => (
                     <tr key={b.id} className="hover:bg-gray-50 transition-colors">
                       <td className="py-4 px-6 font-medium text-[#23211F]">
                         {b.guestName}
@@ -154,7 +196,7 @@ export default async function AdminBookingsPage() {
                       </td>
                     </tr>
                   ))}
-                  {property.bookings.length === 0 && <tr><td colSpan={4} className="py-8 text-center text-sm text-gray-400 italic">No upcoming bookings.</td></tr>}
+                  {property.bookings.filter(b => b.payment_status !== 'PENDING').length === 0 && <tr><td colSpan={4} className="py-8 text-center text-sm text-gray-400 italic">No upcoming bookings.</td></tr>}
                 </tbody>
               </table>
             </div>
