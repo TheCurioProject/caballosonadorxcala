@@ -573,18 +573,21 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                 className="w-full md:w-5/12 h-72 md:h-auto relative bg-[#0A0908] overflow-hidden group cursor-pointer"
                 onClick={() => setIsFullscreen(true)}
               >
-                <AnimatePresence mode="wait">
+                {selectedTour.images.map((img: string, idx: number) => (
                   <motion.img 
-                    key={activeImageIndex}
-                    initial={{ opacity: 0, scale: 1.05 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.7 }}
-                    src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${selectedTour.images[activeImageIndex]}`}
-                    alt={selectedTour.title}
+                    key={img + idx}
+                    src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${img}`}
+                    alt={`${selectedTour.title} image ${idx + 1}`}
                     className="absolute inset-0 w-full h-full object-cover"
+                    initial={{ opacity: 0, scale: 1.05 }}
+                    animate={{ 
+                      opacity: activeImageIndex === idx ? 1 : 0,
+                      scale: activeImageIndex === idx ? 1 : 1.05
+                    }}
+                    transition={{ duration: 0.7 }}
+                    style={{ pointerEvents: activeImageIndex === idx ? 'auto' : 'none' }}
                   />
-                </AnimatePresence>
+                ))}
                 
                 {/* Fullscreen icon hint */}
                 <div className="absolute top-6 left-6 z-20 p-2 bg-black/40 backdrop-blur-md rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity border border-white/20">
@@ -692,18 +695,21 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
             
             {/* Images */}
             <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
-              <AnimatePresence mode="wait">
+              {selectedTour.images.map((img: string, idx: number) => (
                 <motion.img 
-                  key={activeImageIndex}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${selectedTour.images[activeImageIndex]}`}
-                  alt={selectedTour.title}
+                  key={'fullscreen-' + img + idx}
+                  src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${img}`}
+                  alt={`${selectedTour.title} fullscreen image ${idx + 1}`}
                   className="absolute inset-0 w-full h-full object-contain"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ 
+                    opacity: activeImageIndex === idx ? 1 : 0,
+                    scale: activeImageIndex === idx ? 1 : 0.95
+                  }}
+                  transition={{ duration: 0.4 }}
+                  style={{ pointerEvents: activeImageIndex === idx ? 'auto' : 'none' }}
                 />
-              </AnimatePresence>
+              ))}
               
               {/* Navigation Arrows */}
               {selectedTour.images.length > 1 && (
