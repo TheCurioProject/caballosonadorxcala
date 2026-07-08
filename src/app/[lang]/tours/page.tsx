@@ -583,7 +583,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
 
               {/* Left/Top: Image Carousel */}
               <div 
-                className="w-full md:w-5/12 h-[40vh] md:h-auto relative bg-[#0A0908] overflow-hidden group cursor-pointer"
+                className="w-full md:w-5/12 h-[45vh] min-h-[300px] md:min-h-0 md:h-auto relative bg-[#0A0908] overflow-hidden group cursor-pointer"
                 onClick={() => setIsFullscreen(true)}
               >
                 {selectedTour.images.map((img: string, idx: number) => (
@@ -738,6 +738,23 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
               {/* Navigation Arrows */}
               {selectedTour.images.length > 1 && (
                 <>
+                  {/* Mobile Swipe Hint */}
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: [0, 1, 1, 0], y: [10, 0, 0, -10] }}
+                    transition={{ duration: 4, times: [0, 0.1, 0.8, 1], delay: 1 }}
+                    className="absolute top-[60%] left-1/2 -translate-x-1/2 -translate-y-1/2 md:hidden z-30 pointer-events-none flex flex-col items-center gap-2 bg-black/40 backdrop-blur-md px-6 py-4 rounded-full border border-white/20 shadow-2xl"
+                  >
+                    <div className="flex items-center gap-3 text-white">
+                      <ChevronLeft size={16} className="animate-pulse opacity-70" />
+                      <span className="text-[10px] font-bold tracking-[0.2em] uppercase">
+                        {lang === 'en' ? 'Swipe' : 'Desliza'}
+                      </span>
+                      <ChevronRight size={16} className="animate-pulse opacity-70" />
+                    </div>
+                  </motion.div>
+
+                  {/* Desktop Arrows */}
                   <button 
                     onClick={handlePrevImage}
                     className="hidden md:block absolute left-4 md:left-8 top-1/2 -translate-y-1/2 p-4 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20"
