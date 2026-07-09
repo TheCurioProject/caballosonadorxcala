@@ -49,11 +49,20 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
   };
 
   const rooms = [
-    getRoom(1, 0, ['/imagenes/03_rooms/room1_paso_suave.webp', '/imagenes/03_rooms/room_extra_img_3549.webp']),
-    getRoom(2, 0, ['/imagenes/03_rooms/room2_estrella.webp', '/imagenes/03_rooms/room_extra_img_3549.webp']),
+    getRoom(1, 0, [
+      '/rooms/room1/1.webp', '/rooms/room1/2.webp', '/rooms/room1/3.webp', 
+      '/rooms/room1/4.webp', '/rooms/room1/5.webp', '/rooms/room1/6.webp', '/rooms/room1/7.webp'
+    ]),
+    getRoom(2, 0, [
+      '/rooms/room2/1.webp', '/rooms/room2/2.webp', '/rooms/room2/3.webp', 
+      '/rooms/room2/4.webp', '/rooms/room2/5.webp', '/rooms/room2/6.webp'
+    ]),
     getRoom(3, 0, ['/imagenes/03_rooms/room3_la_luna.webp', '/imagenes/03_rooms/room_extra_img_3549.webp']),
     getRoom(4, 0, ['/imagenes/03_rooms/room4_campo_abierto.webp', '/imagenes/03_rooms/room_extra_img_3549.webp']),
-    getRoom(6, 0, ['/imagenes/03_rooms/room6_madera_viva.webp', '/imagenes/03_rooms/room_extra_img_3549.webp']),
+    getRoom(6, 0, [
+      '/rooms/room5/1.webp', '/rooms/room5/2.webp', '/rooms/room5/3.webp', 
+      '/rooms/room5/4.webp', '/rooms/room5/5.webp'
+    ]),
     getRoom(7, 0, ['/imagenes/03_rooms/room7_el_sueno_del_mar.webp', '/imagenes/03_rooms/room_extra_img_3549.webp'])
   ];
 

@@ -34,25 +34,23 @@ export const About = () => {
 
         </div>
 
-        {/* Desktop Animated Images */}
-        <div className="relative h-[600px] w-full hidden md:block">
-          <motion.div style={{ y: yImage1 }} className="absolute top-0 right-0 w-[70%] h-[80%] z-10">
-            <Image src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/04_about/DSC_0300.webp`} alt="El Santuario - Vista principal" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover shadow-2xl rounded-2xl" />
-          </motion.div>
-          <motion.div style={{ y: yImage2 }} className="absolute bottom-0 left-0 w-[50%] h-[60%] z-20">
-            <Image src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/04_about/DSC_0307.webp`} alt="El Santuario - Detalles" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover shadow-xl border-8 border-[#F9F7F4] rounded-2xl" />
-          </motion.div>
-        </div>
-
-        {/* Mobile Animated Images */}
-        <div className="relative h-[600px] w-full mt-12 block md:hidden">
-          <motion.div style={{ y: yImage1 }} className="absolute top-4 right-0 w-[75%] h-[60%] z-10">
-            <Image src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/04_about/DSC_0300.webp`} alt="El Santuario - Vista principal" fill sizes="100vw" className="object-cover shadow-2xl rounded-2xl" />
-          </motion.div>
-          <motion.div style={{ y: yImage2 }} className="absolute bottom-4 left-0 w-[65%] h-[55%] z-20">
-            <Image src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/04_about/DSC_0307.webp`} alt="El Santuario - Detalles" fill sizes="100vw" className="object-cover shadow-xl border-[6px] border-[#F9F7F4] rounded-2xl" />
-          </motion.div>
-        </div>
+        {/* Animated Single Image */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.8 }}
+          className="relative h-[400px] md:h-[600px] w-full mt-12 md:mt-0 rounded-2xl overflow-hidden shadow-2xl group"
+        >
+          <Image 
+            src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/casaexterior.webp`} 
+            alt="Casa Caballo Soñador - Exterior" 
+            fill 
+            sizes="(max-width: 1024px) 100vw, 50vw" 
+            className="object-cover transition-transform duration-1000 group-hover:scale-105" 
+          />
+          <div className="absolute inset-0 border border-black/10 rounded-2xl pointer-events-none group-hover:border-[#9B7E67]/30 transition-colors duration-500"></div>
+        </motion.div>
       </div>
     </section>
   );
