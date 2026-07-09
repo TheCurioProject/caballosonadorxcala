@@ -26,7 +26,8 @@
     "title": "Discover the rooms",
     "explore": "View Details",
     "mobileInstruction": "Swipe to explore",
-    "desktopInstruction": "Scroll down to explore"
+    "desktopInstruction": "Scroll down to explore",
+    "roomPrefix": "Room"
   },
   "amenities": {
     "title": "Designed for your comfort",
@@ -156,7 +157,7 @@
   },
   "roomsData": {
     "1": {
-      "name": "Room 1",
+      "name": "Paso Suave",
       "shortDescription": "TWIN ROOM (King-Convertible). Ideal for friends or solo travelers sharing a restful escape.",
       "description": "TWIN ROOM (King-Convertible). Meaning \"gentle step\", Paso Suave is ideal for friends, siblings, or solo travelers sharing a restful escape. This airy space features two single beds, A/C, Wi-Fi, and a private bathroom.",
       "guests": "2",
@@ -164,7 +165,7 @@
       "bath": "1 Bath"
     },
     "2": {
-      "name": "Room 2",
+      "name": "Estrella",
       "shortDescription": "Queen Room. Bright and welcoming, Estrella shines with a cozy charm and natural coastal textures.",
       "description": "Queen Room. Bright and welcoming, Estrella shines with a cozy charm and natural coastal textures. With a queen size bed, A/C, Wi-Fi, and a private bathroom, it’s the perfect place to relax.",
       "guests": "2",
@@ -172,7 +173,7 @@
       "bath": "1 Bath"
     },
     "3": {
-      "name": "Room 3",
+      "name": "La Luna",
       "shortDescription": "A peaceful retreat bathed in soft tones and gentle light, La Luna invites you to relax.",
       "description": "A peaceful retreat bathed in soft tones and gentle light, La Luna invites you to relax under the calming glow of the moon. Offers a queen-size bed, A/C, fast Wi-Fi, and a private bathroom.",
       "guests": "2",
@@ -180,7 +181,7 @@
       "bath": "1 Bath"
     },
     "4": {
-      "name": "Room 4",
+      "name": "Campo Abierto",
       "shortDescription": "Matrimonial + Day Bed. Spacious and versatile, perfect for couples, friends, or small families.",
       "description": "Matrimonial + Day Bed. Spacious and versatile, perfect for couples, friends, or small families. Natural materials and warm decor create a cozy retreat with A/C and a private bathroom.",
       "guests": "2",
@@ -188,7 +189,7 @@
       "bath": "1 Bath"
     },
     "6": {
-      "name": "Room 5",
+      "name": "Madera Viva",
       "shortDescription": "KING SUITE. Madera Viva offers a quiet and grounded atmosphere with a king-size bed and stone accents.",
       "description": "KING SUITE. Named after the living wood used throughout the room, Madera Viva offers a quiet and grounded atmosphere with a king-size bed, stone accents, and a private bathroom.",
       "guests": "2",
@@ -196,7 +197,7 @@
       "bath": "1 Bath"
     },
     "7": {
-      "name": "El Sueño del Mar Suite",
+      "name": "El Sueño del Mar",
       "shortDescription": "Deluxe King Suite (Jacuzzi + Ocean View). The crown jewel featuring a king bed and lounge area.",
       "description": "Deluxe King Suite (Jacuzzi + Ocean View). The crown jewel featuring a king bed, office space, lounge with TV, and a private bathroom. Crafted from local wood and stone.",
       "guests": "2",
@@ -436,5 +437,13 @@
     "selectDestination": "Select your destination (1 route per group)",
     "accommodation": "Accommodation",
     "atvTour": "ATV Tour"
+  },
+  "location": {
+    "title": "Discover Chacala",
+    "subtitle": "Location",
+    "intro1": "Hidden in a small cove along the Pacific coast in the state of Nayarit, Chacala stands out for its unique charm and pristine beauty. Providing a serene getaway, the village boasts uncrowded beaches and a welcoming atmosphere.",
+    "intro2": "The town's name, meaning \"where there are shrimp\" in Nahuatl, reflects its connection to local culture and abundant marine life, adding to the distinctive character of this coastal gem.",
+    "findUs": "Find Us",
+    "riviera": "Riviera Nayarit"
   }
 }

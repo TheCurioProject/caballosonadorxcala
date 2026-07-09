@@ -104,6 +104,24 @@ const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, 
               </Link>
 
               <Link
+                href={`/#suites`}
+                onClick={() => {
+                  setIsOpen(false);
+                  setTimeout(() => {
+                    document.getElementById('suites')?.scrollIntoView({ behavior: 'smooth' });
+                  }, 500);
+                }}
+                className="group flex items-center justify-between py-3"
+              >
+                <span className="font-serif text-2xl md:text-3xl text-[#2C2927] group-hover:text-[#9B7E67] transition-colors duration-500">
+                  {dict?.nav?.rooms || 'Habitaciones'}
+                </span>
+                <span className="text-[#9B7E67] opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </span>
+              </Link>
+
+              <Link
                 href={`/#location`}
                 onClick={() => {
                   setIsOpen(false);

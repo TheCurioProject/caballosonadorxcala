@@ -79,8 +79,10 @@ export const Suites = ({ rooms }: { rooms: any[] }) => {
                 key={`room-${room.id}`}
                 className="w-[85vw] sm:w-[400px] md:w-[480px] shrink-0 group flex flex-col relative p-10 md:p-14 bg-[#F9F7F4] border-r border-[#E5E0D8] min-h-[450px] snap-center md:snap-start"
               >
-                <div className="text-[#9B7E67]/50 font-serif italic text-2xl mb-8">0{index + 1}</div>
-                <h4 className="font-serif text-4xl md:text-5xl text-[#23211F] mb-8 leading-tight">
+                <div className="text-[#9B7E67]/70 uppercase tracking-widest text-xs font-bold mb-3">
+                  {(dict as any).suites?.roomPrefix || 'Room'} {index + 1}
+                </div>
+                <h4 className="font-serif text-4xl md:text-5xl text-[#23211F] mb-6 leading-tight">
                   {room.name.split(' (')[0]}
                 </h4>
                 <p className="text-[#524D48] font-light text-base md:text-lg mb-8 opacity-80 leading-relaxed flex-grow line-clamp-4">

@@ -8,7 +8,7 @@ import { MexicoMap } from '@/components/ui/MexicoMap';
 
 export const Location = () => {
   const dict = useDictionary();
-  const t = dict?.toursPage;
+  const loc = (dict as any)?.location;
 
   return (
     <section id="location" className="py-24 md:py-32 bg-[#FAF9F6] text-[#1A1816] relative overflow-hidden">
@@ -23,10 +23,17 @@ export const Location = () => {
             transition={{ duration: 0.8 }}
           >
             <span className="uppercase tracking-[0.4em] text-[#9B7E67] text-xs font-bold block mb-6 flex items-center justify-center gap-3">
-              <MapPin size={16} /> {dict?.footer?.location || 'Ubicación'}
+              <MapPin size={16} /> {loc?.subtitle || 'Ubicación'}
             </span>
             <h2 className="font-serif text-5xl md:text-7xl lg:text-8xl mb-8 leading-none text-[#2C2927]">
-              Descubre<br />Chacala
+              {loc?.title?.split(' ').map((word: string, i: number) => (
+                <React.Fragment key={i}>
+                  {word}
+                  {i === 0 && <br />}
+                </React.Fragment>
+              )) || (
+                <>Descubre<br />Chacala</>
+              )}
             </h2>
             <div className="w-px h-24 bg-[#9B7E67]/30 mx-auto mt-8"></div>
           </motion.div>
@@ -43,23 +50,17 @@ export const Location = () => {
           >
             <div className="absolute -left-8 -top-8 w-24 h-24 border-t border-l border-[#9B7E67]/20 hidden md:block"></div>
             <p className="font-light text-xl md:text-2xl text-[#2C2927]/80 leading-relaxed mb-10 italic font-serif">
-              {t?.introText2 || 'El nombre del pueblo, que significa "donde hay camarones" en náhuatl, refleja su conexión con la cultura local y la abundante vida marina, añadiendo al carácter distintivo de esta joya costera.'}
+              {loc?.intro2 || 'El nombre del pueblo, que significa "donde hay camarones" en náhuatl, refleja su conexión con la cultura local y la abundante vida marina, añadiendo al carácter distintivo de esta joya costera.'}
             </p>
             <p className="font-light text-base md:text-lg text-[#2C2927]/60 leading-relaxed">
-              {t?.introText1 || 'Escondida en una pequeña cala a lo largo de la costa del Pacífico en el estado de Nayarit, Chacala destaca por su encanto único y belleza prístina. Al proporcionar una escapada serena, el pueblo cuenta con playas sin aglomeraciones y un ambiente acogedor.'}
+              {loc?.intro1 || 'Escondida en una pequeña cala a lo largo de la costa del Pacífico en el estado de Nayarit, Chacala destaca por su encanto único y belleza prístina. Al proporcionar una escapada serena, el pueblo cuenta con playas sin aglomeraciones y un ambiente acogedor.'}
             </p>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1.2 }}
-            className="lg:col-span-7 order-1 lg:order-2 flex items-center justify-center relative w-full aspect-square lg:aspect-[4/3] bg-white rounded-[3rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] p-8 md:p-16 border border-[#2C2927]/5"
-          >
-            <MexicoMap className="w-full h-full object-contain drop-shadow-xl opacity-90 hover:opacity-100 transition-opacity duration-700" />
-            <div className="absolute bottom-8 right-8 text-[#9B7E67] font-serif italic text-lg opacity-50">Riviera Nayarit</div>
-          </motion.div>
+          <div className="lg:col-span-7 order-1 lg:order-2 flex items-center justify-center relative w-full aspect-square lg:aspect-[4/3] bg-white rounded-[3rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] p-8 md:p-16 border border-[#2C2927]/5">
+            <MexicoMap className="w-full h-full object-contain drop-shadow-xl" />
+            <div className="absolute bottom-8 right-8 text-[#9B7E67] font-serif italic text-lg opacity-50">{loc?.riviera || 'Riviera Nayarit'}</div>
+          </div>
         </div>
 
         {/* Google Maps Iframe Section */}
@@ -80,7 +81,7 @@ export const Location = () => {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-3 border border-[#9B7E67] text-[#9B7E67] hover:bg-[#9B7E67] hover:text-[#FAF9F6] rounded-full px-8 py-4 uppercase tracking-[0.2em] text-[10px] md:text-xs font-bold transition-all duration-500"
             >
-              <Navigation size={14} /> {dict?.nav?.findUs || 'Encuentranos'}
+              <Navigation size={14} /> {loc?.findUs || 'Encuentranos'}
             </a>
           </div>
 

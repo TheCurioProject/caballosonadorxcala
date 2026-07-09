@@ -26,7 +26,8 @@
     "title": "Conoce las habitaciones",
     "explore": "Ver Detalles",
     "mobileInstruction": "Desliza para explorar",
-    "desktopInstruction": "Sigue bajando para explorar"
+    "desktopInstruction": "Sigue bajando para explorar",
+    "roomPrefix": "Habitación"
   },
   "amenities": {
     "title": "Diseñado para tu confort",
@@ -156,7 +157,7 @@
   },
   "roomsData": {
     "1": {
-      "name": "Habitación 1",
+      "name": "Paso Suave",
       "shortDescription": "HABITACIÓN TWIN (Convertible a King). Ideal para amigos o viajeros solitarios en una escapada de descanso.",
       "description": "HABITACIÓN TWIN (Convertible a King). Con el significado de \"paso suave\", Paso Suave es ideal para amigos, hermanos o viajeros solitarios que comparten una escapada de descanso. Este espacio ventilado cuenta con dos camas individuales, aire acondicionado, Wi-Fi y baño privado.",
       "guests": "2",
@@ -164,7 +165,7 @@
       "bath": "1 Baño"
     },
     "2": {
-      "name": "Habitación 2",
+      "name": "Estrella",
       "shortDescription": "Habitación Queen. Brillante y acogedora, Estrella brilla con un encanto cálido y texturas costeras naturales.",
       "description": "Habitación Queen. Brillante y acogedora, Estrella brilla con un encanto cálido y texturas costeras naturales. Con una cama tamaño queen, aire acondicionado, Wi-Fi y baño privado, es el lugar perfecto para relajarse.",
       "guests": "2",
@@ -172,7 +173,7 @@
       "bath": "1 Baño"
     },
     "3": {
-      "name": "Habitación 3",
+      "name": "La Luna",
       "shortDescription": "Un retiro pacífico bañado en tonos suaves y luz tenue, La Luna te invita a relajarte.",
       "description": "Un retiro pacífico bañado en tonos suaves y luz tenue, La Luna te invita a relajarte bajo el resplandor de la luna. Ofrece una cama tamaño queen, aire acondicionado, Wi-Fi rápido y baño privado.",
       "guests": "2",
@@ -180,7 +181,7 @@
       "bath": "1 Baño"
     },
     "4": {
-      "name": "Habitación 4",
+      "name": "Campo Abierto",
       "shortDescription": "Matrimonial + Cama de Día. Amplia y versátil, perfecta para parejas, amigos o familias pequeñas.",
       "description": "Matrimonial + Cama de Día. Amplia y versátil, perfecta para parejas, amigos o familias pequeñas. Materiales naturales y decoración cálida crean un retiro acogedor con aire acondicionado y baño privado.",
       "guests": "2",
@@ -188,7 +189,7 @@
       "bath": "1 Baño"
     },
     "6": {
-      "name": "Habitación 5",
+      "name": "Madera Viva",
       "shortDescription": "SUITE KING. Madera Viva ofrece una atmósfera tranquila y terrenal con una cama king y acentos de piedra.",
       "description": "SUITE KING. Nombrada por la madera viva utilizada en toda la habitación, Madera Viva ofrece una atmósfera tranquila y terrenal con una cama king, acentos de piedra y baño privado.",
       "guests": "2",
@@ -196,7 +197,7 @@
       "bath": "1 Baño"
     },
     "7": {
-      "name": "Suite El Sueño del Mar",
+      "name": "El Sueño del Mar",
       "shortDescription": "Deluxe King Suite (Jacuzzi + Vista al Mar). La joya de la corona con cama king y sala de estar.",
       "description": "Deluxe King Suite (Jacuzzi + Vista al Mar). La joya de la corona con cama king, espacio de oficina, sala de estar con TV y baño privado. Hecha con madera y piedra local.",
       "guests": "2",
@@ -436,5 +437,13 @@
     "selectDestination": "Selecciona tu destino (1 ruta por grupo)",
     "accommodation": "Hospedaje",
     "atvTour": "Tour ATV"
+  },
+  "location": {
+    "title": "Descubre Chacala",
+    "subtitle": "Ubicación",
+    "intro1": "Escondida en una pequeña cala a lo largo de la costa del Pacífico en el estado de Nayarit, Chacala destaca por su encanto único y belleza prístina. Al proporcionar una escapada serena, el pueblo cuenta con playas sin aglomeraciones y un ambiente acogedor.",
+    "intro2": "El nombre del pueblo, que significa \"donde hay camarones\" en náhuatl, refleja su conexión con la cultura local y la abundante vida marina, añadiendo al carácter distintivo de esta joya costera.",
+    "findUs": "Encuéntranos",
+    "riviera": "Riviera Nayarit"
   }
 }

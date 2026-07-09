@@ -17,7 +17,6 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
   const [activeTab, setActiveTab] = useState<'suite' | 'cocina'>('suite');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
   
   // Reset tab and image index when room changes
   useEffect(() => {
@@ -137,78 +136,88 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
       <AnimatePresence>
         {room && (
           <motion.div
-            initial={{ opacity: 0, y: "100%" }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: "100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed inset-0 z-[100] bg-[#F9F7F4] flex flex-col overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 md:p-8"
+            onClick={onClose}
           >
-            {/* Close Button */}
-            <button 
-              onClick={onClose}
-              className="absolute top-6 right-6 z-50 p-3 bg-black/30 hover:bg-black/50 backdrop-blur-md rounded-full text-white transition-colors border border-white/20"
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              className="bg-[#F9F7F4] w-full max-w-7xl max-h-[90vh] md:h-[80vh] flex flex-col md:flex-row overflow-hidden relative shadow-2xl rounded-none md:rounded-xl"
+              onClick={(e) => e.stopPropagation()}
             >
-              <X size={24} />
-            </button>
+              {/* Close Button */}
+              <button 
+                onClick={onClose}
+                className="absolute top-4 right-4 md:top-6 md:right-6 z-50 p-2 md:p-3 bg-black/30 hover:bg-black/50 backdrop-blur-md rounded-full text-white transition-colors border border-white/20"
+              >
+                <X size={20} className="md:w-6 md:h-6" />
+              </button>
 
-            {/* Top Section: Carousel */}
-            <div className="w-full h-[45vh] md:h-[55vh] relative bg-black shrink-0">
-               {carouselContent}
-            </div>
+              {/* Left/Top Section: Carousel (50%) */}
+              <div className="w-full md:w-1/2 h-[40vh] md:h-full relative bg-black shrink-0">
+                 {carouselContent}
+              </div>
 
-            {/* Bottom Section: Info */}
-            <div className="w-full flex-1 bg-[#F9F7F4] flex flex-col justify-center">
-              <div className="max-w-5xl mx-auto p-6 md:p-12 w-full flex flex-col">
-                
-                {/* Tabs for Room 7 */}
-                {isRoom7 && (
-                  <div className="flex border-b border-[#E5E0D8] mb-8 gap-4">
-                    <button 
-                      onClick={() => setActiveTab('suite')}
-                      className={`pb-4 px-2 uppercase tracking-widest text-[10px] md:text-xs font-bold transition-colors ${activeTab === 'suite' ? 'border-b-2 border-[#9B7E67] text-[#9B7E67]' : 'text-[#524D48] hover:text-[#23211F]'}`}
-                    >
-                      {room.name}
-                    </button>
-                    <button 
-                      onClick={() => setActiveTab('cocina')}
-                      className={`pb-4 px-2 uppercase tracking-widest text-[10px] md:text-xs font-bold transition-colors ${activeTab === 'cocina' ? 'border-b-2 border-[#9B7E67] text-[#9B7E67]' : 'text-[#524D48] hover:text-[#23211F]'}`}
-                    >
-                      {(dict as any).roomsData.cocinaName}
-                    </button>
-                  </div>
-                )}
+              {/* Right/Bottom Section: Info (50%) */}
+              <div className="w-full md:w-1/2 bg-[#F9F7F4] flex flex-col h-full overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E5E0D8] hover:[&::-webkit-scrollbar-thumb]:bg-[#D0C8BC]">
+                <div className="p-8 md:p-12 w-full flex flex-col h-full">
+                  
+                  {/* Tabs for Room 7 */}
+                  {isRoom7 && (
+                    <div className="flex border-b border-[#E5E0D8] mb-8 gap-4 shrink-0">
+                      <button 
+                        onClick={() => setActiveTab('suite')}
+                        className={`pb-4 px-2 uppercase tracking-widest text-[10px] md:text-xs font-bold transition-colors ${activeTab === 'suite' ? 'border-b-2 border-[#9B7E67] text-[#9B7E67]' : 'text-[#524D48] hover:text-[#23211F]'}`}
+                      >
+                        {room.name}
+                      </button>
+                      <button 
+                        onClick={() => setActiveTab('cocina')}
+                        className={`pb-4 px-2 uppercase tracking-widest text-[10px] md:text-xs font-bold transition-colors ${activeTab === 'cocina' ? 'border-b-2 border-[#9B7E67] text-[#9B7E67]' : 'text-[#524D48] hover:text-[#23211F]'}`}
+                      >
+                        {(dict as any).roomsData.cocinaName}
+                      </button>
+                    </div>
+                  )}
 
-                <h2 className="font-serif text-4xl md:text-5xl text-[#23211F] mb-6 leading-tight">{getTitle()}</h2>
-                
-                <div className="flex flex-col md:flex-row gap-10 md:gap-16 flex-grow">
-                  {/* Description */}
-                  <div className="w-full md:w-[60%]">
-                    <p className="text-[#524D48] font-light text-base md:text-lg leading-relaxed mb-8">
-                      {getDescription()}
-                    </p>
-                  </div>
+                  <h2 className="font-serif text-3xl md:text-5xl text-[#23211F] mb-6 leading-tight shrink-0">{getTitle()}</h2>
+                  
+                  <div className="flex flex-col flex-grow">
+                    {/* Description */}
+                    <div className="w-full mb-8">
+                      <p className="text-[#524D48] font-light text-base md:text-lg leading-relaxed">
+                        {getDescription()}
+                      </p>
+                    </div>
 
-                  {/* Details & Action */}
-                  <div className="w-full md:w-[40%] flex flex-col">
-                    {!isCocina && room.details && (
-                      <div className="grid grid-cols-1 gap-4 text-sm text-[#524D48] mb-8 border-l border-[#E5E0D8] pl-6">
-                        <div className="flex items-center gap-3"><Users size={16} className="text-[#9B7E67]" /> {room.details.guests} {dict.modal.guests}</div>
-                        <div className="flex items-center gap-3"><Bed size={16} className="text-[#9B7E67]" /> {room.details.beds}</div>
-                        <div className="flex items-center gap-3"><Bath size={16} className="text-[#9B7E67]" /> {room.details.bath}</div>
-                        {room.details.extra && <div className="flex items-center gap-3"><Droplets size={16} className="text-[#9B7E67]" /> {room.details.extra}</div>}
-                      </div>
-                    )}
-
-                    <div className="mt-auto pt-6 border-t border-[#E5E0D8] flex flex-col gap-4">
-                      {!isCocina && room.price !== undefined && (
-                        <span className="font-serif italic text-2xl text-[#23211F]">{room.price === 0 ? '' : room.price}</span>
+                    {/* Details & Action */}
+                    <div className="w-full mt-auto flex flex-col shrink-0">
+                      {!isCocina && room.details && (
+                        <div className="grid grid-cols-2 gap-4 text-sm text-[#524D48] mb-8 border-t border-[#E5E0D8] pt-8">
+                          <div className="flex items-center gap-3"><Users size={16} className="text-[#9B7E67]" /> {room.details.guests} {dict.modal.guests}</div>
+                          <div className="flex items-center gap-3"><Bed size={16} className="text-[#9B7E67]" /> {room.details.beds}</div>
+                          <div className="flex items-center gap-3"><Bath size={16} className="text-[#9B7E67]" /> {room.details.bath}</div>
+                          {room.details.extra && <div className="flex items-center gap-3"><Droplets size={16} className="text-[#9B7E67]" /> {room.details.extra}</div>}
+                        </div>
                       )}
+
+                      <div className="pt-6 border-t border-[#E5E0D8] flex flex-col gap-4">
+                        {!isCocina && room.price !== undefined && (
+                          <span className="font-serif italic text-2xl text-[#23211F]">{room.price === 0 ? '' : room.price}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
 
+                </div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
