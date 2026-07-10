@@ -438,7 +438,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     setIsLoading(true);
     setError(null);
 
-    const selectedAddons = [];
+    const selectedAddons: any[] = [];
     if (wantsCook) {
       Object.entries(cookSelections).forEach(([id, count]) => {
         if (count > 0) {

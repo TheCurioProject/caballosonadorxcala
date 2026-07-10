@@ -230,7 +230,7 @@ export const TourBookingModal = ({
                         selected={date}
                         onSelect={setDate}
                         locale={isEn ? enUS : es}
-                        fromDate={new Date()}
+                        disabled={[{ before: new Date() }]}
                         className="border border-gray-200 rounded-2xl p-4 inline-block bg-white shadow-sm"
                         modifiersStyles={{ selected: { backgroundColor: '#9B7E67' } }}
                       />
