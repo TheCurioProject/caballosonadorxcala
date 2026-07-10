@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  BedDouble, ChefHat, Waves, 
+  BedDouble, Utensils, Waves, 
   Utensils, Wifi, Sun, MoonStar 
 } from 'lucide-react';
 import { useDictionary } from '@/i18n/DictionaryContext';
@@ -25,7 +25,7 @@ const images = [
 ];
 
 const icons = [
-  BedDouble, ChefHat, Waves, 
+  BedDouble, Utensils, Waves, 
   Utensils, Wifi, Sun, MoonStar
 ];
 

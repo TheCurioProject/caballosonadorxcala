@@ -325,12 +325,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [guestPhone, setGuestPhone] = useState('');
   
   // Extras state
-  const [addonsData, setAddonsData] = useState<any[]>([]);
+  const [foodServices, setFoodServices] = useState<any[]>([]);
+  const [tours, setTours] = useState<any[]>([]);
   
-  const [wantsChef, setWantsChef] = useState<boolean | null>(null);
-  const [chefBreakfasts, setChefBreakfasts] = useState(0);
-  const [chefLunches, setChefLunches] = useState(0);
-  const [chefDinners, setChefDinners] = useState(0);
+  const [wantsCook, setWantsCook] = useState<boolean | null>(null);
+  const [cookSelections, setCookSelections] = useState<Record<string, number>>({});
 
   const [wantsATV, setWantsATV] = useState<boolean | null>(null);
   const [atvPeople, setAtvPeople] = useState(1);
@@ -345,20 +344,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   useScrollLock(isOpen);
 
   useEffect(() => {
-    fetch('/api/admin/addons')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          setAddonsData(data);
-        } else {
-          console.error("Addons API returned non-array:", data);
-          setAddonsData([]);
-        }
-      })
-      .catch(err => {
-        console.error("Addons fetch failed:", err);
-        setAddonsData([]);
-      });
+    Promise.all([
+      fetch('/api/services/food').then(res => res.json()),
+      fetch('/api/services/tours').then(res => res.json())
+    ]).then(([foodData, toursData]) => {
+      if (Array.isArray(foodData)) setFoodServices(foodData);
+      if (Array.isArray(toursData)) setTours(toursData);
+    }).catch(console.error);
   }, []);
 
   // Fetch blocked dates on open
@@ -388,10 +380,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         setGuestName('');
         setGuestEmail('');
         setGuestPhone('');
-        setWantsChef(null);
-        setChefBreakfasts(0);
-        setChefLunches(0);
-        setChefDinners(0);
+        setWantsCook(null);
+        setCookSelections({});
         setWantsATV(null);
         setAtvPeople(1);
         setAtvSelections({});
@@ -415,28 +405,27 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const accommodationTotal = nights > 0 ? nights * basePrice : 0;
 
   // Calculate Extra Costs
-  const getAddonPrice = (type: string) => {
-    const addon = addonsData.find(a => a.type === type);
-    return addon ? addon.price : 0;
-  };
-  
-  const getAddonName = (type: string) => {
-    const addon = addonsData.find(a => a.type === type);
-    return addon ? addon.name : '';
-  };
-
-  const chefTotal = wantsChef ? (chefBreakfasts * getAddonPrice('CHEF_BREAKFAST') + chefLunches * getAddonPrice('CHEF_LUNCH') + chefDinners * getAddonPrice('CHEF_DINNER')) : 0;
-  
-  let atvTotal = 0;
-  if (wantsATV) {
-    Object.entries(atvSelections).forEach(([type, count]) => {
+  let cookTotal = 0;
+  if (wantsCook) {
+    Object.entries(cookSelections).forEach(([id, count]) => {
       if (count > 0) {
-        atvTotal += count * atvPeople * getAddonPrice(type);
+        const service = foodServices.find(s => s.id.toString() === id);
+        if (service) cookTotal += count * service.price;
       }
     });
   }
   
-  const grandTotal = accommodationTotal + chefTotal + atvTotal;
+  let atvTotal = 0;
+  if (wantsATV) {
+    Object.entries(atvSelections).forEach(([id, count]) => {
+      if (count > 0) {
+        const tour = tours.find(t => t.id.toString() === id);
+        if (tour) atvTotal += count * atvPeople * tour.pricePerPax;
+      }
+    });
+  }
+  
+  const grandTotal = accommodationTotal + cookTotal + atvTotal;
 
   const isNameValid = guestName.trim().length >= 2;
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail);
@@ -450,15 +439,19 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     setError(null);
 
     const selectedAddons = [];
-    if (wantsChef) {
-      if (chefBreakfasts > 0) selectedAddons.push({ type: 'CHEF_BREAKFAST', name: getAddonName('CHEF_BREAKFAST'), quantity: chefBreakfasts, unitPrice: getAddonPrice('CHEF_BREAKFAST'), price: chefBreakfasts * getAddonPrice('CHEF_BREAKFAST') });
-      if (chefLunches > 0) selectedAddons.push({ type: 'CHEF_LUNCH', name: getAddonName('CHEF_LUNCH'), quantity: chefLunches, unitPrice: getAddonPrice('CHEF_LUNCH'), price: chefLunches * getAddonPrice('CHEF_LUNCH') });
-      if (chefDinners > 0) selectedAddons.push({ type: 'CHEF_DINNER', name: getAddonName('CHEF_DINNER'), quantity: chefDinners, unitPrice: getAddonPrice('CHEF_DINNER'), price: chefDinners * getAddonPrice('CHEF_DINNER') });
+    if (wantsCook) {
+      Object.entries(cookSelections).forEach(([id, count]) => {
+        if (count > 0) {
+          const service = foodServices.find(s => s.id.toString() === id);
+          if (service) selectedAddons.push({ type: `FOOD_${service.id}`, name: service.name, quantity: count, unitPrice: service.price, price: count * service.price });
+        }
+      });
     }
     if (wantsATV) {
-      Object.entries(atvSelections).forEach(([type, count]) => {
+      Object.entries(atvSelections).forEach(([id, count]) => {
         if (count > 0) {
-          selectedAddons.push({ type: type, name: getAddonName(type), quantity: count * atvPeople, unitPrice: getAddonPrice(type), price: count * atvPeople * getAddonPrice(type), details: JSON.stringify({ people: atvPeople, destination: type, instances: count }) });
+          const tour = tours.find(t => t.id.toString() === id);
+          if (tour) selectedAddons.push({ type: `TOUR_${tour.id}`, name: tour.name, quantity: count * atvPeople, unitPrice: tour.pricePerPax, price: count * atvPeople * tour.pricePerPax, details: JSON.stringify({ people: atvPeople, destination: tour.name, instances: count }) });
         }
       });
     }
@@ -499,21 +492,25 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     setStep(s => {
       const newStep = Math.max(s - 1, 1);
       // Reset the answer of the step we are going back to so user can choose again
-      if (newStep === 2) setWantsChef(null);
+      if (newStep === 2) setWantsCook(null);
       if (newStep === 3) setWantsATV(null);
       return newStep;
     });
   };
 
-  const handleWantsChef = (wants: boolean) => {
-    setWantsChef(wants);
+  const handleWantsCook = (wants: boolean) => {
+    setWantsCook(wants);
     if (!wants) {
-      setChefBreakfasts(0);
-      setChefLunches(0);
-      setChefDinners(0);
+      setCookSelections({});
       nextStep();
     }
   };
+
+  const handleCookChange = (id: string, val: number) => {
+    setCookSelections(prev => ({ ...prev, [id]: val }));
+  };
+
+  const totalCookServices = Object.values(cookSelections).reduce((a, b) => a + b, 0);
 
   const handleWantsATV = (wants: boolean) => {
     setWantsATV(wants);
@@ -772,33 +769,40 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       <StepIndicator currentStep={2} totalSteps={5} />
                       <div className="mb-8 shrink-0">
                         <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] mb-4 shadow-sm border border-[#E8D5B7]">
-                          <ChefHat size={24} />
+                          <Utensils size={24} />
                         </div>
                         <h3 className="text-3xl font-serif text-[#23211F] mb-2">{dict.addons?.chefTitle}</h3>
                         <p className="text-gray-500 font-light">{dict.addons?.chefDesc}</p>
                       </div>
 
-                      {wantsChef === null ? (
+                      {wantsCook === null ? (
                         <div className="grid grid-cols-2 gap-4 mt-auto md:mt-0 pb-4">
-                          <button onClick={() => handleWantsChef(true)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
+                          <button onClick={() => handleWantsCook(true)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
                             <span className="w-8 h-8 rounded-full border-2 border-gray-300 group-hover:border-[#9B7E67] flex items-center justify-center text-transparent group-hover:bg-[#9B7E67] group-hover:text-white transition-all">✓</span>
                             {dict.addons?.yesPlease}
                           </button>
-                          <button onClick={() => handleWantsChef(false)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
+                          <button onClick={() => handleWantsCook(false)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
                             <span className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-transparent group-hover:bg-gray-400 group-hover:text-white transition-all">✕</span>
                             {dict.addons?.noThanks}
                           </button>
                         </div>
-                      ) : wantsChef === true ? (
+                      ) : wantsCook === true ? (
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 flex-1">
                           <div className="bg-amber-50 text-amber-800 text-xs px-4 py-2 rounded-lg font-medium">
-                            Máximo 1 por día ({nights} disponibles)
+                            Escoge tus servicios por día ({nights} disponibles en total)
                           </div>
-                          <Counter label={dict.addons?.breakfasts} value={chefBreakfasts} onChange={setChefBreakfasts} max={nights} sublabel={`+$${getAddonPrice('CHEF_BREAKFAST')} USD`} />
-                          <Counter label={dict.addons?.lunches} value={chefLunches} onChange={setChefLunches} max={nights} sublabel={`+$${getAddonPrice('CHEF_LUNCH')} USD`} />
-                          <Counter label={dict.addons?.dinners} value={chefDinners} onChange={setChefDinners} max={nights} sublabel={`+$${getAddonPrice('CHEF_DINNER')} USD`} />
+                          {foodServices.map(service => (
+                            <Counter 
+                              key={service.id}
+                              label={service.name} 
+                              value={cookSelections[service.id.toString()] || 0} 
+                              onChange={(val) => handleCookChange(service.id.toString(), val)} 
+                              max={nights} 
+                              sublabel={`+$${service.price} USD`} 
+                            />
+                          ))}
                           <div className="mt-8 pb-4">
-                            <PremiumButton onClick={nextStep} disabled={chefBreakfasts === 0 && chefLunches === 0 && chefDinners === 0}>
+                            <PremiumButton onClick={nextStep} disabled={totalCookServices === 0}>
                               {dict.addons?.confirmChef} <ArrowRight size={16} />
                             </PremiumButton>
                           </div>
@@ -864,14 +868,14 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           
                           <div className="flex-1 space-y-3 pb-4">
                             <p className="font-bold text-sm text-[#23211F] mb-2">{dict.addons?.selectDestination}</p>
-                            {addonsData.filter(a => a.type.startsWith('ATV_')).map(tour => (
+                            {tours.map(tour => (
                               <Counter 
-                                key={tour.type}
-                                label={(tour.name || '').replace(' (por persona)', '').replace('ATV - ', '')} 
-                                value={atvSelections[tour.type] || 0} 
-                                onChange={(val) => handleAtvChange(tour.type, val)} 
-                                max={(atvSelections[tour.type] || 0) + (nights - totalAtvTours)} 
-                                sublabel={`+$${tour.price} USD / pax`} 
+                                key={tour.id}
+                                label={tour.name} 
+                                value={atvSelections[tour.id.toString()] || 0} 
+                                onChange={(val) => handleAtvChange(tour.id.toString(), val)} 
+                                max={(atvSelections[tour.id.toString()] || 0) + (nights - totalAtvTours)} 
+                                sublabel={`+$${tour.pricePerPax} USD / pax`} 
                               />
                             ))}
                           </div>
@@ -983,24 +987,43 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             <div className="font-serif text-xl text-[#9B7E67]">${accommodationTotal.toLocaleString('en-US')} {currency}</div>
                           </div>
                           
-                          {wantsChef && (chefBreakfasts > 0 || chefLunches > 0 || chefDinners > 0) && (
+                          {wantsCook && totalCookServices > 0 && (
                             <div className="pb-6 border-b border-gray-100">
-                              <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><ChefHat size={16}/> {dict.addons?.chefTitle}</h4>
-                              {chefBreakfasts > 0 && <div className="flex justify-between text-sm text-gray-600 mb-1"><span>{chefBreakfasts}x {dict.addons?.breakfasts}</span><span>${(chefBreakfasts * getAddonPrice('CHEF_BREAKFAST')).toLocaleString('en-US')}</span></div>}
-                              {chefLunches > 0 && <div className="flex justify-between text-sm text-gray-600 mb-1"><span>{chefLunches}x {dict.addons?.lunches}</span><span>${(chefLunches * getAddonPrice('CHEF_LUNCH')).toLocaleString('en-US')}</span></div>}
-                              {chefDinners > 0 && <div className="flex justify-between text-sm text-gray-600"><span>{chefDinners}x {dict.addons?.dinners}</span><span>${(chefDinners * getAddonPrice('CHEF_DINNER')).toLocaleString('en-US')}</span></div>}
+                              <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><Utensils size={16}/> {dict.addons?.chefTitle}</h4>
+                              {Object.entries(cookSelections).map(([id, count]) => {
+                                if (count > 0) {
+                                  const service = foodServices.find(s => s.id.toString() === id);
+                                  if (service) {
+                                    return (
+                                      <div key={id} className="flex justify-between text-sm text-gray-600 mb-1">
+                                        <span>{count}x {service.name}</span>
+                                        <span>${(count * service.price).toLocaleString('en-US')}</span>
+                                      </div>
+                                    );
+                                  }
+                                }
+                                return null;
+                              })}
                             </div>
                           )}
 
                           {wantsATV && Object.values(atvSelections).some(v => v > 0) && (
                             <div className="pb-6 border-b border-gray-100">
                               <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><Map size={16}/> {dict.addons?.atvTour}</h4>
-                              {Object.entries(atvSelections).map(([type, count]) => count > 0 && (
-                                <div key={type} className="flex justify-between text-sm text-gray-600 mb-1">
-                                  <span>{count}x {atvPeople} pax - {getAddonName(type).replace(' (por persona)', '').replace('ATV - ', '')}</span>
-                                  <span>${(count * atvPeople * getAddonPrice(type)).toLocaleString('en-US')}</span>
-                                </div>
-                              ))}
+                              {Object.entries(atvSelections).map(([id, count]) => {
+                                if (count > 0) {
+                                  const tour = tours.find(t => t.id.toString() === id);
+                                  if (tour) {
+                                    return (
+                                      <div key={id} className="flex justify-between text-sm text-gray-600 mb-1">
+                                        <span>{count}x {atvPeople} pax - {tour.name}</span>
+                                        <span>${(count * atvPeople * tour.pricePerPax).toLocaleString('en-US')}</span>
+                                      </div>
+                                    );
+                                  }
+                                }
+                                return null;
+                              })}
                             </div>
                           )}
 
@@ -1049,7 +1072,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   </button>
                 )}
                 {step === 2 && (
-                  <button onClick={nextStep} disabled={wantsChef === null || (wantsChef && chefBreakfasts === 0 && chefLunches === 0 && chefDinners === 0)} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
+                  <button onClick={nextStep} disabled={wantsCook === null || (wantsCook && totalCookServices === 0)} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                     {dictContext?.modal?.next || 'Siguiente'}
                   </button>
                 )}

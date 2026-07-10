@@ -126,7 +126,7 @@
       {
         "title": "Servicios de comida",
         "short": "Sabores auténticos preparados en nuestra cocina equipada.",
-        "desc": "Nuestro chef prepara auténticos sabores locales e internacionales utilizando ingredientes frescos de temporada. Ofrecemos opciones de desayuno, comida y cena para que disfrutes de una experiencia culinaria inigualable durante tu estancia."
+        "desc": "Nuestro cocinero prepara auténticos sabores locales e internacionales utilizando ingredientes frescos de temporada. Ofrecemos opciones de desayuno, comida y cena para que disfrutes de una experiencia culinaria inigualable durante tu estancia."
       },
       {
         "title": "Piscina, Jacuzzi y Lounge",
@@ -421,15 +421,15 @@
   },
   "addons": {
     "optional": "Extras (Opcional)",
-    "optionalDesc": "Chef privado y tours en ATV.",
-    "chefTitle": "Servicio de Chef",
-    "chefDesc": "¿Te gustaría añadir el servicio de Chef Privado a tu estancia? Disfruta de deliciosos platillos preparados en la casa (Cargo extra por comida).",
+    "optionalDesc": "Cocinero privado y tours en ATV.",
+    "chefTitle": "Servicio de Cocinero",
+    "chefDesc": "¿Te gustaría añadir el servicio de Cocinero Privado a tu estancia? Disfruta de deliciosos platillos preparados en la casa (Cargo extra por comida).",
     "yesPlease": "Sí, por favor",
     "noThanks": "No, gracias",
     "breakfasts": "Desayunos",
     "lunches": "Comidas",
     "dinners": "Cenas",
-    "confirmChef": "Confirmar Chef",
+    "confirmChef": "Confirmar Cocinero",
     "atvTitle": "Aventura ATV",
     "atvDesc": "Tenemos rutas exclusivas de ATV para explorar Chacala. ¿Deseas reservar una aventura? (Cargo extra).",
     "yesExplore": "Sí, explorar",

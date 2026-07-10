@@ -126,7 +126,7 @@
       {
         "title": "Food Services",
         "short": "Authentic flavors prepared in our fully equipped kitchen.",
-        "desc": "Our in-house chef crafts authentic local and international flavors using fresh, seasonal ingredients. We offer breakfast, lunch, and dinner options for a complete culinary experience during your stay."
+        "desc": "Our in-house cook crafts authentic local and international flavors using fresh, seasonal ingredients. We offer breakfast, lunch, and dinner options for a complete culinary experience during your stay."
       },
       {
         "title": "Pool, Jacuzzi & Lounge",
@@ -421,15 +421,15 @@
   },
   "addons": {
     "optional": "Extras (Optional)",
-    "optionalDesc": "Private chef and ATV tours.",
-    "chefTitle": "Chef Service",
-    "chefDesc": "Would you like to add a Private Chef service to your stay? Enjoy delicious meals prepared at the house (Extra charge per meal).",
+    "optionalDesc": "Private cook and ATV tours.",
+    "chefTitle": "Cook Service",
+    "chefDesc": "Would you like to add a Private Cook service to your stay? Enjoy delicious meals prepared at the house (Extra charge per meal).",
     "yesPlease": "Yes, please",
     "noThanks": "No, thanks",
     "breakfasts": "Breakfasts",
     "lunches": "Lunches",
     "dinners": "Dinners",
-    "confirmChef": "Confirm Chef",
+    "confirmChef": "Confirm Cook",
     "atvTitle": "ATV Adventure",
     "atvDesc": "We have exclusive ATV routes to explore Chacala. Would you like to book an adventure? (Extra charge).",
     "yesExplore": "Yes, explore",
