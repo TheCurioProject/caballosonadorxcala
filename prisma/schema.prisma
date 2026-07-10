@@ -139,3 +139,49 @@ model AddonPricing {
 
   @@map("addon_pricing")
 }
+
+model ServicePricing {
+  id          Int      @id @default(autoincrement())
+  serviceType String // 'FOOD' or 'TOUR'
+  name        String   @db.VarChar(255)
+  description String?  @db.Text
+  price       Float
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("service_pricing")
+}
+
+model TourDestination {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(255)
+  description String?  @db.Text
+  pricePerPax Float    @map("price_per_pax")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("tour_destinations")
+}
+
+model ServiceBooking {
+  id             Int      @id @default(autoincrement())
+  serviceType    String // 'FOOD' or 'TOUR'
+  serviceDetails String   @db.Text // JSON with specific selection details (e.g. food type, tour destination)
+  startDate      DateTime @map("start_date")
+  endDate        DateTime @map("end_date")
+  pax            Int?
+  guestName      String   @db.VarChar(255)
+  guestEmail     String   @db.VarChar(255)
+  guestPhone     String?  @db.VarChar(50)
+  paymentStatus  String   @default("PENDING") @map("payment_status") @db.VarChar(50)
+  totalPrice     Float    @map("total_price")
+  externalId     String?  @unique @db.VarChar(255)
+  notes          String?  @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([startDate, endDate])
+  @@map("service_bookings")
+}

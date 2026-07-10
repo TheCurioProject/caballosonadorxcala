@@ -8,6 +8,7 @@ import dynamic from 'next/dynamic';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { ActionLoadingScreen } from '@/components/ui/ActionLoadingScreen';
+import { TourBookingModal } from '@/components/booking/TourBookingModal';
 
 const Footer = dynamic(() => import('@/components/home/Footer').then(mod => mod.Footer));
 
@@ -104,6 +105,9 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
+  
+  const [isTourModalOpen, setIsTourModalOpen] = useState(false);
+  const [modalInitialTour, setModalInitialTour] = useState<any>(null);
 
   const t = dict?.toursPage;
   const { scrollY } = useScroll();
@@ -261,16 +265,17 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
 
             <div className="flex flex-col justify-end items-end pointer-events-auto gap-2">
               <div className="flex items-center gap-4">
-                <a 
-                  href="https://wa.me/12509612351"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button 
+                  onClick={() => {
+                    setModalInitialTour(null);
+                    setIsTourModalOpen(true);
+                  }}
                   className="uppercase tracking-widest text-[10px] md:text-xs font-bold flex items-center gap-2 text-[#F9F7F4] hover:text-[#9B7E67] transition-colors"
                 >
                   <span className="hidden md:inline">{t.bookTour}</span>
                   <span className="md:hidden">{t.bookTourShort || t.bookTour}</span>
                   <MessageCircle size={18} strokeWidth={1.5} />
-                </a>
+                </button>
               </div>
               
               <div className="flex md:hidden items-center gap-4 mt-1">
@@ -683,14 +688,16 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                   ))}
                 </ul>
 
-                <a 
-                  href={`https://wa.me/12509612351?text=${encodeURIComponent(t.modal.whatsappMessage + ' ' + selectedTour.title)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button 
+                  onClick={() => {
+                    setModalInitialTour(selectedTour);
+                    setIsTourModalOpen(true);
+                    closeModal(); // Close the info modal to open the booking modal
+                  }}
                   className="w-full inline-flex justify-center items-center gap-4 text-xs uppercase tracking-[0.2em] text-[#0A0908] font-bold bg-[#9B7E67] px-8 py-6 rounded-2xl hover:bg-[#F9F7F4] transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-white/10 hover:-translate-y-1"
                 >
                   <MessageCircle size={20} /> {t.modal.bookNow}
-                </a>
+                </button>
 
               </div>
 
@@ -783,6 +790,12 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
         )}
       </AnimatePresence>
 
+      <TourBookingModal 
+        isOpen={isTourModalOpen}
+        onClose={() => setIsTourModalOpen(false)}
+        initialTour={modalInitialTour}
+        lang={lang}
+      />
     </div>
   );
 }

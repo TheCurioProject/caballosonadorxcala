@@ -148,9 +148,8 @@ const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, 
               </Link>
 
               <Link
-                href={`/#food`}
-                onClick={(e) => {
-                  e.preventDefault();
+                href={`${langPrefix}/servicios-de-comida`}
+                onClick={() => {
                   setIsOpen(false);
                 }}
                 className="group flex items-center justify-between py-1.5"

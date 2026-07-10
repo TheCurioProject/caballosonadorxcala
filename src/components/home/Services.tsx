@@ -9,6 +9,7 @@ import {
 import { useDictionary } from '@/i18n/DictionaryContext';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import { useRouter, useParams } from 'next/navigation';
 export type { ServiceItem } from './ServiceModal';
 
 const ServiceModal = dynamic(() => import('./ServiceModal').then(mod => mod.ServiceModal), { ssr: false });
@@ -30,6 +31,9 @@ const icons = [
 
 export const Services = () => {
   const dict = useDictionary();
+  const router = useRouter();
+  const params = useParams();
+  const lang = params?.lang || 'en';
   const [selectedService, setSelectedService] = useState<any | null>(null);
 
   const servicesData = (dict as any).services.items;
@@ -102,7 +106,13 @@ export const Services = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
-                  onClick={() => setSelectedService(service)}
+                  onClick={() => {
+                    if (index === 1) {
+                      router.push(`/${lang}/servicios-de-comida`);
+                    } else {
+                      setSelectedService(service);
+                    }
+                  }}
                   className={`group relative rounded-[2rem] overflow-hidden cursor-pointer shadow-2xl flex-shrink-0 w-[85vw] sm:w-[400px] md:w-auto snap-center md:snap-align-none ${getBentoClasses(index)}`}
                 >
                   {/* Background Image */}
