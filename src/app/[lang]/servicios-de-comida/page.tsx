@@ -105,7 +105,7 @@ export default function ServiciosDeComida() {
           className="relative z-10 text-center px-6 max-w-4xl mx-auto"
         >
           <div className="mb-6 flex justify-center">
-            <span className="bg-[#9B7E67]/90 text-white text-[10px] uppercase tracking-[0.3em] font-bold px-4 py-1.5 rounded-full backdrop-blur-sm shadow-xl border border-white/10">
+            <span className="hidden md:inline-block bg-[#9B7E67]/90 text-white text-[10px] uppercase tracking-[0.3em] font-bold px-4 py-1.5 rounded-full backdrop-blur-sm shadow-xl border border-white/10">
               {texts.heroSubtitle}
             </span>
           </div>

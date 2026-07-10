@@ -4,9 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CalendarDays, ArrowRight, Check, CreditCard, ChevronLeft, ChevronRight, Utensils } from 'lucide-react';
 import { ActionLoadingScreen } from '../ui/ActionLoadingScreen';
-import { DayPicker } from 'react-day-picker';
+import { DayPicker, DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
-import { format } from 'date-fns';
+import { format, differenceInDays } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 
 export const FoodBookingModal = ({ 
@@ -25,7 +25,14 @@ export const FoodBookingModal = ({
   const [services, setServices] = useState<any[]>([]);
   const [selectedService, setSelectedService] = useState<any | null>(null);
   const [pax, setPax] = useState(2);
-  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  
+  const getSelectedDaysCount = () => {
+    if (!dateRange?.from) return 0;
+    if (!dateRange.to) return 1;
+    return Math.max(1, differenceInDays(dateRange.to, dateRange.from) + 1);
+  };
+  const selectedDays = getSelectedDaysCount();
   
   const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
@@ -55,7 +62,7 @@ export const FoodBookingModal = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedService || !date) return;
+    if (!selectedService || !dateRange?.from) return;
     setIsSubmitting(true);
 
     try {
@@ -64,18 +71,18 @@ export const FoodBookingModal = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           serviceType: 'FOOD',
-          serviceDetails: { serviceName: selectedService.name, pax },
-          startDate: date,
-          endDate: date,
+          serviceDetails: { serviceName: selectedService.name, pax, days: selectedDays },
+          startDate: dateRange.from,
+          endDate: dateRange.to || dateRange.from,
           pax,
           guestName,
           guestEmail,
           guestPhone,
-          totalPrice: selectedService.price * pax,
+          totalPrice: selectedService.price * pax * selectedDays,
           items: [{
             name: `Servicio de Comida: ${selectedService.name}`,
-            description: `Para ${pax} personas el ${format(date, 'PPP', { locale: isEn ? enUS : es })}`,
-            unitPrice: selectedService.price,
+            description: `Para ${pax} personas por ${selectedDays} días (${format(dateRange.from, 'MMM d')}${dateRange.to && dateRange.to.getTime() !== dateRange.from.getTime() ? ` - ${format(dateRange.to, 'MMM d')}` : ''})`,
+            unitPrice: selectedService.price * selectedDays,
             quantity: pax
           }],
           currency: 'usd'
@@ -97,7 +104,7 @@ export const FoodBookingModal = ({
   };
 
   const isStep1Valid = selectedService !== null;
-  const isStep2Valid = date !== undefined && pax > 0;
+  const isStep2Valid = dateRange?.from !== undefined && pax > 0;
   const isStep3Valid = guestName.length > 2 && guestEmail.includes('@');
 
   return (
@@ -140,13 +147,17 @@ export const FoodBookingModal = ({
                   </div>
                 </div>
               )}
-              {date && (
+              {dateRange?.from && (
                 <div className="space-y-4 mt-4">
                   <div className="flex items-center gap-3 bg-white/10 p-4 rounded-2xl">
                     <CalendarDays className="text-white" size={20} />
                     <div>
                       <span className="block text-[10px] uppercase text-white/70">{isEn ? "Date" : "Fecha"}</span>
-                      <span className="font-bold">{format(date, 'PPP', { locale: isEn ? enUS : es })}</span>
+                      <span className="font-bold text-sm">
+                        {dateRange.to && dateRange.to.getTime() !== dateRange.from.getTime()
+                          ? `${format(dateRange.from, 'MMM d', { locale: isEn ? enUS : es })} - ${format(dateRange.to, 'MMM d', { locale: isEn ? enUS : es })}`
+                          : format(dateRange.from, 'PPP', { locale: isEn ? enUS : es })}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -157,8 +168,8 @@ export const FoodBookingModal = ({
               <div className="relative z-10 mt-auto pt-8 border-t border-white/20">
                 <div className="flex justify-between items-end">
                   <div>
-                    <span className="block text-[10px] uppercase text-white/80 mb-1">Total ({pax} pax)</span>
-                    <span className="font-serif text-3xl">${selectedService.price * pax}</span>
+                    <span className="block text-[10px] uppercase text-white/80 mb-1">Total ({pax} pax x {selectedDays} {isEn ? (selectedDays === 1 ? 'day' : 'days') : (selectedDays === 1 ? 'día' : 'días')})</span>
+                    <span className="font-serif text-3xl">${selectedService.price * pax * selectedDays}</span>
                   </div>
                   <span className="text-white/80 text-xs font-bold tracking-widest">USD</span>
                 </div>
@@ -250,9 +261,9 @@ export const FoodBookingModal = ({
                     <div className="mb-8">
                       <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">{isEn ? "Select Date" : "Selecciona la fecha"}</label>
                       <DayPicker
-                        mode="single"
-                        selected={date}
-                        onSelect={setDate}
+                        mode="range"
+                        selected={dateRange}
+                        onSelect={setDateRange}
                         locale={isEn ? enUS : es}
                         disabled={[{ before: new Date() }]}
                         className="border border-gray-200 rounded-2xl p-4 inline-block bg-white shadow-sm"
