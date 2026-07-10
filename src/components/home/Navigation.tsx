@@ -81,10 +81,10 @@ const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, 
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             style={{ transformOrigin: 'top right' }}
             className="fixed z-50 bg-[#F9F7F4]/95 backdrop-blur-2xl border border-white/40 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] flex flex-col
-                       top-[105px] right-4 w-[calc(100vw-32px)] sm:w-[320px] rounded-2xl p-6
-                       md:top-[85px] md:right-10 md:p-7 pointer-events-auto"
+                       top-[80px] right-4 w-[calc(100vw-32px)] sm:w-[320px] rounded-2xl px-6 py-4
+                       md:top-[70px] md:right-10 md:px-7 md:py-5 pointer-events-auto"
           >
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-3">
               <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-[#9B7E67]">
                 Menú
               </span>
@@ -101,7 +101,7 @@ const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, 
               <Link
                 href={`${langPrefix}/tours`}
                 onClick={() => setIsOpen(false)}
-                className="group flex items-center justify-between py-3"
+                className="group flex items-center justify-between py-1.5"
               >
                 <span className="font-serif text-2xl md:text-3xl text-[#2C2927] group-hover:text-[#9B7E67] transition-colors duration-500">
                   {dict?.nav?.tours || 'Experiencias'}
@@ -119,7 +119,7 @@ const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, 
                     document.getElementById('suites')?.scrollIntoView({ behavior: 'smooth' });
                   }, 500);
                 }}
-                className="group flex items-center justify-between py-3"
+                className="group flex items-center justify-between py-1.5"
               >
                 <span className="font-serif text-2xl md:text-3xl text-[#2C2927] group-hover:text-[#9B7E67] transition-colors duration-500">
                   {dict?.nav?.rooms || 'Habitaciones'}
@@ -137,7 +137,7 @@ const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, 
                     document.getElementById('location')?.scrollIntoView({ behavior: 'smooth' });
                   }, 500);
                 }}
-                className="group flex items-center justify-between py-3"
+                className="group flex items-center justify-between py-1.5"
               >
                 <span className="font-serif text-2xl md:text-3xl text-[#2C2927] group-hover:text-[#9B7E67] transition-colors duration-500">
                   {dict?.nav?.findUs || 'Encuentranos'}
@@ -153,7 +153,7 @@ const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, 
                   e.preventDefault();
                   setIsOpen(false);
                 }}
-                className="group flex items-center justify-between py-3"
+                className="group flex items-center justify-between py-1.5"
               >
                 <span className="font-serif text-2xl md:text-3xl text-[#2C2927] group-hover:text-[#9B7E67] transition-colors duration-500">
                   {langPrefix === '/en' ? 'Food Service' : 'Servicio de Comida'}
@@ -163,13 +163,13 @@ const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, 
                 </span>
               </Link>
 
-              <div className="w-full h-px bg-[#2C2927]/10 my-4" />
+              <div className="w-full h-px bg-[#2C2927]/10 my-2" />
 
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
                 <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#2C2927]/40">
                   {dict?.footer?.contact || 'Contacto'}
                 </p>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-2">
                   <a href="mailto:info@hotel.com" className="font-light text-sm text-[#2C2927]/80 hover:text-[#9B7E67] transition-colors flex items-center gap-3 group">
                     <div className="w-7 h-7 rounded-full bg-[#2C2927]/5 flex items-center justify-center group-hover:bg-[#9B7E67]/10 transition-colors">
                       <svg className="w-3.5 h-3.5 text-[#2C2927] group-hover:text-[#9B7E67] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
