@@ -185,12 +185,25 @@ export const TourBookingModal = ({
               <AnimatePresence mode="wait">
                 {step === 1 && (
                   <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="h-full">
-                    <h3 className="font-serif text-3xl text-[#23211F] mb-6">{isEn ? "Select Destination" : "Selecciona un destino"}</h3>
+                    <h3 className="font-serif text-3xl text-[#23211F] mb-4">{isEn ? "Select Destination" : "Selecciona un destino"}</h3>
+                    <AnimatePresence>
+                      {selectedDestination && (
+                        <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-xs text-[#9B7E67] font-bold uppercase tracking-widest mb-4">
+                          {isEn ? 'Click again to unselect' : 'Haz clic de nuevo para deseleccionar'}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {destinations.map(dest => (
                         <button
                           key={dest.id}
-                          onClick={() => setSelectedDestination(dest)}
+                          onClick={() => {
+                            if (selectedDestination?.id === dest.id) {
+                              setSelectedDestination(null);
+                            } else {
+                              setSelectedDestination(dest);
+                            }
+                          }}
                           className={`p-4 rounded-2xl border-2 text-left transition-all ${selectedDestination?.id === dest.id ? 'border-[#9B7E67] bg-[#9B7E67]/5' : 'border-gray-100 hover:border-gray-200'}`}
                         >
                           <h4 className="font-bold text-[#23211F] mb-1">{dest.name}</h4>

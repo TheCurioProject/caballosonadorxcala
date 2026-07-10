@@ -309,6 +309,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
   // Detect correct locale based on dictionary (fallback to es)
   const currentLangCode = dict.nav?.rooms === 'Rooms' ? 'en' : dict.nav?.rooms === 'Zimmer' ? 'de' : 'es';
+  const isEn = currentLangCode === 'en';
   const localeObj = currentLangCode === 'en' ? enUS : currentLangCode === 'de' ? de : es;
 
   const [step, setStep] = useState(1);
@@ -620,7 +621,9 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   transition={{ delay: 0.3 }}
                 >
                   <h3 className="text-xs uppercase tracking-[0.3em] font-bold text-[#9B7E67] mb-2">{dict.modal?.hotelName}</h3>
-                  <h2 className="text-4xl font-serif leading-tight">Tu Refugio<br/>Privado en<br/>Chacala</h2>
+                  <h2 className="text-4xl font-serif leading-tight">
+                    {isEn ? <>Your Private<br/>Refuge in<br/>Chacala</> : <>Tu Refugio<br/>Privado en<br/>Chacala</>}
+                  </h2>
                 </motion.div>
                 
                 <motion.div
@@ -736,15 +739,15 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         <div className="flex flex-wrap items-center justify-center gap-4 mt-8 pt-6 border-t border-gray-50 text-[9px] font-bold uppercase tracking-widest text-gray-500 w-full">
                           <div className="flex items-center gap-1.5">
                             <div className="w-2.5 h-2.5 rounded-full bg-red-500 opacity-80"></div>
-                            <span>Reservado</span>
+                            <span>{isEn ? 'Booked' : 'Reservado'}</span>
                           </div>
                           <div className="flex items-center gap-1.5">
                             <div className="w-2.5 h-2.5 rounded-full bg-[#D4A574] opacity-80"></div>
-                            <span>Limpieza / Margen</span>
+                            <span>{isEn ? 'Cleaning / Buffer' : 'Limpieza / Margen'}</span>
                           </div>
                           <div className="flex items-center gap-1.5">
                             <div className="w-2.5 h-2.5 rounded-full bg-gray-400 opacity-60"></div>
-                            <span>Bloqueado</span>
+                            <span>{isEn ? 'Blocked' : 'Bloqueado'}</span>
                           </div>
                         </div>
                       </div>
@@ -788,8 +791,9 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </div>
                       ) : wantsCook === true ? (
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 flex-1">
+                          <button onClick={() => setWantsCook(null)} className="text-xs text-[#9B7E67] font-bold tracking-widest uppercase mb-4 block w-full text-left hover:text-[#23211F] transition-colors">{isEn ? '← Change option (Unselect)' : '← Cambiar opción (Deseleccionar)'}</button>
                           <div className="bg-amber-50 text-amber-800 text-xs px-4 py-2 rounded-lg font-medium">
-                            Escoge tus servicios por día ({nights} disponibles en total)
+                            {isEn ? `Choose your services per day (${nights} available total)` : `Escoge tus servicios por día (${nights} disponibles en total)`}
                           </div>
                           {foodServices.map(service => (
                             <Counter 
@@ -843,8 +847,9 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </div>
                       ) : wantsATV === true ? (
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 flex-1 flex flex-col">
+                          <button onClick={() => setWantsATV(null)} className="text-xs text-[#9B7E67] font-bold tracking-widest uppercase mb-2 block w-full text-left hover:text-[#23211F] transition-colors">{isEn ? '← Change option (Unselect)' : '← Cambiar opción (Deseleccionar)'}</button>
                           <div className="bg-amber-50 text-amber-800 text-xs px-4 py-2 rounded-lg font-medium shrink-0">
-                            Máximo 1 recorrido por día ({nights - totalAtvTours} disponibles)
+                            {isEn ? `Maximum 1 tour per day (${nights - totalAtvTours} available)` : `Máximo 1 recorrido por día (${nights - totalAtvTours} disponibles)`}
                           </div>
                           
                           <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm shrink-0">
@@ -929,7 +934,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             <PremiumInput
                               id="countryCode"
                               type="text"
-                              label="Lada"
+                              label={isEn ? 'Code' : 'Lada'}
                               placeholder="+52"
                               value={countryCode}
                               onChange={setCountryCode}
@@ -954,7 +959,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
                       <div className="mt-8 pb-4 shrink-0">
                         <PremiumButton onClick={nextStep} disabled={!isFormValid}>
-                          Ver Resumen <ArrowRight size={16} />
+                          {dict.modal?.summary || (isEn ? 'View Summary' : 'Ver Resumen')} <ArrowRight size={16} />
                         </PremiumButton>
                       </div>
                     </motion.div>
@@ -976,7 +981,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       <div className="flex flex-col h-full">
                         <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
                         <StepIndicator currentStep={5} totalSteps={5} />
-                        <h3 className="text-3xl font-serif text-[#23211F] mb-6 shrink-0">Resumen</h3>
+                        <h3 className="text-3xl font-serif text-[#23211F] mb-6 shrink-0">{dict.modal?.summary || (isEn ? 'Summary' : 'Resumen')}</h3>
                         
                         <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex-1 overflow-y-auto space-y-6 mb-8">
                           <div className="flex justify-between items-center pb-6 border-b border-gray-100">
@@ -1063,35 +1068,35 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-8 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-20"
               >
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-1">Total Parcial</p>
+                  <p className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-1">{isEn ? 'Subtotal' : 'Total Parcial'}</p>
                   <div className="font-serif text-xl text-[#23211F] leading-none">${grandTotal.toLocaleString('en-US')}</div>
                 </div>
                 {step === 1 && (
                   <button onClick={nextStep} disabled={!range?.from || !range?.to || nights < 2} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
-                    {dictContext?.modal?.next || 'Siguiente'}
+                    {dictContext?.modal?.next || (isEn ? 'Next' : 'Siguiente')}
                   </button>
                 )}
                 {step === 2 && (
                   <button onClick={nextStep} disabled={wantsCook === null || (wantsCook && totalCookServices === 0)} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
-                    {dictContext?.modal?.next || 'Siguiente'}
+                    {dictContext?.modal?.next || (isEn ? 'Next' : 'Siguiente')}
                   </button>
                 )}
                 {step === 3 && (
                   <button onClick={nextStep} disabled={wantsATV === null || (wantsATV && (totalAtvTours === 0 || atvPeople < 1))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
-                    {dictContext?.modal?.next || 'Siguiente'}
+                    {dictContext?.modal?.next || (isEn ? 'Next' : 'Siguiente')}
                   </button>
                 )}
                 {step === 4 && (
                   <button onClick={nextStep} disabled={!isFormValid} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
-                    {dictContext?.modal?.summary || 'Resumen'}
+                    {dictContext?.modal?.summary || (isEn ? 'Summary' : 'Resumen')}
                   </button>
                 )}
               </motion.div>
             )}
             <ActionLoadingScreen 
               isOpen={isLoading || isSuccess} 
-              message={isSuccess ? "Reserva Confirmada" : dictContext?.modal?.redirecting}
-              subMessage={isSuccess ? "¡Todo listo!" : dictContext?.modal?.securePayments}
+              message={isSuccess ? (isEn ? "Booking Confirmed" : "Reserva Confirmada") : dictContext?.modal?.redirecting}
+              subMessage={isSuccess ? (isEn ? "All set!" : "¡Todo listo!") : dictContext?.modal?.securePayments}
             />
           </motion.div>
         </div>

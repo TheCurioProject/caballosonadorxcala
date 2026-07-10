@@ -5,8 +5,7 @@ import { motion } from 'framer-motion';
 import { Utensils, Clock, ArrowRight, CheckCircle2, ChevronRight, Calendar as CalendarIcon, Coffee, Sunset } from 'lucide-react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
+import { Footer } from '@/components/home/Footer';
 import { FoodBookingModal } from '@/components/booking/FoodBookingModal';
 
 export default function ServiciosDeComida() {
@@ -76,7 +75,6 @@ export default function ServiciosDeComida() {
 
   return (
     <div className="bg-[#FAF8F5] min-h-screen font-sans selection:bg-[#9B7E67] selection:text-white">
-      <Navigation />
       
       {/* Hero Section */}
       <section className="relative h-[70vh] md:h-[80vh] flex items-center justify-center overflow-hidden">

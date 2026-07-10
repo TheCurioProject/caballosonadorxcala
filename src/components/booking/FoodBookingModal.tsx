@@ -186,7 +186,14 @@ export const FoodBookingModal = ({
               <AnimatePresence mode="wait">
                 {step === 1 && (
                   <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="h-full">
-                    <h3 className="font-serif text-3xl text-[#23211F] mb-6">{isEn ? "Select Service" : "Selecciona un servicio"}</h3>
+                    <h3 className="font-serif text-3xl text-[#23211F] mb-4">{isEn ? "Select Service" : "Selecciona un servicio"}</h3>
+                    <AnimatePresence>
+                      {selectedService && (
+                        <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-xs text-[#9B7E67] font-bold uppercase tracking-widest mb-4">
+                          {isEn ? 'Click again to unselect' : 'Haz clic de nuevo para deseleccionar'}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
                     <div className="flex flex-col gap-4">
                       {services.map(service => (
                         <button
