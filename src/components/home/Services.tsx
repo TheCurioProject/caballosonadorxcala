@@ -141,12 +141,20 @@ export const Services = () => {
                         {service.short}
                       </p>
                       
-                      {/* Visual indicator to click/explore */}
-                      <div className="mt-4 sm:mt-6 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
-                        <span className="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-semibold text-[#9B7E67]">
-                          {(dict as any).services.explore}
-                        </span>
-                        <div className="w-6 sm:w-8 h-[1px] bg-[#9B7E67]"></div>
+                      {/* Visual indicator / Explicit Button */}
+                      <div className="mt-4 sm:mt-6 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
+                        {index === 1 ? (
+                          <button className="bg-[#9B7E67] text-white px-6 py-2.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest shadow-lg hover:bg-white hover:text-[#2C2621] transition-all duration-300">
+                            Saber más
+                          </button>
+                        ) : (
+                          <>
+                            <span className="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-semibold text-[#9B7E67]">
+                              {(dict as any).services.explore}
+                            </span>
+                            <div className="w-6 sm:w-8 h-[1px] bg-[#9B7E67]"></div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
