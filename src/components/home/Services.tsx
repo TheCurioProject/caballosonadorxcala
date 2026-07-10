@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  BedDouble, Utensils, Waves, 
+  BedDouble, Waves, 
   Utensils, Wifi, Sun, MoonStar 
 } from 'lucide-react';
 import { useDictionary } from '@/i18n/DictionaryContext';
