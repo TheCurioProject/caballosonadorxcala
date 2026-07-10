@@ -296,7 +296,7 @@ export const HomeNavigation = () => {
       </AnimatePresence>
 
       <header className={`fixed top-0 w-full z-40 transition-transform duration-500 ease-in-out ${hidden ? '-translate-y-full' : 'translate-y-0'}`}>
-        <div className={`transition-all duration-500 ${isSolid ? 'py-4 bg-[#F9F7F4]/95 backdrop-blur-lg shadow-sm' : 'py-6 md:py-10 bg-transparent'}`}>
+        <div className={`transition-all duration-500 ${isSolid ? 'py-3 bg-[#F9F7F4]/95 backdrop-blur-lg shadow-sm' : 'py-4 md:py-6 bg-transparent'}`}>
           <div className={`max-w-[1400px] mx-auto px-6 md:px-16 grid grid-cols-2 md:grid-cols-3 items-start md:items-center transition-colors duration-500 relative ${isSolid ? 'text-[#2C2927]' : 'text-[#F9F7F4]'}`}>
             
             {/* Logo a la izquierda */}
@@ -304,14 +304,13 @@ export const HomeNavigation = () => {
               <Link href={`/${pathname.split('/')[1] || 'es'}`} aria-label="Inicio" className="flex items-center">
                 <LogoCompleto 
                   solidWhite={!isSolid}
-                  className={`w-auto transition-all duration-700 ease-[0.76,0,0.24,1] drop-shadow-lg hover:scale-105 ${isSolid ? 'h-10 md:h-12' : 'h-10 md:h-16'}`} 
+                  className={`w-auto transition-all duration-700 ease-[0.76,0,0.24,1] drop-shadow-lg hover:scale-105 ${isSolid ? 'h-8 md:h-10' : 'h-9 md:h-12'}`} 
                 />
               </Link>
             </div>
 
-            {/* Minimalist Centered Language Switcher (Desktop) */}
             <div className="hidden md:flex justify-center z-20 pointer-events-auto">
-              <div className="flex items-center gap-3 md:gap-5">
+              <div className="flex items-center gap-2 md:gap-4">
                 {['es', 'en'].map((l) => {
                   const currentLang = pathname.split('/')[1] || 'es';
                   const isActive = currentLang === l;
@@ -345,12 +344,12 @@ export const HomeNavigation = () => {
             </div>
 
             {/* Header Right Content */}
-            <div className="flex flex-col items-end gap-3 z-10">
-              <div className="flex justify-end items-center gap-4 md:gap-6">
+            <div className="flex flex-col items-end gap-1 md:gap-2 z-10">
+              <div className="flex justify-end items-center gap-3 md:gap-5">
                 {/* Desktop Booking Button */}
                 <button 
                   onClick={() => openBookingModal()}
-                  className={`hidden md:block uppercase tracking-widest text-[10px] font-bold border rounded-full px-5 py-2 hover:opacity-70 transition-all ${isSolid ? 'border-[#2C2927] text-[#2C2927]' : 'border-[#F9F7F4] text-[#F9F7F4]'}`}
+                  className={`hidden md:block uppercase tracking-widest text-[10px] font-bold border rounded-full px-4 py-1.5 hover:opacity-70 transition-all ${isSolid ? 'border-[#2C2927] text-[#2C2927]' : 'border-[#F9F7F4] text-[#F9F7F4]'}`}
                 >
                   {dict?.nav?.reserveBtn || 'RESERVAR'}
                 </button>

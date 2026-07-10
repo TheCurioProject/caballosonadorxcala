@@ -8,6 +8,7 @@ import { RoomModal } from './RoomModal';
 export const Suites = ({ rooms }: { rooms: any[] }) => {
   const dict = useDictionary();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const spacerRef = useRef<HTMLDivElement>(null);
   const [selectedRoom, setSelectedRoom] = useState<any | null>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -15,7 +16,8 @@ export const Suites = ({ rooms }: { rooms: any[] }) => {
   const checkScroll = () => {
     if (scrollRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      setCanScrollLeft(scrollLeft > 10);
+      const spacerWidth = spacerRef.current ? spacerRef.current.offsetWidth : 10;
+      setCanScrollLeft(scrollLeft > spacerWidth + 10);
       setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
     }
   };
@@ -75,7 +77,7 @@ export const Suites = ({ rooms }: { rooms: any[] }) => {
             onScroll={checkScroll}
             className="flex items-stretch w-full overflow-x-auto snap-x snap-mandatory touch-pan-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
-            <div className="flex-shrink-0 w-12 md:w-24 xl:w-[calc((100vw-1400px)/2+4rem)] border-r border-[#E5E0D8]"></div>
+            <div ref={spacerRef} className="flex-shrink-0 w-12 md:w-24 xl:w-[calc((100vw-1400px)/2+4rem)] border-r border-[#E5E0D8]"></div>
             {rooms.map((room, index) => (
               <div 
                 key={`room-${room.id}`}
