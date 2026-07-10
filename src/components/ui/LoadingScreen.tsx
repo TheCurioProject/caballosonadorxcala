@@ -12,7 +12,7 @@ export function LoadingScreen() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const minDuration = 2500; // Garantizar al menos 2.5s para apreciar la animación
+    const minDuration = 1500; // Garantizar al menos 1.5s para apreciar la animación
     const startTime = Date.now();
 
     const handleLoad = () => {

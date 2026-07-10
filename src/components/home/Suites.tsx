@@ -50,18 +50,20 @@ export const Suites = ({ rooms }: { rooms: any[] }) => {
           
       <div className="relative group/gallery">
         {/* Desktop Navigation Arrows */}
-        <div className={`hidden md:flex absolute top-1/2 -translate-y-1/2 left-8 z-10 transition-opacity duration-300 pointer-events-none ${canScrollLeft ? 'opacity-0 group-hover/gallery:opacity-100' : 'opacity-0'}`}>
+        <div className={`hidden md:flex absolute bottom-[7.5rem] left-8 z-10 transition-opacity duration-300 pointer-events-none ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`}>
           <button 
             onClick={() => scroll('left')}
-            className="p-4 rounded-full backdrop-blur-md bg-white/80 border transition-all duration-300 pointer-events-auto shadow-sm border-[#23211F]/20 hover:bg-white hover:border-[#23211F]/40 text-[#23211F] cursor-pointer"
+            disabled={!canScrollLeft}
+            className={`p-4 rounded-full backdrop-blur-md bg-white/80 border transition-all duration-300 shadow-sm border-[#23211F]/20 hover:bg-white hover:border-[#23211F]/40 text-[#23211F] ${canScrollLeft ? 'pointer-events-auto cursor-pointer' : 'pointer-events-none'}`}
           >
             <ChevronLeft size={28} />
           </button>
         </div>
-        <div className={`hidden md:flex absolute top-1/2 -translate-y-1/2 right-8 z-10 transition-opacity duration-300 pointer-events-none ${canScrollRight ? 'opacity-0 group-hover/gallery:opacity-100' : 'opacity-0'}`}>
+        <div className={`hidden md:flex absolute bottom-[7.5rem] right-8 z-10 transition-opacity duration-300 pointer-events-none ${canScrollRight ? 'opacity-100' : 'opacity-0'}`}>
           <button 
             onClick={() => scroll('right')}
-            className="p-4 rounded-full backdrop-blur-md bg-white/80 border transition-all duration-300 pointer-events-auto shadow-sm border-[#23211F]/20 hover:bg-white hover:border-[#23211F]/40 text-[#23211F] cursor-pointer"
+            disabled={!canScrollRight}
+            className={`p-4 rounded-full backdrop-blur-md bg-white/80 border transition-all duration-300 shadow-sm border-[#23211F]/20 hover:bg-white hover:border-[#23211F]/40 text-[#23211F] ${canScrollRight ? 'pointer-events-auto cursor-pointer' : 'pointer-events-none'}`}
           >
             <ChevronRight size={28} />
           </button>
