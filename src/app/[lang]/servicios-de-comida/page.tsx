@@ -18,11 +18,11 @@ export default function ServiciosDeComida() {
 
   const texts = {
     heroTitle: isEn ? 'Culinary Experience' : 'Experiencia Culinaria',
-    heroSubtitle: isEn ? 'Authentic flavors by our private cook' : 'Sabores auténticos por nuestro cocinero privado',
+    heroSubtitle: isEn ? 'Traditional flavors by our private cook' : 'Sabores tradicionales por nuestro cocinero privado',
     introTitle: isEn ? 'Taste the Paradise' : 'Saborea el Paraíso',
     intro: isEn 
-      ? 'Delight your senses with our exclusive food services. Our private cook prepares authentic local and international dishes using fresh, seasonal ingredients, ensuring every meal is a memorable part of your stay.'
-      : 'Deleita tus sentidos con nuestros exclusivos servicios de comida. Nuestro cocinero privado prepara auténticos platillos locales e internacionales utilizando ingredientes frescos y de temporada, asegurando que cada comida sea memorable.',
+      ? 'Delight your senses with our personalized food services. Our private cook prepares traditional dishes with an unmatched Mexican flavor using fresh, seasonal ingredients. You decide: you can bring your own ingredients for our team to prepare, or let us take care of absolutely everything, ensuring every meal is memorable.'
+      : 'Deleita tus sentidos con nuestros servicios de comida personalizados. Nuestro cocinero privado prepara platillos tradicionales con un inigualable sazón mexicano utilizando ingredientes frescos y de temporada. Tú decides: puedes traer tus propios ingredientes para que nuestro equipo los prepare, o dejar que nosotros nos encarguemos de absolutamente todo, asegurando que cada comida sea memorable.',
     servicesTitle: isEn ? 'Choose Your Experience' : 'Elige tu Experiencia',
     bookBtn: isEn ? 'Book Now' : 'Reservar Ahora',
     featuresTitle: isEn ? 'Why book with us?' : '¿Por qué reservar con nosotros?',
@@ -30,7 +30,7 @@ export default function ServiciosDeComida() {
       isEn ? 'Fresh, local ingredients' : 'Ingredientes frescos y locales',
       isEn ? 'Personalized menus' : 'Menús personalizados',
       isEn ? 'No cooking or cleaning required' : 'Sin preocuparte por cocinar o limpiar',
-      isEn ? 'Authentic Mexican & International cuisine' : 'Auténtica cocina mexicana e internacional'
+      isEn ? 'Delicious traditional Mexican seasoning' : 'Delicioso sazón tradicional mexicano'
     ],
     services: [
       {
@@ -87,7 +87,7 @@ export default function ServiciosDeComida() {
           className="absolute inset-0"
         >
           <Image 
-            src="/imagenes/05_amenities/amenity_02_pool_lounge.webp" 
+            src="/DSC_0226.webp" 
             alt="Food Experience" 
             fill
             className="object-cover object-center"

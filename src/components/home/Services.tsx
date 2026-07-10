@@ -16,7 +16,7 @@ const ServiceModal = dynamic(() => import('./ServiceModal').then(mod => mod.Serv
 
 const images = [
   '/imagenes/03_rooms/madera_viva.webp', // Rooms
-  '/imagenes/05_amenities/amenity_02_pool_lounge.webp', // Chef
+  '/DSC_0226.webp', // Chef
   '/imagenes/05_amenities/amenity_02_pool_lounge_new.webp', // Pool
   '/imagenes/05_amenities/amenity_05_guest_kitchen.webp', // Guest Kitchen
   '/imagenes/05_amenities/amenity_06_wifi.webp', // Wifi

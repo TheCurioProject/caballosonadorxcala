@@ -191,7 +191,13 @@ export const FoodBookingModal = ({
                       {services.map(service => (
                         <button
                           key={service.id}
-                          onClick={() => setSelectedService(service)}
+                          onClick={() => {
+                            if (selectedService?.id === service.id) {
+                              setSelectedService(null);
+                            } else {
+                              setSelectedService(service);
+                            }
+                          }}
                           className={`p-6 rounded-2xl border-2 text-left transition-all flex justify-between items-center ${selectedService?.id === service.id ? 'border-[#9B7E67] bg-[#9B7E67]/5' : 'border-gray-100 hover:border-gray-200'}`}
                         >
                           <div>
