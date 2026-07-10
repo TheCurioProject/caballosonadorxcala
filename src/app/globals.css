@@ -12,3 +12,105 @@
   }
 }
 
+
+/* Premium react-day-picker styles */
+.rdp {
+  --rdp-cell-size: 45px;
+  --rdp-accent-color: #9B7E67;
+  --rdp-background-color: #FAF8F5;
+  --rdp-accent-color-dark: #2C2621;
+  --rdp-background-color-dark: #2C2621;
+  --rdp-outline: 2px solid var(--rdp-accent-color);
+  --rdp-outline-selected: 2px solid var(--rdp-accent-color);
+  margin: 0 !important;
+}
+
+.rdp-day {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 50% !important;
+  font-weight: 500;
+  color: #23211F;
+}
+
+.rdp-day:hover:not(.rdp-day_disabled) {
+  background-color: var(--rdp-background-color);
+  color: var(--rdp-accent-color);
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  z-index: 10;
+  position: relative;
+}
+
+.rdp-day_selected, 
+.rdp-day_selected:focus-visible, 
+.rdp-day_selected:hover {
+  background-color: var(--rdp-accent-color) !important;
+  color: white !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 15px rgba(155, 126, 103, 0.4) !important;
+  font-weight: bold;
+  z-index: 20;
+  position: relative;
+}
+
+.rdp-button:focus-visible:not([disabled]) {
+  background-color: var(--rdp-background-color);
+  border: var(--rdp-outline);
+}
+
+.rdp-nav_button {
+  transition: all 0.3s ease;
+  border-radius: 50%;
+}
+
+.rdp-nav_button:hover {
+  background-color: var(--rdp-background-color);
+  transform: scale(1.1);
+  color: var(--rdp-accent-color);
+}
+
+.rdp-head_cell {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #9CA3AF;
+  font-weight: 700;
+}
+
+.rdp-day_disabled {
+  opacity: 0.3;
+}
+
+.rdp-day_range_middle {
+  background-color: rgba(155, 126, 103, 0.1) !important;
+  color: var(--rdp-accent-color) !important;
+  border-radius: 0 !important;
+  transform: scale(1) !important;
+  box-shadow: none !important;
+  z-index: 1;
+}
+
+.rdp-day_range_start {
+  background-color: var(--rdp-accent-color-dark) !important;
+  color: white !important;
+  border-radius: 50% 0 0 50% !important;
+  transform: scale(1.1) !important;
+  z-index: 20;
+}
+.rdp-day_range_end {
+  background-color: var(--rdp-accent-color-dark) !important;
+  color: white !important;
+  border-radius: 0 50% 50% 0 !important;
+  transform: scale(1.1) !important;
+  z-index: 20;
+}
+
+/* Animations for mounting */
+@keyframes calendarFadeIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.rdp {
+  animation: calendarFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

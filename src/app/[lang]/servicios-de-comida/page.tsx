@@ -77,7 +77,7 @@ export default function ServiciosDeComida() {
     <div className="bg-[#FAF8F5] min-h-screen font-sans selection:bg-[#9B7E67] selection:text-white">
       
       {/* Hero Section */}
-      <section className="relative h-[70vh] md:h-[80vh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[85vh] md:h-screen flex items-center justify-center overflow-hidden">
         <motion.div 
           initial={{ scale: 1.1 }}
           animate={{ scale: 1 }}
@@ -250,15 +250,17 @@ export default function ServiciosDeComida() {
           </h2>
           <p className="text-[#F9F7F4]/80 font-light text-lg md:text-xl mb-10">
             {isEn 
-              ? 'Book your meals in advance to guarantee availability and personalize your menu.' 
-              : 'Reserva tus comidas con anticipación para garantizar disponibilidad y personalizar tu menú.'}
+              ? 'Looking for a personalized experience? Contact us.' 
+              : '¿Buscas una experiencia personalizada? Contáctanos.'}
           </p>
-          <button 
-            onClick={() => handleBook('breakfast_lunch')}
-            className="bg-[#D4A373] text-white px-10 py-5 rounded-full text-sm font-bold uppercase tracking-widest shadow-2xl hover:bg-white hover:text-[#2C2621] transition-all duration-500"
+          <a 
+            href="https://wa.me/12509612351" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-block bg-[#D4A373] text-white px-10 py-5 rounded-full text-sm font-bold uppercase tracking-widest shadow-2xl hover:bg-white hover:text-[#2C2621] transition-all duration-500"
           >
-            {texts.bookBtn}
-          </button>
+            {isEn ? 'WhatsApp Us' : 'WhatsApp'}
+          </a>
         </motion.div>
       </section>
 

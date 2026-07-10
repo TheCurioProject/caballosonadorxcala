@@ -239,11 +239,11 @@ export const FoodBookingModal = ({
                     <h3 className="font-serif text-3xl text-[#23211F] mb-6">{isEn ? "Date & Guests" : "Fecha y Personas"}</h3>
                     
                     <div className="mb-8">
-                      <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">{isEn ? "Number of people" : "Número de personas"}</label>
+                      <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">{isEn ? "Number of people (Max 10)" : "Número de personas (Max 10)"}</label>
                       <div className="flex items-center gap-4">
                         <button onClick={() => setPax(p => Math.max(1, p - 1))} className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:border-[#9B7E67]"><ChevronLeft size={20}/></button>
                         <span className="font-serif text-2xl w-8 text-center">{pax}</span>
-                        <button onClick={() => setPax(p => p + 1)} className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:border-[#9B7E67]"><ChevronRight size={20}/></button>
+                        <button onClick={() => setPax(p => Math.min(10, p + 1))} className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:border-[#9B7E67]"><ChevronRight size={20}/></button>
                       </div>
                     </div>
 
