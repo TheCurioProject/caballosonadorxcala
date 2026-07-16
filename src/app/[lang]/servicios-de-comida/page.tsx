@@ -22,12 +22,12 @@ export default function ServiciosDeComida() {
   const [selectedService, setSelectedService] = useState<string | null>(null);
 
   const texts = {
-    heroTitle: isEn ? 'Culinary Experience' : 'Experiencia Culinaria',
+    heroTitle: isEn ? 'Food Services' : 'Servicios de Comida',
     heroSubtitle: isEn ? 'Traditional flavors by our private cook' : 'Sabores tradicionales por nuestro cocinero privado',
     introTitle: isEn ? 'Taste the Paradise' : 'Saborea el Paraíso',
     intro: isEn 
-      ? 'Delight your senses with our personalized food services. Our private cook prepares traditional dishes with an unmatched Mexican flavor using fresh, seasonal ingredients. You decide: you can bring your own ingredients for our team to prepare, or let us take care of absolutely everything, ensuring every meal is memorable.'
-      : 'Deleita tus sentidos con nuestros servicios de comida personalizados. Nuestro cocinero privado prepara platillos tradicionales con un inigualable sazón mexicano utilizando ingredientes frescos y de temporada. Tú decides: puedes traer tus propios ingredientes para que nuestro equipo los prepare, o dejar que nosotros nos encarguemos de absolutamente todo, asegurando que cada comida sea memorable.',
+      ? 'Delight your senses with personalized service. Select our 2 options when booking your stay. Treat yourself to a culinary experience and request a chef to prepare your meals.'
+      : 'Deleita tus sentidos con un servicio personalizado. Selecciona nuestras 2 opciones al reservar tu estancia. Consiéntete con una experiencia culinaria y solicita a un chef que prepare tus comidas.',
     servicesTitle: isEn ? 'Choose Yours' : 'Elige el Tuyo',
     bookBtn: isEn ? 'Book Now' : 'Reservar Ahora',
     bookTour: isEn ? 'BOOK NOW' : 'RESERVAR AHORA',
