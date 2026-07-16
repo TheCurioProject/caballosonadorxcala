@@ -11,7 +11,7 @@ export const Suites = ({ rooms }: { rooms: any[] }) => {
   const spacerRef = useRef<HTMLDivElement>(null);
   const [selectedRoom, setSelectedRoom] = useState<any | null>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
   const checkScroll = () => {
     if (scrollRef.current) {

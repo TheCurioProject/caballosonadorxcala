@@ -48,8 +48,6 @@ export const TourBookingModal = ({
     }
   }, [initialTour]);
 
-  if (!isOpen) return null;
-
   const handleNext = () => setStep(s => s + 1);
   const handleBack = () => setStep(s => s - 1);
 
@@ -101,23 +99,27 @@ export const TourBookingModal = ({
   const isStep3Valid = guestName.length > 2 && guestEmail.includes('@');
 
   return (
-    <AnimatePresence>
+    <>
       <ActionLoadingScreen isOpen={isSubmitting} theme="dark" subMessage={isEn ? "PREPARING SECURE PAYMENT..." : "PREPARANDO PAGO SEGURO..."} />
-      <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
-        <motion.div 
-          initial={{ opacity: 0 }} 
-          animate={{ opacity: 1 }} 
-          exit={{ opacity: 0 }} 
-          className="absolute inset-0 bg-[#0A0908]/80 backdrop-blur-md"
-          onClick={onClose}
-        />
+      <AnimatePresence>
+        {isOpen && (
+          <div key="modal-overlay" className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+            <motion.div 
+              key="backdrop"
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              className="absolute inset-0 bg-[#0A0908]/80 backdrop-blur-md"
+              onClick={onClose}
+            />
 
-        <motion.div 
-          initial={{ scale: 0.95, opacity: 0, y: 20 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.95, opacity: 0, y: 20 }}
-          className="relative w-full max-w-4xl bg-white rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col md:flex-row h-[85vh] md:h-[650px]"
-        >
+            <motion.div 
+              key="modal-content"
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="relative w-full max-w-4xl bg-white rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col md:flex-row h-[85vh] md:h-[650px]"
+            >
           {/* Sidebar */}
           <div className="hidden md:flex w-1/3 bg-[#23211F] text-[#F9F7F4] p-10 flex-col justify-between relative overflow-hidden">
             <div className="relative z-10">
@@ -325,6 +327,8 @@ export const TourBookingModal = ({
           </div>
         </motion.div>
       </div>
+      )}
     </AnimatePresence>
+    </>
   );
 };
