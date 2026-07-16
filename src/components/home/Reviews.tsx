@@ -31,7 +31,7 @@ export const Reviews = () => {
   };
 
   return (
-    <section id="reviews" className="py-16 md:py-24 bg-[#0A0908] text-[#F9F7F4] relative overflow-hidden">
+    <section id="reviews" className="py-16 md:py-24 bg-[#23211F] text-[#F9F7F4] relative overflow-hidden border-t border-white/10">
       <div className="max-w-[1400px] mx-auto px-6 md:px-16">
         
         <motion.div 
