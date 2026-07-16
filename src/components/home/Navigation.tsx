@@ -299,11 +299,19 @@ export const HomeNavigation = () => {
           <div className={`max-w-[1400px] mx-auto px-6 md:px-16 grid grid-cols-2 md:grid-cols-3 items-start md:items-center transition-colors duration-500 relative ${isSolid ? 'text-[#2C2927]' : 'text-[#F9F7F4]'}`}>
             
             {/* Logo a la izquierda */}
-            <div className="flex justify-start">
-              <Link href={`/${pathname.split('/')[1] || 'es'}`} aria-label="Inicio" className="flex items-center">
+            <div className="flex justify-start self-start">
+              <Link 
+                href={`/${pathname.split('/')[1] || 'es'}`} 
+                aria-label="Inicio" 
+                className={`flex items-start transition-all duration-700 ease-[0.76,0,0.24,1] ${
+                  isSolid ? 'translate-y-0' : 'translate-y-2 md:translate-y-4'
+                }`}
+              >
                 <LogoCompleto 
                   solidWhite={!isSolid}
-                  className={`w-auto transition-all duration-700 ease-[0.76,0,0.24,1] drop-shadow-lg hover:scale-105 ${isSolid ? 'h-8 md:h-10' : 'h-9 md:h-12'}`} 
+                  className={`w-auto transition-all duration-700 ease-[0.76,0,0.24,1] drop-shadow-lg hover:scale-105 origin-top-left ${
+                    isSolid ? 'h-8 md:h-10' : 'h-[3.5rem] md:h-[5rem]'
+                  }`} 
                 />
               </Link>
             </div>
