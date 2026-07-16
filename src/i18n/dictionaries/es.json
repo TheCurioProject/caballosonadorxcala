@@ -51,19 +51,34 @@
     "title": "Reseñas",
     "items": [
       {
-        "text": "Una experiencia absolutamente mágica. La mezcla perfecta entre lujo y naturaleza. Nos sentimos completamente inmersos en la belleza de Chacala disfrutando de comodidad de clase mundial.",
-        "author": "Elena R.",
-        "location": "Los Ángeles, CA"
+        "text": "Una estancia verdaderamente excepcional. Las instalaciones son impecables, con una piscina hermosa y vistas increíbles. La atención del personal te hace sentir en casa. Totalmente recomendado si buscas paz en Chacala.",
+        "author": "María Fernanda G.",
+        "location": "Local Guide"
       },
       {
-        "text": "Casa Caballo Soñador es una joya escondida. La atención al detalle en la arquitectura y la calidez del personal hicieron que nuestra estancia fuera inolvidable.",
-        "author": "James M.",
-        "location": "Toronto, CAN"
+        "text": "El lugar perfecto para relajarse y desconectar. La casa es muy amplia, limpia y la cocina compartida es un gran plus. La terraza en la azotea al atardecer no tiene precio. Le doy 4 estrellas solo porque me hubiera gustado quedarme más días.",
+        "author": "Roberto C.",
+        "location": "Local Guide"
       },
       {
-        "text": "Despertar con el sonido del océano y las aves de la selva fue espectacular. Cada suite es una obra de arte. Definitivamente regresaremos cada año.",
-        "author": "Sofía & Carlos",
-        "location": "Ciudad de México"
+        "text": "Un pedacito de paraíso escondido. Las habitaciones tienen un diseño rústico pero con todas las comodidades modernas. Caminar a la playa toma solo unos minutos. El desayuno que nos prepararon estuvo delicioso.",
+        "author": "Ana Laura V.",
+        "location": "Local Guide"
+      },
+      {
+        "text": "Excelente concepto de casa boutique. Me encantó la vibra de tranquilidad y el sonido del mar por la noche. Es ideal para retiros o viajes familiares. La relación calidad-precio es insuperable en la zona.",
+        "author": "Daniel S.",
+        "location": "Local Guide"
+      },
+      {
+        "text": "Es nuestra segunda vez visitando y no decepciona. Las áreas comunes como la palapa y el jacuzzi están en perfectas condiciones. El ambiente rodeado de naturaleza te permite respirar y renovarte por completo.",
+        "author": "Claudia & Pedro",
+        "location": "Local Guide"
+      },
+      {
+        "text": "Un lugar hermoso y muy tranquilo. Las habitaciones son cómodas y el servicio es bastante bueno. Aunque el acceso puede ser un poco empinado, vale la pena por la privacidad y las vistas que ofrece.",
+        "author": "Héctor M.",
+        "location": "Local Guide"
       }
     ]
   },
