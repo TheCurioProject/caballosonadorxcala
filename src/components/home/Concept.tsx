@@ -43,25 +43,24 @@ export const Concept = () => {
           </RevealText>
         </div>
 
-        {/* Imposing Horizontal Image (No crop) */}
+        {/* Editorial style compact image without frame */}
         <motion.div 
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 1, ease: "easeOut" }}
-          className="w-full max-w-4xl lg:max-w-5xl mx-auto relative rounded-2xl overflow-hidden shadow-2xl group"
-          style={{ aspectRatio: '4201/2790' }}
+          className="w-full max-w-xl lg:max-w-2xl mx-auto relative rounded-2xl overflow-hidden shadow-lg group"
+          style={{ aspectRatio: '16/9' }}
         >
           <Image
             src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/DSC_0120.webp`}
             alt="Concepto Hotel Soñador"
             fill
-            sizes="100vw"
+            sizes="(max-width: 1024px) 100vw, 1024px"
             className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
           />
           {/* subtle overlay */}
-          <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-1000 z-10 pointer-events-none"></div>
-          <div className="absolute inset-0 pointer-events-none border border-black/10 rounded-2xl group-hover:border-[#9B7E67]/50 transition-colors duration-500 z-20"></div>
+          <div className="absolute inset-0 bg-[#23211F]/5 mix-blend-multiply group-hover:bg-transparent transition-colors duration-1000 z-10 pointer-events-none"></div>
         </motion.div>
 
         {/* Text Section (3 columns) */}

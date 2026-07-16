@@ -2,16 +2,22 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Utensils, Clock, ArrowRight, CheckCircle2, ChevronRight, Calendar as CalendarIcon, Coffee, Sunset } from 'lucide-react';
+import { Utensils, Clock, ArrowRight, ArrowLeft, CheckCircle2, ChevronRight, Calendar as CalendarIcon, Coffee, Sunset } from 'lucide-react';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Footer } from '@/components/home/Footer';
 import { FoodBookingModal } from '@/components/booking/FoodBookingModal';
+import { ActionLoadingScreen } from '@/components/ui/ActionLoadingScreen';
 
 export default function ServiciosDeComida() {
   const params = useParams();
+  const pathname = usePathname();
+  const router = useRouter();
   const lang = params?.lang || 'es';
   const isEn = lang === 'en';
+  const langPrefix = `/${lang || 'es'}`;
+  const [isNavigating, setIsNavigating] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<string | null>(null);
 
@@ -24,6 +30,8 @@ export default function ServiciosDeComida() {
       : 'Deleita tus sentidos con nuestros servicios de comida personalizados. Nuestro cocinero privado prepara platillos tradicionales con un inigualable sazón mexicano utilizando ingredientes frescos y de temporada. Tú decides: puedes traer tus propios ingredientes para que nuestro equipo los prepare, o dejar que nosotros nos encarguemos de absolutamente todo, asegurando que cada comida sea memorable.',
     servicesTitle: isEn ? 'Choose Your Experience' : 'Elige tu Experiencia',
     bookBtn: isEn ? 'Book Now' : 'Reservar Ahora',
+    bookTour: isEn ? 'BOOK NOW' : 'RESERVAR AHORA',
+    bookTourShort: isEn ? 'BOOK NOW' : 'RESERVAR AHORA',
     featuresTitle: isEn ? 'Why book with us?' : '¿Por qué reservar con nosotros?',
     features: [
       isEn ? 'Fresh, local ingredients' : 'Ingredientes frescos y locales',
@@ -75,7 +83,132 @@ export default function ServiciosDeComida() {
 
   return (
     <div className="bg-[#FAF8F5] min-h-screen font-sans selection:bg-[#9B7E67] selection:text-white">
+      <ActionLoadingScreen isOpen={isNavigating} theme="dark" subMessage={isEn ? 'ONE MOMENT PLEASE...' : 'UN MOMENTO POR FAVOR...'} />
       
+      {/* Floating Navigation */}
+      <nav className="fixed top-0 w-full z-[100] bg-transparent text-[#F9F7F4] pointer-events-none">
+        <div className="py-5 md:py-6">
+          <div className="max-w-[1400px] mx-auto px-6 md:px-16 grid grid-cols-3 items-center relative">
+            
+            <div className="flex justify-start pointer-events-auto">
+              <Link 
+                href={langPrefix}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsNavigating(true);
+                  setTimeout(() => {
+                    router.push(langPrefix);
+                  }, 100);
+                }}
+                className="group flex items-center gap-3 hover:opacity-70 transition-opacity duration-300"
+                aria-label={isEn ? 'BACK TO HOME' : 'VOLVER AL INICIO'}
+              >
+                <ArrowLeft strokeWidth={1.5} className="w-5 h-5 md:w-6 md:h-6 transform group-hover:-translate-x-1 transition-transform" />
+                <span className="hidden md:block uppercase tracking-[0.2em] text-xs font-bold text-[#F9F7F4]">
+                  {isEn ? 'HOME' : 'INICIO'}
+                </span>
+              </Link>
+            </div>
+
+            <div className="hidden md:flex justify-center pointer-events-auto">
+              <div className="flex items-center gap-5">
+                {['es', 'en'].map((l) => {
+                  const isActive = lang === l;
+                  
+                  // Construct new path
+                  const segments = pathname.split('/');
+                  if (segments.length > 1 && ['es', 'en'].includes(segments[1])) {
+                    segments[1] = l;
+                  } else {
+                    segments.splice(1, 0, l);
+                  }
+                  const newPath = segments.join('/') || '/';
+
+                  return (
+                    <Link 
+                      key={l}
+                      href={newPath}
+                      prefetch={true}
+                      className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
+                        isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
+                      }`}
+                    >
+                      <span className="text-sm md:text-base leading-none block tracking-widest">{l.toUpperCase()}</span>
+                      <div className="h-1.5 mt-1 w-full flex justify-center items-center">
+                        {isActive && (
+                          <motion.div 
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ duration: 0.2 }}
+                            className="w-1.5 h-1.5 rounded-full bg-[#9B7E67] shadow-sm"
+                          />
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+            
+            <div className="md:hidden"></div>
+
+            <div className="flex flex-col justify-end items-end pointer-events-auto gap-2">
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => {
+                    setSelectedService(null);
+                    setIsModalOpen(true);
+                  }}
+                  className="uppercase tracking-widest text-[10px] md:text-xs font-bold border rounded-full px-4 py-1.5 hover:opacity-70 transition-all border-[#F9F7F4] text-[#F9F7F4]"
+                >
+                  <span className="hidden md:inline">{texts.bookTour}</span>
+                  <span className="md:hidden">{texts.bookTourShort}</span>
+                </button>
+              </div>
+              
+              <div className="flex md:hidden items-center gap-4 mt-1">
+                {['es', 'en'].map((l) => {
+                  const isActive = lang === l;
+                  
+                  // Construct new path
+                  const segments = pathname.split('/');
+                  if (segments.length > 1 && ['es', 'en'].includes(segments[1])) {
+                    segments[1] = l;
+                  } else {
+                    segments.splice(1, 0, l);
+                  }
+                  const newPath = segments.join('/') || '/';
+
+                  return (
+                    <Link 
+                      key={l}
+                      href={newPath}
+                      prefetch={true}
+                      className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
+                        isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
+                      }`}
+                    >
+                      <span className="text-[11px] leading-none block tracking-widest">{l.toUpperCase()}</span>
+                      <div className="h-1 mt-1 w-full flex justify-center items-center">
+                        {isActive && (
+                          <motion.div 
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ duration: 0.2 }}
+                            className="w-1 h-1 rounded-full bg-[#9B7E67] shadow-sm"
+                          />
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
       <section className="relative min-h-[85vh] md:h-screen flex items-center justify-center overflow-hidden">
         <motion.div 
@@ -102,13 +235,9 @@ export default function ServiciosDeComida() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="relative z-10 text-center px-6 max-w-4xl mx-auto"
+          className="relative z-10 text-center px-6 max-w-4xl mx-auto pt-32"
         >
-          <div className="mb-6 flex justify-center">
-            <span className="hidden md:inline-block bg-[#9B7E67]/90 text-white text-[10px] uppercase tracking-[0.3em] font-bold px-4 py-1.5 rounded-full backdrop-blur-sm shadow-xl border border-white/10">
-              {texts.heroSubtitle}
-            </span>
-          </div>
+
           <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl text-[#F9F7F4] mb-6 drop-shadow-2xl leading-tight">
             {texts.heroTitle}
           </h1>
@@ -116,33 +245,6 @@ export default function ServiciosDeComida() {
             {texts.intro}
           </p>
         </motion.div>
-      </section>
-
-      {/* Philosophy Section */}
-      <section className="py-20 md:py-32 px-6 md:px-12 bg-white text-center relative">
-        <div className="max-w-3xl mx-auto relative z-10">
-          <Utensils className="mx-auto text-[#D4A373] mb-6 w-10 h-10 md:w-12 md:h-12 opacity-80" />
-          <h2 className="font-serif text-3xl md:text-5xl text-[#2C2621] mb-8">
-            {texts.introTitle}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 text-left">
-            {texts.features.map((feature, idx) => (
-              <motion.div 
-                key={idx}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1, duration: 0.5 }}
-                className="flex items-center gap-4 bg-[#FAF8F5] p-4 rounded-2xl shadow-sm border border-[#E5E0D8]/50"
-              >
-                <div className="bg-[#D4A373]/20 p-2 rounded-full text-[#D4A373]">
-                  <CheckCircle2 size={20} />
-                </div>
-                <span className="text-[#4A3B32] font-medium text-sm md:text-base">{feature}</span>
-              </motion.div>
-            ))}
-          </div>
-        </div>
       </section>
 
       {/* Services Section */}
@@ -217,18 +319,6 @@ export default function ServiciosDeComida() {
                   <p className="text-[#4A3B32] text-lg md:text-xl font-light mb-10 leading-relaxed">
                     {service.desc}
                   </p>
-                  
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                    <button 
-                      onClick={() => handleBook(service.id)}
-                      className="group bg-[#2C2621] text-[#F9F7F4] px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg hover:bg-[#D4A373] transition-all duration-300 flex items-center gap-3 w-full sm:w-auto justify-center"
-                    >
-                      {texts.bookBtn} 
-                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                    {/* El precio dinámico vendrá de BD, pero por ahora se muestra como sugerencia/desde */}
-                    {/* En la integración real, este precio vendrá de la tabla ServicePricing */}
-                  </div>
                 </div>
               </motion.div>
             );
@@ -236,32 +326,31 @@ export default function ServiciosDeComida() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24 md:py-32 bg-[#2C2621] text-[#F9F7F4] text-center px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="max-w-2xl mx-auto"
-        >
-          <Utensils className="mx-auto text-[#D4A373] mb-6 w-12 h-12 opacity-80" />
-          <h2 className="font-serif text-4xl md:text-6xl mb-6">
-            {isEn ? 'Ready for a feast?' : '¿Listo para un festín?'}
+      {/* Philosophy Section */}
+      <section className="py-20 md:py-32 px-6 md:px-12 bg-white text-center relative">
+        <div className="max-w-3xl mx-auto relative z-10">
+          <Utensils className="mx-auto text-[#D4A373] mb-6 w-10 h-10 md:w-12 md:h-12 opacity-80" />
+          <h2 className="font-serif text-3xl md:text-5xl text-[#2C2621] mb-8">
+            {texts.introTitle}
           </h2>
-          <p className="text-[#F9F7F4]/80 font-light text-lg md:text-xl mb-10">
-            {isEn 
-              ? 'Looking for a personalized experience? Contact us.' 
-              : '¿Buscas una experiencia personalizada? Contáctanos.'}
-          </p>
-          <a 
-            href="https://wa.me/12509612351" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-block bg-[#D4A373] text-white px-10 py-5 rounded-full text-sm font-bold uppercase tracking-widest shadow-2xl hover:bg-white hover:text-[#2C2621] transition-all duration-500"
-          >
-            {isEn ? 'WhatsApp Us' : 'WhatsApp'}
-          </a>
-        </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 text-left">
+            {texts.features.map((feature, idx) => (
+              <motion.div 
+                key={idx}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1, duration: 0.5 }}
+                className="flex items-center gap-4 bg-[#FAF8F5] p-4 rounded-2xl shadow-sm border border-[#E5E0D8]/50"
+              >
+                <div className="bg-[#D4A373]/20 p-2 rounded-full text-[#D4A373]">
+                  <CheckCircle2 size={20} />
+                </div>
+                <span className="text-[#4A3B32] font-medium text-sm md:text-base">{feature}</span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       </section>
 
       <Footer />

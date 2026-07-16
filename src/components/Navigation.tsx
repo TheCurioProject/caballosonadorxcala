@@ -11,7 +11,7 @@ export default function Navigation() {
   const isHome = pathname === '/';
   const { openBookingModal } = useBooking();
 
-  if (pathname.startsWith('/admin') || pathname.includes('/tours')) {
+  if (pathname.startsWith('/admin') || pathname.includes('/tours') || pathname.includes('/servicios-de-comida')) {
     return null;
   }
 

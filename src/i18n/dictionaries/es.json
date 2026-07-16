@@ -4,7 +4,7 @@
     "tours": "Experiencias",
     "gallery": "Galería",
     "book": "Reservar Ahora",
-    "reserveBtn": "Reservar",
+    "reserveBtn": "Reservar Ahora",
     "menu": "Menú",
     "changingLanguage": "Cambiando idioma",
     "findUs": "Encuéntranos"
@@ -226,8 +226,8 @@
       "Agua, snacks o almuerzo (si no está incluido)"
     ],
     "explore": "Explorar",
-    "bookTour": "Reservar Tour",
-    "bookTourShort": "Reservar",
+    "bookTour": "Reservar Ahora",
+    "bookTourShort": "Reservar Ahora",
     "scroll": "Explorar",
     "backToHome": "Volver al inicio",
     "tours": [

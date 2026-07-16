@@ -13,6 +13,7 @@ const Reviews = dynamic(() => import('@/components/home/Reviews').then(mod => mo
 const FAQ = dynamic(() => import('@/components/home/FAQ').then(mod => mod.FAQ));
 const Location = dynamic(() => import('@/components/home/Location').then(mod => mod.Location));
 const Footer = dynamic(() => import('@/components/home/Footer').then(mod => mod.Footer));
+const FoodServices = dynamic(() => import('@/components/home/FoodServices').then(mod => mod.FoodServices));
 
 // Removed force-dynamic for static export
 
@@ -94,9 +95,10 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
         <Hero />
         <About />
         <Concept />
-        <Services />
         <Suites rooms={rooms} />
+        <FoodServices />
         <Experiences experiences={experiences} />
+        <Services />
         <Reviews />
         <FAQ />
         <Location />

@@ -39,38 +39,22 @@ export const Services = () => {
   const servicesData = (dict as any).services.items;
 
   // Build the full service items
-  const serviceItems: any[] = servicesData.map((item: any, index: number) => ({
-    id: `service-${index}`,
-    title: item.title,
-    short: item.short,
-    desc: item.desc,
-    image: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${images[index]}`,
-    icon: icons[index]
-  }));
-
-  const getBentoClasses = (index: number) => {
-    switch (index) {
-      case 0:
-        return "md:col-span-2 lg:col-span-2 h-[400px] md:h-[450px]";
-      case 1:
-        return "md:col-span-1 lg:col-span-1 h-[400px] md:h-[450px]";
-      case 2:
-      case 3:
-      case 4:
-        return "md:col-span-1 lg:col-span-1 h-[400px]";
-      case 5:
-        return "md:col-span-1 lg:col-span-2 h-[400px] md:h-[500px]";
-      case 6:
-        return "md:col-span-1 lg:col-span-1 h-[400px] md:h-[500px]";
-      default:
-        return "col-span-1 h-[400px]";
-    }
-  };
+  const serviceItems: any[] = servicesData
+    .map((item: any, index: number) => ({
+      id: `service-${index}`,
+      title: item.title,
+      short: item.short,
+      desc: item.desc,
+      image: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${images[index]}`,
+      icon: icons[index],
+      originalIndex: index
+    }))
+    .filter((item: any) => item.originalIndex !== 1);
 
   return (
     <>
       <section className="py-20 md:py-32 bg-[#2C2621] text-[#E5E0D8] relative overflow-hidden">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 lg:px-16 mb-12">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-12 lg:px-16 mb-12">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -83,87 +67,74 @@ export const Services = () => {
             <h3 className="font-serif text-4xl md:text-5xl lg:text-6xl leading-tight">
               {(dict as any).services.title}
             </h3>
-            <div className="mt-4 flex items-center gap-2 text-[#9B7E67]/70 text-xs font-bold tracking-[0.2em] uppercase">
-              <span className="block opacity-80 animate-pulse">{(dict as any).services.explore}</span>
-            </div>
           </motion.div>
-        </div>
 
-        {/* Services Layout (Slider on Mobile, Grid on Tablet/Desktop) */}
-        <div className="w-full relative">
-          <div className="flex items-stretch md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 overflow-x-auto snap-x snap-mandatory touch-pan-x md:overflow-visible md:snap-none md:max-w-[1400px] md:mx-auto px-4 sm:px-6 md:px-12 lg:px-16 pb-8 md:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="mt-12 md:mt-16 flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
             
-            {/* Spacer for proper left alignment on scroll in mobile */}
-            <div className="flex-shrink-0 w-1 md:hidden"></div>
+            {/* Left side: Image */}
+            <motion.div 
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.7 }}
+              className="w-full lg:w-5/12 h-[300px] sm:h-[400px] lg:h-[550px] relative rounded-[2rem] overflow-hidden shadow-2xl flex-shrink-0 lg:sticky lg:top-32"
+            >
+              <Image 
+                src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${images[0]}`}
+                alt="6 Habitaciones Privadas"
+                fill
+                sizes="(max-width: 1024px) 100vw, 40vw"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent"></div>
+            </motion.div>
 
-            {serviceItems.map((service, index) => {
-              const Icon = service.icon;
-              
-              return (
-                <motion.div
-                  key={service.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  onClick={() => {
-                    if (index === 1) {
-                      router.push(`/${lang}/servicios-de-comida`);
-                    } else {
-                      setSelectedService(service);
-                    }
-                  }}
-                  className={`group relative rounded-[2rem] overflow-hidden cursor-pointer shadow-2xl flex-shrink-0 w-[85vw] sm:w-[400px] md:w-auto snap-center md:snap-align-none ${getBentoClasses(index)}`}
-                >
-                  {/* Background Image */}
-                  <Image 
-                    src={service.image} 
-                    alt={service.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                  />
-                  
-                  {/* Gradient Overlay for Readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1A1816]/95 via-[#1A1816]/40 to-transparent transition-opacity duration-500 opacity-80 group-hover:opacity-90"></div>
-
-                  {/* Content Container */}
-                  <div className="absolute inset-0 p-6 sm:p-8 md:p-10 flex flex-col justify-end">
-                    <div className="transform transition-transform duration-500 translate-y-4 group-hover:translate-y-0">
-                      <div className="mb-4 text-[#9B7E67] bg-[#2C2621]/80 backdrop-blur-md p-3 sm:p-4 rounded-full w-fit shadow-xl border border-white/5">
+            {/* Right side: List of amenities */}
+            <div className="w-full lg:w-7/12 flex flex-col gap-3 sm:gap-4">
+              {serviceItems.map((service, index) => {
+                const Icon = service.icon;
+                
+                return (
+                  <motion.div
+                    key={service.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                  >
+                    <button
+                      onClick={() => {
+                        setSelectedService(service);
+                      }}
+                      className="group w-full text-left flex items-start sm:items-center gap-4 sm:gap-6 p-4 sm:p-5 rounded-2xl bg-white/[0.03] hover:bg-[#9B7E67]/10 border border-white/5 hover:border-[#9B7E67]/30 transition-all duration-300 relative overflow-hidden active:scale-[0.98]"
+                    >
+                      {/* Icon container */}
+                      <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#2C2621] border border-white/10 flex items-center justify-center text-[#9B7E67] group-hover:bg-[#9B7E67] group-hover:text-white group-hover:border-[#9B7E67] transition-all duration-300 shadow-md">
                         <Icon size={24} strokeWidth={1.5} />
                       </div>
-                      <h4 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-white mb-2 leading-snug drop-shadow-md">
-                        {service.title}
-                      </h4>
-                      {/* Short description fades in on hover */}
-                      <p className="text-white/80 font-light text-sm sm:text-base leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 line-clamp-2 md:line-clamp-3">
-                        {service.short}
-                      </p>
                       
-                      {/* Visual indicator / Explicit Button */}
-                      <div className="mt-4 sm:mt-6 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
-                        {index === 1 ? (
-                          <button className="bg-[#9B7E67] text-white px-6 py-2.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-widest shadow-lg hover:bg-white hover:text-[#2C2621] transition-all duration-300">
-                            Saber más
-                          </button>
-                        ) : (
-                          <>
-                            <span className="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-semibold text-[#9B7E67]">
-                              {(dict as any).services.explore}
-                            </span>
-                            <div className="w-6 sm:w-8 h-[1px] bg-[#9B7E67]"></div>
-                          </>
-                        )}
+                      {/* Content */}
+                      <div className="flex-1 min-w-0 pr-6 sm:pr-8">
+                        <h4 className="font-serif text-lg sm:text-xl md:text-2xl text-white group-hover:text-[#9B7E67] transition-colors duration-300 mb-1">
+                          {service.title}
+                        </h4>
+                        <p className="text-white/60 text-xs sm:text-sm md:text-base line-clamp-2 group-hover:text-white/80 transition-colors duration-300 leading-relaxed">
+                          {service.short}
+                        </p>
                       </div>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-            
-            {/* Spacer for proper right padding on scroll in mobile */}
-            <div className="flex-shrink-0 w-1 md:hidden"></div>
+
+                      {/* Arrow indicator */}
+                      <div className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#9B7E67]">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                    </button>
+                  </motion.div>
+                );
+              })}
+            </div>
+
           </div>
         </div>
       </section>

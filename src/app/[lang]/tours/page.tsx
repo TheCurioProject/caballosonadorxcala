@@ -212,11 +212,11 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                   }, 100);
                 }}
                 className="group flex items-center gap-3 hover:opacity-70 transition-opacity duration-300"
-                aria-label={t.backToHome}
+                aria-label={lang === 'en' ? 'BACK TO HOME' : 'VOLVER AL INICIO'}
               >
                 <ArrowLeft strokeWidth={1.5} className="w-5 h-5 md:w-6 md:h-6 transform group-hover:-translate-x-1 transition-transform" />
-                <span className="hidden md:block uppercase tracking-[0.2em] text-xs font-bold text-[#9B7E67]">
-                  {t.backToHome || 'INICIO'}
+                <span className="hidden md:block uppercase tracking-[0.2em] text-xs font-bold text-[#F9F7F4]">
+                  {lang === 'en' ? 'HOME' : 'INICIO'}
                 </span>
               </Link>
             </div>
@@ -270,11 +270,10 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                     setModalInitialTour(null);
                     setIsTourModalOpen(true);
                   }}
-                  className="uppercase tracking-widest text-[10px] md:text-xs font-bold flex items-center gap-2 text-[#F9F7F4] hover:text-[#9B7E67] transition-colors"
+                  className="uppercase tracking-widest text-[10px] md:text-xs font-bold border rounded-full px-4 py-1.5 hover:opacity-70 transition-all border-[#F9F7F4] text-[#F9F7F4]"
                 >
                   <span className="hidden md:inline">{t.bookTour}</span>
                   <span className="md:hidden">{t.bookTourShort || t.bookTour}</span>
-                  <MessageCircle size={18} strokeWidth={1.5} />
                 </button>
               </div>
               
