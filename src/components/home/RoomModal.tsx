@@ -95,19 +95,23 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
       ))}
 
       {/* Navigation arrows */}
-      <button 
-        onClick={handlePrevImage}
-        className={`hidden md:block absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20 ${currentImageIndex === 0 ? 'opacity-0 pointer-events-none' : 'opacity-0 group-hover:opacity-100 pointer-events-auto'}`}
-      >
-        <ChevronLeft size={24} />
-      </button>
+      {currentImageIndex > 0 && (
+        <button 
+          onClick={handlePrevImage}
+          className="hidden md:block absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20 opacity-0 group-hover:opacity-100 pointer-events-auto"
+        >
+          <ChevronLeft size={24} />
+        </button>
+      )}
       
-      <button 
-        onClick={handleNextImage}
-        className={`hidden md:block absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20 ${currentImageIndex === images.length - 1 ? 'opacity-0 pointer-events-none' : 'opacity-0 group-hover:opacity-100 pointer-events-auto'}`}
-      >
-        <ChevronRight size={24} />
-      </button>
+      {currentImageIndex < images.length - 1 && (
+        <button 
+          onClick={handleNextImage}
+          className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20 opacity-0 group-hover:opacity-100 pointer-events-auto"
+        >
+          <ChevronRight size={24} />
+        </button>
+      )}
       
       {/* Indicators */}
       {images.length > 1 && (

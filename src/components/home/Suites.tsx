@@ -24,8 +24,18 @@ export const Suites = ({ rooms }: { rooms: any[] }) => {
 
   useEffect(() => {
     checkScroll();
+
+    let observer: ResizeObserver;
+    if (scrollRef.current) {
+      observer = new ResizeObserver(() => checkScroll());
+      observer.observe(scrollRef.current);
+    }
+
     window.addEventListener('resize', checkScroll);
-    return () => window.removeEventListener('resize', checkScroll);
+    return () => {
+      window.removeEventListener('resize', checkScroll);
+      if (observer) observer.disconnect();
+    };
   }, [rooms]);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -52,24 +62,26 @@ export const Suites = ({ rooms }: { rooms: any[] }) => {
           
       <div className="relative group/gallery">
         {/* Desktop Navigation Arrows */}
-        <div className={`hidden md:flex absolute bottom-[7.5rem] left-8 z-10 transition-opacity duration-300 pointer-events-none ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`}>
-          <button 
-            onClick={() => scroll('left')}
-            disabled={!canScrollLeft}
-            className={`p-4 rounded-full backdrop-blur-md bg-[#1A1816]/80 border transition-all duration-300 shadow-sm border-white/10 hover:bg-[#1A1816] hover:border-white/30 text-white ${canScrollLeft ? 'pointer-events-auto cursor-pointer' : 'pointer-events-none'}`}
-          >
-            <ChevronLeft size={28} />
-          </button>
-        </div>
-        <div className={`hidden md:flex absolute bottom-[7.5rem] right-8 z-10 transition-opacity duration-300 pointer-events-none ${canScrollRight ? 'opacity-100' : 'opacity-0'}`}>
-          <button 
-            onClick={() => scroll('right')}
-            disabled={!canScrollRight}
-            className={`p-4 rounded-full backdrop-blur-md bg-[#1A1816]/80 border transition-all duration-300 shadow-sm border-white/10 hover:bg-[#1A1816] hover:border-white/30 text-white ${canScrollRight ? 'pointer-events-auto cursor-pointer' : 'pointer-events-none'}`}
-          >
-            <ChevronRight size={28} />
-          </button>
-        </div>
+        {canScrollLeft && (
+          <div className="hidden md:flex absolute bottom-[7.5rem] left-8 z-10 transition-opacity duration-300">
+            <button 
+              onClick={() => scroll('left')}
+              className="p-4 rounded-full backdrop-blur-md bg-[#1A1816]/80 border transition-all duration-300 shadow-sm border-white/10 hover:bg-[#1A1816] hover:border-white/30 text-white cursor-pointer"
+            >
+              <ChevronLeft size={28} />
+            </button>
+          </div>
+        )}
+        {canScrollRight && (
+          <div className="hidden md:flex absolute bottom-[7.5rem] right-8 z-10 transition-opacity duration-300">
+            <button 
+              onClick={() => scroll('right')}
+              className="p-4 rounded-full backdrop-blur-md bg-[#1A1816]/80 border transition-all duration-300 shadow-sm border-white/10 hover:bg-[#1A1816] hover:border-white/30 text-white cursor-pointer"
+            >
+              <ChevronRight size={28} />
+            </button>
+          </div>
+        )}
 
         <div className="w-full border-y border-white/10">
           <div 
