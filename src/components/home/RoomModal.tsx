@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Bed, Users, Bath, Droplets, ChevronLeft, ChevronRight, Maximize2, Minimize2, Wifi } from 'lucide-react';
+import { X, Bed, Users, Bath, Droplets, ChevronLeft, ChevronRight, Maximize2, Minimize2, Wifi, Tv } from 'lucide-react';
 import { useBooking } from '@/context/BookingContext';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { useScrollLock } from '@/hooks/useScrollLock';
@@ -179,6 +179,7 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
                           <div className="flex items-center gap-3"><Bath size={16} className="text-[#9B7E67]" /> {room.details.bath}</div>
                           <div className="flex items-center gap-3"><Wifi size={16} className="text-[#9B7E67]" /> Wi-Fi</div>
                           {room.details.extra && <div className="flex items-center gap-3"><Droplets size={16} className="text-[#9B7E67]" /> {room.details.extra}</div>}
+                          {isRoom7 && <div className="flex items-center gap-3"><Tv size={16} className="text-[#9B7E67]" /> TV</div>}
                         </div>
                       )}
 

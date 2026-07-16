@@ -23,7 +23,7 @@
   },
   "suites": {
     "subtitle": "6 Unique Retreats",
-    "title": "Discover the rooms",
+    "title": "Discover the Rooms",
     "explore": "View Details",
     "mobileInstruction": "Swipe to explore",
     "desktopInstruction": "Scroll down to explore",
@@ -52,33 +52,27 @@
     "items": [
       {
         "text": "A truly exceptional stay. The facilities are impeccable, with a beautiful pool and incredible views. The staff's attention makes you feel right at home. Highly recommended if you seek peace in Chacala.",
-        "author": "María Fernanda G.",
-        "location": "Local Guide"
+        "author": "María Fernanda G."
       },
       {
         "text": "The perfect place to relax and disconnect. The house is very spacious, clean, and the shared kitchen is a big plus. The rooftop terrace at sunset is priceless. I give it 4 stars only because I wish I could have stayed longer.",
-        "author": "Roberto C.",
-        "location": "Local Guide"
+        "author": "Roberto C."
       },
       {
         "text": "A little piece of hidden paradise. The rooms have a rustic design but with all modern comforts. Walking to the beach takes just a few minutes. The breakfast they prepared for us was delicious.",
-        "author": "Ana Laura V.",
-        "location": "Local Guide"
+        "author": "Ana Laura V."
       },
       {
         "text": "Excellent boutique house concept. I loved the tranquil vibe and the sound of the ocean at night. It's ideal for retreats or family trips. The value for money is unbeatable in the area.",
-        "author": "Daniel S.",
-        "location": "Local Guide"
+        "author": "Daniel S."
       },
       {
         "text": "This is our second time visiting and it does not disappoint. The common areas like the palapa and the jacuzzi are in perfect condition. The environment surrounded by nature allows you to breathe and completely renew yourself.",
-        "author": "Claudia & Pedro",
-        "location": "Local Guide"
+        "author": "Claudia & Pedro"
       },
       {
         "text": "A beautiful and very peaceful place. The rooms are comfortable and the service is quite good. Although the access can be a bit steep, it's worth it for the privacy and the views it offers.",
-        "author": "Héctor M.",
-        "location": "Local Guide"
+        "author": "Héctor M."
       }
     ]
   },

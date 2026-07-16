@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Bed, Users, Bath, Wind, Wifi, Droplets } from 'lucide-react';
+import { Bed, Users, Bath, Wind, Wifi, Droplets, Tv } from 'lucide-react';
 import { useBooking } from '@/context/BookingContext';
 
 const fadeIn = {
@@ -98,7 +98,7 @@ export default function Rooms() {
               className={`flex flex-col lg:flex-row gap-12 items-center ${i % 2 !== 0 ? 'lg:flex-row-reverse' : ''}`}
             >
               <div className="w-full lg:w-1/2 overflow-hidden shadow-2xl">
-                <img src={room.img} alt={room.name} className="w-full h-[500px] object-cover hover:scale-105 transition-transform duration-700" />
+                <img src={room.img} alt={room.name} className="w-full h-[500px] lg:h-[750px] object-cover hover:scale-105 transition-transform duration-700" />
               </div>
               <div className="w-full lg:w-1/2 space-y-6">
                 <h2 className="text-3xl md:text-4xl font-serif text-brand-dark">{room.name}</h2>
@@ -113,6 +113,7 @@ export default function Rooms() {
                   <div className="flex items-center gap-2"><Wind size={16} /> Aire Acond.</div>
                   <div className="flex items-center gap-2"><Wifi size={16} /> Wi-Fi</div>
                   {room.details.extra && <div className="flex items-center gap-2"><Droplets size={16} /> {room.details.extra}</div>}
+                  {room.id === 7 && <div className="flex items-center gap-2"><Tv size={16} /> TV</div>}
                 </div>
                 <div className="pt-4 flex items-center justify-between">
                   <span className="text-xl font-serif italic text-brand-dark">{room.price} <span className="text-sm font-sans not-italic text-gray-500">/ noche</span></span>

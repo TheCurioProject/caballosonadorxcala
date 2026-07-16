@@ -23,7 +23,7 @@
   },
   "suites": {
     "subtitle": "6 Retiros Únicos",
-    "title": "Conoce las habitaciones",
+    "title": "Conoce las Habitaciones",
     "explore": "Ver Detalles",
     "mobileInstruction": "Desliza para explorar",
     "desktopInstruction": "Sigue bajando para explorar",
@@ -52,33 +52,27 @@
     "items": [
       {
         "text": "Una estancia verdaderamente excepcional. Las instalaciones son impecables, con una piscina hermosa y vistas increíbles. La atención del personal te hace sentir en casa. Totalmente recomendado si buscas paz en Chacala.",
-        "author": "María Fernanda G.",
-        "location": "Local Guide"
+        "author": "María Fernanda G."
       },
       {
         "text": "El lugar perfecto para relajarse y desconectar. La casa es muy amplia, limpia y la cocina compartida es un gran plus. La terraza en la azotea al atardecer no tiene precio. Le doy 4 estrellas solo porque me hubiera gustado quedarme más días.",
-        "author": "Roberto C.",
-        "location": "Local Guide"
+        "author": "Roberto C."
       },
       {
         "text": "Un pedacito de paraíso escondido. Las habitaciones tienen un diseño rústico pero con todas las comodidades modernas. Caminar a la playa toma solo unos minutos. El desayuno que nos prepararon estuvo delicioso.",
-        "author": "Ana Laura V.",
-        "location": "Local Guide"
+        "author": "Ana Laura V."
       },
       {
         "text": "Excelente concepto de casa boutique. Me encantó la vibra de tranquilidad y el sonido del mar por la noche. Es ideal para retiros o viajes familiares. La relación calidad-precio es insuperable en la zona.",
-        "author": "Daniel S.",
-        "location": "Local Guide"
+        "author": "Daniel S."
       },
       {
         "text": "Es nuestra segunda vez visitando y no decepciona. Las áreas comunes como la palapa y el jacuzzi están en perfectas condiciones. El ambiente rodeado de naturaleza te permite respirar y renovarte por completo.",
-        "author": "Claudia & Pedro",
-        "location": "Local Guide"
+        "author": "Claudia & Pedro"
       },
       {
         "text": "Un lugar hermoso y muy tranquilo. Las habitaciones son cómodas y el servicio es bastante bueno. Aunque el acceso puede ser un poco empinado, vale la pena por la privacidad y las vistas que ofrece.",
-        "author": "Héctor M.",
-        "location": "Local Guide"
+        "author": "Héctor M."
       }
     ]
   },

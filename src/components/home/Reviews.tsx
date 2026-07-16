@@ -1,24 +1,22 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useDictionary } from '@/i18n/DictionaryContext';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const fallbackReviews = [
   {
     text: "An absolutely magical experience. The perfect blend of luxury and raw nature. We felt completely immersed in the beauty of Chacala while enjoying world-class comfort.",
-    author: "Elena R.",
-    location: "Los Angeles, CA"
+    author: "Elena R."
   },
   {
     text: "Casa Caballo Soñador is a hidden gem. The attention to detail in the architecture and the warmth of the staff made our stay unforgettable.",
-    author: "James M.",
-    location: "Toronto, CAN"
+    author: "James M."
   },
   {
     text: "Waking up to the sound of the ocean and the jungle birds was spectacular. Every suite is a piece of art. We will definitely be coming back every year.",
-    author: "Sofía & Carlos",
-    location: "Mexico City"
+    author: "Sofía & Carlos"
   }
 ];
 
@@ -28,6 +26,35 @@ export const Reviews = () => {
     subtitle: "Guest Experiences",
     title: "Reviews",
     items: fallbackReviews
+  };
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollLeft(scrollLeft > 10);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener('resize', checkScroll);
+    return () => window.removeEventListener('resize', checkScroll);
+  }, [homeReviews.items]);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const scrollAmount = window.innerWidth > 768 ? 400 : window.innerWidth * 0.85;
+      scrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+      setTimeout(checkScroll, 400);
+    }
   };
 
   return (
@@ -54,56 +81,76 @@ export const Reviews = () => {
           </h2>
         </motion.div>
 
-        <motion.div 
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.3
-              }
-            }
-          }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-12"
-        >
-          {homeReviews.items.map((review: any, idx: number) => (
-            <motion.div
-              key={idx}
-              variants={{
-                hidden: { opacity: 0, y: 50, scale: 0.9 },
-                visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 1, ease: [0.76, 0, 0.24, 1] } }
-              }}
-              whileHover={{ scale: 1.05, transition: { duration: 0.4 } }}
-              className="flex flex-col items-center text-center space-y-6 bg-[#161412] p-8 rounded-2xl border border-[#F9F7F4]/5 hover:border-[#9b6e2f]/30 transition-colors"
+        <div className="relative group/reviews">
+          {/* Desktop Navigation Arrows */}
+          <div className={`hidden md:flex absolute top-1/2 -translate-y-1/2 -left-4 lg:-left-12 z-10 transition-opacity duration-300 pointer-events-none ${canScrollLeft ? 'opacity-100' : 'opacity-0'}`}>
+            <button 
+              onClick={() => scroll('left')}
+              disabled={!canScrollLeft}
+              className={`p-4 rounded-full backdrop-blur-md bg-[#1A1816]/80 border transition-all duration-300 shadow-sm border-white/10 hover:bg-[#1A1816] hover:border-white/30 text-white ${canScrollLeft ? 'pointer-events-auto cursor-pointer' : 'pointer-events-none'}`}
             >
-              <div className="flex space-x-1 text-[#9b6e2f]">
-                {[...Array(5)].map((_, i) => (
-                  <motion.svg 
-                    key={i} 
-                    initial={{ opacity: 0, scale: 0 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.5 + (i * 0.1), duration: 0.5, type: "spring" }}
-                    className="w-5 h-5 fill-current" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                  </motion.svg>
-                ))}
-              </div>
-              <p className="font-serif text-xl italic text-gray-300 leading-relaxed">
-                "{review.text}"
-              </p>
-              <div>
-                <h4 className="font-bold tracking-widest uppercase text-sm">{review.author}</h4>
-                <span className="text-gray-500 text-xs tracking-widest uppercase">{review.location}</span>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+              <ChevronLeft size={28} />
+            </button>
+          </div>
+          <div className={`hidden md:flex absolute top-1/2 -translate-y-1/2 -right-4 lg:-right-12 z-10 transition-opacity duration-300 pointer-events-none ${canScrollRight ? 'opacity-100' : 'opacity-0'}`}>
+            <button 
+              onClick={() => scroll('right')}
+              disabled={!canScrollRight}
+              className={`p-4 rounded-full backdrop-blur-md bg-[#1A1816]/80 border transition-all duration-300 shadow-sm border-white/10 hover:bg-[#1A1816] hover:border-white/30 text-white ${canScrollRight ? 'pointer-events-auto cursor-pointer' : 'pointer-events-none'}`}
+            >
+              <ChevronRight size={28} />
+            </button>
+          </div>
 
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.2
+                }
+              }
+            }}
+            ref={scrollRef}
+            onScroll={checkScroll}
+            className="flex items-stretch gap-6 md:gap-8 w-full overflow-x-auto snap-x snap-mandatory touch-pan-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-8 pt-4 px-4 -mx-4"
+          >
+            {homeReviews.items.map((review: any, idx: number) => (
+              <motion.div
+                key={idx}
+                variants={{
+                  hidden: { opacity: 0, y: 30, scale: 0.95 },
+                  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.8, ease: [0.76, 0, 0.24, 1] } }
+                }}
+                whileHover={{ scale: 1.02, transition: { duration: 0.3 } }}
+                className="w-[85vw] sm:w-[350px] md:w-[400px] shrink-0 snap-center md:snap-start flex flex-col items-center text-center space-y-6 bg-[#161412] p-8 md:p-10 rounded-2xl border border-[#F9F7F4]/5 hover:border-[#9b6e2f]/30 transition-colors"
+              >
+                <div className="flex space-x-1 text-[#9b6e2f]">
+                  {[...Array(5)].map((_, i) => (
+                    <svg 
+                      key={i} 
+                      className="w-5 h-5 fill-current" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                    </svg>
+                  ))}
+                </div>
+                <p className="font-serif text-xl italic text-gray-300 leading-relaxed flex-grow">
+                  "{review.text}"
+                </p>
+                <div>
+                  <h4 className="font-bold tracking-widest uppercase text-sm">{review.author}</h4>
+                  {review.location && <span className="text-gray-500 text-xs tracking-widest uppercase block mt-1">{review.location}</span>}
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
       </div>
     </section>
   );

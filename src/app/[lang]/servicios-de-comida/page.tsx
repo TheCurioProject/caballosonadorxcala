@@ -28,16 +28,16 @@ export default function ServiciosDeComida() {
     intro: isEn 
       ? 'Delight your senses with our personalized food services. Our private cook prepares traditional dishes with an unmatched Mexican flavor using fresh, seasonal ingredients. You decide: you can bring your own ingredients for our team to prepare, or let us take care of absolutely everything, ensuring every meal is memorable.'
       : 'Deleita tus sentidos con nuestros servicios de comida personalizados. Nuestro cocinero privado prepara platillos tradicionales con un inigualable sazón mexicano utilizando ingredientes frescos y de temporada. Tú decides: puedes traer tus propios ingredientes para que nuestro equipo los prepare, o dejar que nosotros nos encarguemos de absolutamente todo, asegurando que cada comida sea memorable.',
-    servicesTitle: isEn ? 'Choose Your Experience' : 'Elige tu Experiencia',
+    servicesTitle: isEn ? 'Choose Yours' : 'Elige el Tuyo',
     bookBtn: isEn ? 'Book Now' : 'Reservar Ahora',
     bookTour: isEn ? 'BOOK NOW' : 'RESERVAR AHORA',
     bookTourShort: isEn ? 'BOOK NOW' : 'RESERVAR AHORA',
     featuresTitle: isEn ? 'Why book with us?' : '¿Por qué reservar con nosotros?',
     features: [
       isEn ? 'Fresh, local ingredients' : 'Ingredientes frescos y locales',
-      isEn ? 'Personalized menus' : 'Menús personalizados',
-      isEn ? 'No cooking or cleaning required' : 'Sin preocuparte por cocinar o limpiar',
-      isEn ? 'Delicious traditional Mexican seasoning' : 'Delicioso sazón tradicional mexicano'
+      isEn ? 'Personalized service' : 'Servicio personalizado',
+      isEn ? 'No cooking required' : 'Sin preocuparte por cocinar',
+      isEn ? 'Traditional Mexican flavors' : 'Sabores tradicionales mexicanos'
     ],
     services: [
       {
@@ -254,7 +254,7 @@ export default function ServiciosDeComida() {
             {texts.servicesTitle}
           </h2>
           <h3 className="font-serif text-4xl md:text-5xl lg:text-6xl text-[#2C2621]">
-            {isEn ? 'A menu for every moment' : 'Un menú para cada momento'}
+            {isEn ? 'Meal Service Options' : 'Opciones de Servicio de Comida'}
           </h3>
         </div>
 
