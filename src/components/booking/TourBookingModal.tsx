@@ -227,6 +227,12 @@ export const TourBookingModal = ({
                   <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="h-full">
                     <h3 className="font-serif text-3xl text-[#23211F] mb-6">{isEn ? "Date & Guests" : "Fecha y Personas"}</h3>
                     
+                    <div className="mb-6 p-3 bg-[#9B7E67]/10 border border-[#9B7E67]/20 rounded-xl">
+                      <p className="text-[10px] text-[#9B7E67] font-bold uppercase tracking-widest text-center leading-relaxed">
+                        {isEn ? "Only 1 tour can be booked per day. For multiple destinations, book them separately." : "Solo se puede reservar 1 tour por día. Para visitar diferentes destinos, resérvelos por separado."}
+                      </p>
+                    </div>
+
                     <div className="mb-8">
                       <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">{isEn ? "Number of people (Max 3)" : "Número de personas (Max 3)"}</label>
                       <div className="flex items-center gap-4">

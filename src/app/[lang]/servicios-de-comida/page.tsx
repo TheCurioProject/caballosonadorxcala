@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Footer } from '@/components/home/Footer';
-import { FoodBookingModal } from '@/components/booking/FoodBookingModal';
+import { useBooking } from '@/context/BookingContext';
 import { ActionLoadingScreen } from '@/components/ui/ActionLoadingScreen';
 
 export default function ServiciosDeComida() {
@@ -18,8 +18,7 @@ export default function ServiciosDeComida() {
   const isEn = lang === 'en';
   const langPrefix = `/${lang || 'es'}`;
   const [isNavigating, setIsNavigating] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedService, setSelectedService] = useState<string | null>(null);
+  const { openBookingModal } = useBooking();
 
   const texts = {
     heroTitle: isEn ? 'Food Services' : 'Servicios de Comida',
@@ -77,8 +76,7 @@ export default function ServiciosDeComida() {
   };
 
   const handleBook = (id: string) => {
-    setSelectedService(id);
-    setIsModalOpen(true);
+    openBookingModal();
   };
 
   return (
@@ -156,8 +154,7 @@ export default function ServiciosDeComida() {
               <div className="flex items-center gap-4">
                 <button 
                   onClick={() => {
-                    setSelectedService(null);
-                    setIsModalOpen(true);
+                    openBookingModal();
                   }}
                   className="uppercase tracking-widest text-[10px] md:text-xs font-bold border rounded-full px-4 py-1.5 hover:opacity-70 transition-all border-[#F9F7F4] text-[#F9F7F4]"
                 >
@@ -355,13 +352,6 @@ export default function ServiciosDeComida() {
 
       <Footer />
 
-      {/* Modal para reservar servicios específicos */}
-      <FoodBookingModal 
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        initialService={selectedService}
-        lang={lang as string}
-      />
     </div>
   );
 }

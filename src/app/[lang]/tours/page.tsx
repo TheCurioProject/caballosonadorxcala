@@ -574,7 +574,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
               animate={{ y: 0, scale: 1, opacity: 1 }}
               exit={{ y: 20, scale: 0.95, opacity: 0 }}
               transition={{ duration: 0.5, type: 'spring', bounce: 0.3 }}
-              className="relative w-full max-w-5xl max-h-[90vh] bg-[#131110] rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl shadow-black/80 flex flex-col md:flex-row"
+              className="relative w-full max-w-4xl max-h-[90vh] bg-[#131110] rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl shadow-black/80 flex flex-col"
             >
               
               {/* Close Button */}
@@ -587,7 +587,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
 
               {/* Left/Top: Image Carousel */}
               <div 
-                className="w-full md:w-5/12 h-[45vh] min-h-[300px] md:min-h-0 md:h-auto relative bg-[#0A0908] overflow-hidden group cursor-pointer"
+                className="w-full h-[40vh] min-h-[300px] relative bg-[#0A0908] overflow-hidden group cursor-pointer shrink-0"
               >
                 {selectedTour.images.map((img: string, idx: number) => (
                   <motion.img 
@@ -641,7 +641,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
               </div>
 
               {/* Right/Bottom: Content */}
-              <div className="w-full md:w-7/12 p-8 md:p-14 overflow-y-auto overscroll-contain flex-1">
+              <div className="w-full p-8 md:p-14 overflow-y-auto overscroll-contain flex-1">
                 <span className="text-[#9B7E67] uppercase tracking-[0.3em] text-[10px] font-bold mb-4 block">
                   {t.editorialTitle || "Chacala Adventure"}
                 </span>
@@ -695,7 +695,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                   }}
                   className="w-full inline-flex justify-center items-center gap-4 text-xs uppercase tracking-[0.2em] text-[#0A0908] font-bold bg-[#9B7E67] px-8 py-6 rounded-2xl hover:bg-[#F9F7F4] transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-white/10 hover:-translate-y-1"
                 >
-                  <MessageCircle size={20} /> {t.modal.bookNow}
+                  {lang === 'en' ? 'Book Tour Now' : 'Reservar Tour Ahora'}
                 </button>
 
               </div>
