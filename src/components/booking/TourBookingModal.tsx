@@ -97,7 +97,7 @@ export const TourBookingModal = ({
   };
 
   const isStep1Valid = selectedDestination !== null;
-  const isStep2Valid = date !== undefined && pax > 0 && pax <= 10;
+  const isStep2Valid = date !== undefined && pax > 0 && pax <= 3;
   const isStep3Valid = guestName.length > 2 && guestEmail.includes('@');
 
   return (
@@ -228,12 +228,15 @@ export const TourBookingModal = ({
                     <h3 className="font-serif text-3xl text-[#23211F] mb-6">{isEn ? "Date & Guests" : "Fecha y Personas"}</h3>
                     
                     <div className="mb-8">
-                      <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">{isEn ? "Number of people (Max 10)" : "Número de personas (Max 10)"}</label>
+                      <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">{isEn ? "Number of people (Max 3)" : "Número de personas (Max 3)"}</label>
                       <div className="flex items-center gap-4">
                         <button onClick={() => setPax(p => Math.max(1, p - 1))} className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:border-[#9B7E67]"><ChevronLeft size={20}/></button>
                         <span className="font-serif text-2xl w-8 text-center">{pax}</span>
-                        <button onClick={() => setPax(p => Math.min(10, p + 1))} className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:border-[#9B7E67]"><ChevronRight size={20}/></button>
+                        <button onClick={() => setPax(p => Math.min(3, p + 1))} className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:border-[#9B7E67]"><ChevronRight size={20}/></button>
                       </div>
+                      <p className="text-[#9B7E67] text-[11px] mt-3 italic font-serif leading-relaxed">
+                        {isEn ? "* For groups larger than 3, please contact us to coordinate a specialized tour." : "* Para grupos mayores a 3 personas, favor de contactarnos para coordinar una experiencia a medida."}
+                      </p>
                     </div>
 
                     <div className="mb-8">

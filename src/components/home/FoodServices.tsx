@@ -18,8 +18,8 @@ export const FoodServices = () => {
   return (
     <section id="servicios-de-comida" className="relative bg-[#2C2621]">
       {/* Optional subtle background pattern or gradient can go here */}
-      <div className="absolute inset-0 bg-[url('/DSC_0226.webp')] bg-cover bg-center bg-no-repeat opacity-[0.03] mix-blend-multiply grayscale"></div>
-      <div className="absolute inset-0 bg-gradient-to-t from-[#2C2621] via-[#2C2621]/90 to-[#2C2621]/70"></div>
+      <div className="absolute inset-0 bg-[url('/DSC_0226.webp')] bg-cover bg-center bg-no-repeat opacity-40"></div>
+      <div className="absolute inset-0 bg-gradient-to-t from-[#2C2621] via-[#2C2621]/80 to-[#2C2621]/40"></div>
 
       <div className="relative h-[70vh] flex items-center justify-center text-center px-6 text-[#E5E0D8]">
         <div className="max-w-3xl">

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Bed, Users, Bath, Droplets, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react';
+import { X, Bed, Users, Bath, Droplets, ChevronLeft, ChevronRight, Maximize2, Minimize2, Wifi } from 'lucide-react';
 import { useBooking } from '@/context/BookingContext';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { useScrollLock } from '@/hooks/useScrollLock';
@@ -69,7 +69,7 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
   };
 
   const carouselContent = (
-    <div className={`relative w-full h-full bg-black flex items-center justify-center overflow-hidden group ${isFullscreen ? 'cursor-default' : 'cursor-pointer'}`} onClick={!isFullscreen ? toggleFullscreen : undefined}>
+    <div className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden group">
       {images.map((img: string, idx: number) => (
         <motion.img
           key={img + idx}
@@ -93,14 +93,6 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
           }}
         />
       ))}
-
-      {/* Fullscreen toggle button */}
-      <button 
-        onClick={toggleFullscreen}
-        className="absolute top-6 right-6 z-20 p-2 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-colors border border-white/20 opacity-0 group-hover:opacity-100"
-      >
-        {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-      </button>
 
       {/* Navigation arrows */}
       <button 
@@ -168,24 +160,6 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
               <div className="w-full md:w-1/2 bg-[#F9F7F4] flex flex-col h-full overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E5E0D8] hover:[&::-webkit-scrollbar-thumb]:bg-[#D0C8BC]">
                 <div className="p-8 md:p-12 w-full flex flex-col h-full">
                   
-                  {/* Tabs for Room 7 */}
-                  {isRoom7 && (
-                    <div className="flex border-b border-[#E5E0D8] mb-8 gap-4 shrink-0">
-                      <button 
-                        onClick={() => setActiveTab('suite')}
-                        className={`pb-4 px-2 uppercase tracking-widest text-[10px] md:text-xs font-bold transition-colors ${activeTab === 'suite' ? 'border-b-2 border-[#9B7E67] text-[#9B7E67]' : 'text-[#524D48] hover:text-[#23211F]'}`}
-                      >
-                        {room.name}
-                      </button>
-                      <button 
-                        onClick={() => setActiveTab('cocina')}
-                        className={`pb-4 px-2 uppercase tracking-widest text-[10px] md:text-xs font-bold transition-colors ${activeTab === 'cocina' ? 'border-b-2 border-[#9B7E67] text-[#9B7E67]' : 'text-[#524D48] hover:text-[#23211F]'}`}
-                      >
-                        {(dict as any).roomsData.cocinaName}
-                      </button>
-                    </div>
-                  )}
-
                   <h2 className="font-serif text-3xl md:text-5xl text-[#23211F] mb-6 leading-tight shrink-0">{getTitle()}</h2>
                   
                   <div className="flex flex-col flex-grow">
@@ -203,6 +177,7 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
                           <div className="flex items-center gap-3"><Users size={16} className="text-[#9B7E67]" /> {room.details.guests} {dict.modal.guests}</div>
                           <div className="flex items-center gap-3"><Bed size={16} className="text-[#9B7E67]" /> {room.details.beds}</div>
                           <div className="flex items-center gap-3"><Bath size={16} className="text-[#9B7E67]" /> {room.details.bath}</div>
+                          <div className="flex items-center gap-3"><Wifi size={16} className="text-[#9B7E67]" /> Wi-Fi</div>
                           {room.details.extra && <div className="flex items-center gap-3"><Droplets size={16} className="text-[#9B7E67]" /> {room.details.extra}</div>}
                         </div>
                       )}
@@ -222,29 +197,7 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
         )}
       </AnimatePresence>
 
-      {/* Fullscreen Overlay */}
-      <AnimatePresence>
-        {isFullscreen && room && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[200] bg-black flex flex-col"
-          >
-            {/* Close Fullscreen Button */}
-            <button 
-              onClick={toggleFullscreen}
-              className="absolute top-6 right-6 z-50 p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-colors border border-white/20"
-            >
-              <X size={24} />
-            </button>
-            <div className="w-full h-full">
-              {carouselContent}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
     </>
   );
 };
