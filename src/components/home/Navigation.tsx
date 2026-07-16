@@ -308,14 +308,14 @@ export const HomeNavigation = () => {
                 <motion.div
                   layout
                   initial={false}
-                  transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
                   className={`origin-top-left flex items-start ${
                     isSolid ? 'translate-y-0' : 'translate-y-2 md:translate-y-4'
                   }`}
                 >
                   <LogoCompleto 
                     layout
-                    transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
                     solidWhite={!isSolid}
                     className={`w-auto drop-shadow-lg hover:scale-105 transition-transform duration-300 origin-top-left ${
                       isSolid ? 'h-8 md:h-10' : 'h-[3.5rem] md:h-[5rem]'
