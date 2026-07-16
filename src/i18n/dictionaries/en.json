@@ -445,5 +445,9 @@
     "intro2": "The town's name, meaning \"where there are shrimp\" in Nahuatl, reflects its connection to local culture and abundant marine life, adding to the distinctive character of this coastal gem.",
     "findUs": "Find Us",
     "riviera": "Riviera Nayarit"
+  },
+  "foodServices": {
+    "superTitle": "Culinary Experience",
+    "viewOptions": "View Options"
   }
 }

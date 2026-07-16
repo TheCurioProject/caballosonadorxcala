@@ -53,7 +53,7 @@ export const Services = () => {
 
   return (
     <>
-      <section className="py-20 md:py-32 bg-[#2C2621] text-[#E5E0D8] relative overflow-hidden">
+      <section className="py-20 md:py-32 bg-[#F9F7F4] text-[#2C2621] relative overflow-hidden">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-12 lg:px-16 mb-12">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -106,19 +106,19 @@ export const Services = () => {
                       onClick={() => {
                         setSelectedService(service);
                       }}
-                      className="group w-full text-left flex items-start sm:items-center gap-4 sm:gap-6 p-4 sm:p-5 rounded-2xl bg-white/[0.03] hover:bg-[#9B7E67]/10 border border-white/5 hover:border-[#9B7E67]/30 transition-all duration-300 relative overflow-hidden active:scale-[0.98]"
+                      className="group w-full text-left flex items-start sm:items-center gap-4 sm:gap-6 p-4 sm:p-5 rounded-2xl bg-[#2C2621]/[0.03] hover:bg-[#9B7E67]/10 border border-[#2C2621]/10 hover:border-[#9B7E67]/30 transition-all duration-300 relative overflow-hidden active:scale-[0.98]"
                     >
                       {/* Icon container */}
-                      <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#2C2621] border border-white/10 flex items-center justify-center text-[#9B7E67] group-hover:bg-[#9B7E67] group-hover:text-white group-hover:border-[#9B7E67] transition-all duration-300 shadow-md">
+                      <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-[#2C2621]/10 flex items-center justify-center text-[#9B7E67] group-hover:bg-[#9B7E67] group-hover:text-white group-hover:border-[#9B7E67] transition-all duration-300 shadow-sm">
                         <Icon size={24} strokeWidth={1.5} />
                       </div>
                       
                       {/* Content */}
                       <div className="flex-1 min-w-0 pr-6 sm:pr-8">
-                        <h4 className="font-serif text-lg sm:text-xl md:text-2xl text-white group-hover:text-[#9B7E67] transition-colors duration-300 mb-1">
+                        <h4 className="font-serif text-lg sm:text-xl md:text-2xl text-[#2C2621] group-hover:text-[#9B7E67] transition-colors duration-300 mb-1">
                           {service.title}
                         </h4>
-                        <p className="text-white/60 text-xs sm:text-sm md:text-base line-clamp-2 group-hover:text-white/80 transition-colors duration-300 leading-relaxed">
+                        <p className="text-[#2C2621]/70 text-xs sm:text-sm md:text-base line-clamp-2 group-hover:text-[#2C2621]/90 transition-colors duration-300 leading-relaxed">
                           {service.short}
                         </p>
                       </div>

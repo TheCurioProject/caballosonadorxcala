@@ -445,5 +445,9 @@
     "intro2": "El nombre del pueblo, que significa \"donde hay camarones\" en náhuatl, refleja su conexión con la cultura local y la abundante vida marina, añadiendo al carácter distintivo de esta joya costera.",
     "findUs": "Encuéntranos",
     "riviera": "Riviera Nayarit"
+  },
+  "foodServices": {
+    "superTitle": "Experiencia Culinaria",
+    "viewOptions": "Ver Opciones"
   }
 }
