@@ -118,15 +118,18 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
   const opacity = useTransform(scrollY, [0, 600], [1, 0]);
   
   useEffect(() => {
-    // Fetch prices from DB
+    // Fetch prices from DB (using the new tours API instead of addons)
     const fetchPrices = async () => {
       try {
-        const res = await fetch('/api/admin/addons');
+        const res = await fetch('/api/admin/tours');
         if (res.ok) {
           const data = await res.json();
           const priceMap: Record<string, number> = {};
           data.forEach((item: any) => {
-            priceMap[item.type] = item.price;
+            if (item.name) {
+              // Normalize name for robust matching
+              priceMap[item.name.toLowerCase().trim()] = item.pricePerPax;
+            }
           });
           setPrices(priceMap);
         }
@@ -179,7 +182,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
   const tours = t.tours.map((tourData: any) => ({
     ...tourData,
     images: TOUR_IMAGES[tourData.type] || [TOUR_IMAGES["ATV_OJO_DE_AGUA"][0]],
-    price: prices[tourData.type] || 0
+    price: prices[tourData.title.toLowerCase().trim()] || 0
   }));
 
   return (
