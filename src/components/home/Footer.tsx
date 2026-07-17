@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Mail } from 'lucide-react';
-import { LogoCompleto } from '../ui/LogoCompleto';
+import { LogoNuevo } from '../ui/LogoNuevo';
 import { useBooking } from '@/context/BookingContext';
 import { useDictionary } from '@/i18n/DictionaryContext';
 
@@ -14,7 +14,7 @@ export const Footer = () => {
     <footer className="relative z-30 bg-[#161412] text-[#F9F7F4] pt-32 pb-16 px-6 md:px-16 overflow-hidden">
       {/* Gran logo difuminado de fondo */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5 pointer-events-none w-[120%] md:w-[80%]">
-        <LogoCompleto solidWhite={true} className="w-full h-auto" />
+        <LogoNuevo solidWhite={true} className="w-full h-auto" />
       </div>
 
       <div className="max-w-[1400px] mx-auto relative z-10">

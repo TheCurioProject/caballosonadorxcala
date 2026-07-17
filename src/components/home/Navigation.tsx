@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Globe } from 'lucide-react';
-import { LogoCompleto } from '../ui/LogoCompleto';
+import { LogoNuevo } from '../ui/LogoNuevo';
 import { useBooking } from '@/context/BookingContext';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { usePathname, useRouter } from 'next/navigation';
@@ -313,7 +313,7 @@ export const HomeNavigation = () => {
                     isSolid ? 'translate-y-0' : 'translate-y-2 md:translate-y-4'
                   }`}
                 >
-                  <LogoCompleto 
+                  <LogoNuevo 
                     layout
                     transition={{ duration: 0.35, ease: "easeOut" }}
                     solidWhite={!isSolid}
