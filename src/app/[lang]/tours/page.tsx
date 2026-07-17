@@ -251,34 +251,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                   })}
                 </div>
 
-                <div className="w-px h-4 bg-white/20"></div>
 
-                <div className="flex items-center gap-2">
-                  {(['MXN', 'USD', 'CAD'] as const).map((c) => {
-                    const isActive = currency === c;
-                    return (
-                      <button 
-                        key={c}
-                        onClick={() => setCurrency(c)}
-                        className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
-                          isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
-                        }`}
-                      >
-                        <span className="text-sm md:text-base leading-none block tracking-widest">{c}</span>
-                        <div className="h-1.5 mt-1 w-full flex justify-center items-center">
-                          {isActive && (
-                            <motion.div 
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              transition={{ duration: 0.2 }}
-                              className="w-1.5 h-1.5 rounded-full bg-[#9B7E67] shadow-sm"
-                            />
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
               </div>
             </div>
             
@@ -337,34 +310,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                   })}
                 </div>
 
-                <div className="w-px h-3 bg-white/20"></div>
 
-                <div className="flex items-center gap-1">
-                  {(['MXN', 'USD', 'CAD'] as const).map((c) => {
-                    const isActive = currency === c;
-                    return (
-                      <button 
-                        key={c}
-                        onClick={() => setCurrency(c)}
-                        className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 px-1 ${
-                          isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
-                        }`}
-                      >
-                        <span className="text-[11px] leading-none block tracking-widest">{c}</span>
-                        <div className="h-1 mt-1 w-full flex justify-center items-center">
-                          {isActive && (
-                            <motion.div 
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              transition={{ duration: 0.2 }}
-                              className="w-1 h-1 rounded-full bg-[#9B7E67] shadow-sm"
-                            />
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
               </div>
             </div>
 
