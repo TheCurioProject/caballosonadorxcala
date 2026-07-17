@@ -12,8 +12,10 @@ model Property {
   name         String        @db.VarChar(255)
   description  String?       @db.Text
   basePrice    Float         @default(15000) @map("base_price")
-  baseCapacity Int           @default(12) @map("base_capacity")
-  icalToken    String?       @unique @map("ical_token") @db.VarChar(255)
+  baseCapacity    Int           @default(12) @map("base_capacity")
+  exchangeRateUsd Float         @default(18.8) @map("exchange_rate_usd")
+  exchangeRateCad Float         @default(17.7) @map("exchange_rate_cad")
+  icalToken       String?       @unique @map("ical_token") @db.VarChar(255)
   isActive     Boolean       @default(true) @map("is_active")
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")

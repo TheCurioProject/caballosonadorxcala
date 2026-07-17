@@ -15,6 +15,7 @@ import { format, differenceInDays } from 'date-fns';
 import { es, enUS, de } from 'date-fns/locale';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { useScrollLock } from '@/hooks/useScrollLock';
+import { useCurrency } from '@/context/CurrencyContext';
 
 /* ─── Hook: useMediaQuery ─── */
 function useMediaQuery(query: string) {
@@ -336,10 +337,10 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [atvPeople, setAtvPeople] = useState(1);
   const [atvSelections, setAtvSelections] = useState<Record<string, number>>({});
 
+  const { currency, setCurrency, formatPrice, getConvertedPrice } = useCurrency();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [currency, setCurrency] = useState('MXN');
   const [showConfetti, setShowConfetti] = useState(false);
 
   useScrollLock(isOpen);
@@ -394,24 +395,18 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   }, [isOpen]);
 
   const basePrice = useMemo(() => {
-    switch(currency) {
-      case 'USD': return 800;
-      case 'EUR': return 750;
-      case 'MXN': 
-      default: return 15000;
-    }
-  }, [currency]);
+    return getConvertedPrice(15000); // 15000 MXN base price for accommodation
+  }, [getConvertedPrice]);
 
   const nights = (range?.from && range?.to) ? differenceInDays(range.to, range.from) : 0;
   const accommodationTotal = nights > 0 ? nights * basePrice : 0;
 
-  // Calculate Extra Costs
   let cookTotal = 0;
   if (wantsCook) {
     Object.entries(cookSelections).forEach(([id, count]) => {
       if (count > 0) {
         const service = foodServices.find(s => s.id.toString() === id);
-        if (service) cookTotal += count * service.price;
+        if (service) cookTotal += count * getConvertedPrice(service.price);
       }
     });
   }
@@ -421,7 +416,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     Object.entries(atvSelections).forEach(([id, count]) => {
       if (count > 0) {
         const tour = tours.find(t => t.id.toString() === id);
-        if (tour) atvTotal += count * atvPeople * tour.pricePerPax;
+        if (tour) atvTotal += count * atvPeople * getConvertedPrice(tour.pricePerPax);
       }
     });
   }
@@ -444,7 +439,10 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
       Object.entries(cookSelections).forEach(([id, count]) => {
         if (count > 0) {
           const service = foodServices.find(s => s.id.toString() === id);
-          if (service) selectedAddons.push({ type: `FOOD_${service.id}`, name: service.name, quantity: count, unitPrice: service.price, price: count * service.price });
+          if (service) {
+            const unitPrice = getConvertedPrice(service.price);
+            selectedAddons.push({ type: `FOOD_${service.id}`, name: service.name, quantity: count, unitPrice, price: count * unitPrice });
+          }
         }
       });
     }
@@ -452,7 +450,10 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
       Object.entries(atvSelections).forEach(([id, count]) => {
         if (count > 0) {
           const tour = tours.find(t => t.id.toString() === id);
-          if (tour) selectedAddons.push({ type: `TOUR_${tour.id}`, name: tour.name, quantity: count * atvPeople, unitPrice: tour.pricePerPax, price: count * atvPeople * tour.pricePerPax, details: JSON.stringify({ people: atvPeople, destination: tour.name, instances: count }) });
+          if (tour) {
+            const unitPrice = getConvertedPrice(tour.pricePerPax);
+            selectedAddons.push({ type: `TOUR_${tour.id}`, name: tour.name, quantity: count * atvPeople, unitPrice, price: count * atvPeople * unitPrice, details: JSON.stringify({ people: atvPeople, destination: tour.name, instances: count }) });
+          }
         }
       });
     }
@@ -669,7 +670,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   <div className="flex flex-col gap-1">
                     <p className="text-xs uppercase tracking-widest font-bold text-gray-400">{dict.modal?.total} {nights > 0 && `(${nights} ${dict.modal?.nights})`}</p>
                     <div className="flex gap-2 items-center mt-2">
-                      {['MXN', 'USD', 'EUR'].map((c) => (
+                      {(['MXN', 'USD', 'CAD'] as const).map((c) => (
                         <button
                           key={c}
                           onClick={() => setCurrency(c)}
@@ -684,7 +685,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   </div>
                   <div className="flex flex-col items-end">
                     <span className="font-serif text-3xl text-[#9B7E67] flex items-baseline gap-1">
-                      <AnimatedCounter value={grandTotal} prefix={currency === 'EUR' ? '€' : '$'} />
+                      <AnimatedCounter value={grandTotal} prefix={currency === 'USD' || currency === 'CAD' ? '$' : '$'} />
                     </span>
                     <span className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">{dict.modal?.taxesIncluded}</span>
                   </div>
@@ -802,8 +803,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                               value={cookSelections[service.id.toString()] || 0} 
                               onChange={(val) => handleCookChange(service.id.toString(), val)} 
                               max={nights} 
-                              sublabel={`+$${service.price} USD`} 
-                            />
+                              sublabel={`+${formatPrice(service.price)} / ${dict.modal?.day || 'day'}`}                          />
                           ))}
                           <div className="mt-8 pb-4">
                             <PremiumButton onClick={nextStep} disabled={totalCookServices === 0}>
@@ -880,7 +880,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                 value={atvSelections[tour.id.toString()] || 0} 
                                 onChange={(val) => handleAtvChange(tour.id.toString(), val)} 
                                 max={(atvSelections[tour.id.toString()] || 0) + (nights - totalAtvTours)} 
-                                sublabel={`+$${tour.pricePerPax} USD / pax`} 
+                                sublabel={`+${formatPrice(tour.pricePerPax)} / pax`} 
                               />
                             ))}
                           </div>

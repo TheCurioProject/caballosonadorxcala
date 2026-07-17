@@ -8,6 +8,7 @@ import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
+import { useCurrency } from '@/context/CurrencyContext';
 
 export const TourBookingModal = ({ 
   isOpen, 
@@ -21,6 +22,7 @@ export const TourBookingModal = ({
   lang?: string;
 }) => {
   const isEn = lang === 'en';
+  const { currency, formatPrice, getConvertedPrice } = useCurrency();
   const [step, setStep] = useState(1);
   const [destinations, setDestinations] = useState<any[]>([]);
   const [selectedDestination, setSelectedDestination] = useState<any | null>(initialTour);
@@ -56,6 +58,9 @@ export const TourBookingModal = ({
     if (!selectedDestination || !date) return;
     setIsSubmitting(true);
 
+    const convertedPricePerPax = getConvertedPrice(selectedDestination.pricePerPax);
+    const convertedTotalPrice = convertedPricePerPax * pax;
+
     try {
       const res = await fetch('/api/checkout_services', {
         method: 'POST',
@@ -69,14 +74,14 @@ export const TourBookingModal = ({
           guestName,
           guestEmail,
           guestPhone,
-          totalPrice: selectedDestination.pricePerPax * pax,
+          totalPrice: convertedTotalPrice,
           items: [{
             name: `Tour: ${selectedDestination.name}`,
             description: `Para ${pax} personas el ${format(date, 'PPP', { locale: isEn ? enUS : es })}`,
-            unitPrice: selectedDestination.pricePerPax,
+            unitPrice: convertedPricePerPax,
             quantity: pax
           }],
-          currency: 'usd'
+          currency: currency.toLowerCase()
         })
       });
 
@@ -159,9 +164,8 @@ export const TourBookingModal = ({
                 <div className="flex justify-between items-end">
                   <div>
                     <span className="block text-[10px] uppercase text-white/50 mb-1">Total ({pax} pax)</span>
-                    <span className="font-serif text-3xl">${selectedDestination.pricePerPax * pax}</span>
+                    <span className="font-serif text-3xl">{formatPrice(selectedDestination.pricePerPax * pax)}</span>
                   </div>
-                  <span className="text-[#9B7E67] text-xs font-bold tracking-widest">USD</span>
                 </div>
               </div>
             )}
@@ -208,8 +212,8 @@ export const TourBookingModal = ({
                           }}
                           className={`p-4 rounded-2xl border-2 text-left transition-all ${selectedDestination?.id === dest.id ? 'border-[#9B7E67] bg-[#9B7E67]/5' : 'border-gray-100 hover:border-gray-200'}`}
                         >
-                          <h4 className="font-bold text-[#23211F] mb-1">{dest.name}</h4>
-                          <span className="text-sm text-gray-500">${dest.pricePerPax} USD {isEn ? "per person" : "por persona"}</span>
+                            <h4 className="font-bold text-[#23211F] mb-1">{dest.name}</h4>
+                          <span className="text-sm text-gray-500">{formatPrice(dest.pricePerPax)} {isEn ? "per person" : "por persona"}</span>
                         </button>
                       ))}
                     </div>

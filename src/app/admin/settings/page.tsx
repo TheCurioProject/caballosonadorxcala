@@ -23,13 +23,17 @@ export default async function AdminSettingsPage() {
     'use server';
     const basePrice = parseFloat(formData.get('basePrice') as string);
     const baseCapacity = parseInt(formData.get('baseCapacity') as string, 10);
+    const exchangeRateUsd = parseFloat(formData.get('exchangeRateUsd') as string);
+    const exchangeRateCad = parseFloat(formData.get('exchangeRateCad') as string);
     
     if (!isNaN(basePrice) && !isNaN(baseCapacity)) {
       await prisma.property.update({
         where: { id: property!.id },
         data: { 
           basePrice, 
-          baseCapacity
+          baseCapacity,
+          ...( !isNaN(exchangeRateUsd) && { exchangeRateUsd } ),
+          ...( !isNaN(exchangeRateCad) && { exchangeRateCad } )
         }
       });
       revalidatePath('/admin/settings');
@@ -73,6 +77,19 @@ export default async function AdminSettingsPage() {
             <div>
               <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Base Capacity</label>
               <input type="number" name="baseCapacity" defaultValue={property.baseCapacity} required className="w-full border border-gray-200 rounded-xl px-3 py-2 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67]" />
+            </div>
+            <div className="pt-4 border-t border-gray-100">
+              <h3 className="text-sm font-bold text-[#23211F] mb-3 uppercase tracking-wider">Exchange Rates</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">USD to MXN</label>
+                  <input type="number" step="0.01" name="exchangeRateUsd" defaultValue={property.exchangeRateUsd} required className="w-full border border-gray-200 rounded-xl px-3 py-2 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67]" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">CAD to MXN</label>
+                  <input type="number" step="0.01" name="exchangeRateCad" defaultValue={property.exchangeRateCad} required className="w-full border border-gray-200 rounded-xl px-3 py-2 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67]" />
+                </div>
+              </div>
             </div>
             <button type="submit" className="w-full bg-[#23211F] hover:bg-[#9B7E67] text-white font-bold text-xs tracking-widest uppercase py-3 rounded-xl transition-all duration-300">
               SAVE SETTINGS

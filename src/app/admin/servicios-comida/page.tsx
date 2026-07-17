@@ -32,7 +32,7 @@ export default async function ServiciosComidaAdminPage() {
         {/* Precios Section */}
         <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
           <h2 className="text-2xl font-serif text-[#2C2621] mb-6 flex items-center gap-3">
-            <span className="w-8 h-[2px] bg-[#9B7E67]"></span> Precios Base (USD)
+            <span className="w-8 h-[2px] bg-[#9B7E67]"></span> Precios Base (MXN)
           </h2>
           <div className="space-y-6">
             {services.map(service => (

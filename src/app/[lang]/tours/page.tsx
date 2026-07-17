@@ -9,6 +9,7 @@ import { useDictionary } from '@/i18n/DictionaryContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { ActionLoadingScreen } from '@/components/ui/ActionLoadingScreen';
 import { TourBookingModal } from '@/components/booking/TourBookingModal';
+import { useCurrency } from '@/context/CurrencyContext';
 
 const Footer = dynamic(() => import('@/components/home/Footer').then(mod => mod.Footer));
 
@@ -99,6 +100,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
   const pathname = usePathname();
   const router = useRouter();
   const langPrefix = `/${lang || 'es'}`;
+  const { currency, setCurrency, formatPrice } = useCurrency();
 
   const [prices, setPrices] = useState<Record<string, number>>({});
   const [selectedTour, setSelectedTour] = useState<any | null>(null);
@@ -210,42 +212,73 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
             </div>
 
             <div className="hidden md:flex justify-center pointer-events-auto">
-              <div className="flex items-center gap-5">
-                {['es', 'en'].map((l) => {
-                  const isActive = lang === l;
-                  
-                  // Construct new path
-                  const segments = pathname.split('/');
-                  if (segments.length > 1 && ['es', 'en'].includes(segments[1])) {
-                    segments[1] = l;
-                  } else {
-                    segments.splice(1, 0, l);
-                  }
-                  const newPath = segments.join('/') || '/';
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  {['es', 'en'].map((l) => {
+                    const isActive = lang === l;
+                    
+                    // Construct new path
+                    const segments = pathname.split('/');
+                    if (segments.length > 1 && ['es', 'en'].includes(segments[1])) {
+                      segments[1] = l;
+                    } else {
+                      segments.splice(1, 0, l);
+                    }
+                    const newPath = segments.join('/') || '/';
 
-                  return (
-                    <Link 
-                      key={l}
-                      href={newPath}
-                      prefetch={true}
-                      className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
-                        isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
-                      }`}
-                    >
-                      <span className="text-sm md:text-base leading-none block tracking-widest">{l.toUpperCase()}</span>
-                      <div className="h-1.5 mt-1 w-full flex justify-center items-center">
-                        {isActive && (
-                          <motion.div 
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ duration: 0.2 }}
-                            className="w-1.5 h-1.5 rounded-full bg-[#9B7E67] shadow-sm"
-                          />
-                        )}
-                      </div>
-                    </Link>
-                  );
-                })}
+                    return (
+                      <Link 
+                        key={l}
+                        href={newPath}
+                        prefetch={true}
+                        className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
+                          isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
+                        }`}
+                      >
+                        <span className="text-sm md:text-base leading-none block tracking-widest">{l.toUpperCase()}</span>
+                        <div className="h-1.5 mt-1 w-full flex justify-center items-center">
+                          {isActive && (
+                            <motion.div 
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ duration: 0.2 }}
+                              className="w-1.5 h-1.5 rounded-full bg-[#9B7E67] shadow-sm"
+                            />
+                          )}
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                <div className="w-px h-4 bg-white/20"></div>
+
+                <div className="flex items-center gap-2">
+                  {(['MXN', 'USD', 'CAD'] as const).map((c) => {
+                    const isActive = currency === c;
+                    return (
+                      <button 
+                        key={c}
+                        onClick={() => setCurrency(c)}
+                        className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
+                          isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
+                        }`}
+                      >
+                        <span className="text-sm md:text-base leading-none block tracking-widest">{c}</span>
+                        <div className="h-1.5 mt-1 w-full flex justify-center items-center">
+                          {isActive && (
+                            <motion.div 
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ duration: 0.2 }}
+                              className="w-1.5 h-1.5 rounded-full bg-[#9B7E67] shadow-sm"
+                            />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
             
@@ -265,42 +298,73 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                 </button>
               </div>
               
-              <div className="flex md:hidden items-center gap-4 absolute top-full right-0 mt-2">
-                {['es', 'en'].map((l) => {
-                  const isActive = lang === l;
-                  
-                  // Construct new path
-                  const segments = pathname.split('/');
-                  if (segments.length > 1 && ['es', 'en'].includes(segments[1])) {
-                    segments[1] = l;
-                  } else {
-                    segments.splice(1, 0, l);
-                  }
-                  const newPath = segments.join('/') || '/';
+              <div className="flex md:hidden items-center gap-2 absolute top-full right-0 mt-2">
+                <div className="flex items-center gap-1">
+                  {['es', 'en'].map((l) => {
+                    const isActive = lang === l;
+                    
+                    // Construct new path
+                    const segments = pathname.split('/');
+                    if (segments.length > 1 && ['es', 'en'].includes(segments[1])) {
+                      segments[1] = l;
+                    } else {
+                      segments.splice(1, 0, l);
+                    }
+                    const newPath = segments.join('/') || '/';
 
-                  return (
-                    <Link 
-                      key={l}
-                      href={newPath}
-                      prefetch={true}
-                      className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
-                        isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
-                      }`}
-                    >
-                      <span className="text-[11px] leading-none block tracking-widest">{l.toUpperCase()}</span>
-                      <div className="h-1 mt-1 w-full flex justify-center items-center">
-                        {isActive && (
-                          <motion.div 
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ duration: 0.2 }}
-                            className="w-1 h-1 rounded-full bg-[#9B7E67] shadow-sm"
-                          />
-                        )}
-                      </div>
-                    </Link>
-                  );
-                })}
+                    return (
+                      <Link 
+                        key={l}
+                        href={newPath}
+                        prefetch={true}
+                        className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 px-1 ${
+                          isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
+                        }`}
+                      >
+                        <span className="text-[11px] leading-none block tracking-widest">{l.toUpperCase()}</span>
+                        <div className="h-1 mt-1 w-full flex justify-center items-center">
+                          {isActive && (
+                            <motion.div 
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ duration: 0.2 }}
+                              className="w-1 h-1 rounded-full bg-[#9B7E67] shadow-sm"
+                            />
+                          )}
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                <div className="w-px h-3 bg-white/20"></div>
+
+                <div className="flex items-center gap-1">
+                  {(['MXN', 'USD', 'CAD'] as const).map((c) => {
+                    const isActive = currency === c;
+                    return (
+                      <button 
+                        key={c}
+                        onClick={() => setCurrency(c)}
+                        className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 px-1 ${
+                          isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
+                        }`}
+                      >
+                        <span className="text-[11px] leading-none block tracking-widest">{c}</span>
+                        <div className="h-1 mt-1 w-full flex justify-center items-center">
+                          {isActive && (
+                            <motion.div 
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ duration: 0.2 }}
+                              className="w-1 h-1 rounded-full bg-[#9B7E67] shadow-sm"
+                            />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
@@ -486,7 +550,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                       {tour.price > 0 && (
                         <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/5">
                           <DollarSign size={16} />
-                          <span>${tour.price} USD</span>
+                          <span>{formatPrice(tour.price)}</span>
                         </div>
                       )}
                     </div>
@@ -648,7 +712,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                     <div className="bg-[#0A0908] border border-white/5 rounded-2xl p-5 flex-1 min-w-[120px]">
                       <DollarSign size={20} className="text-[#9B7E67] mb-3" />
                       <span className="block text-[9px] uppercase tracking-widest text-[#F9F7F4]/40 font-bold mb-1">{t.modal.price}</span>
-                      <span className="font-medium text-[#F9F7F4] text-sm">${selectedTour.price} USD</span>
+                      <span className="font-medium text-[#F9F7F4] text-sm">{formatPrice(selectedTour.price)}</span>
                     </div>
                   )}
                   <div className="bg-[#0A0908] border border-white/5 rounded-2xl p-5 flex-1 min-w-[120px]">

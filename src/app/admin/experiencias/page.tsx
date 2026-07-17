@@ -94,7 +94,7 @@ export default function AdminExperiencias() {
         <h2 className="text-3xl font-serif text-[#23211F]">Servicios y Tours</h2>
         <p className="text-gray-500 font-light mt-2">
           Configura los precios para los servicios de comida y los destinos de tour. 
-          Estos se mostrarán automáticamente en las páginas de reservas correspondientes. (Los precios son en USD)
+          Estos se mostrarán automáticamente en las páginas de reservas correspondientes. (Los precios son en MXN)
         </p>
       </div>
 
@@ -126,7 +126,7 @@ export default function AdminExperiencias() {
             <thead>
               <tr>
                 <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Servicio</th>
-                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Precio (USD/Pax)</th>
+                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Precio (MXN/Pax)</th>
                 <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-center">Activo</th>
                 <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-right">Acción</th>
               </tr>
@@ -203,7 +203,7 @@ export default function AdminExperiencias() {
             <thead>
               <tr>
                 <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Destino</th>
-                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Precio (USD/Pax)</th>
+                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Precio (MXN/Pax)</th>
                 <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-center">Activo</th>
                 <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-right">Acción</th>
               </tr>

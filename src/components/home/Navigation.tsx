@@ -9,6 +9,7 @@ import { useDictionary } from '@/i18n/DictionaryContext';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { useCurrency } from '@/context/CurrencyContext';
 
 const FluidHorseAnimation = dynamic(() => import('../FluidHorseAnimation'), {
   ssr: false,
@@ -209,6 +210,7 @@ export const HomeNavigation = () => {
   const router = useRouter();
   const dict = useDictionary();
   const { openBookingModal } = useBooking();
+  const { currency, setCurrency } = useCurrency();
 
   const changeLanguage = (lang: string) => {
     setIsSwitchingLang(true);
@@ -324,36 +326,73 @@ export const HomeNavigation = () => {
             </div>
 
             <div className="hidden md:flex justify-center z-20 pointer-events-auto">
-              <div className="flex items-center gap-2 md:gap-4">
-                {['es', 'en'].map((l) => {
-                  const currentLang = pathname.split('/')[1] || 'es';
-                  const isActive = currentLang === l;
-                  return (
-                    <button 
-                      key={l}
-                      onClick={() => changeLanguage(l)}
-                      className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
-                        isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
-                      }`}
-                    >
-                      <span className="text-[11px] md:text-sm leading-none block tracking-widest">{l.toUpperCase()}</span>
-                      <div className="h-1.5 mt-1 w-full flex justify-center items-center">
-                        {isActive && (
-                          <motion.div 
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ duration: 0.2 }}
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              isSolid 
-                                ? 'bg-[#2C2927]' 
-                                : 'bg-[#F9F7F4] shadow-[0_0_4px_rgba(0,0,0,0.6)]'
-                            }`} 
-                          />
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
+              <div className="flex items-center gap-4">
+                {/* Language Switcher */}
+                <div className="flex items-center gap-2">
+                  {['es', 'en'].map((l) => {
+                    const currentLang = pathname.split('/')[1] || 'es';
+                    const isActive = currentLang === l;
+                    return (
+                      <button 
+                        key={l}
+                        onClick={() => changeLanguage(l)}
+                        className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
+                          isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
+                        }`}
+                      >
+                        <span className="text-[11px] md:text-sm leading-none block tracking-widest">{l.toUpperCase()}</span>
+                        <div className="h-1.5 mt-1 w-full flex justify-center items-center">
+                          {isActive && (
+                            <motion.div 
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ duration: 0.2 }}
+                              className={`w-1.5 h-1.5 rounded-full ${
+                                isSolid 
+                                  ? 'bg-[#2C2927]' 
+                                  : 'bg-[#F9F7F4] shadow-[0_0_4px_rgba(0,0,0,0.6)]'
+                              }`} 
+                            />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="w-px h-4 bg-current opacity-20"></div>
+
+                {/* Currency Switcher */}
+                <div className="flex items-center gap-2">
+                  {(['MXN', 'USD', 'CAD'] as const).map((c) => {
+                    const isActive = currency === c;
+                    return (
+                      <button 
+                        key={c}
+                        onClick={() => setCurrency(c)}
+                        className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
+                          isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
+                        }`}
+                      >
+                        <span className="text-[11px] md:text-sm leading-none block tracking-widest">{c}</span>
+                        <div className="h-1.5 mt-1 w-full flex justify-center items-center">
+                          {isActive && (
+                            <motion.div 
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ duration: 0.2 }}
+                              className={`w-1.5 h-1.5 rounded-full ${
+                                isSolid 
+                                  ? 'bg-[#2C2927]' 
+                                  : 'bg-[#F9F7F4] shadow-[0_0_4px_rgba(0,0,0,0.6)]'
+                              }`} 
+                            />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
@@ -377,37 +416,73 @@ export const HomeNavigation = () => {
                 </button>
               </div>
 
-              {/* Mobile Language Switcher */}
-              <div className="flex md:hidden items-center gap-3 z-20 pointer-events-auto mr-1">
-                {['es', 'en'].map((l) => {
-                  const currentLang = pathname.split('/')[1] || 'es';
-                  const isActive = currentLang === l;
-                  return (
-                    <button 
-                      key={l}
-                      onClick={() => changeLanguage(l)}
-                      className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
-                        isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
-                      }`}
-                    >
-                      <span className="text-[10px] leading-none block tracking-widest">{l.toUpperCase()}</span>
-                      <div className="h-1 mt-1 w-full flex justify-center items-center">
-                        {isActive && (
-                          <motion.div 
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ duration: 0.2 }}
-                            className={`w-1 h-1 rounded-full ${
-                              isSolid 
-                                ? 'bg-[#2C2927]' 
-                                : 'bg-[#F9F7F4] shadow-[0_0_4px_rgba(0,0,0,0.6)]'
-                            }`} 
-                          />
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
+                {/* Mobile Language Switcher */}
+              <div className="flex md:hidden items-center gap-2 z-20 pointer-events-auto mr-1">
+                <div className="flex items-center gap-1">
+                  {['es', 'en'].map((l) => {
+                    const currentLang = pathname.split('/')[1] || 'es';
+                    const isActive = currentLang === l;
+                    return (
+                      <button 
+                        key={l}
+                        onClick={() => changeLanguage(l)}
+                        className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 px-1 ${
+                          isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
+                        }`}
+                      >
+                        <span className="text-[10px] leading-none block tracking-widest">{l.toUpperCase()}</span>
+                        <div className="h-1 mt-1 w-full flex justify-center items-center">
+                          {isActive && (
+                            <motion.div 
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ duration: 0.2 }}
+                              className={`w-1 h-1 rounded-full ${
+                                isSolid 
+                                  ? 'bg-[#2C2927]' 
+                                  : 'bg-[#F9F7F4] shadow-[0_0_4px_rgba(0,0,0,0.6)]'
+                              }`} 
+                            />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="w-px h-3 bg-current opacity-20"></div>
+
+                {/* Mobile Currency Switcher */}
+                <div className="flex items-center gap-1">
+                  {(['MXN', 'USD', 'CAD'] as const).map((c) => {
+                    const isActive = currency === c;
+                    return (
+                      <button 
+                        key={c}
+                        onClick={() => setCurrency(c)}
+                        className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 px-1 ${
+                          isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
+                        }`}
+                      >
+                        <span className="text-[10px] leading-none block tracking-widest">{c}</span>
+                        <div className="h-1 mt-1 w-full flex justify-center items-center">
+                          {isActive && (
+                            <motion.div 
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ duration: 0.2 }}
+                              className={`w-1 h-1 rounded-full ${
+                                isSolid 
+                                  ? 'bg-[#2C2927]' 
+                                  : 'bg-[#F9F7F4] shadow-[0_0_4px_rgba(0,0,0,0.6)]'
+                              }`} 
+                            />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
