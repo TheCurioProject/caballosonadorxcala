@@ -146,7 +146,7 @@ export default function ServiciosDeComida() {
             
             <div className="md:hidden"></div>
 
-            <div className="flex flex-col justify-end items-end pointer-events-auto gap-2">
+            <div className="flex flex-col justify-end items-end pointer-events-auto gap-2 relative">
               <div className="flex items-center gap-4">
                 <button 
                   onClick={() => {
@@ -159,7 +159,7 @@ export default function ServiciosDeComida() {
                 </button>
               </div>
               
-              <div className="flex md:hidden items-center gap-4 mt-1">
+              <div className="flex md:hidden items-center gap-4 absolute top-full right-0 mt-2">
                 {['es', 'en'].map((l) => {
                   const isActive = lang === l;
                   

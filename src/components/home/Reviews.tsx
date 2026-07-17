@@ -132,7 +132,7 @@ export const Reviews = () => {
             }}
             ref={scrollRef}
             onScroll={checkScroll}
-            className="flex items-stretch gap-6 md:gap-8 w-[calc(100%+3rem)] md:w-[calc(100%+8rem)] -mx-6 md:-mx-16 overflow-x-auto snap-x snap-mandatory touch-pan-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-8 pt-4 px-[7.5vw] md:px-16"
+            className="flex items-stretch gap-6 md:gap-8 w-[calc(100%+3rem)] md:w-[calc(100%+8rem)] -mx-6 md:-mx-16 overflow-x-auto snap-x snap-mandatory touch-pan-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] pb-8 pt-4 px-[7.5vw] md:px-16 scroll-pl-[7.5vw] md:scroll-pl-16"
           >
             {homeReviews.items.map((review: any, idx: number) => (
               <motion.div
