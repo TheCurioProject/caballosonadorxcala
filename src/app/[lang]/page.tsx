@@ -51,12 +51,12 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
 
   const rooms = [
     getRoom(1, 0, [
-      '/rooms/room1/1.webp', '/rooms/room1/2.webp', '/rooms/room1/3.webp', 
+      '/rooms/room1/1.webp', '/rooms/room1/3.webp', 
       '/rooms/room1/4.webp', '/rooms/room1/5.webp', '/rooms/room1/6.webp'
     ]),
     getRoom(2, 0, [
       '/rooms/room2/1.webp', '/rooms/room2/2.webp', '/rooms/room2/3.webp', 
-      '/rooms/room2/4.webp'
+      '/rooms/room2/4.webp', '/rooms/room1/6.webp'
     ]),
     getRoom(3, 0, ['/imagenes/03_rooms/room3_la_luna.webp', '/imagenes/03_rooms/room_extra_img_3549.webp']),
     getRoom(4, 0, ['/imagenes/03_rooms/room4_campo_abierto.webp', '/imagenes/03_rooms/room_extra_img_3549.webp']),

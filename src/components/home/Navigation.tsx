@@ -296,27 +296,27 @@ export const HomeNavigation = () => {
 
       <header className={`fixed top-0 w-full z-40 transition-transform duration-500 ease-in-out ${hidden ? '-translate-y-full' : 'translate-y-0'}`}>
         <div className={`transition-all duration-500 ${isSolid ? 'py-3 bg-[#F9F7F4]/95 backdrop-blur-lg shadow-sm' : 'py-4 md:py-6 bg-transparent'}`}>
-          <div className={`max-w-[1400px] mx-auto px-6 md:px-16 grid grid-cols-2 md:grid-cols-3 items-start md:items-center transition-colors duration-500 relative ${isSolid ? 'text-[#2C2927]' : 'text-[#F9F7F4]'}`}>
+          <div className={`max-w-[1400px] mx-auto px-6 md:px-16 grid grid-cols-2 md:grid-cols-3 items-center transition-colors duration-500 relative ${isSolid ? 'text-[#2C2927]' : 'text-[#F9F7F4]'}`}>
             
             {/* Logo a la izquierda */}
-            <div className="flex justify-start self-start">
+            <div className="flex justify-start self-center">
               <Link 
                 href={`/${pathname.split('/')[1] || 'es'}`} 
                 aria-label="Inicio" 
-                className="flex items-start"
+                className="flex items-center"
               >
                 <motion.div
                   layout
                   initial={false}
                   transition={{ duration: 0.35, ease: "easeOut" }}
-                  className={`origin-top-left flex items-start ${
+                  className={`origin-left flex items-center ${
                     isSolid ? 'translate-y-0' : 'translate-y-2 md:translate-y-4'
                   }`}
                 >
                   <LogoNuevo 
                     solidWhite={!isSolid}
-                    className={`w-auto drop-shadow-lg hover:scale-105 transition-transform duration-300 origin-top-left ${
-                      isSolid ? 'h-8 md:h-10' : 'h-[3.5rem] md:h-[5rem]'
+                    className={`w-auto drop-shadow-lg hover:scale-105 transition-transform duration-300 origin-left ${
+                      isSolid ? 'h-[2.25rem] md:h-10' : 'h-[3.5rem] md:h-[5rem]'
                     }`} 
                   />
                 </motion.div>

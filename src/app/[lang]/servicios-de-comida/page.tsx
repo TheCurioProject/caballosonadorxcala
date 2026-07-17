@@ -152,7 +152,7 @@ export default function ServiciosDeComida() {
                   onClick={() => {
                     openBookingModal();
                   }}
-                  className="uppercase tracking-widest text-[10px] md:text-xs font-bold border rounded-full px-4 py-1.5 hover:opacity-70 transition-all border-[#F9F7F4] text-[#F9F7F4]"
+                  className="whitespace-nowrap uppercase tracking-widest text-[10px] md:text-xs font-bold border rounded-full px-4 py-1.5 hover:opacity-70 transition-all border-[#F9F7F4] text-[#F9F7F4]"
                 >
                   <span className="hidden md:inline">{texts.bookTour}</span>
                   <span className="md:hidden">{texts.bookTourShort}</span>
