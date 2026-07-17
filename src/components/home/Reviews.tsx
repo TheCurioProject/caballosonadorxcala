@@ -8,15 +8,18 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 const fallbackReviews = [
   {
     text: "An absolutely magical experience. The perfect blend of luxury and raw nature. We felt completely immersed in the beauty of Chacala while enjoying world-class comfort.",
-    author: "Elena R."
+    author: "Elena R.",
+    rating: 5
   },
   {
     text: "Casa Caballo Soñador is a hidden gem. The attention to detail in the architecture and the warmth of the staff made our stay unforgettable.",
-    author: "James M."
+    author: "James M.",
+    rating: 5
   },
   {
     text: "Waking up to the sound of the ocean and the jungle birds was spectacular. Every suite is a piece of art. We will definitely be coming back every year.",
-    author: "Sofía & Carlos"
+    author: "Sofía & Carlos",
+    rating: 5
   }
 ];
 
@@ -142,7 +145,7 @@ export const Reviews = () => {
                 className="w-[85vw] sm:w-[350px] md:w-[400px] shrink-0 snap-center md:snap-start flex flex-col items-center text-center space-y-6 bg-[#161412] p-8 md:p-10 rounded-2xl border border-[#F9F7F4]/5 hover:border-[#9b6e2f]/30 transition-colors"
               >
                 <div className="flex space-x-1 text-[#9b6e2f]">
-                  {[...Array(5)].map((_, i) => (
+                  {[...Array(review.rating || 5)].map((_, i) => (
                     <svg 
                       key={i} 
                       className="w-5 h-5 fill-current" 

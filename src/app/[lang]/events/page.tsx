@@ -1,8 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Heart, Waves, ChefHat, CheckCircle2 } from 'lucide-react';
-import Link from 'next/link';
+import { CheckCircle2 } from 'lucide-react';
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },

@@ -52,27 +52,48 @@
     "items": [
       {
         "text": "A truly exceptional stay. The facilities are impeccable, with a beautiful pool and incredible views. The staff's attention makes you feel right at home. Highly recommended if you seek peace in Chacala.",
-        "author": "María Fernanda G."
+        "author": "María Fernanda G.",
+        "rating": 5
       },
       {
         "text": "The perfect place to relax and disconnect. The house is very spacious, clean, and the shared kitchen is a big plus. The rooftop terrace at sunset is priceless. I give it 4 stars only because I wish I could have stayed longer.",
-        "author": "Roberto C."
+        "author": "Roberto C.",
+        "rating": 4
       },
       {
         "text": "A little piece of hidden paradise. The rooms have a rustic design but with all modern comforts. Walking to the beach takes just a few minutes. The breakfast they prepared for us was delicious.",
-        "author": "Ana Laura V."
+        "author": "Ana Laura V.",
+        "rating": 5
       },
       {
         "text": "Excellent boutique house concept. I loved the tranquil vibe and the sound of the ocean at night. It's ideal for retreats or family trips. The value for money is unbeatable in the area.",
-        "author": "Daniel S."
+        "author": "Daniel S.",
+        "rating": 5
       },
       {
         "text": "This is our second time visiting and it does not disappoint. The common areas like the palapa and the jacuzzi are in perfect condition. The environment surrounded by nature allows you to breathe and completely renew yourself.",
-        "author": "Claudia & Pedro"
+        "author": "Claudia & Pedro",
+        "rating": 5
       },
       {
         "text": "A beautiful and very peaceful place. The rooms are comfortable and the service is quite good. Although the access can be a bit steep, it's worth it for the privacy and the views it offers.",
-        "author": "Héctor M."
+        "author": "Héctor M.",
+        "rating": 4
+      },
+      {
+        "text": "A hidden gem. The 'El Sueño del Mar' suite exceeded all our expectations with its unparalleled view and the comfort of the beds.",
+        "author": "Laura M.",
+        "rating": 5
+      },
+      {
+        "text": "I was fascinated by the entire experience. From the reception to the ATV jungle tour. We will definitely be coming back with the whole family.",
+        "author": "Miguel A.",
+        "rating": 5
+      },
+      {
+        "text": "If you are looking for a getaway to truly relax, this is the place. The sound of nature and the tranquility of the spot are worth every penny.",
+        "author": "Carmen y Luis",
+        "rating": 5
       }
     ]
   },

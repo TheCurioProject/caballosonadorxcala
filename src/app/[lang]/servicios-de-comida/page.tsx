@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Utensils, Clock, ArrowRight, ArrowLeft, CheckCircle2, ChevronRight, Calendar as CalendarIcon, Coffee, Sunset } from 'lucide-react';
+import { Utensils, ArrowLeft, CheckCircle2, Coffee, Sunset } from 'lucide-react';
 import Image from 'next/image';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -73,10 +73,6 @@ export default function ServiciosDeComida() {
         image: '/tours_gallery/07_volcano/00_sunset_019.webp'
       }
     ]
-  };
-
-  const handleBook = (id: string) => {
-    openBookingModal();
   };
 
   return (

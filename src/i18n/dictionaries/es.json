@@ -52,27 +52,48 @@
     "items": [
       {
         "text": "Una estancia verdaderamente excepcional. Las instalaciones son impecables, con una piscina hermosa y vistas increíbles. La atención del personal te hace sentir en casa. Totalmente recomendado si buscas paz en Chacala.",
-        "author": "María Fernanda G."
+        "author": "María Fernanda G.",
+        "rating": 5
       },
       {
         "text": "El lugar perfecto para relajarse y desconectar. La casa es muy amplia, limpia y la cocina compartida es un gran plus. La terraza en la azotea al atardecer no tiene precio. Le doy 4 estrellas solo porque me hubiera gustado quedarme más días.",
-        "author": "Roberto C."
+        "author": "Roberto C.",
+        "rating": 4
       },
       {
         "text": "Un pedacito de paraíso escondido. Las habitaciones tienen un diseño rústico pero con todas las comodidades modernas. Caminar a la playa toma solo unos minutos. El desayuno que nos prepararon estuvo delicioso.",
-        "author": "Ana Laura V."
+        "author": "Ana Laura V.",
+        "rating": 5
       },
       {
         "text": "Excelente concepto de casa boutique. Me encantó la vibra de tranquilidad y el sonido del mar por la noche. Es ideal para retiros o viajes familiares. La relación calidad-precio es insuperable en la zona.",
-        "author": "Daniel S."
+        "author": "Daniel S.",
+        "rating": 5
       },
       {
         "text": "Es nuestra segunda vez visitando y no decepciona. Las áreas comunes como la palapa y el jacuzzi están en perfectas condiciones. El ambiente rodeado de naturaleza te permite respirar y renovarte por completo.",
-        "author": "Claudia & Pedro"
+        "author": "Claudia & Pedro",
+        "rating": 5
       },
       {
         "text": "Un lugar hermoso y muy tranquilo. Las habitaciones son cómodas y el servicio es bastante bueno. Aunque el acceso puede ser un poco empinado, vale la pena por la privacidad y las vistas que ofrece.",
-        "author": "Héctor M."
+        "author": "Héctor M.",
+        "rating": 4
+      },
+      {
+        "text": "Una joya escondida. La habitación 'El Sueño del Mar' superó todas nuestras expectativas con su vista inigualable y la comodidad de sus camas.",
+        "author": "Laura M.",
+        "rating": 5
+      },
+      {
+        "text": "Me fascinó la experiencia completa. Desde la recepción hasta el tour en ATV por la jungla. Definitivamente volveremos con toda la familia.",
+        "author": "Miguel A.",
+        "rating": 5
+      },
+      {
+        "text": "Si buscas una escapada para relajarte de verdad, este es el sitio. El sonido de la naturaleza y la tranquilidad del lugar valen cada centavo.",
+        "author": "Carmen y Luis",
+        "rating": 5
       }
     ]
   },

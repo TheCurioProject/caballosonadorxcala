@@ -3,7 +3,7 @@
 import React, { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { ArrowLeft, MessageCircle, X, Clock, Users, CheckCircle2, DollarSign, Compass, ShieldCheck, Backpack, Maximize2, Minimize2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, X, Clock, Users, CheckCircle2, DollarSign, Compass, ShieldCheck, Backpack, Maximize2, ChevronLeft, ChevronRight } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { usePathname, useRouter } from 'next/navigation';
@@ -146,18 +146,6 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
 
   if (!t) return null;
 
-  const changeLanguage = (newLang: string) => {
-    setIsNavigating(true);
-    const segments = pathname.split('/');
-    if (segments.length > 1 && ['es', 'en'].includes(segments[1])) {
-      segments[1] = newLang;
-    } else {
-      segments.splice(1, 0, newLang);
-    }
-    setTimeout(() => {
-      router.push(segments.join('/') || '/');
-    }, 100);
-  };
 
   const openModal = (tour: any) => {
     setSelectedTour(tour);
