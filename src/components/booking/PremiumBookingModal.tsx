@@ -96,6 +96,7 @@ const PremiumInput = ({
   onChange,
   isValid,
   delay = 0,
+  errorMessage,
 }: {
   id: string;
   type: string;

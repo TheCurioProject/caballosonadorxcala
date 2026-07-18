@@ -1,0 +1,144 @@
+
+> hotelsonador@1.0.0 dev
+> next dev
+
+▲ Next.js 16.2.9 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.67:3000
+- Environments: .env.development, .env
+✓ Ready in 2.6s
+⚠ `eslint` configuration in next.config.ts is no longer supported. See more info here: https://nextjs.org/docs/app/api-reference/cli/next#next-lint-options
+⚠ Invalid next.config.ts options detected: 
+⚠     Unrecognized key(s) in object: 'eslint'
+⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+⚠ Slow filesystem detected. The benchmark took 624ms. If /Users/macmini1tb/Desktop/hotelsonador/.next/dev is a network drive, consider moving it to a local folder.
+See more: https://nextjs.org/docs/app/guides/local-development
+○ Compiling proxy ...
+
+Failed to fetch data from Prisma or timed out, using fallback data.
+ GET /es/ 200 in 8.1s (next.js: 5.5s, proxy.ts: 10ms, generate-params: 4.8s, application-code: 2.6s)
+○ Compiling /api/settings/rates ...
+Error fetching food pricing: Error [DriverAdapterError]: pool timeout: failed to retrieve a connection from pool after 10004ms
+    (pool connections: active=0 idle=0 limit=10)
+    at async GET (src/app/api/services/food/route.ts:8:21)
+   6 | export async function GET() {
+   7 |   try {
+>  8 |     const pricing = await prisma.servicePricing.findMany({
+     |                     ^
+   9 |       where: { serviceType: 'FOOD', isActive: true },
+  10 |       orderBy: { id: 'asc' }
+  11 |     }); {
+  clientVersion: '7.8.0',
+  [cause]: {
+    originalCode: '45028',
+    originalMessage: 'pool timeout: failed to retrieve a connection from pool after 10004ms\n' +
+      '    (pool connections: active=0 idle=0 limit=10)',
+    kind: 'mysql',
+    code: 45028,
+    message: 'pool timeout: failed to retrieve a connection from pool after 10004ms\n' +
+      '    (pool connections: active=0 idle=0 limit=10)',
+    state: 'HY000',
+    cause: '(conn:812233, no: 45012, SQLState: 08S01) Connection timeout: failed to create socket after 1007ms'
+  }
+}
+Error fetching tour destinations: Error [DriverAdapterError]: pool timeout: failed to retrieve a connection from pool after 10001ms
+    (pool connections: active=0 idle=0 limit=10)
+    at async GET (src/app/api/services/tours/route.ts:8:26)
+   6 | export async function GET() {
+   7 |   try {
+>  8 |     const destinations = await prisma.tourDestination.findMany({
+     |                          ^
+   9 |       where: { isActive: true },
+  10 |       orderBy: { id: 'asc' }
+  11 |     }); {
+  clientVersion: '7.8.0',
+  [cause]: {
+    originalCode: '45028',
+    originalMessage: 'pool timeout: failed to retrieve a connection from pool after 10001ms\n' +
+      '    (pool connections: active=0 idle=0 limit=10)',
+    kind: 'mysql',
+    code: 45028,
+    message: 'pool timeout: failed to retrieve a connection from pool after 10001ms\n' +
+      '    (pool connections: active=0 idle=0 limit=10)',
+    state: 'HY000',
+    cause: '(conn:812233, no: 45012, SQLState: 08S01) Connection timeout: failed to create socket after 1007ms'
+  }
+}
+ GET /api/services/food/ 500 in 14.3s (next.js: 1481ms, proxy.ts: 13ms, application-code: 12.8s)
+ GET /api/services/tours/ 500 in 14.3s (next.js: 955ms, proxy.ts: 13ms, application-code: 13.4s)
+Error fetching tour settings: Error [DriverAdapterError]: pool timeout: failed to retrieve a connection from pool after 10003ms
+    (pool connections: active=0 idle=0 limit=10)
+    at async GET (src/app/api/settings/tours/route.ts:8:20)
+   6 | export async function GET() {
+   7 |   try {
+>  8 |     let property = await prisma.property.findFirst();
+     |                    ^
+   9 |     
+  10 |     // If no property exists, we return defaults or create one
+  11 |     if (!property) { {
+  clientVersion: '7.8.0',
+  [cause]: {
+    originalCode: '45028',
+    originalMessage: 'pool timeout: failed to retrieve a connection from pool after 10003ms\n' +
+      '    (pool connections: active=0 idle=0 limit=10)',
+    kind: 'mysql',
+    code: 45028,
+    message: 'pool timeout: failed to retrieve a connection from pool after 10003ms\n' +
+      '    (pool connections: active=0 idle=0 limit=10)',
+    state: 'HY000',
+    cause: '(conn:812233, no: 45012, SQLState: 08S01) Connection timeout: failed to create socket after 1007ms'
+  }
+}
+ GET /api/settings/tours/ 200 in 15.8s (next.js: 5.1s, proxy.ts: 19ms, application-code: 10.7s)
+ GET /api/settings/rates/ 200 in 16.4s (next.js: 5.8s, proxy.ts: 10ms, application-code: 10.6s)
+Error fetching food pricing: Error [DriverAdapterError]: pool timeout: failed to retrieve a connection from pool after 10025ms
+    (pool connections: active=0 idle=0 limit=10)
+    at async GET (src/app/api/services/food/route.ts:8:21)
+   6 | export async function GET() {
+   7 |   try {
+>  8 |     const pricing = await prisma.servicePricing.findMany({
+     |                     ^
+   9 |       where: { serviceType: 'FOOD', isActive: true },
+  10 |       orderBy: { id: 'asc' }
+  11 |     }); {
+  clientVersion: '7.8.0',
+  [cause]: {
+    originalCode: '45028',
+    originalMessage: 'pool timeout: failed to retrieve a connection from pool after 10025ms\n' +
+      '    (pool connections: active=0 idle=0 limit=10)',
+    kind: 'mysql',
+    code: 45028,
+    message: 'pool timeout: failed to retrieve a connection from pool after 10025ms\n' +
+      '    (pool connections: active=0 idle=0 limit=10)',
+    state: 'HY000',
+    cause: '(conn:812233, no: 45012, SQLState: 08S01) Connection timeout: failed to create socket after 1007ms'
+  }
+}
+ GET /api/services/food/ 500 in 10.7s (next.js: 46ms, proxy.ts: 12ms, application-code: 10.6s)
+ GET /api/services/tours/ 200 in 11.2s (next.js: 201ms, proxy.ts: 17ms, application-code: 11.0s)
+ GET /api/settings/tours/ 200 in 10.4s (next.js: 200ms, proxy.ts: 134ms, application-code: 10.1s)
+✓ Finished filesystem cache database compaction in 38.8s
+ GET /api/availability/ 200 in 2.8s (next.js: 331ms, proxy.ts: 8ms, application-code: 2.5s)
+[browser] Uncaught ReferenceError: errorMessage is not defined
+    at PremiumInput (src/components/booking/PremiumBookingModal.tsx:166:44)
+    at PremiumBookingModal (src/components/booking/PremiumBookingModal.tsx:940:25)
+    at BookingProvider (src/context/BookingContext.tsx:27:7)
+    at RootLayout (src/app/layout.tsx:50:13)
+  164 |         </AnimatePresence>
+  165 |         <AnimatePresence>
+> 166 |           {!isValid && value.length > 0 && errorMessage && (
+      |                                            ^
+  167 |             <motion.p 
+  168 |               initial={{ opacity: 0, height: 0, marginTop: 0 }} 
+  169 |               animate={{ opacity: 1, height: 'auto', marginTop: 8 }} 
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 1803ms
+Failed to fetch data from Prisma or timed out, using fallback data.
+ GET /es/ 200 in 3.1s (next.js: 872ms, proxy.ts: 6ms, generate-params: 7ms, application-code: 2.2s)
+ GET /api/settings/rates/ 200 in 7.7s (next.js: 61ms, proxy.ts: 5ms, application-code: 7.7s)
+ GET /api/services/tours/ 200 in 7.5s (next.js: 100ms, proxy.ts: 30ms, application-code: 7.4s)
+ GET /api/services/food/ 200 in 8.1s (next.js: 239ms, proxy.ts: 31ms, application-code: 7.8s)
+ GET /api/settings/tours/ 200 in 8.5s (next.js: 314ms, proxy.ts: 43ms, application-code: 8.2s)
+ GET /api/services/tours/ 200 in 1611ms (next.js: 5ms, proxy.ts: 4ms, application-code: 1602ms)
+ GET /api/services/food/ 200 in 1278ms (next.js: 5ms, proxy.ts: 3ms, application-code: 1269ms)
+ GET /api/settings/tours/ 200 in 1007ms (next.js: 3ms, proxy.ts: 4ms, application-code: 1000ms)
