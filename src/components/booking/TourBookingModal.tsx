@@ -259,9 +259,6 @@ export const TourBookingModal = ({
                         <span className="font-serif text-2xl w-8 text-center text-[#23211F]">{pax}</span>
                         <button onClick={() => setPax(p => Math.min(maxTourPax, p + 1))} className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-[#23211F] hover:border-[#9B7E67] transition-colors"><ChevronRight size={20}/></button>
                       </div>
-                      <p className="text-[#9B7E67] text-[11px] mt-3 italic font-serif leading-relaxed">
-                        {isEn ? `* For groups larger than ${maxTourPax}, please contact us to coordinate a specialized tour.` : `* Para grupos mayores a ${maxTourPax} personas, favor de contactarnos para coordinar una experiencia a medida.`}
-                      </p>
                     </div>
 
                     <div className="mb-8">
