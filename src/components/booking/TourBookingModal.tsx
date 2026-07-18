@@ -114,7 +114,7 @@ export const TourBookingModal = ({
 
   const isStep1Valid = selectedDestination !== null;
   const isStep2Valid = date !== undefined && pax >= minTourPax && pax <= maxTourPax;
-  const isStep3Valid = guestName.length > 2 && guestEmail.includes('@');
+  const isStep3Valid = guestName.length > 2 && /^[^\s@]+@(gmail|hotmail)\.[a-z]{2,}$/i.test(guestEmail);
 
   return (
     <>
@@ -311,7 +311,7 @@ export const TourBookingModal = ({
                           required
                           value={guestEmail}
                           onChange={(e) => setGuestEmail(e.target.value)}
-                          placeholder={isEn ? "Email" : "Correo Electrónico"}
+                          placeholder={isEn ? "Email (@gmail.com or @hotmail.com)" : "Correo (@gmail.com o @hotmail.com)"}
                           className="w-full bg-transparent border-b-2 border-gray-200 py-4 text-[#23211F] text-lg focus:outline-none focus:border-[#9B7E67] transition-colors"
                         />
                       </div>

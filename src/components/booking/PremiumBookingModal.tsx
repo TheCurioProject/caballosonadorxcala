@@ -433,7 +433,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const grandTotal = accommodationTotal + cookTotal + atvTotal;
 
   const isNameValid = guestName.trim().length >= 2;
-  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail);
+  const isEmailValid = /^[^\s@]+@(gmail|hotmail)\.[a-z]{2,}$/i.test(guestEmail);
   const isPhoneValid = guestPhone.trim().length >= 7;
   const isFormValid = isNameValid && isEmailValid && isPhoneValid;
 
@@ -932,7 +932,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           id="email"
                           type="email"
                           label={dict.modal?.email}
-                          placeholder="correo@ejemplo.com"
+                          placeholder="correo@gmail.com o @hotmail.com"
                           value={guestEmail}
                           onChange={setGuestEmail}
                           isValid={isEmailValid}
