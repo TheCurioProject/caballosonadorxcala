@@ -114,7 +114,7 @@ export const TourBookingModal = ({
 
   const isStep1Valid = selectedDestination !== null;
   const isStep2Valid = date !== undefined && pax >= minTourPax && pax <= maxTourPax;
-  const isStep3Valid = guestName.length > 2 && /^[^\s@]+@(gmail|hotmail)\.[a-z]{2,}$/i.test(guestEmail);
+  const isStep3Valid = guestName.length > 2 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail);
 
   return (
     <>
@@ -311,18 +311,18 @@ export const TourBookingModal = ({
                           required
                           value={guestEmail}
                           onChange={(e) => setGuestEmail(e.target.value)}
-                          placeholder={isEn ? "Email (@gmail.com or @hotmail.com)" : "Correo (@gmail.com o @hotmail.com)"}
+                          placeholder={isEn ? "Email (e.g. name@domain.com)" : "Correo (ej. nombre@dominio.com)"}
                           className="w-full bg-transparent border-b-2 border-gray-200 py-4 text-[#23211F] text-lg focus:outline-none focus:border-[#9B7E67] transition-colors"
                         />
                         <AnimatePresence>
-                          {guestEmail.length > 0 && !/^[^\s@]+@(gmail|hotmail)\.[a-z]{2,}$/i.test(guestEmail) && (
+                          {guestEmail.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail) && (
                             <motion.p 
                               initial={{ opacity: 0, height: 0, marginTop: 0 }} 
                               animate={{ opacity: 1, height: 'auto', marginTop: 8 }} 
                               exit={{ opacity: 0, height: 0, marginTop: 0 }} 
                               className="text-red-500 text-[10px] font-bold tracking-widest uppercase overflow-hidden"
                             >
-                              {isEn ? "Only Gmail or Hotmail allowed" : "Solo se admite Gmail o Hotmail"}
+                              {isEn ? "Invalid email format" : "Formato de correo inválido"}
                             </motion.p>
                           )}
                         </AnimatePresence>
