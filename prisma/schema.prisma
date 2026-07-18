@@ -22,6 +22,8 @@ model Property {
   blockedDates BlockedDate[]
   icalSources  IcalSource[]
   pricingRules PricingRule[]
+  minTourPax    Int           @default(3) @map("min_tour_pax")
+  maxTourPax    Int           @default(10) @map("max_tour_pax")
   bookings     Booking[]
 
   @@map("properties")

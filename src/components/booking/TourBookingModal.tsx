@@ -26,7 +26,9 @@ export const TourBookingModal = ({
   const [step, setStep] = useState(1);
   const [destinations, setDestinations] = useState<any[]>([]);
   const [selectedDestination, setSelectedDestination] = useState<any | null>(initialTour);
-  const [pax, setPax] = useState(2);
+  const [minTourPax, setMinTourPax] = useState(3);
+  const [maxTourPax, setMaxTourPax] = useState(10);
+  const [pax, setPax] = useState(3);
   const [date, setDate] = useState<Date | undefined>(undefined);
   
   const [guestName, setGuestName] = useState('');
@@ -40,6 +42,17 @@ export const TourBookingModal = ({
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setDestinations(data);
+      })
+      .catch(console.error);
+
+    // Fetch tour settings
+    fetch('/api/settings/tours')
+      .then(res => res.json())
+      .then(data => {
+        const min = data.minTourPax || 3;
+        setMinTourPax(min);
+        setMaxTourPax(data.maxTourPax || 10);
+        setPax(min);
       })
       .catch(console.error);
   }, []);
@@ -100,7 +113,7 @@ export const TourBookingModal = ({
   };
 
   const isStep1Valid = selectedDestination !== null;
-  const isStep2Valid = date !== undefined && pax > 0 && pax <= 3;
+  const isStep2Valid = date !== undefined && pax >= minTourPax && pax <= maxTourPax;
   const isStep3Valid = guestName.length > 2 && guestEmail.includes('@');
 
   return (
@@ -240,14 +253,14 @@ export const TourBookingModal = ({
                     </div>
 
                     <div className="mb-8">
-                      <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">{isEn ? "Number of people (Max 3)" : "Número de personas (Max 3)"}</label>
+                      <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">{isEn ? `Number of people (Min ${minTourPax}, Max ${maxTourPax})` : `Número de personas (Min ${minTourPax}, Max ${maxTourPax})`}</label>
                       <div className="flex items-center gap-4">
-                        <button onClick={() => setPax(p => Math.max(1, p - 1))} className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:border-[#9B7E67]"><ChevronLeft size={20}/></button>
+                        <button onClick={() => setPax(p => Math.max(minTourPax, p - 1))} className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:border-[#9B7E67]"><ChevronLeft size={20}/></button>
                         <span className="font-serif text-2xl w-8 text-center">{pax}</span>
-                        <button onClick={() => setPax(p => Math.min(3, p + 1))} className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:border-[#9B7E67]"><ChevronRight size={20}/></button>
+                        <button onClick={() => setPax(p => Math.min(maxTourPax, p + 1))} className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:border-[#9B7E67]"><ChevronRight size={20}/></button>
                       </div>
                       <p className="text-[#9B7E67] text-[11px] mt-3 italic font-serif leading-relaxed">
-                        {isEn ? "* For groups larger than 3, please contact us to coordinate a specialized tour." : "* Para grupos mayores a 3 personas, favor de contactarnos para coordinar una experiencia a medida."}
+                        {isEn ? `* For groups larger than ${maxTourPax}, please contact us to coordinate a specialized tour.` : `* Para grupos mayores a ${maxTourPax} personas, favor de contactarnos para coordinar una experiencia a medida.`}
                       </p>
                     </div>
 

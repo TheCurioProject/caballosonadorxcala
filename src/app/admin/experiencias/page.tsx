@@ -8,6 +8,8 @@ export default function AdminExperiencias() {
   const [tours, setTours] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [minTourPax, setMinTourPax] = useState(3);
+  const [maxTourPax, setMaxTourPax] = useState(10);
   const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
 
   useEffect(() => {
@@ -17,13 +19,19 @@ export default function AdminExperiencias() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [foodRes, toursRes] = await Promise.all([
+      const [foodRes, toursRes, settingsRes] = await Promise.all([
         fetch('/api/admin/food'),
-        fetch('/api/admin/tours')
+        fetch('/api/admin/tours'),
+        fetch('/api/settings/tours')
       ]);
       
       if (foodRes.ok) setFoodServices(await foodRes.json());
       if (toursRes.ok) setTours(await toursRes.json());
+      if (settingsRes.ok) {
+        const settings = await settingsRes.json();
+        setMinTourPax(settings.minTourPax || 3);
+        setMaxTourPax(settings.maxTourPax || 10);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       setMessage({ type: 'error', text: 'Error al cargar los datos' });
@@ -75,6 +83,28 @@ export default function AdminExperiencias() {
         setMessage({ type: 'success', text: `Guardado: ${tour.name}` });
       } else {
         setMessage({ type: 'error', text: 'Error al guardar tour' });
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Error de red' });
+    } finally {
+      setSaving(false);
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
+
+  const handleSaveSettings = async () => {
+    setSaving(true);
+    setMessage(null);
+    try {
+      const res = await fetch('/api/settings/tours', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ minTourPax, maxTourPax })
+      });
+      if (res.ok) {
+        setMessage({ type: 'success', text: 'Configuración guardada' });
+      } else {
+        setMessage({ type: 'error', text: 'Error al guardar configuración' });
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'Error de red' });
@@ -256,6 +286,46 @@ export default function AdminExperiencias() {
               )}
             </tbody>
           </table>
+        </div>
+      </section>
+
+      {/* Global Tour Settings */}
+      <section>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-[#9B7E67]/10 flex items-center justify-center">
+            <Map className="text-[#9B7E67] w-5 h-5" />
+          </div>
+          <h3 className="text-2xl font-serif text-[#23211F]">Configuración Global de Tours</h3>
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 flex flex-col md:flex-row gap-6 md:items-end">
+          <div className="flex-1">
+            <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">Mínimo de Personas</label>
+            <input
+              type="number"
+              min="1"
+              value={minTourPax}
+              onChange={(e) => setMinTourPax(parseInt(e.target.value) || 1)}
+              className="w-full px-4 py-3 bg-[#F9F7F4] border-none rounded-xl focus:ring-2 focus:ring-[#9B7E67] text-[#23211F] font-medium"
+            />
+          </div>
+          <div className="flex-1">
+            <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">Máximo de Personas</label>
+            <input
+              type="number"
+              min="1"
+              value={maxTourPax}
+              onChange={(e) => setMaxTourPax(parseInt(e.target.value) || 10)}
+              className="w-full px-4 py-3 bg-[#F9F7F4] border-none rounded-xl focus:ring-2 focus:ring-[#9B7E67] text-[#23211F] font-medium"
+            />
+          </div>
+          <button 
+            onClick={handleSaveSettings}
+            disabled={saving}
+            className="inline-flex items-center justify-center gap-2 bg-[#23211F] text-white px-8 py-3 rounded-xl hover:bg-[#9B7E67] transition-colors text-sm font-medium disabled:opacity-50 shadow-sm w-full md:w-auto h-[48px]"
+          >
+            <Save size={16} />
+            Guardar Configuración
+          </button>
         </div>
       </section>
 

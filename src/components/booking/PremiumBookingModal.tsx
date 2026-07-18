@@ -334,7 +334,9 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [cookSelections, setCookSelections] = useState<Record<string, number>>({});
 
   const [wantsATV, setWantsATV] = useState<boolean | null>(null);
-  const [atvPeople, setAtvPeople] = useState(1);
+  const [minTourPax, setMinTourPax] = useState(3);
+  const [maxTourPax, setMaxTourPax] = useState(10);
+  const [atvPeople, setAtvPeople] = useState(3);
   const [atvSelections, setAtvSelections] = useState<Record<string, number>>({});
 
   const { currency, setCurrency, formatPrice, getConvertedPrice } = useCurrency();
@@ -348,10 +350,17 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   useEffect(() => {
     Promise.all([
       fetch('/api/services/food').then(res => res.json()),
-      fetch('/api/services/tours').then(res => res.json())
-    ]).then(([foodData, toursData]) => {
+      fetch('/api/services/tours').then(res => res.json()),
+      fetch('/api/settings/tours').then(res => res.json())
+    ]).then(([foodData, toursData, settingsData]) => {
       if (Array.isArray(foodData)) setFoodServices(foodData);
       if (Array.isArray(toursData)) setTours(toursData);
+      if (settingsData) {
+        const min = settingsData.minTourPax || 3;
+        setMinTourPax(min);
+        setMaxTourPax(settingsData.maxTourPax || 10);
+        setAtvPeople(min);
+      }
     }).catch(console.error);
   }, []);
 
@@ -853,17 +862,17 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </div>
                           
                           <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm shrink-0">
-                            <div className="font-bold text-sm text-[#23211F] mb-2">{dict.addons?.howManyPeople}</div>
+                            <div className="font-bold text-sm text-[#23211F] mb-2">{dict.addons?.howManyPeople} (Min {minTourPax}, Max {maxTourPax})</div>
                             <div className="flex items-center gap-3">
                               <button 
-                                onClick={() => setAtvPeople(Math.max(1, atvPeople - 1))}
+                                onClick={() => setAtvPeople(Math.max(minTourPax, atvPeople - 1))}
                                 className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 border border-gray-200 text-gray-500 hover:text-black transition-colors"
                               >
                                 <Minus size={16} />
                               </button>
                               <span className="w-4 text-center font-bold text-[#9B7E67]">{atvPeople}</span>
                               <button 
-                                onClick={() => setAtvPeople(Math.min(10, atvPeople + 1))}
+                                onClick={() => setAtvPeople(Math.min(maxTourPax, atvPeople + 1))}
                                 className="w-8 h-8 flex items-center justify-center rounded-full bg-[#23211F] text-white hover:bg-[#9B7E67] transition-colors"
                               >
                                 <Plus size={16} />
@@ -886,7 +895,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </div>
 
                           <div className="mt-4 pb-4 shrink-0">
-                            <PremiumButton onClick={nextStep} disabled={totalAtvTours === 0 || atvPeople < 1}>
+                            <PremiumButton onClick={nextStep} disabled={totalAtvTours === 0 || atvPeople < minTourPax}>
                               {dict.modal?.continue} <ArrowRight size={16} />
                             </PremiumButton>
                           </div>

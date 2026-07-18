@@ -522,7 +522,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                       {tour.price > 0 && (
                         <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/5">
                           <DollarSign size={16} />
-                          <span>{formatPrice(tour.price)}</span>
+                          <span>{formatPrice(tour.price)} {lang === 'en' ? 'per person' : 'por persona'}</span>
                         </div>
                       )}
                     </div>
@@ -684,7 +684,7 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
                     <div className="bg-[#0A0908] border border-white/5 rounded-2xl p-5 flex-1 min-w-[120px]">
                       <DollarSign size={20} className="text-[#9B7E67] mb-3" />
                       <span className="block text-[9px] uppercase tracking-widest text-[#F9F7F4]/40 font-bold mb-1">{t.modal.price}</span>
-                      <span className="font-medium text-[#F9F7F4] text-sm">{formatPrice(selectedTour.price)}</span>
+                      <span className="font-medium text-[#F9F7F4] text-sm">{formatPrice(selectedTour.price)} {lang === 'en' ? 'per person' : 'por persona'}</span>
                     </div>
                   )}
                   <div className="bg-[#0A0908] border border-white/5 rounded-2xl p-5 flex-1 min-w-[120px]">
