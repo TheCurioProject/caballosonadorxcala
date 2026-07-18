@@ -96,9 +96,9 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
         <About />
         <Concept />
         <Suites rooms={rooms} />
+        <Services />
         <FoodServices />
         <Experiences experiences={experiences} />
-        <Services />
         <Reviews />
         <FAQ />
         <Location />

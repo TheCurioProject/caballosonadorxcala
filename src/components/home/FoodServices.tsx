@@ -16,12 +16,8 @@ export const FoodServices = () => {
   const foodServiceData = (dict as any).services?.items?.[1];
 
   return (
-    <section id="servicios-de-comida" className="relative bg-[#2C2621]">
-      {/* Optional subtle background pattern or gradient can go here */}
-      <div className="absolute inset-0 bg-[url('/DSC_0226.webp')] bg-cover bg-center bg-no-repeat opacity-40"></div>
-      <div className="absolute inset-0 bg-gradient-to-t from-[#2C2621] via-[#2C2621]/80 to-[#2C2621]/40"></div>
-
-      <div className="relative h-[70vh] flex items-center justify-center text-center px-6 text-[#E5E0D8]">
+    <section id="servicios-de-comida" className="relative bg-[#23211F]">
+      <div className="h-[70vh] flex items-center justify-center text-center px-6 bg-[#23211F] text-white">
         <div className="max-w-3xl">
           <RevealText>
             <h2 className="uppercase tracking-[0.3em] text-xs font-bold mb-4 text-[#9B7E67]">
@@ -35,13 +31,13 @@ export const FoodServices = () => {
           </RevealText>
           <RevealText delay={0.2}>
             <p className="mt-6 text-white/80 max-w-xl mx-auto font-light leading-relaxed">
-              {foodServiceData?.short || 'Sabores tradicionales preparados en nuestra cocina equipada.'}
+              {foodServiceData?.short || 'Sabores tradicionales preparados para ti.'}
             </p>
           </RevealText>
           <RevealText delay={0.3}>
              <Link 
                 href={`${langPrefix}/servicios-de-comida`}
-                className="mt-12 inline-block border border-white/20 text-white bg-transparent px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] rounded-full hover:bg-white hover:text-[#2C2621] transition-all duration-300 shadow-sm"
+                className="mt-12 inline-block border border-white/20 text-white bg-transparent px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] rounded-full hover:bg-white hover:text-[#23211F] transition-all duration-300 shadow-sm"
              >
                 {(dict as any).foodServices?.viewOptions || 'Ver Opciones'}
              </Link>
