@@ -230,7 +230,12 @@ export const TourBookingModal = ({
                         </button>
                       ))}
                     </div>
-                    <div className="mt-8 flex justify-end">
+                    <div className="mt-8 flex flex-col items-end gap-2">
+                      {!isStep1Valid && (
+                        <p className="text-amber-600 text-[10px] font-bold tracking-widest uppercase">
+                          {isEn ? 'Please select a tour' : 'Por favor selecciona un tour'}
+                        </p>
+                      )}
                       <button 
                         onClick={handleNext} 
                         disabled={!isStep1Valid}
@@ -255,9 +260,9 @@ export const TourBookingModal = ({
                     <div className="mb-8">
                       <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">{isEn ? `Number of people (Min ${minTourPax}, Max ${maxTourPax})` : `Número de personas (Min ${minTourPax}, Max ${maxTourPax})`}</label>
                       <div className="flex items-center gap-4">
-                        <button onClick={() => setPax(p => Math.max(minTourPax, p - 1))} className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-[#23211F] hover:border-[#9B7E67] transition-colors"><ChevronLeft size={20}/></button>
+                        <button onClick={() => setPax(p => Math.max(minTourPax, p - 1))} className={`w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-[#23211F] hover:border-[#9B7E67] transition-colors ${pax <= minTourPax ? 'invisible' : ''}`}><ChevronLeft size={20}/></button>
                         <span className="font-serif text-2xl w-8 text-center text-[#23211F]">{pax}</span>
-                        <button onClick={() => setPax(p => Math.min(maxTourPax, p + 1))} className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-[#23211F] hover:border-[#9B7E67] transition-colors"><ChevronRight size={20}/></button>
+                        <button onClick={() => setPax(p => Math.min(maxTourPax, p + 1))} className={`w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-[#23211F] hover:border-[#9B7E67] transition-colors ${pax >= maxTourPax ? 'invisible' : ''}`}><ChevronRight size={20}/></button>
                       </div>
                     </div>
 
@@ -274,15 +279,22 @@ export const TourBookingModal = ({
                       />
                     </div>
 
-                    <div className="flex justify-between">
-                      <button onClick={handleBack} className="text-gray-500 font-bold uppercase text-xs tracking-widest">{isEn ? "Back" : "Volver"}</button>
-                      <button 
-                        onClick={handleNext} 
-                        disabled={!isStep2Valid}
-                        className="bg-[#23211F] text-white px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 flex items-center gap-2"
-                      >
-                        {isEn ? "Next" : "Siguiente"} <ArrowRight size={16} />
-                      </button>
+                    <div className="flex justify-between items-end">
+                      <button onClick={handleBack} className="text-gray-500 font-bold uppercase text-xs tracking-widest mb-4">{isEn ? "Back" : "Volver"}</button>
+                      <div className="flex flex-col items-end gap-2">
+                        {!isStep2Valid && (
+                          <p className="text-amber-600 text-[10px] font-bold tracking-widest uppercase">
+                            {isEn ? 'Please select a date' : 'Por favor selecciona una fecha'}
+                          </p>
+                        )}
+                        <button 
+                          onClick={handleNext} 
+                          disabled={!isStep2Valid}
+                          className="bg-[#23211F] text-white px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 flex items-center gap-2"
+                        >
+                          {isEn ? "Next" : "Siguiente"} <ArrowRight size={16} />
+                        </button>
+                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -335,15 +347,22 @@ export const TourBookingModal = ({
                         />
                       </div>
 
-                      <div className="mt-12 flex justify-between items-center pt-8 border-t border-gray-100">
-                        <button type="button" onClick={handleBack} className="text-gray-500 font-bold uppercase text-xs tracking-widest">{isEn ? "Back" : "Volver"}</button>
-                        <button 
-                          type="submit" 
-                          disabled={!isStep3Valid || isSubmitting}
-                          className="bg-[#23211F] text-white px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 flex items-center gap-2"
-                        >
-                          <CreditCard size={16} /> {isEn ? "Proceed to Payment" : "Proceder al Pago"}
-                        </button>
+                      <div className="mt-12 flex justify-between items-end pt-8 border-t border-gray-100">
+                        <button type="button" onClick={handleBack} className="text-gray-500 font-bold uppercase text-xs tracking-widest mb-4">{isEn ? "Back" : "Volver"}</button>
+                        <div className="flex flex-col items-end gap-2">
+                          {!isStep3Valid && !isSubmitting && (
+                            <p className="text-amber-600 text-[10px] font-bold tracking-widest uppercase">
+                              {isEn ? 'Fill required fields' : 'Llena los campos requeridos'}
+                            </p>
+                          )}
+                          <button 
+                            type="submit" 
+                            disabled={!isStep3Valid || isSubmitting}
+                            className="bg-[#23211F] text-white px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 flex items-center gap-2"
+                          >
+                            <CreditCard size={16} /> {isEn ? "Proceed to Payment" : "Proceder al Pago"}
+                          </button>
+                        </div>
                       </div>
                     </form>
                   </motion.div>
