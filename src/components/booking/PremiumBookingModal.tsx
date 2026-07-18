@@ -625,6 +625,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
             {/* Left Panel */}
             <div className="hidden md:flex w-5/12 bg-[#23211F] text-[#F9F7F4] flex-col justify-between p-12 relative overflow-hidden shrink-0">
               <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <img src="/imagenes/02_hero/hero_01_img_4885.webp" alt="Background" className="w-full h-full object-cover grayscale mix-blend-overlay" />
                 <svg viewBox="0 0 800 1200" preserveAspectRatio="xMidYMid slice" className="w-full h-full opacity-10">
                   <path d="M-100,200 C200,0 600,400 900,200" fill="none" stroke="#F9F7F4" strokeWidth="2" />
                   <path d="M-100,250 C200,50 600,450 900,250" fill="none" stroke="#F9F7F4" strokeWidth="1.5" />
@@ -930,7 +931,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       <StepIndicator currentStep={4} totalSteps={5} />
                       <h3 className="text-3xl font-serif text-[#23211F] mb-8 shrink-0">{dict.modal?.yourData}</h3>
                       
-                      <div className="space-y-6 flex-1 pb-4">
+                      <form 
+                        onSubmit={(e) => { 
+                          e.preventDefault(); 
+                          if (isFormValid) nextStep(); 
+                        }} 
+                        className="space-y-6 flex-1 pb-4"
+                      >
                         <PremiumInput
                           id="name"
                           type="text"
@@ -978,13 +985,21 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             />
                           </div>
                         </div>
-                      </div>
 
-                      <div className="mt-8 pb-4 shrink-0">
-                        <PremiumButton onClick={nextStep} disabled={!isFormValid}>
-                          {dict.modal?.summary || (isEn ? 'View Summary' : 'Ver Resumen')} <ArrowRight size={16} />
-                        </PremiumButton>
-                      </div>
+                        <div className="mt-8 pb-4 shrink-0">
+                          <button 
+                            type="submit"
+                            disabled={!isFormValid}
+                            className={`flex items-center gap-4 text-xs uppercase tracking-[0.2em] font-bold px-10 py-5 rounded-full transition-all duration-300 transform ${
+                              !isFormValid 
+                                ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                                : 'bg-[#9B7E67] text-[#0A0908] hover:bg-[#F9F7F4] hover:-translate-y-1 shadow-md hover:shadow-xl hover:shadow-black/10'
+                            }`}
+                          >
+                            {dict.modal?.summary || (isEn ? 'View Summary' : 'Ver Resumen')} <ArrowRight size={16} />
+                          </button>
+                        </div>
+                      </form>
                     </motion.div>
                   )}
 
