@@ -703,7 +703,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
             </div>
 
             {/* Right Panel */}
-            <div className="w-full md:w-7/12 flex flex-col h-full bg-[#F9F7F4] relative">
+            <div className="w-full md:w-7/12 flex flex-col h-full bg-[#F9F7F4] text-[#23211F] relative">
               <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-12 pb-32 md:pb-12 scroll-smooth">
                 <AnimatePresence mode="wait">
                   {step === 1 && (

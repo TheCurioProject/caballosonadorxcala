@@ -185,7 +185,7 @@ export const TourBookingModal = ({
           </div>
 
           {/* Main Content */}
-          <div className="w-full md:w-2/3 p-6 md:p-12 flex flex-col h-full overflow-y-auto">
+          <div className="w-full md:w-2/3 p-6 md:p-12 flex flex-col h-full overflow-y-auto text-[#23211F]">
             <button 
               onClick={onClose}
               className="absolute top-6 right-6 p-2 rounded-full hover:bg-gray-100 transition-colors z-10"
@@ -255,9 +255,9 @@ export const TourBookingModal = ({
                     <div className="mb-8">
                       <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">{isEn ? `Number of people (Min ${minTourPax}, Max ${maxTourPax})` : `Número de personas (Min ${minTourPax}, Max ${maxTourPax})`}</label>
                       <div className="flex items-center gap-4">
-                        <button onClick={() => setPax(p => Math.max(minTourPax, p - 1))} className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:border-[#9B7E67]"><ChevronLeft size={20}/></button>
-                        <span className="font-serif text-2xl w-8 text-center">{pax}</span>
-                        <button onClick={() => setPax(p => Math.min(maxTourPax, p + 1))} className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:border-[#9B7E67]"><ChevronRight size={20}/></button>
+                        <button onClick={() => setPax(p => Math.max(minTourPax, p - 1))} className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-[#23211F] hover:border-[#9B7E67] transition-colors"><ChevronLeft size={20}/></button>
+                        <span className="font-serif text-2xl w-8 text-center text-[#23211F]">{pax}</span>
+                        <button onClick={() => setPax(p => Math.min(maxTourPax, p + 1))} className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-[#23211F] hover:border-[#9B7E67] transition-colors"><ChevronRight size={20}/></button>
                       </div>
                       <p className="text-[#9B7E67] text-[11px] mt-3 italic font-serif leading-relaxed">
                         {isEn ? `* For groups larger than ${maxTourPax}, please contact us to coordinate a specialized tour.` : `* Para grupos mayores a ${maxTourPax} personas, favor de contactarnos para coordinar una experiencia a medida.`}
