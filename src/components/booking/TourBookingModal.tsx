@@ -314,6 +314,18 @@ export const TourBookingModal = ({
                           placeholder={isEn ? "Email (@gmail.com or @hotmail.com)" : "Correo (@gmail.com o @hotmail.com)"}
                           className="w-full bg-transparent border-b-2 border-gray-200 py-4 text-[#23211F] text-lg focus:outline-none focus:border-[#9B7E67] transition-colors"
                         />
+                        <AnimatePresence>
+                          {guestEmail.length > 0 && !/^[^\s@]+@(gmail|hotmail)\.[a-z]{2,}$/i.test(guestEmail) && (
+                            <motion.p 
+                              initial={{ opacity: 0, height: 0, marginTop: 0 }} 
+                              animate={{ opacity: 1, height: 'auto', marginTop: 8 }} 
+                              exit={{ opacity: 0, height: 0, marginTop: 0 }} 
+                              className="text-red-500 text-[10px] font-bold tracking-widest uppercase overflow-hidden"
+                            >
+                              {isEn ? "Only Gmail or Hotmail allowed" : "Solo se admite Gmail o Hotmail"}
+                            </motion.p>
+                          )}
+                        </AnimatePresence>
                       </div>
                       <div>
                         <input

@@ -105,6 +105,7 @@ const PremiumInput = ({
   onChange: (val: string) => void;
   isValid: boolean;
   delay?: number;
+  errorMessage?: string;
 }) => {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -159,6 +160,18 @@ const PremiumInput = ({
             >
               <Check size={18} strokeWidth={3} />
             </motion.div>
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {!isValid && value.length > 0 && errorMessage && (
+            <motion.p 
+              initial={{ opacity: 0, height: 0, marginTop: 0 }} 
+              animate={{ opacity: 1, height: 'auto', marginTop: 8 }} 
+              exit={{ opacity: 0, height: 0, marginTop: 0 }} 
+              className="text-red-500 text-[10px] font-bold tracking-widest uppercase overflow-hidden"
+            >
+              {errorMessage}
+            </motion.p>
           )}
         </AnimatePresence>
       </div>
@@ -937,6 +950,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           onChange={setGuestEmail}
                           isValid={isEmailValid}
                           delay={0.2}
+                          errorMessage={isEn ? "Only Gmail or Hotmail allowed" : "Solo se admite Gmail o Hotmail"}
                         />
                         <div className="flex gap-4">
                           <div className="w-1/3">
