@@ -179,10 +179,33 @@ export default function ToursPage({ params }: { params: Promise<{ lang: 'es' | '
     }
   };
 
+  const getTourPrice = (tourData: any) => {
+    const title = tourData.title?.toLowerCase().trim();
+    if (title && prices[title] !== undefined) return prices[title];
+
+    // Fallbacks based on tour type to map across translations
+    const fallbacks: Record<string, string[]> = {
+      "ATV_VOLCANO": ["volcano sunset", "volcán", "volcan"],
+      "ATV_OJO_DE_AGUA": ["ojo de agua"],
+      "ATV_RIO_MOLOTE": ["río molote", "rio molote"],
+      "ATV_EL_CAPOMO": ["el capomo"],
+      "ATV_LAS_CUEVAS": ["las cuevas"],
+      "ATV_JUMURRCA": ["jumurrca"],
+      "ATV_ALTA_VISTA": ["alta vista"]
+    };
+
+    const aliases = fallbacks[tourData.type] || [];
+    for (const alias of aliases) {
+      if (prices[alias] !== undefined) return prices[alias];
+    }
+    
+    return 0;
+  };
+
   const tours = t.tours.map((tourData: any) => ({
     ...tourData,
     images: TOUR_IMAGES[tourData.type] || [TOUR_IMAGES["ATV_OJO_DE_AGUA"][0]],
-    price: prices[tourData.title.toLowerCase().trim()] || 0
+    price: getTourPrice(tourData)
   }));
 
   return (
