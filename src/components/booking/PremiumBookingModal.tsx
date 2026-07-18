@@ -147,7 +147,7 @@ const PremiumInput = ({
           transition={{ type: 'spring', stiffness: 300, damping: 20 }}
           style={{ top: '1rem' }}
         >
-          {isFocused || value ? label.toUpperCase() : placeholder}
+          {isFocused || value ? (label?.toUpperCase() || '') : placeholder}
         </motion.label>
         <AnimatePresence>
           {isValid && value && (
@@ -625,7 +625,6 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
             {/* Left Panel */}
             <div className="hidden md:flex w-5/12 bg-[#23211F] text-[#F9F7F4] flex-col justify-between p-12 relative overflow-hidden shrink-0">
               <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <img src="/imagenes/02_hero/hero_01_img_4885.webp" alt="Background" className="w-full h-full object-cover grayscale mix-blend-overlay" />
                 <svg viewBox="0 0 800 1200" preserveAspectRatio="xMidYMid slice" className="w-full h-full opacity-10">
                   <path d="M-100,200 C200,0 600,400 900,200" fill="none" stroke="#F9F7F4" strokeWidth="2" />
                   <path d="M-100,250 C200,50 600,450 900,250" fill="none" stroke="#F9F7F4" strokeWidth="1.5" />

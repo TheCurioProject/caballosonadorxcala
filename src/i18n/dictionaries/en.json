@@ -125,6 +125,7 @@
     "fullName": "Full Name",
     "email": "Email Address",
     "phone": "Phone Number",
+    "phoneCode": "Code",
     "proceedPayment": "Proceed to Payment",
     "errorTitle": "Oops, something went wrong",
     "retry": "Try Again",
