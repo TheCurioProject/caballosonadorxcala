@@ -96,10 +96,10 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
       
       <main>
         <Hero imageSrc={getImageUrl('/casaexterior.webp', siteImages)} />
-        <About imageSrc={getImageUrl('/casaestancia.webp', siteImages)} />
-        <Concept imageSrc={getImageUrl('/casapaisaje.webp', siteImages)} />
+        <About imageSrc={getImageUrl('/imagenes/04_about/about_casa_44.webp', siteImages)} />
+        <Concept imageSrc={getImageUrl('/imagenes/02_hero/hero_01_img_4885.webp', siteImages)} />
         <Suites rooms={rooms} />
-        <Services imageSrc={getImageUrl('/casacuartos.webp', siteImages)} siteImages={siteImages} />
+        <Services imageSrc={getImageUrl('/imagenes/03_rooms/room1_paso_suave.webp', siteImages)} siteImages={siteImages} />
         <FoodServices />
         <Experiences experiences={experiences} />
         <Reviews />

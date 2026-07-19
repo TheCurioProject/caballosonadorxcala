@@ -4,18 +4,18 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
     name: 'Hero Portada',
     group: 'HOMEPAGE'
   },
-  '/casaestancia.webp': {
-    url: '/casaestancia.webp',
+  '/imagenes/04_about/about_casa_44.webp': {
+    url: '/imagenes/04_about/about_casa_44.webp',
     name: 'El Santuario',
     group: 'HOMEPAGE'
   },
-  '/casapaisaje.webp': {
-    url: '/casapaisaje.webp',
+  '/imagenes/02_hero/hero_01_img_4885.webp': {
+    url: '/imagenes/02_hero/hero_01_img_4885.webp',
     name: 'Un lugar para pausar...',
     group: 'HOMEPAGE'
   },
-  '/casacuartos.webp': {
-    url: '/casacuartos.webp',
+  '/imagenes/03_rooms/room1_paso_suave.webp': {
+    url: '/imagenes/03_rooms/room1_paso_suave.webp',
     name: 'Durante Tu Estancia',
     group: 'HOMEPAGE'
   },

@@ -43,7 +43,7 @@ export const About = ({ imageSrc }: { imageSrc?: string }) => {
           className="relative h-[400px] md:h-[600px] w-full mt-12 md:mt-0 rounded-2xl overflow-hidden shadow-2xl group"
         >
           <Image 
-            src={imageSrc || `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/casaestancia.webp`} 
+            src={imageSrc || `/imagenes/04_about/about_casa_44.webp`} 
             alt="Casa Caballo Soñador - Exterior" 
             fill 
             sizes="(max-width: 1024px) 100vw, 50vw" 

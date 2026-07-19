@@ -53,7 +53,7 @@ export const Concept = ({ imageSrc }: { imageSrc?: string }) => {
           style={{ aspectRatio: '16/9' }}
         >
           <Image
-            src={imageSrc || `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/DSC_0120.webp`}
+            src={imageSrc || `/imagenes/02_hero/hero_01_img_4885.webp`}
             alt="Concepto Hotel Soñador"
             fill
             sizes="(max-width: 1024px) 100vw, 1024px"
