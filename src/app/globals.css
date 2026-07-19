@@ -91,23 +91,24 @@
     rgba(255, 255, 255, 0.25) 10px,
     rgba(255, 255, 255, 0.25) 20px
   ) !important;
-  color: white !important;
+  color: #23211F !important;
   border-radius: 0 !important;
   transform: scale(1) !important;
   box-shadow: none !important;
   z-index: 1;
 }
 
+.rdp-day_range_start,
+.rdp-day_range_end {
+  background-color: transparent !important; /* Managed by Tailwind bg-diagonal-gold */
+}
+
 .rdp-day_range_start {
-  background-color: var(--rdp-accent-color-dark) !important;
-  color: white !important;
   border-radius: 50% 0 0 50% !important;
   transform: scale(1.1) !important;
   z-index: 20;
 }
 .rdp-day_range_end {
-  background-color: var(--rdp-accent-color-dark) !important;
-  color: white !important;
   border-radius: 0 50% 50% 0 !important;
   transform: scale(1.1) !important;
   z-index: 20;

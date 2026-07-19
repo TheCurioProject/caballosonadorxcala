@@ -746,8 +746,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           className="premium-calendar !m-0"
                           modifiersClassNames={{
                             selected: 'bg-[#9B7E67] text-white font-bold rounded-full',
-                            range_start: 'bg-[#23211F] text-white',
-                            range_end: 'bg-[#23211F] text-white',
+                            range_start: 'bg-diagonal-gold rounded-l-full',
+                            range_end: 'bg-diagonal-gold rounded-r-full',
                             range_middle: 'bg-diagonal-gold border-0',
                             booked: '!text-red-500 !font-bold line-through !opacity-80',
                             buffer: '!text-[#D4A574] !font-bold line-through !opacity-80',

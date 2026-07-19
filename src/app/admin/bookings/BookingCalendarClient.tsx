@@ -208,14 +208,14 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
                   bgClass = "bg-[#c1121f] cursor-not-allowed shadow-inner";
                   textClass = "text-white opacity-80";
                 } else if (checkIn && isSameDay(day, checkIn)) {
-                  bgClass = "bg-[#23211F] text-white";
-                  textClass = "text-white font-bold";
+                  bgClass = "bg-diagonal-gold border-0" + (checkOut ? " rounded-r-none" : "");
+                  textClass = "text-[#23211F] font-bold";
                 } else if (checkOut && isSameDay(day, checkOut)) {
-                  bgClass = "bg-[#23211F] text-white";
-                  textClass = "text-white font-bold";
+                  bgClass = "bg-diagonal-gold border-0 rounded-l-none";
+                  textClass = "text-[#23211F] font-bold";
                 } else if (checkIn && checkOut && day > checkIn && day < checkOut) {
-                  bgClass = "bg-diagonal-gold border-0";
-                  textClass = "text-white font-medium";
+                  bgClass = "bg-diagonal-gold border-0 rounded-none";
+                  textClass = "text-[#23211F] font-medium";
                 }
 
                 return (
