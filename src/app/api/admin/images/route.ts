@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
 import { DEFAULT_IMAGES } from '@/lib/siteImages';
 import fs from 'fs/promises';
 import path from 'path';
-
-const prisma = new PrismaClient();
 
 export async function GET() {
   try {
