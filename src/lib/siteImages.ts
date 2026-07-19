@@ -16,8 +16,13 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
   },
   '/casacuartos.webp': {
     url: '/casacuartos.webp',
-    name: 'Durante Tu Estancia',
-    group: 'HOMEPAGE'
+    name: 'Durante Tu Estancia (Cuartos)',
+    group: 'DURANTE TU ESTANCIA (Tarjetas)'
+  },
+  '/chef_durante_estancia.webp': {
+    url: '/chef_durante_estancia.webp',
+    name: 'Chef Privado',
+    group: 'DURANTE TU ESTANCIA (Tarjetas)'
   },
   '/DSC_0226.webp': {
     url: '/DSC_0226.webp',
@@ -68,29 +73,29 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
   '/imagenes/05_amenities/amenity_02_pool_lounge_new.webp': {
     url: '/imagenes/05_amenities/amenity_02_pool_lounge_new.webp',
     name: 'amenity_02_pool_lounge_new.webp',
-    group: 'AMENITIES'
+    group: 'DURANTE TU ESTANCIA (Tarjetas)'
   },
 
   '/imagenes/05_amenities/amenity_05_guest_kitchen.webp': {
     url: '/imagenes/05_amenities/amenity_05_guest_kitchen.webp',
     name: 'amenity_05_guest_kitchen.webp',
-    group: 'AMENITIES'
+    group: 'DURANTE TU ESTANCIA (Tarjetas)'
   },
   '/imagenes/05_amenities/amenity_06_wifi.webp': {
     url: '/imagenes/05_amenities/amenity_06_wifi.webp',
     name: 'amenity_06_wifi.webp',
-    group: 'AMENITIES'
+    group: 'DURANTE TU ESTANCIA (Tarjetas)'
   },
   '/imagenes/05_amenities/amenity_07_sunset_tour.webp': {
     url: '/imagenes/05_amenities/amenity_07_sunset_tour.webp',
     name: 'amenity_07_sunset_tour.webp',
-    group: 'AMENITIES'
+    group: 'DURANTE TU ESTANCIA (Tarjetas)'
   },
 
   '/imagenes/05_amenities/amenity_09_rooftop_terrace.webp': {
     url: '/imagenes/05_amenities/amenity_09_rooftop_terrace.webp',
     name: 'amenity_09_rooftop_terrace.webp',
-    group: 'AMENITIES'
+    group: 'DURANTE TU ESTANCIA (Tarjetas)'
   },
 
   '/rooms/room1/1.webp': {

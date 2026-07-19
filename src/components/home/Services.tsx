@@ -15,8 +15,8 @@ export type { ServiceItem } from './ServiceModal';
 const ServiceModal = dynamic(() => import('./ServiceModal').then(mod => mod.ServiceModal), { ssr: false });
 
 const images = [
-  '/imagenes/03_rooms/madera_viva.webp', // Rooms
-  '/DSC_0226.webp', // Chef
+  '/casacuartos.webp', // Rooms
+  '/chef_durante_estancia.webp', // Chef
   '/imagenes/05_amenities/amenity_02_pool_lounge_new.webp', // Pool
   '/imagenes/05_amenities/amenity_05_guest_kitchen.webp', // Guest Kitchen
   '/imagenes/05_amenities/amenity_06_wifi.webp', // Wifi
