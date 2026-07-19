@@ -81,36 +81,40 @@
   opacity: 0.3;
 }
 
-.rdp-day_range_middle,
-.bg-diagonal-gold {
+.rdp-day_range_start,
+.rdp-day_range_end {
+  background-color: transparent !important;
+}
+
+.bg-gold-single {
+  background-color: #9B7E67 !important;
+  color: #F9F7F4 !important;
+  border-radius: 0 !important;
+  clip-path: polygon(15% 0%, 100% 0%, 85% 100%, 0% 100%) !important;
+  z-index: 20;
+}
+
+.bg-gold-middle {
   background-color: #D4A574 !important;
-  background-image: repeating-linear-gradient(
-    -45deg,
-    transparent,
-    transparent 10px,
-    rgba(255, 255, 255, 0.25) 10px,
-    rgba(255, 255, 255, 0.25) 20px
-  ) !important;
   color: #23211F !important;
   border-radius: 0 !important;
-  transform: scale(1) !important;
   box-shadow: none !important;
   z-index: 1;
 }
 
-.rdp-day_range_start,
-.rdp-day_range_end {
-  background-color: transparent !important; /* Managed by Tailwind bg-diagonal-gold */
-}
-
-.rdp-day_range_start {
-  border-radius: 50% 0 0 50% !important;
-  transform: scale(1.1) !important;
+.bg-gold-start {
+  background-color: #9B7E67 !important;
+  color: #F9F7F4 !important;
+  border-radius: 0 !important;
+  clip-path: polygon(15% 0%, 100% 0%, 100% 100%, 0% 100%) !important;
   z-index: 20;
 }
-.rdp-day_range_end {
-  border-radius: 0 50% 50% 0 !important;
-  transform: scale(1.1) !important;
+
+.bg-gold-end {
+  background-color: #9B7E67 !important;
+  color: #F9F7F4 !important;
+  border-radius: 0 !important;
+  clip-path: polygon(0% 0%, 100% 0%, 85% 100%, 0% 100%) !important;
   z-index: 20;
 }
 
