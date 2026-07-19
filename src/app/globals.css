@@ -27,7 +27,7 @@
 
 .rdp-day {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  border-radius: 50% !important;
+  border-radius: 50%;
   font-weight: 500;
   color: #23211F;
 }
