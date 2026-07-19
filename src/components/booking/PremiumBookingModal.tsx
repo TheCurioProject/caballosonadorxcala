@@ -745,10 +745,10 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           numberOfMonths={1}
                           className="premium-calendar !m-0"
                           modifiersClassNames={{
-                            selected: '!bg-gold-single !font-bold',
-                            range_start: '!bg-gold-start',
-                            range_end: '!bg-gold-end',
-                            range_middle: '!bg-gold-middle',
+                            selected: 'bg-gold-single font-bold',
+                            range_start: 'bg-gold-start',
+                            range_end: 'bg-gold-end',
+                            range_middle: 'bg-gold-middle',
                             booked: '!text-red-500 !font-bold line-through !opacity-80',
                             buffer: '!text-[#D4A574] !font-bold line-through !opacity-80',
                             blocked: '!text-gray-400 line-through !opacity-60',
