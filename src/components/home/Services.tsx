@@ -20,7 +20,7 @@ const images = [
   '/imagenes/05_amenities/amenity_02_pool_lounge_new.webp', // Pool
   '/imagenes/05_amenities/amenity_05_guest_kitchen.webp', // Guest Kitchen
   '/imagenes/05_amenities/amenity_06_wifi.webp', // Wifi
-  '/tours_gallery/07_volcano/00_sunset_019.webp', // Sunset
+  '/imagenes/05_amenities/amenity_07_sunset_tour.webp', // Sunset
   '/imagenes/05_amenities/amenity_09_rooftop_terrace.webp' // Rooftop
 ];
 
