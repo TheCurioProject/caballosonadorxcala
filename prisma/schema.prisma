@@ -189,3 +189,29 @@ model ServiceBooking {
   @@index([startDate, endDate])
   @@map("service_bookings")
 }
+
+model SiteImage {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique @db.VarChar(100) // e.g., 'home.hero', 'tours.gallery.1'
+  group     String   @db.VarChar(50)          // 'HOMEPAGE', 'FOOD', 'TOURS'
+  name      String   @db.VarChar(255)         // e.g., 'Hero Image'
+  url       String   @db.VarChar(500)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  history   SiteImageHistory[]
+
+  @@map("site_images")
+}
+
+model SiteImageHistory {
+  id          Int      @id @default(autoincrement())
+  siteImageId Int      @map("site_image_id")
+  url         String   @db.VarChar(500)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  siteImage   SiteImage @relation(fields: [siteImageId], references: [id], onDelete: Cascade)
+
+  @@index([siteImageId])
+  @@map("site_image_history")
+}

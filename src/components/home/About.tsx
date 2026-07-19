@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { RevealText } from './RevealText';
 import { useDictionary } from '@/i18n/DictionaryContext';
 
-export const About = () => {
+export const About = ({ imageSrc }: { imageSrc?: string }) => {
   const dict = useDictionary();
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
@@ -43,7 +43,7 @@ export const About = () => {
           className="relative h-[400px] md:h-[600px] w-full mt-12 md:mt-0 rounded-2xl overflow-hidden shadow-2xl group"
         >
           <Image 
-            src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/casaexterior.webp`} 
+            src={imageSrc || `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/casaestancia.webp`} 
             alt="Casa Caballo Soñador - Exterior" 
             fill 
             sizes="(max-width: 1024px) 100vw, 50vw" 

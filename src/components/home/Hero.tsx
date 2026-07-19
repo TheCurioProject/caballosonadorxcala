@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { RevealText } from './RevealText';
 import { useDictionary } from '@/i18n/DictionaryContext';
 
-export const Hero = () => {
+export const Hero = ({ imageSrc }: { imageSrc?: string }) => {
   const dict = useDictionary();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
@@ -19,7 +19,7 @@ export const Hero = () => {
     <section ref={ref} className="relative min-h-[100dvh] w-full overflow-hidden bg-[#1A1817]">
       <motion.div style={{ y, scale, opacity }} className="absolute inset-0 w-full h-full transform-gpu origin-top">
         <Image 
-          src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/casaexterior.webp`}
+          src={imageSrc || `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/casaexterior.webp`}
           alt="Casa Caballo Soñador - Hotel Boutique" 
           fill
           priority

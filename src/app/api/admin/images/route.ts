@@ -1,0 +1,112 @@
+import { NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+import { DEFAULT_IMAGES } from '@/lib/siteImages';
+import fs from 'fs/promises';
+import path from 'path';
+
+const prisma = new PrismaClient();
+
+export async function GET() {
+  try {
+    const images = await prisma.siteImage.findMany({
+      include: {
+        history: {
+          orderBy: { createdAt: 'desc' }
+        }
+      }
+    });
+
+    // Merge with defaults
+    const responseData = Object.entries(DEFAULT_IMAGES).map(([key, defaultData]) => {
+      const dbImage = images.find(img => img.key === key);
+      return {
+        key,
+        group: defaultData.group,
+        name: defaultData.name,
+        url: dbImage?.url || defaultData.url,
+        hasHistory: dbImage ? dbImage.history.length > 0 : false,
+        history: dbImage?.history || []
+      };
+    });
+
+    // Group by group
+    const grouped = responseData.reduce((acc, curr) => {
+      if (!acc[curr.group]) acc[curr.group] = [];
+      acc[curr.group].push(curr);
+      return acc;
+    }, {} as Record<string, any[]>);
+
+    return NextResponse.json(grouped);
+  } catch (error) {
+    console.error('Error fetching images:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+    const key = formData.get('key') as string;
+
+    if (!file || !key) {
+      return NextResponse.json({ error: 'Faltan campos requeridos' }, { status: 400 });
+    }
+
+    const defaultData = DEFAULT_IMAGES[key as keyof typeof DEFAULT_IMAGES];
+    if (!defaultData) {
+      return NextResponse.json({ error: 'Clave de imagen no válida' }, { status: 400 });
+    }
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    
+    // Create unique filename
+    const ext = path.extname(file.name) || '.webp';
+    const filename = `${key.replace('.', '_')}_${Date.now()}${ext}`;
+    
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'images');
+    
+    // Ensure directory exists
+    try {
+      await fs.access(uploadDir);
+    } catch {
+      await fs.mkdir(uploadDir, { recursive: true });
+    }
+
+    await fs.writeFile(path.join(uploadDir, filename), buffer);
+    const newUrl = `/uploads/images/${filename}`;
+
+    // Update DB
+    const existingImage = await prisma.siteImage.findUnique({ where: { key } });
+
+    if (existingImage) {
+      // Save to history before updating
+      await prisma.siteImageHistory.create({
+        data: {
+          siteImageId: existingImage.id,
+          url: existingImage.url,
+        }
+      });
+
+      await prisma.siteImage.update({
+        where: { key },
+        data: { url: newUrl }
+      });
+    } else {
+      await prisma.siteImage.create({
+        data: {
+          key,
+          group: defaultData.group,
+          name: defaultData.name,
+          url: newUrl
+        }
+      });
+    }
+
+    return NextResponse.json({ success: true, url: newUrl });
+
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}

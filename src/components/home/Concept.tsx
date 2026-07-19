@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { RevealText } from './RevealText';
 
-export const Concept = () => {
+export const Concept = ({ imageSrc }: { imageSrc?: string }) => {
   const dict = useDictionary();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
@@ -53,7 +53,7 @@ export const Concept = () => {
           style={{ aspectRatio: '16/9' }}
         >
           <Image
-            src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/DSC_0120.webp`}
+            src={imageSrc || `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/DSC_0120.webp`}
             alt="Concepto Hotel Soñador"
             fill
             sizes="(max-width: 1024px) 100vw, 1024px"

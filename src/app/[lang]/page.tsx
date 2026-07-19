@@ -2,6 +2,7 @@ import dynamic from 'next/dynamic';
 import prisma from '@/lib/prisma';
 import { Hero } from '@/components/home/Hero';
 import { getDictionary } from '@/i18n/dictionaries';
+import { getSiteImages } from '@/lib/siteImages';
 
 // Dynamic imports for below-the-fold components to improve initial load performance
 const About = dynamic(() => import('@/components/home/About').then(mod => mod.About));
@@ -21,6 +22,7 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
   const { lang } = await params;
   const safeLang = lang || 'es';
   const dict = await getDictionary(safeLang);
+  const siteImages = await getSiteImages();
 
   // Fetch from database
   let experiences = [];
@@ -92,11 +94,11 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
     <div className="bg-[#F9F7F4] font-sans min-h-screen antialiased selection:bg-[#9B7E67] selection:text-[#F9F7F4]">
       
       <main>
-        <Hero />
-        <About />
-        <Concept />
+        <Hero imageSrc={siteImages['home.hero'].url} />
+        <About imageSrc={siteImages['home.about'].url} />
+        <Concept imageSrc={siteImages['home.concept'].url} />
         <Suites rooms={rooms} />
-        <Services />
+        <Services imageSrc={siteImages['home.services'].url} />
         <FoodServices />
         <Experiences experiences={experiences} />
         <Reviews />

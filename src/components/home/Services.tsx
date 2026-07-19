@@ -29,7 +29,7 @@ const icons = [
   Utensils, Wifi, Sun, MoonStar
 ];
 
-export const Services = () => {
+export const Services = ({ imageSrc }: { imageSrc?: string }) => {
   const dict = useDictionary();
   const router = useRouter();
   const params = useParams();
@@ -80,7 +80,7 @@ export const Services = () => {
               className="w-full lg:w-5/12 h-[300px] sm:h-[400px] lg:h-[550px] relative rounded-[2rem] overflow-hidden shadow-2xl flex-shrink-0 lg:sticky lg:top-32"
             >
               <Image 
-                src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${images[0]}`}
+                src={imageSrc || `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${images[0]}`}
                 alt="6 Habitaciones Privadas"
                 fill
                 sizes="(max-width: 1024px) 100vw, 40vw"
