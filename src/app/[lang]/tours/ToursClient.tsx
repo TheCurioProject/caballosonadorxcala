@@ -94,6 +94,8 @@ const TOUR_IMAGES: Record<string, string[]> = {
   ]
 };
 
+import { getImageUrl } from '@/lib/siteImages';
+
 export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', siteImages: any }) {
   const dict = useDictionary();
   const pathname = usePathname();
@@ -201,11 +203,14 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
     return 0;
   };
 
-  const tours = t.tours.map((tourData: any) => ({
-    ...tourData,
-    images: TOUR_IMAGES[tourData.type] || [TOUR_IMAGES["ATV_OJO_DE_AGUA"][0]],
-    price: getTourPrice(tourData)
-  }));
+  const tours = t.tours.map((tourData: any) => {
+    const rawImages = TOUR_IMAGES[tourData.type] || [TOUR_IMAGES["ATV_OJO_DE_AGUA"][0]];
+    return {
+      ...tourData,
+      images: rawImages.map(img => getImageUrl(`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${img}`, siteImages)),
+      price: getTourPrice(tourData)
+    };
+  });
 
   return (
     <div className="bg-[#0A0908] text-[#F9F7F4] font-sans min-h-screen antialiased selection:bg-[#9B7E67] selection:text-[#0A0908]">
@@ -350,7 +355,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
           className="absolute inset-0 z-0"
         >
           <img 
-            src={siteImages['tours.hero']?.url || `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/imagenes/07_tours/atvhero.webp`}
+            src={getImageUrl('/imagenes/07_tours/atvhero.webp', siteImages)}
             alt="ATV Tours Chacala"
             className="w-full h-full object-cover opacity-60 object-[center_30%]"
           />
@@ -490,7 +495,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                   <div className="w-full md:w-1/2 overflow-hidden rounded-3xl relative aspect-[4/5] md:aspect-[3/4] shadow-2xl shadow-black/50 border border-white/5">
                     <div className="absolute inset-0 bg-[#9B7E67]/20 group-hover:bg-transparent transition-colors duration-700 z-10 pointer-events-none mix-blend-overlay"></div>
                     <img 
-                      src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${tour.images[0]}`}
+                      src={tour.images[0]}
                       alt={tour.title}
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3s] ease-out group-hover:scale-110 filter brightness-90 group-hover:brightness-100"
                     />

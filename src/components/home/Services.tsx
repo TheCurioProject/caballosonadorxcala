@@ -29,7 +29,9 @@ const icons = [
   Utensils, Wifi, Sun, MoonStar
 ];
 
-export const Services = ({ imageSrc }: { imageSrc?: string }) => {
+import { getImageUrl } from '@/lib/siteImages';
+
+export const Services = ({ imageSrc, siteImages }: { imageSrc?: string, siteImages?: any }) => {
   const dict = useDictionary();
   const router = useRouter();
   const params = useParams();
@@ -45,7 +47,7 @@ export const Services = ({ imageSrc }: { imageSrc?: string }) => {
       title: item.title,
       short: item.short,
       desc: item.desc,
-      image: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${images[index]}`,
+      image: siteImages ? getImageUrl(`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${images[index]}`, siteImages) : `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${images[index]}`,
       icon: icons[index],
       originalIndex: index
     }))

@@ -11,6 +11,8 @@ import { useBooking } from '@/context/BookingContext';
 import { ActionLoadingScreen } from '@/components/ui/ActionLoadingScreen';
 import { useCurrency } from '@/context/CurrencyContext';
 
+import { getImageUrl } from '@/lib/siteImages';
+
 export default function ServiciosDeComidaClient({ siteImages }: { siteImages: any }) {
   const params = useParams();
   const pathname = usePathname();
@@ -50,7 +52,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
           ? 'Start your day with a delicious freshly prepared breakfast. Includes coffee, fresh juices, seasonal fruit, and your choice of main dish.'
           : 'Comienza tu día con un delicioso desayuno preparado al momento. Incluye café, jugos frescos, fruta de temporada y plato fuerte a elegir.',
         price: (isEn ? 'From ' : 'Desde ') + formatPrice(500) + ' / pax',
-        image: siteImages['food.kitchen'].url
+        image: getImageUrl('/imagenes/05_amenities/amenity_05_guest_kitchen.webp', siteImages)
       },
       {
         id: 'breakfast_lunch',
@@ -61,7 +63,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
           ? 'The perfect option for those planning to spend the day at the house. Enjoy a full breakfast and a spectacular lunch by the pool.'
           : 'La opción perfecta para quienes planean pasar el día en la casa. Disfruta de un desayuno completo y una comida espectacular junto a la piscina.',
         price: (isEn ? 'From ' : 'Desde ') + formatPrice(900) + ' / pax',
-        image: siteImages['food.pool'].url
+        image: getImageUrl('/imagenes/05_amenities/amenity_02_pool_lounge.webp', siteImages)
       },
       {
         id: 'dinner',
@@ -72,7 +74,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
           ? 'An unforgettable culinary evening. Exquisite dishes to close the day while enjoying the sunset and the sea breeze.'
           : 'Una velada culinaria inolvidable. Platillos exquisitos para cerrar el día mientras disfrutas del atardecer y la brisa marina.',
         price: (isEn ? 'From ' : 'Desde ') + formatPrice(700) + ' / pax',
-        image: siteImages['food.sunset'].url
+        image: getImageUrl('/tours_gallery/07_volcano/00_sunset_019.webp', siteImages)
       }
     ]
   };
@@ -221,7 +223,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
           className="absolute inset-0"
         >
           <Image 
-            src={siteImages['food.hero'].url}
+            src={getImageUrl('/DSC_0226.webp', siteImages)}
             alt="Chef Service"
             fill
             className="object-cover object-center"

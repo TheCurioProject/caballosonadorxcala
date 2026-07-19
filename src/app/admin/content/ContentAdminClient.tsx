@@ -107,11 +107,17 @@ export default function ContentAdminClient() {
     return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-gray-500 w-8 h-8" /></div>;
   }
 
-  const tabs = [
-    { id: 'HOMEPAGE', label: 'Inicio (Homepage)' },
-    { id: 'FOOD', label: 'Comida' },
-    { id: 'TOURS', label: 'Tours' },
-  ];
+  const tabKeys = Object.keys(images).sort();
+  // Ensure HOMEPAGE is first if it exists
+  if (tabKeys.includes('HOMEPAGE')) {
+    tabKeys.splice(tabKeys.indexOf('HOMEPAGE'), 1);
+    tabKeys.unshift('HOMEPAGE');
+  }
+
+  const tabs = tabKeys.map(key => ({
+    id: key,
+    label: key
+  }));
 
   const activeImages = images[activeTab] || [];
 
@@ -136,7 +142,7 @@ export default function ContentAdminClient() {
 
       {/* Tabs */}
       <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+        <nav className="-mb-px flex space-x-4 overflow-x-auto pb-2 scrollbar-hide" aria-label="Tabs">
           {tabs.map((tab) => (
             <button
               key={tab.id}

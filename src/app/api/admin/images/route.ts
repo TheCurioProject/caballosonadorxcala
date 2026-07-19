@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Faltan campos requeridos' }, { status: 400 });
     }
 
-    const defaultData = DEFAULT_IMAGES[key as keyof typeof DEFAULT_IMAGES];
+    const defaultData = (DEFAULT_IMAGES as any)[key];
     if (!defaultData) {
       return NextResponse.json({ error: 'Clave de imagen no válida' }, { status: 400 });
     }
@@ -60,7 +60,8 @@ export async function POST(request: Request) {
     
     // Create unique filename
     const ext = path.extname(file.name) || '.webp';
-    const filename = `${key.replace('.', '_')}_${Date.now()}${ext}`;
+    const safeKey = key.replace(/[\/\\.]/g, '_');
+    const filename = `${safeKey}_${Date.now()}${ext}`;
     
     const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'images');
     

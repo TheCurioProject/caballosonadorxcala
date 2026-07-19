@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic';
 import prisma from '@/lib/prisma';
 import { Hero } from '@/components/home/Hero';
 import { getDictionary } from '@/i18n/dictionaries';
-import { getSiteImages } from '@/lib/siteImages';
+import { getSiteImages, getImageUrl } from '@/lib/siteImages';
 
 // Dynamic imports for below-the-fold components to improve initial load performance
 const About = dynamic(() => import('@/components/home/About').then(mod => mod.About));
@@ -46,7 +46,7 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
       price: basePrice,
       description: r.description,
       shortDescription: r.shortDescription,
-      images: images.map(img => `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${img}`),
+      images: images.map(img => getImageUrl(`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${img}`, siteImages)),
       details: { guests: r.guests, beds: r.beds, bath: r.bath, ...(r.extra ? { extra: r.extra } : {}) }
     };
   };
@@ -85,7 +85,7 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
         title: t.title,
         price: i === 0 ? "$75 USD" : (i === 3 ? "$80 USD" : "$90 USD"),
         description: t.description,
-        imageUrl: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${images[i]}`
+        imageUrl: getImageUrl(`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${images[i]}`, siteImages)
       };
     }).slice(0, 4) as any;
   }
@@ -94,11 +94,11 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
     <div className="bg-[#F9F7F4] font-sans min-h-screen antialiased selection:bg-[#9B7E67] selection:text-[#F9F7F4]">
       
       <main>
-        <Hero imageSrc={siteImages['home.hero'].url} />
-        <About imageSrc={siteImages['home.about'].url} />
-        <Concept imageSrc={siteImages['home.concept'].url} />
+        <Hero imageSrc={getImageUrl('/casaexterior.webp', siteImages)} />
+        <About imageSrc={getImageUrl('/casaestancia.webp', siteImages)} />
+        <Concept imageSrc={getImageUrl('/casapaisaje.webp', siteImages)} />
         <Suites rooms={rooms} />
-        <Services imageSrc={siteImages['home.services'].url} />
+        <Services imageSrc={getImageUrl('/casacuartos.webp', siteImages)} siteImages={siteImages} />
         <FoodServices />
         <Experiences experiences={experiences} />
         <Reviews />
