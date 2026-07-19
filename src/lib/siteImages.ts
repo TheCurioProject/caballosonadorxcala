@@ -1,4 +1,5 @@
-import prisma from \'@/lib/prisma\';\n\nexport const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: string }> = {\n  '/casaexterior.webp': {
+export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: string }> = {
+  '/casaexterior.webp': {
     url: '/casaexterior.webp',
     name: 'Hero Portada',
     group: 'HOMEPAGE'
@@ -485,29 +486,6 @@ import prisma from \'@/lib/prisma\';\n\nexport const DEFAULT_IMAGES: Record<stri
   },
 };
 
-export async function getSiteImages() {
-  const images = await prisma.siteImage.findMany();
-  
-  const mergedImages = { ...DEFAULT_IMAGES };
-  
-  images.forEach(img => {
-    if (mergedImages[img.key]) {
-      mergedImages[img.key].url = img.url;
-    }
-  });
-  
-  return mergedImages;
-}
-
-export async function getSiteImage(key: string) {
-  const image = await prisma.siteImage.findUnique({ where: { key } });
-  if (image) return image.url;
-  
-  const defaultImage = DEFAULT_IMAGES[key];
-  return defaultImage ? defaultImage.url : '';
-}
-
-// Client helper
 export function getImageUrl(originalPath: string, siteImages: any) {
   return siteImages[originalPath]?.url || originalPath;
 }

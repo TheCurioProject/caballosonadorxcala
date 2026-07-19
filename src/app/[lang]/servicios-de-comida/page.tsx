@@ -1,4 +1,4 @@
-import { getSiteImages } from '@/lib/siteImages';
+import { getSiteImages } from '@/lib/siteImages.server';
 import ServiciosDeComidaClient from './ServiciosDeComidaClient';
 
 export default async function ServiciosDeComidaPage() {

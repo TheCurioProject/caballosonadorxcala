@@ -1,4 +1,4 @@
-import { getSiteImages } from '@/lib/siteImages';
+import { getSiteImages } from '@/lib/siteImages.server';
 import ToursClient from './ToursClient';
 
 export default async function ToursPage({ params }: { params: Promise<{ lang: 'es' | 'en' }> }) {

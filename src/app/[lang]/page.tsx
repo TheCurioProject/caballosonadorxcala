@@ -2,7 +2,8 @@ import dynamic from 'next/dynamic';
 import prisma from '@/lib/prisma';
 import { Hero } from '@/components/home/Hero';
 import { getDictionary } from '@/i18n/dictionaries';
-import { getSiteImages, getImageUrl } from '@/lib/siteImages';
+import { getImageUrl } from '@/lib/siteImages';
+import { getSiteImages } from '@/lib/siteImages.server';
 
 // Dynamic imports for below-the-fold components to improve initial load performance
 const About = dynamic(() => import('@/components/home/About').then(mod => mod.About));
