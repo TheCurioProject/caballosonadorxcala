@@ -208,17 +208,17 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
                   bgClass = "bg-[#c1121f] cursor-not-allowed shadow-inner";
                   textClass = "text-white opacity-80";
                 } else if (checkIn && checkOut && isSameDay(day, checkIn)) {
-                  bgClass = "bg-gold-start relative z-10";
+                  bgClass = "!bg-[#9B7E67] !text-[#F9F7F4] !rounded-none ![clip-path:polygon(15%_0%,100%_0%,100%_100%,0%_100%)] relative z-20";
                   textClass = "text-[#F9F7F4] font-bold";
                 } else if (checkIn && checkOut && isSameDay(day, checkOut)) {
-                  bgClass = "bg-gold-end relative z-10";
+                  bgClass = "!bg-[#9B7E67] !text-[#F9F7F4] !rounded-none ![clip-path:polygon(0%_0%,100%_0%,85%_100%,0%_100%)] relative z-20";
                   textClass = "text-[#F9F7F4] font-bold";
                 } else if (checkIn && isSameDay(day, checkIn)) {
-                  bgClass = "bg-gold-single relative z-10";
+                  bgClass = "!bg-[#9B7E67] !text-[#F9F7F4] !rounded-none ![clip-path:polygon(15%_0%,100%_0%,85%_100%,0%_100%)] relative z-20";
                   textClass = "text-[#F9F7F4] font-bold";
                 } else if (checkIn && checkOut && day > checkIn && day < checkOut) {
-                  bgClass = "bg-gold-middle";
-                  textClass = "text-[#23211F] font-medium";
+                  bgClass = "!bg-[#D4A574] !text-[#23211F] !rounded-none relative z-10";
+                  textClass = "text-[#23211F] font-bold";
                 }
 
                 return (

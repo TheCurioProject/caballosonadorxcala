@@ -76,47 +76,10 @@
   color: #9CA3AF;
   font-weight: 700;
 }
-
 .rdp-day_disabled {
   opacity: 0.3;
 }
 
-.rdp-day_range_start,
-.rdp-day_range_end {
-  background-color: transparent !important;
-}
-
-.bg-gold-single {
-  background-color: #9B7E67 !important;
-  color: #F9F7F4 !important;
-  border-radius: 0 !important;
-  clip-path: polygon(15% 0%, 100% 0%, 85% 100%, 0% 100%) !important;
-  z-index: 20;
-}
-
-.bg-gold-middle {
-  background-color: #D4A574 !important;
-  color: #23211F !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  z-index: 1;
-}
-
-.bg-gold-start {
-  background-color: #9B7E67 !important;
-  color: #F9F7F4 !important;
-  border-radius: 0 !important;
-  clip-path: polygon(15% 0%, 100% 0%, 100% 100%, 0% 100%) !important;
-  z-index: 20;
-}
-
-.bg-gold-end {
-  background-color: #9B7E67 !important;
-  color: #F9F7F4 !important;
-  border-radius: 0 !important;
-  clip-path: polygon(0% 0%, 100% 0%, 85% 100%, 0% 100%) !important;
-  z-index: 20;
-}
 
 /* Animations for mounting */
 @keyframes calendarFadeIn {
