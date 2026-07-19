@@ -275,7 +275,9 @@ export const TourBookingModal = ({
                         locale={isEn ? enUS : es}
                         disabled={[{ before: new Date() }]}
                         className="border border-gray-200 rounded-2xl p-4 inline-block bg-white shadow-sm"
-                        modifiersStyles={{ selected: { backgroundColor: '#9B7E67' } }}
+                        modifiersClassNames={{
+                          selected: '!bg-[#9B7E67] !text-[#F9F7F4] !rounded-none ![clip-path:polygon(15%_0%,100%_0%,85%_100%,0%_100%)] !z-20 !font-bold !w-full !max-w-full !m-0',
+                        }}
                       />
                     </div>
 
