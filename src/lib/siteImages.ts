@@ -14,8 +14,8 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
     name: 'Un lugar para pausar...',
     group: 'HOMEPAGE'
   },
-  '/imagenes/03_rooms/room1_paso_suave.webp': {
-    url: '/imagenes/03_rooms/room1_paso_suave.webp',
+  '/casacuartos.webp': {
+    url: '/casacuartos.webp',
     name: 'Durante Tu Estancia',
     group: 'HOMEPAGE'
   },
