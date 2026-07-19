@@ -487,18 +487,10 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
 };
 
 export function getImageUrl(originalPath: string, siteImages: any) {
-  let key = originalPath;
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
-  
-  if (basePath && key.startsWith(basePath)) {
-    key = key.substring(basePath.length);
+  // Direct lookup: originalPath is the key in DEFAULT_IMAGES (e.g., '/rooms/room1/1.webp')
+  if (siteImages[originalPath]?.url) {
+    return siteImages[originalPath].url;
   }
-
-  const imgUrl = siteImages[key]?.url || key;
-  
-  if (basePath && imgUrl.startsWith('/') && !imgUrl.startsWith(basePath)) {
-    return `${basePath}${imgUrl}`;
-  }
-  
-  return imgUrl;
+  // Fallback: return the original path as-is
+  return originalPath;
 }

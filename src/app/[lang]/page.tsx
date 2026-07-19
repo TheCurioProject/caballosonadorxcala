@@ -47,7 +47,7 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
       price: basePrice,
       description: r.description,
       shortDescription: r.shortDescription,
-      images: images.map(img => getImageUrl(`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${img}`, siteImages)),
+      images: images.map(img => getImageUrl(img, siteImages)),
       details: { guests: r.guests, beds: r.beds, bath: r.bath, ...(r.extra ? { extra: r.extra } : {}) }
     };
   };
@@ -86,7 +86,7 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
         title: t.title,
         price: i === 0 ? "$75 USD" : (i === 3 ? "$80 USD" : "$90 USD"),
         description: t.description,
-        imageUrl: getImageUrl(`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${images[i]}`, siteImages)
+        imageUrl: getImageUrl(images[i], siteImages)
       };
     }).slice(0, 4) as any;
   }

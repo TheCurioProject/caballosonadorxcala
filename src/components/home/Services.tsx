@@ -47,7 +47,7 @@ export const Services = ({ imageSrc, siteImages }: { imageSrc?: string, siteImag
       title: item.title,
       short: item.short,
       desc: item.desc,
-      image: siteImages ? getImageUrl(`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${images[index]}`, siteImages) : `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${images[index]}`,
+      image: siteImages ? getImageUrl(images[index], siteImages) : images[index],
       icon: icons[index],
       originalIndex: index
     }))
@@ -82,7 +82,7 @@ export const Services = ({ imageSrc, siteImages }: { imageSrc?: string, siteImag
               className="w-full lg:w-5/12 h-[300px] sm:h-[400px] lg:h-[550px] relative rounded-[2rem] overflow-hidden shadow-2xl flex-shrink-0 lg:sticky lg:top-32"
             >
               <Image 
-                src={imageSrc || `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${images[0]}`}
+                src={imageSrc || images[0]}
                 alt="6 Habitaciones Privadas"
                 fill
                 sizes="(max-width: 1024px) 100vw, 40vw"

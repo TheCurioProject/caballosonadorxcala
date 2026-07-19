@@ -37,7 +37,8 @@ export async function GET() {
     return NextResponse.json(grouped);
   } catch (error) {
     console.error('Error fetching images:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ error: 'Internal Server Error', details: errorMessage }, { status: 500 });
   }
 }
 

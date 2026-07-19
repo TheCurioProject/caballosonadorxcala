@@ -192,7 +192,7 @@ model ServiceBooking {
 
 model SiteImage {
   id        Int      @id @default(autoincrement())
-  key       String   @unique @db.VarChar(100) // e.g., 'home.hero', 'tours.gallery.1'
+  key       String   @unique @db.VarChar(255) // e.g., '/rooms/room1/1.webp'
   group     String   @db.VarChar(50)          // 'HOMEPAGE', 'FOOD', 'TOURS'
   name      String   @db.VarChar(255)         // e.g., 'Hero Image'
   url       String   @db.VarChar(500)

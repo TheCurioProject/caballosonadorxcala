@@ -207,7 +207,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
     const rawImages = TOUR_IMAGES[tourData.type] || [TOUR_IMAGES["ATV_OJO_DE_AGUA"][0]];
     return {
       ...tourData,
-      images: rawImages.map(img => getImageUrl(`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${img}`, siteImages)),
+      images: rawImages.map(img => getImageUrl(img, siteImages)),
       price: getTourPrice(tourData)
     };
   });
