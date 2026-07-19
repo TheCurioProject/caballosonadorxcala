@@ -4,8 +4,8 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
     name: 'Hero Portada',
     group: 'HOMEPAGE'
   },
-  '/imagenes/04_about/about_casa_44.webp': {
-    url: '/imagenes/04_about/about_casa_44.webp',
+  '/casaestancia.webp': {
+    url: '/casaestancia.webp',
     name: 'El Santuario',
     group: 'HOMEPAGE'
   },
