@@ -64,31 +64,13 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
     name: 'room_extra_img_3549.webp',
     group: 'ROOMS GENERAL'
   },
-  '/imagenes/05_amenities/amenity_01_kitchen.webp': {
-    url: '/imagenes/05_amenities/amenity_01_kitchen.webp',
-    name: 'amenity_01_kitchen.webp',
-    group: 'AMENITIES'
-  },
-  '/imagenes/05_amenities/amenity_02_pool_lounge.webp': {
-    url: '/imagenes/05_amenities/amenity_02_pool_lounge.webp',
-    name: 'amenity_02_pool_lounge.webp',
-    group: 'AMENITIES'
-  },
+
   '/imagenes/05_amenities/amenity_02_pool_lounge_new.webp': {
     url: '/imagenes/05_amenities/amenity_02_pool_lounge_new.webp',
     name: 'amenity_02_pool_lounge_new.webp',
     group: 'AMENITIES'
   },
-  '/imagenes/05_amenities/amenity_03_breakfast.webp': {
-    url: '/imagenes/05_amenities/amenity_03_breakfast.webp',
-    name: 'amenity_03_breakfast.webp',
-    group: 'AMENITIES'
-  },
-  '/imagenes/05_amenities/amenity_04_jacuzzi.webp': {
-    url: '/imagenes/05_amenities/amenity_04_jacuzzi.webp',
-    name: 'amenity_04_jacuzzi.webp',
-    group: 'AMENITIES'
-  },
+
   '/imagenes/05_amenities/amenity_05_guest_kitchen.webp': {
     url: '/imagenes/05_amenities/amenity_05_guest_kitchen.webp',
     name: 'amenity_05_guest_kitchen.webp',
@@ -104,26 +86,13 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
     name: 'amenity_07_sunset_tour.webp',
     group: 'AMENITIES'
   },
-  '/imagenes/05_amenities/amenity_08_beach_umbrellas.webp': {
-    url: '/imagenes/05_amenities/amenity_08_beach_umbrellas.webp',
-    name: 'amenity_08_beach_umbrellas.webp',
-    group: 'AMENITIES'
-  },
+
   '/imagenes/05_amenities/amenity_09_rooftop_terrace.webp': {
     url: '/imagenes/05_amenities/amenity_09_rooftop_terrace.webp',
     name: 'amenity_09_rooftop_terrace.webp',
     group: 'AMENITIES'
   },
-  '/imagenes/05_amenities/amenity_10_icon_airport_pickup.webp': {
-    url: '/imagenes/05_amenities/amenity_10_icon_airport_pickup.webp',
-    name: 'amenity_10_icon_airport_pickup.webp',
-    group: 'AMENITIES'
-  },
-  '/imagenes/05_amenities/amenity_11_icon_laundry.webp': {
-    url: '/imagenes/05_amenities/amenity_11_icon_laundry.webp',
-    name: 'amenity_11_icon_laundry.webp',
-    group: 'AMENITIES'
-  },
+
   '/rooms/room1/1.webp': {
     url: '/rooms/room1/1.webp',
     name: '1.webp',
