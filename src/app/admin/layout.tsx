@@ -3,7 +3,7 @@
 import { ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Book, CalendarDays, CreditCard, Settings, CalendarSync, LogOut } from 'lucide-react';
+import { LayoutDashboard, Book, CalendarDays, CreditCard, Settings, CalendarSync, LogOut, Image as ImageIcon } from 'lucide-react';
 
 import { motion } from 'framer-motion';
 
@@ -28,6 +28,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   const navItems = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+    { name: 'Editar', href: '/admin/content', icon: ImageIcon },
     { name: 'Bookings', href: '/admin/bookings', icon: Book },
     { name: 'Calendar', href: '/admin/calendar', icon: CalendarDays },
     { name: 'Experiencias', href: '/admin/experiencias', icon: Book }, // New tab
@@ -38,6 +39,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   const mobileNavItems = [
     { name: 'Inicio', href: '/admin', icon: LayoutDashboard },
+    { name: 'Editar', href: '/admin/content', icon: ImageIcon },
     { name: 'Reservas', href: '/admin/bookings', icon: Book },
     { name: 'Extras', href: '/admin/experiencias', icon: CalendarDays },
     { name: 'Fechas', href: '/admin/calendar', icon: CalendarDays },
