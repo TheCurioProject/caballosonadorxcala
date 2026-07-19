@@ -194,7 +194,7 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7">
               {days.map((day) => {
                 const isCurrentMonth = isSameMonth(day, currentDate);
                 const unavailable = isDateUnavailable(day);
