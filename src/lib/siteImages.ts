@@ -6,17 +6,17 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
   },
   '/casaestancia.webp': {
     url: '/casaestancia.webp',
-    name: 'About Sección',
+    name: 'El Santuario',
     group: 'HOMEPAGE'
   },
   '/casapaisaje.webp': {
     url: '/casapaisaje.webp',
-    name: 'Concepto Sección',
+    name: 'Un lugar para pausar...',
     group: 'HOMEPAGE'
   },
   '/casacuartos.webp': {
     url: '/casacuartos.webp',
-    name: 'Servicios Sección',
+    name: 'Durante Tu Estancia',
     group: 'HOMEPAGE'
   },
   '/DSC_0226.webp': {
@@ -436,8 +436,8 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
   },
   '/tours_gallery/07_volcano/00_sunset_019.webp': {
     url: '/tours_gallery/07_volcano/00_sunset_019.webp',
-    name: '00_sunset_019.webp',
-    group: 'TOUR Sunset Volcano'
+    name: 'Tarjeta Tour al Atardecer',
+    group: 'HOMEPAGE'
   },
   '/tours_gallery/07_volcano/01_sunset_006.webp': {
     url: '/tours_gallery/07_volcano/01_sunset_006.webp',
@@ -487,5 +487,18 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
 };
 
 export function getImageUrl(originalPath: string, siteImages: any) {
-  return siteImages[originalPath]?.url || originalPath;
+  let key = originalPath;
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+  
+  if (basePath && key.startsWith(basePath)) {
+    key = key.substring(basePath.length);
+  }
+
+  const imgUrl = siteImages[key]?.url || key;
+  
+  if (basePath && imgUrl.startsWith('/') && !imgUrl.startsWith(basePath)) {
+    return `${basePath}${imgUrl}`;
+  }
+  
+  return imgUrl;
 }
