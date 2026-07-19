@@ -19,11 +19,7 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
     name: 'Durante Tu Estancia (Cuartos)',
     group: 'DURANTE TU ESTANCIA (Tarjetas)'
   },
-  '/chef_durante_estancia.webp': {
-    url: '/chef_durante_estancia.webp',
-    name: 'Chef Privado',
-    group: 'DURANTE TU ESTANCIA (Tarjetas)'
-  },
+
   '/DSC_0226.webp': {
     url: '/DSC_0226.webp',
     name: 'Comida Hero',
