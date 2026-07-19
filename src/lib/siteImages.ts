@@ -437,7 +437,7 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
   '/tours_gallery/07_volcano/00_sunset_019.webp': {
     url: '/tours_gallery/07_volcano/00_sunset_019.webp',
     name: 'Tarjeta Tour al Atardecer',
-    group: 'HOMEPAGE'
+    group: 'AMENITIES'
   },
   '/tours_gallery/07_volcano/01_sunset_006.webp': {
     url: '/tours_gallery/07_volcano/01_sunset_006.webp',
