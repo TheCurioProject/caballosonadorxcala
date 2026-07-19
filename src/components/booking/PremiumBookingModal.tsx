@@ -748,7 +748,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             selected: 'bg-[#9B7E67] text-white font-bold rounded-full',
                             range_start: 'bg-[#23211F] text-white',
                             range_end: 'bg-[#23211F] text-white',
-                            range_middle: 'bg-[#F9F7F4] text-[#9B7E67]',
+                            range_middle: 'bg-diagonal-gold border-0',
                             booked: '!text-red-500 !font-bold line-through !opacity-80',
                             buffer: '!text-[#D4A574] !font-bold line-through !opacity-80',
                             blocked: '!text-gray-400 line-through !opacity-60',

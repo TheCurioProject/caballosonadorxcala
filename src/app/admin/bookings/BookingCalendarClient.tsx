@@ -214,8 +214,8 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
                   bgClass = "bg-[#23211F] text-white";
                   textClass = "text-white font-bold";
                 } else if (checkIn && checkOut && day > checkIn && day < checkOut) {
-                  bgClass = "bg-[#F9F7F4]";
-                  textClass = "text-[#9B7E67] font-medium";
+                  bgClass = "bg-diagonal-gold border-0";
+                  textClass = "text-white font-medium";
                 }
 
                 return (

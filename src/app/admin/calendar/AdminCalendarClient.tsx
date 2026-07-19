@@ -157,65 +157,74 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
           </div>
 
           {/* Days */}
-          <div className="grid grid-cols-7 gap-4">
-          {days.map((day, i) => {
-            const isCurrentMonth = isSameMonth(day, currentDate);
-            const info = getDayInfo(day);
-            const isToday = isSameDay(day, new Date());
+          <AnimatePresence mode="wait">
+            <motion.div 
+              key={currentDate.toISOString()}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className="grid grid-cols-7 gap-4"
+            >
+            {days.map((day, i) => {
+              const isCurrentMonth = isSameMonth(day, currentDate);
+              const info = getDayInfo(day);
+              const isToday = isSameDay(day, new Date());
 
-            let bgClass = "bg-[#F9F7F4] shadow-[5px_5px_10px_#e3e1de,-5px_-5px_10px_#ffffff]"; // Default Neumorphic
-            let textClass = "text-[#23211F]";
-            let label = null;
+              let bgClass = "bg-[#F9F7F4] shadow-[5px_5px_10px_#e3e1de,-5px_-5px_10px_#ffffff]"; // Default Neumorphic
+              let textClass = "text-[#23211F]";
+              let label = null;
 
-            if (!isCurrentMonth) {
-              bgClass = "bg-transparent opacity-30 shadow-none";
-            } else if (info.isBlocked) {
-              bgClass = "bg-gray-400 shadow-[inset_3px_3px_6px_rgba(0,0,0,0.2)]"; // Gray block
-              textClass = "text-white";
-              label = info.blockReason || "Blocked";
-            } else if (info.isBooked) {
-              const color = info.bookingOrigin === 'MANUAL' ? 'bg-[#c1121f]' : 'bg-red-500';
-              bgClass = `${color} shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3)]`; 
-              textClass = "text-white";
-              label = info.bookingOrigin;
-            } else if (info.isCheckoutBuffer) {
-              bgClass = "bg-[#D4A574] shadow-[inset_3px_3px_6px_rgba(0,0,0,0.2)]"; 
-              textClass = "text-white";
-              label = "Limpieza / Margen";
-            } else if (info.isHoliday) {
-              bgClass = "bg-[#e5d9c5] shadow-[5px_5px_10px_#e3e1de,-5px_-5px_10px_#ffffff] border border-[#d4c3ab]";
-              textClass = "text-[#9B7E67]";
-              label = info.holidayName;
-            }
+              if (!isCurrentMonth) {
+                bgClass = "bg-transparent opacity-30 shadow-none";
+              } else if (info.isBlocked) {
+                bgClass = "bg-gray-400 shadow-[inset_3px_3px_6px_rgba(0,0,0,0.2)]"; // Gray block
+                textClass = "text-white";
+                label = info.blockReason || "Blocked";
+              } else if (info.isBooked) {
+                const color = info.bookingOrigin === 'MANUAL' ? 'bg-[#c1121f]' : 'bg-red-500';
+                bgClass = `${color} shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3)]`; 
+                textClass = "text-white";
+                label = info.bookingOrigin;
+              } else if (info.isCheckoutBuffer) {
+                bgClass = "bg-[#D4A574] shadow-[inset_3px_3px_6px_rgba(0,0,0,0.2)]"; 
+                textClass = "text-white";
+                label = "Limpieza / Margen";
+              } else if (info.isHoliday) {
+                bgClass = "bg-[#e5d9c5] shadow-[5px_5px_10px_#e3e1de,-5px_-5px_10px_#ffffff] border border-[#d4c3ab]";
+                textClass = "text-[#9B7E67]";
+                label = info.holidayName;
+              }
 
-            return (
-              <motion.div 
-                key={day.toString()}
-                whileHover={isCurrentMonth ? { scale: 1.05 } : {}}
-                whileTap={isCurrentMonth ? { scale: 0.95 } : {}}
-                onClick={() => isCurrentMonth && handleDayClick(day)}
-                className={`relative h-28 rounded-2xl p-3 flex flex-col justify-between cursor-pointer transition-colors ${bgClass} ${isCurrentMonth ? '' : 'pointer-events-none'}`}
-              >
-                <div className={`text-lg font-bold ${textClass} ${isToday && !info.isBlocked && !info.isBooked ? 'text-[#9B7E67]' : ''}`}>
-                  {format(day, 'd')}
-                </div>
-                
-                {isCurrentMonth && (
-                  <div className="flex flex-col items-end w-full">
-                    {label && (
-                      <span className={`text-[9px] font-bold uppercase tracking-widest truncate w-full text-right ${textClass} opacity-80`}>
-                        {label}
-                      </span>
-                    )}
-                    <span className={`text-xs font-serif ${textClass} mt-1 ${info.isBlocked || info.isBooked || info.isCheckoutBuffer ? 'opacity-50' : 'opacity-100'}`}>
-                      ${info.price}
-                    </span>
+              return (
+                <motion.div 
+                  key={day.toString()}
+                  whileHover={isCurrentMonth ? { scale: 1.05 } : {}}
+                  whileTap={isCurrentMonth ? { scale: 0.95 } : {}}
+                  onClick={() => isCurrentMonth && handleDayClick(day)}
+                  className={`relative h-28 rounded-2xl p-3 flex flex-col justify-between cursor-pointer transition-colors ${bgClass} ${isCurrentMonth ? '' : 'pointer-events-none'}`}
+                >
+                  <div className={`text-lg font-bold ${textClass} ${isToday && !info.isBlocked && !info.isBooked ? 'text-[#9B7E67]' : ''}`}>
+                    {format(day, 'd')}
                   </div>
-                )}
-              </motion.div>
-            );
-          })}
-          </div>
+                  
+                  {isCurrentMonth && (
+                    <div className="flex flex-col items-end w-full">
+                      {label && (
+                        <span className={`text-[9px] font-bold uppercase tracking-widest truncate w-full text-right ${textClass} opacity-80`}>
+                          {label}
+                        </span>
+                      )}
+                      <span className={`text-xs font-serif ${textClass} mt-1 ${info.isBlocked || info.isBooked || info.isCheckoutBuffer ? 'opacity-50' : 'opacity-100'}`}>
+                        ${info.price}
+                      </span>
+                    </div>
+                  )}
+                </motion.div>
+              );
+            })}
+            </motion.div>
+          </AnimatePresence>
           
           {/* Admin Legend */}
           <div className="flex flex-wrap items-center justify-center gap-6 mt-8 pt-6 border-t border-gray-200 text-[10px] font-bold uppercase tracking-widest text-gray-500 w-full">
@@ -267,7 +276,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
               </div>
 
               {getDayInfo(selectedDate).isBooked ? (
-                <div className="bg-blue-50 text-blue-800 p-6 rounded-2xl mb-6">
+                <div className="bg-[#FAF8F5] border border-[#D4A574] text-[#9B7E67] p-6 rounded-2xl mb-6">
                   <p className="font-bold mb-2">Day Booked</p>
                   <p className="text-sm opacity-80">You cannot modify the price or block a day that already has an active booking.</p>
                 </div>
