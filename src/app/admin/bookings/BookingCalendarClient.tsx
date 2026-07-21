@@ -231,28 +231,34 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
             <div className="grid grid-cols-7 gap-1 sm:gap-2">
               {days.map((day) => {
                 const isCurrentMonth = isSameMonth(day, currentDate);
-                const unavailable = isDateUnavailable(day);
+                const isPast = day < new Date(new Date().setHours(0,0,0,0));
+                const isBooked = bookings.some(b => day >= new Date(b.checkIn) && day < new Date(b.checkOut));
+                const isCleaning = bookings.some(b => isSameDay(day, new Date(b.checkOut)));
+                const isBlocked = blocks.some(b => day >= new Date(b.startDate) && day <= new Date(b.endDate));
                 
                 let bgClass = "bg-white hover:bg-gray-50 border border-gray-100 cursor-pointer";
                 let textClass = "text-[#23211F]";
 
                 if (!isCurrentMonth) {
                   bgClass = "bg-transparent opacity-0 pointer-events-none";
-                } else if (unavailable && (!checkIn || checkOut)) {
-                  bgClass = "bg-[#c1121f] cursor-not-allowed shadow-inner";
-                  textClass = "text-white opacity-80";
-                } else if (checkIn && checkOut && isSameDay(day, checkIn)) {
-                  bgClass = "!bg-[#9B7E67] !text-[#F9F7F4] !rounded-none ![clip-path:polygon(15%_0%,100%_0%,100%_100%,0%_100%)] relative z-20";
+                } else if (checkIn && checkOut && (isSameDay(day, checkIn) || isSameDay(day, checkOut))) {
+                  bgClass = "bg-[#9B7E67]";
                   textClass = "text-[#F9F7F4] font-bold";
-                } else if (checkIn && checkOut && isSameDay(day, checkOut)) {
-                  bgClass = "!bg-[#9B7E67] !text-[#F9F7F4] !rounded-none ![clip-path:polygon(0%_0%,100%_0%,85%_100%,0%_100%)] relative z-20";
-                  textClass = "text-[#F9F7F4] font-bold";
-                } else if (checkIn && isSameDay(day, checkIn)) {
-                  bgClass = "!bg-[#9B7E67] !text-[#F9F7F4] !rounded-none ![clip-path:polygon(15%_0%,100%_0%,85%_100%,0%_100%)] relative z-20";
+                } else if (checkIn && !checkOut && isSameDay(day, checkIn)) {
+                  bgClass = "bg-[#9B7E67]"; 
                   textClass = "text-[#F9F7F4] font-bold";
                 } else if (checkIn && checkOut && day > checkIn && day < checkOut) {
-                  bgClass = "!bg-[#D4A574] !text-[#23211F] !rounded-none relative z-10";
+                  bgClass = "bg-[#D4A574]";
                   textClass = "text-[#23211F] font-bold";
+                } else if (isPast) {
+                  bgClass = "bg-gray-100 cursor-not-allowed";
+                  textClass = "text-gray-400";
+                } else if (isBooked || isBlocked) {
+                  bgClass = "bg-[#c1121f] cursor-not-allowed shadow-inner";
+                  textClass = "text-white opacity-90";
+                } else if (isCleaning) {
+                  bgClass = "bg-[#D4A574]";
+                  textClass = "text-[#23211F] opacity-90";
                 }
 
                 return (
