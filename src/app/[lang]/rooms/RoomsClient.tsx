@@ -21,7 +21,7 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
       desc: 'Su nombre significa "paso gentil". Es el espacio ideal para amigos, hermanos o viajeros solitarios que comparten una escapada de descanso. Un ambiente aireado con estilo minimalista, tonos calmos y un sutil toque boho.',
       details: { guests: '2', beds: '2 Individuales', bath: '1 Baño' },
       price: 'Desde $135 USD',
-      img: getImageUrl('/imagenes/03_rooms/room1_paso_suave.webp', siteImages),
+      img: getImageUrl('/rooms/room1/1.webp', siteImages),
     },
     {
       id: 2,
@@ -29,7 +29,7 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
       desc: 'Brillante y acogedora, Estrella resplandece con un encanto íntimo y texturas costeras naturales. Es el lugar perfecto para dejar atrás el estrés y relajarse después de un día explorando las playas de Nayarit.',
       details: { guests: '2', beds: '1 Queen', bath: '1 Baño' },
       price: 'Desde $135 USD',
-      img: getImageUrl('/imagenes/03_rooms/room2_estrella.webp', siteImages),
+      img: getImageUrl('/rooms/room2/1.webp', siteImages),
     },
     {
       id: 3,
@@ -53,7 +53,7 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
       desc: 'Nombrada así por la hermosa madera natural presente en toda la habitación. Ofrece una atmósfera tranquila y arraigada a la tierra, con detalles en piedra tallada por artesanos locales. Para quienes valoran la amplitud y la simplicidad.',
       details: { guests: '2', beds: '1 King', bath: '1 Baño' },
       price: 'Desde $165 USD',
-      img: getImageUrl('/imagenes/03_rooms/room6_madera_viva.webp', siteImages),
+      img: getImageUrl('/rooms/room5/1.webp', siteImages),
     },
     {
       id: 7,

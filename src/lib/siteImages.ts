@@ -25,44 +25,24 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
     name: 'Comida Hero',
     group: 'COMIDA'
   },
-  '/imagenes/03_rooms/madera_viva.webp': {
-    url: '/imagenes/03_rooms/madera_viva.webp',
-    name: 'madera_viva.webp',
-    group: 'ROOMS GENERAL'
-  },
-  '/imagenes/03_rooms/room1_paso_suave.webp': {
-    url: '/imagenes/03_rooms/room1_paso_suave.webp',
-    name: 'room1_paso_suave.webp',
-    group: 'ROOM 1 (Paso Suave)'
-  },
-  '/imagenes/03_rooms/room2_estrella.webp': {
-    url: '/imagenes/03_rooms/room2_estrella.webp',
-    name: 'room2_estrella.webp',
-    group: 'ROOM 2 (Estrella)'
-  },
   '/imagenes/03_rooms/room3_la_luna.webp': {
     url: '/imagenes/03_rooms/room3_la_luna.webp',
-    name: 'room3_la_luna.webp',
+    name: 'Room 3 - Principal (Foto 1)',
     group: 'ROOM 3 (La Luna)'
   },
   '/imagenes/03_rooms/room4_campo_abierto.webp': {
     url: '/imagenes/03_rooms/room4_campo_abierto.webp',
-    name: 'room4_campo_abierto.webp',
+    name: 'Room 4 - Principal (Foto 1)',
     group: 'ROOM 4 (Campo Abierto)'
-  },
-  '/imagenes/03_rooms/room6_madera_viva.webp': {
-    url: '/imagenes/03_rooms/room6_madera_viva.webp',
-    name: 'room6_madera_viva.webp',
-    group: 'ROOM 5/6 (Madera Viva)'
   },
   '/imagenes/03_rooms/room7_el_sueno_del_mar.webp': {
     url: '/imagenes/03_rooms/room7_el_sueno_del_mar.webp',
-    name: 'room7_el_sueno_del_mar.webp',
+    name: 'Room 7 - Principal (Foto 1)',
     group: 'ROOM 7 (Sueño del Mar)'
   },
   '/imagenes/03_rooms/room_extra_img_3549.webp': {
     url: '/imagenes/03_rooms/room_extra_img_3549.webp',
-    name: 'room_extra_img_3549.webp',
+    name: 'Detalle General Habitaciones',
     group: 'ROOMS GENERAL'
   },
 
@@ -96,72 +76,72 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
 
   '/rooms/room1/1.webp': {
     url: '/rooms/room1/1.webp',
-    name: '1.webp',
+    name: 'Room 1 - Principal (Foto 1)',
     group: 'ROOM 1 (Paso Suave)'
   },
   '/rooms/room1/3.webp': {
     url: '/rooms/room1/3.webp',
-    name: '3.webp',
+    name: 'Room 1 - Foto 2',
     group: 'ROOM 1 (Paso Suave)'
   },
   '/rooms/room1/4.webp': {
     url: '/rooms/room1/4.webp',
-    name: '4.webp',
+    name: 'Room 1 - Foto 3',
     group: 'ROOM 1 (Paso Suave)'
   },
   '/rooms/room1/5.webp': {
     url: '/rooms/room1/5.webp',
-    name: '5.webp',
+    name: 'Room 1 - Foto 4',
     group: 'ROOM 1 (Paso Suave)'
   },
   '/rooms/room1/6.webp': {
     url: '/rooms/room1/6.webp',
-    name: '6.webp',
+    name: 'Room 1 - Foto 5',
     group: 'ROOM 1 (Paso Suave)'
   },
   '/rooms/room2/1.webp': {
     url: '/rooms/room2/1.webp',
-    name: '1.webp',
+    name: 'Room 2 - Principal (Foto 1)',
     group: 'ROOM 2 (Estrella)'
   },
   '/rooms/room2/2.webp': {
     url: '/rooms/room2/2.webp',
-    name: '2.webp',
+    name: 'Room 2 - Foto 2',
     group: 'ROOM 2 (Estrella)'
   },
   '/rooms/room2/3.webp': {
     url: '/rooms/room2/3.webp',
-    name: '3.webp',
+    name: 'Room 2 - Foto 3',
     group: 'ROOM 2 (Estrella)'
   },
   '/rooms/room2/4.webp': {
     url: '/rooms/room2/4.webp',
-    name: '4.webp',
+    name: 'Room 2 - Foto 4',
     group: 'ROOM 2 (Estrella)'
   },
   '/rooms/room5/1.webp': {
     url: '/rooms/room5/1.webp',
-    name: '1.webp',
+    name: 'Room 5/6 - Principal (Foto 1)',
     group: 'ROOM 5/6 (Madera Viva)'
   },
   '/rooms/room5/2.webp': {
     url: '/rooms/room5/2.webp',
-    name: '2.webp',
+    name: 'Room 5/6 - Foto 2',
     group: 'ROOM 5/6 (Madera Viva)'
   },
   '/rooms/room5/3.webp': {
     url: '/rooms/room5/3.webp',
-    name: '3.webp',
+    name: 'Room 5/6 - Foto 3',
     group: 'ROOM 5/6 (Madera Viva)'
   },
   '/rooms/room5/4.webp': {
     url: '/rooms/room5/4.webp',
-    name: '4.webp',
+    name: 'Room 5/6 - Foto 4',
     group: 'ROOM 5/6 (Madera Viva)'
   },
   '/rooms/room5/5.webp': {
     url: '/rooms/room5/5.webp',
-    name: '5.webp',
+    name: 'Room 5/6 - Foto 5',
     group: 'ROOM 5/6 (Madera Viva)'
   },
   '/tours_gallery/01_ojo_de_agua/00_ojoagua_002.webp': {
