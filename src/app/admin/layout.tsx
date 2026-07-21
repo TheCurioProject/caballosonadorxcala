@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
@@ -16,7 +16,8 @@ import {
   X,
   Wrench,
   Sparkles,
-  ChevronUp
+  ChevronUp,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -25,7 +26,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const isLoginPage = pathname.includes('/admin/login');
+
+  useEffect(() => {
+    setIsNavigating(false);
+  }, [pathname]);
 
   if (isLoginPage) {
     return <>{children}</>;
@@ -55,6 +61,18 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex bg-[#F9F7F4] text-[#23211F] pb-24 md:pb-0">
       
+      {/* Top Instant Navigation Loader Bar */}
+      {isNavigating && (
+        <div className="fixed top-0 left-0 right-0 z-[9999] h-1.5 bg-[#9B7E67]/20 overflow-hidden">
+          <motion.div 
+            initial={{ x: '-100%' }}
+            animate={{ x: '100%' }}
+            transition={{ repeat: Infinity, duration: 0.9, ease: 'linear' }}
+            className="w-1/2 h-full bg-[#9B7E67] rounded-full shadow-[0_0_8px_#9B7E67]"
+          />
+        </div>
+      )}
+
       {/* Floating Toggle Button (Desktop) */}
       {!isSidebarOpen && !isLoginPage && (
         <button
@@ -83,7 +101,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             return (
               <Link 
                 key={item.name} 
-                href={item.href} 
+                href={item.href}
+                onClick={() => {
+                  if (pathname !== item.href) {
+                    setIsNavigating(true);
+                  }
+                }} 
                 className={`px-4 py-3 rounded-lg transition-colors font-medium text-sm flex items-center gap-3 ${isActive ? 'bg-[#9B7E67] text-white' : 'hover:bg-white/5 text-gray-300'}`}
               >
                 <item.icon className="w-4 h-4" />
@@ -155,7 +178,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     <Link
                       key={item.name}
                       href={item.href}
-                      onClick={() => setIsToolsOpen(false)}
+                      onClick={() => {
+                        if (pathname !== item.href) {
+                          setIsNavigating(true);
+                        }
+                        setIsToolsOpen(false);
+                      }}
                       className={`flex flex-col p-4 rounded-2xl border transition-all duration-200 ${
                         isActive 
                           ? 'bg-[#9B7E67]/20 border-[#9B7E67] text-white shadow-lg' 
