@@ -60,9 +60,9 @@ export default async function AdminSettingsPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-12">
-      <div className="mb-8">
-        <h2 className="text-4xl font-serif text-[#23211F]">Settings & Rules</h2>
-        <p className="text-gray-500 font-light mt-2">
+      <div className="mb-4 sm:mb-8">
+        <h2 className="text-2xl sm:text-4xl font-serif text-[#23211F]">Settings & Rules</h2>
+        <p className="text-gray-500 font-light mt-1 sm:mt-2 text-sm sm:text-base">
           Configure the global rules and pricing of the property.
         </p>
       </div>
@@ -74,11 +74,11 @@ export default async function AdminSettingsPage() {
           <form action={updateSettings} className="space-y-4">
             <div>
               <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Base Price per Night (MXN)</label>
-              <input type="number" name="basePrice" defaultValue={property.basePrice} required className="w-full border border-gray-200 rounded-xl px-3 py-2 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67]" />
+              <input type="number" name="basePrice" defaultValue={property.basePrice} required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
             </div>
             <div>
               <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Base Capacity</label>
-              <input type="number" name="baseCapacity" defaultValue={property.baseCapacity} required className="w-full border border-gray-200 rounded-xl px-3 py-2 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67]" />
+              <input type="number" name="baseCapacity" defaultValue={property.baseCapacity} required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
             </div>
             <button type="submit" className="w-full bg-[#23211F] hover:bg-[#9B7E67] text-white font-bold text-xs tracking-widest uppercase py-3 rounded-xl transition-all duration-300">
               SAVE SETTINGS
@@ -92,19 +92,19 @@ export default async function AdminSettingsPage() {
           <form action={handleCreateCoupon} className="space-y-4">
             <div>
               <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Name / Code</label>
-              <input type="text" name="name" required placeholder="e.g. SUMMER20" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67]" />
+              <input type="text" name="name" required placeholder="e.g. SUMMER20" className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Type</label>
-                <select name="type" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67]">
+                <select name="type" className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]">
                   <option value="percent">Percentage (%)</option>
                   <option value="amount">Fixed Amount ($)</option>
                 </select>
               </div>
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Value</label>
-                <input type="number" name="amount" required className="w-full border border-gray-200 rounded-xl px-3 py-2 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67]" />
+                <input type="number" name="amount" required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
               </div>
             </div>
             <button type="submit" className="w-full bg-[#23211F] hover:bg-[#9B7E67] text-white font-bold text-xs tracking-widest uppercase py-3 rounded-xl transition-all duration-300">

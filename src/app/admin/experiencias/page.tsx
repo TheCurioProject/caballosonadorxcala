@@ -121,8 +121,8 @@ export default function AdminExperiencias() {
   return (
     <div className="max-w-5xl mx-auto space-y-12 pb-12">
       <div>
-        <h2 className="text-3xl font-serif text-[#23211F]">Services & Tours</h2>
-        <p className="text-gray-500 font-light mt-2">
+        <h2 className="text-2xl sm:text-3xl font-serif text-[#23211F]">Services & Tours</h2>
+        <p className="text-gray-500 font-light mt-1 sm:mt-2 text-sm sm:text-base">
           Configure prices for food services and tour destinations. 
           These will be automatically displayed on the booking pages. (Prices in MXN)
         </p>
@@ -142,7 +142,7 @@ export default function AdminExperiencias() {
             <div className="w-10 h-10 rounded-xl bg-[#9B7E67]/10 flex items-center justify-center">
               <Utensils className="text-[#9B7E67] w-5 h-5" />
             </div>
-            <h3 className="text-2xl font-serif text-[#23211F]">Food Services</h3>
+            <h3 className="text-xl sm:text-2xl font-serif text-[#23211F]">Food Services</h3>
           </div>
           <button 
             onClick={() => setFoodServices([{ id: 0, name: 'New Service', price: 0, isActive: true }, ...foodServices])}
@@ -275,7 +275,7 @@ export default function AdminExperiencias() {
             <div className="w-10 h-10 rounded-xl bg-[#9B7E67]/10 flex items-center justify-center">
               <Map className="text-[#9B7E67] w-5 h-5" />
             </div>
-            <h3 className="text-2xl font-serif text-[#23211F]">Tour Destinations</h3>
+            <h3 className="text-xl sm:text-2xl font-serif text-[#23211F]">Tour Destinations</h3>
           </div>
           <button 
             onClick={() => setTours([{ id: 0, name: 'New Destination', pricePerPax: 0, isActive: true }, ...tours])}
@@ -407,7 +407,7 @@ export default function AdminExperiencias() {
           <div className="w-10 h-10 rounded-xl bg-[#9B7E67]/10 flex items-center justify-center">
             <Map className="text-[#9B7E67] w-5 h-5" />
           </div>
-          <h3 className="text-2xl font-serif text-[#23211F]">Global Tour Settings</h3>
+          <h3 className="text-xl sm:text-2xl font-serif text-[#23211F]">Global Tour Settings</h3>
         </div>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-8 flex flex-col md:flex-row gap-6 md:items-end">
           <div className="flex-1">

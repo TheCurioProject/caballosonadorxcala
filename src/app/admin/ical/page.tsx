@@ -29,8 +29,8 @@ export default async function AdminICalPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div>
-        <h2 className="text-4xl font-serif text-[#23211F]">iCal Integrations</h2>
-        <p className="text-gray-500 font-light mt-2">
+        <h2 className="text-2xl sm:text-4xl font-serif text-[#23211F]">iCal Integrations</h2>
+        <p className="text-gray-500 font-light mt-1 sm:mt-2 text-sm sm:text-base">
           Sync your property availability with external channels like Airbnb and Booking.com.
         </p>
       </div>

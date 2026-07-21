@@ -43,9 +43,9 @@ export default async function AdminCalendarPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-12">
-      <div className="mb-8">
-        <h2 className="text-4xl font-serif text-[#23211F]">Master Calendar</h2>
-        <p className="text-gray-500 font-light mt-2">
+      <div className="mb-4 sm:mb-8">
+        <h2 className="text-2xl sm:text-4xl font-serif text-[#23211F]">Master Calendar</h2>
+        <p className="text-gray-500 font-light mt-1 sm:mt-2 text-sm sm:text-base">
           Visual management of availability and daily rates. Click on a day to interact.
         </p>
       </div>

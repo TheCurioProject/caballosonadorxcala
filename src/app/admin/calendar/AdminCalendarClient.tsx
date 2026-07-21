@@ -135,15 +135,15 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
     <div className="relative">
       
       {/* Calendar Header */}
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-serif text-[#23211F] capitalize">
+      <div className="flex justify-between items-center mb-4 sm:mb-8">
+        <h2 className="text-xl sm:text-3xl font-serif text-[#23211F] capitalize">
           {format(currentDate, 'MMMM yyyy', { locale: enUS })}
         </h2>
         <div className="flex bg-white rounded-2xl shadow-[inset_2px_2px_5px_rgba(0,0,0,0.05),inset_-2px_-2px_5px_rgba(255,255,255,1)] p-1">
-          <button onClick={prevMonth} className="p-3 hover:bg-[#F9F7F4] rounded-xl transition-colors">
+          <button onClick={prevMonth} className="p-2.5 sm:p-3 hover:bg-[#F9F7F4] rounded-xl transition-colors">
             <ChevronLeft className="w-5 h-5 text-gray-600" />
           </button>
-          <button onClick={nextMonth} className="p-3 hover:bg-[#F9F7F4] rounded-xl transition-colors">
+          <button onClick={nextMonth} className="p-2.5 sm:p-3 hover:bg-[#F9F7F4] rounded-xl transition-colors">
             <ChevronRight className="w-5 h-5 text-gray-600" />
           </button>
         </div>
@@ -340,7 +340,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
-              className="fixed top-0 right-0 w-full max-w-md h-full max-h-screen bg-[#F9F7F4] shadow-2xl z-50 p-6 sm:p-8 flex flex-col overflow-y-auto"
+              className="fixed top-0 right-0 w-full sm:max-w-md h-full max-h-screen bg-[#F9F7F4] shadow-2xl z-50 p-5 sm:p-8 flex flex-col overflow-y-auto sm:top-0 sm:right-0 sm:rounded-none rounded-t-3xl sm:rounded-none"
             >
               <div className="flex justify-between items-center mb-8">
                 <h3 className="text-2xl font-serif text-[#23211F] capitalize">

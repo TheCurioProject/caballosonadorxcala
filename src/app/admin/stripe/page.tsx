@@ -32,9 +32,9 @@ export default async function AdminStripePage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-12">
-      <div className="mb-8">
-        <h2 className="text-4xl font-serif text-[#23211F]">Stripe / Payments</h2>
-        <p className="text-gray-500 font-light mt-2">
+      <div className="mb-4 sm:mb-8">
+        <h2 className="text-2xl sm:text-4xl font-serif text-[#23211F]">Stripe / Payments</h2>
+        <p className="text-gray-500 font-light mt-1 sm:mt-2 text-sm sm:text-base">
           Management of payments, coupons, and account balance.
         </p>
       </div>
@@ -73,12 +73,38 @@ export default async function AdminStripePage() {
         {/* Right Column: Coupons & Payments */}
         <div className="lg:col-span-2 space-y-6">
           
-          {/* Coupons Table */}
+          {/* Coupons */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-50 flex justify-between items-center">
-              <h2 className="font-serif text-[#23211F] text-xl">Active Coupons</h2>
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-50 flex justify-between items-center">
+              <h2 className="font-serif text-[#23211F] text-lg sm:text-xl">Active Coupons</h2>
             </div>
-            <div className="overflow-x-auto">
+            
+            {/* Mobile: Cards */}
+            <div className="divide-y divide-gray-50 sm:hidden">
+              {coupons.map((coupon) => (
+                <div key={coupon.id} className="p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-sm text-[#23211F]">{coupon.name || coupon.id}</span>
+                    <span className="font-serif text-sm text-[#9B7E67]">
+                      {coupon.amount_off ? `$${(coupon.amount_off / 100).toFixed(2)}` : `${coupon.percent_off}%`}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-gray-500 capitalize">{coupon.duration}</span>
+                    <form action={handleDeleteCoupon}>
+                      <input type="hidden" name="id" value={coupon.id} />
+                      <button type="submit" className="text-[10px] font-bold uppercase tracking-widest text-red-400 active:text-red-600 transition-colors">
+                        Delete
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              ))}
+              {coupons.length === 0 && <div className="py-8 text-center text-sm text-gray-400 italic">No active coupons. Create one from Settings.</div>}
+            </div>
+            
+            {/* Desktop: Table */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full min-w-max">
                 <thead>
                   <tr className="bg-[#F9F7F4] text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">
@@ -114,10 +140,31 @@ export default async function AdminStripePage() {
 
           {/* Recent Payments */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-50 flex justify-between items-center">
-              <h2 className="font-serif text-[#23211F] text-xl">Recent Payments</h2>
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-50 flex justify-between items-center">
+              <h2 className="font-serif text-[#23211F] text-lg sm:text-xl">Recent Payments</h2>
             </div>
-            <div className="overflow-x-auto">
+            
+            {/* Mobile: Cards */}
+            <div className="divide-y divide-gray-50 sm:hidden">
+              {recentPayments.map((charge) => (
+                <div key={charge.id} className="p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-serif text-sm text-[#9B7E67]">${(charge.amount / 100).toFixed(2)} {charge.currency.toUpperCase()}</span>
+                    <span className={`inline-block px-2 py-0.5 rounded-full text-[9px] font-bold tracking-widest uppercase ${charge.status === 'succeeded' ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'}`}>
+                      {charge.status === 'succeeded' ? 'Paid' : charge.status}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-gray-500 truncate">{charge.description || charge.receipt_email || 'Web Charge'}</p>
+                  <p className="text-[10px] text-gray-400">
+                    {new Date(charge.created * 1000).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+              ))}
+              {recentPayments.length === 0 && <div className="py-8 text-center text-sm text-gray-400 italic">No recent payments.</div>}
+            </div>
+            
+            {/* Desktop: Table */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full min-w-max">
                 <thead>
                   <tr className="bg-[#F9F7F4] text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">
