@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const { username, password } = await request.json();
 
     if (!username || !password) {
-      return NextResponse.json({ error: 'Faltan credenciales' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing credentials' }, { status: 400 });
     }
 
     // Buscamos al usuario en la BD (usaremos email como username)
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
           data: {
             email: 'admin',
             passwordHash: hash,
-            name: 'Administrador Principal',
+            name: 'Main Administrator',
             role: 'SUPERADMIN',
           },
         });
@@ -33,13 +33,13 @@ export async function POST(request: Request) {
     }
 
     if (!user) {
-      return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
     const isValid = await bcrypt.compare(password, user.passwordHash);
 
     if (!isValid) {
-      return NextResponse.json({ error: 'Credenciales inválidas' }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
     // Crear token JWT

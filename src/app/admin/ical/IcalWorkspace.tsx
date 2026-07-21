@@ -138,8 +138,8 @@ export default function IcalWorkspace({ roomId, initialFeeds }: { roomId: number
       
       <ActionLoadingScreen 
         isOpen={isLoading}
-        message="Sincronizando iCal..."
-        subMessage="Actualizando disponibilidad con Airbnb / Booking"
+        message="Syncing iCal..."
+        subMessage="Updating availability with Airbnb / Booking"
       />
     </div>
   );

@@ -188,64 +188,23 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         )}
       </AnimatePresence>
 
-      {/* Bottom Navigation Dock (Mobile) - Clean Native App Style */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#2C2927]/95 backdrop-blur-xl border-t border-white/10 shadow-[0_-8px_30px_rgba(0,0,0,0.3)] z-[900] px-3 pb-safe pt-2">
-        <div className="flex justify-between items-center h-16 relative max-w-md mx-auto">
-          
-          {/* Dashboard Link */}
-          <Link 
-            href="/admin" 
-            className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${pathname === '/admin' ? 'text-[#9B7E67]' : 'text-gray-400'}`}
+      {/* Bottom Navigation (Mobile) - Central Tools Button */}
+      <nav aria-label="Mobile Navigation" className="md:hidden fixed bottom-6 left-0 right-0 z-[900] flex justify-center pointer-events-none">
+        <div className="pointer-events-auto">
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={() => setIsToolsOpen(!isToolsOpen)}
+            className={`w-14 h-14 rounded-2xl bg-[#9B7E67] text-white flex items-center justify-center shadow-xl shadow-[#9B7E67]/35 border border-[#9B7E67]/30 transition-all duration-300 ${
+              isToolsOpen ? 'ring-4 ring-[#9B7E67]/30 scale-105' : 'hover:bg-[#886C56]'
+            }`}
+            aria-label="Tools Menu"
           >
-            <LayoutDashboard className="w-5 h-5 mb-1" />
-            <span className="text-[9px] font-bold uppercase tracking-wider">Dashboard</span>
-          </Link>
-
-          {/* Bookings Link */}
-          <Link 
-            href="/admin/bookings" 
-            className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${pathname === '/admin/bookings' ? 'text-[#9B7E67]' : 'text-gray-400'}`}
-          >
-            <Book className="w-5 h-5 mb-1" />
-            <span className="text-[9px] font-bold uppercase tracking-wider">Bookings</span>
-          </Link>
-
-          {/* CENTRAL EXPANDING TOOLS BUTTON */}
-          <div className="relative -top-5 flex-1 flex justify-center">
-            <motion.button
-              whileTap={{ scale: 0.92 }}
-              onClick={() => setIsToolsOpen(!isToolsOpen)}
-              className={`w-14 h-14 rounded-full bg-gradient-to-tr from-[#9B7E67] to-[#23211F] text-white flex flex-col items-center justify-center shadow-xl shadow-[#9B7E67]/30 border-2 border-[#9B7E67] transition-all duration-300 ${
-                isToolsOpen ? 'rotate-180 ring-4 ring-[#9B7E67]/40' : ''
-              }`}
-            >
-              {isToolsOpen ? (
-                <ChevronUp className="w-6 h-6" />
-              ) : (
-                <Wrench className="w-5 h-5" />
-              )}
-              <span className="text-[8px] font-bold uppercase tracking-wider mt-0.5">Tools</span>
-            </motion.button>
-          </div>
-
-          {/* Calendar Link */}
-          <Link 
-            href="/admin/calendar" 
-            className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${pathname === '/admin/calendar' ? 'text-[#9B7E67]' : 'text-gray-400'}`}
-          >
-            <CalendarDays className="w-5 h-5 mb-1" />
-            <span className="text-[9px] font-bold uppercase tracking-wider">Calendar</span>
-          </Link>
-
-          {/* Settings Link */}
-          <Link 
-            href="/admin/settings" 
-            className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${pathname === '/admin/settings' ? 'text-[#9B7E67]' : 'text-gray-400'}`}
-          >
-            <Settings className="w-5 h-5 mb-1" />
-            <span className="text-[9px] font-bold uppercase tracking-wider">Settings</span>
-          </Link>
-
+            {isToolsOpen ? (
+              <X className="w-6 h-6 text-white" />
+            ) : (
+              <Menu className="w-6 h-6 text-white" />
+            )}
+          </motion.button>
         </div>
       </nav>
     </div>

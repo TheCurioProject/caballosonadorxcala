@@ -22,6 +22,9 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
       `/rooms/room${roomNum}/4.webp`,
       `/rooms/room${roomNum}/5.webp`
     ];
+    if (roomNum === 6) {
+      keys.push('/rooms/room7/1.webp', '/rooms/room7/2.webp', '/rooms/room7/3.webp');
+    }
     for (const key of keys) {
       const url = getImageUrl(key, siteImages);
       if (url && url.trim() !== '') return url;
@@ -71,12 +74,12 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
       img: getPrimaryImage(5),
     },
     {
-      id: 7,
-      name: 'El Sueño del Mar | Room 7',
+      id: 6,
+      name: 'El Sueño del Mar | Room 6',
       desc: 'La joya de Casa Caballo Soñador. Un refugio sereno para estancias románticas o escapes conscientes. Elaborada con madera y piedra local, cuenta con espacio de oficina, sala de estar y vistas inspiradoras.',
       details: { guests: '2', beds: '1 King', bath: '1 Baño', extra: 'Jacuzzi Privado & Vista al Mar' },
       price: 'Desde $185 USD',
-      img: getPrimaryImage(7),
+      img: getPrimaryImage(6),
     },
   ];
 

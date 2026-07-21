@@ -245,7 +245,7 @@ export default function ContentAdminClient() {
                   <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
                     <ImageIcon className="w-6 h-6" />
                   </div>
-                  <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Slot Vacío</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Empty Slot</span>
                 </div>
               )}
               
@@ -257,7 +257,7 @@ export default function ContentAdminClient() {
                     className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white backdrop-blur-sm z-10"
                   >
                     <Loader2 className="w-8 h-8 animate-spin mb-2" />
-                    <span className="text-sm font-medium">Subiendo...</span>
+                    <span className="text-sm font-medium">Uploading...</span>
                   </motion.div>
                 )}
                 {restoringKey === img.key && (
@@ -266,7 +266,7 @@ export default function ContentAdminClient() {
                     className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white backdrop-blur-sm z-10"
                   >
                     <Loader2 className="w-8 h-8 animate-spin mb-2" />
-                    <span className="text-sm font-medium">Restaurando...</span>
+                    <span className="text-sm font-medium">Restoring...</span>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -278,7 +278,7 @@ export default function ContentAdminClient() {
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="text-base font-semibold text-gray-900 line-clamp-1">{img.name}</h3>
                   <span className={`text-[10px] px-2 py-0.5 rounded font-medium uppercase tracking-wide shrink-0 ${img.url ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-                    {img.url ? 'Cargada' : 'Vacío'}
+                    {img.url ? 'Uploaded' : 'Empty'}
                   </span>
                 </div>
                 <p className="text-xs text-gray-400 font-mono mt-1 truncate">{img.key}</p>
@@ -297,7 +297,7 @@ export default function ContentAdminClient() {
                   />
                   <div className={`w-full px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors ${img.url ? 'bg-black text-white hover:bg-gray-800' : 'bg-brand-dark text-white hover:bg-black'}`}>
                     <Upload className="w-4 h-4" />
-                    <span>{img.url ? 'Cambiar' : 'Subir imagen'}</span>
+                    <span>{img.url ? 'Replace' : 'Upload image'}</span>
                   </div>
                 </div>
 
@@ -307,10 +307,10 @@ export default function ContentAdminClient() {
                     onClick={() => triggerRestore(img.key, img.history[0].id)}
                     disabled={uploadingKey !== null || restoringKey !== null}
                     className="px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 hover:text-black font-medium transition-colors disabled:opacity-50"
-                    title="Restaurar a versión anterior"
+                    title="Restore to previous version"
                   >
                     <RotateCcw className="w-4 h-4" />
-                    <span className="hidden sm:inline">Restaurar</span>
+                    <span className="hidden sm:inline">Restore</span>
                   </button>
                 )}
               </div>

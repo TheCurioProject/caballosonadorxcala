@@ -38,11 +38,11 @@ export default function AdminLogin() {
         }, 1500);
       } else {
         const data = await res.json();
-        setError(data.details ? `${data.error}: ${data.details}` : data.error || 'Login fallido');
+        setError(data.details ? `${data.error}: ${data.details}` : data.error || 'Login failed');
       }
     } catch (err) {
       const e = err as Error;
-      setError(`Error de red: ${e.message || 'Intenta de nuevo.'}`);
+      setError(`Network error: ${e.message || 'Please try again.'}`);
     } finally {
       if (!isLoginSuccessful) setIsLoading(false);
     }
@@ -64,8 +64,8 @@ export default function AdminLogin() {
             transition={{ duration: 0.4 }}
           >
               <div className="text-center mb-10">
-                <h2 className="text-[#9B7E67] uppercase tracking-[0.3em] text-xs font-bold mb-2">Panel de Control</h2>
-                <h1 className="font-serif text-4xl text-[#23211F]">Acceso Seguro</h1>
+                <h2 className="text-[#9B7E67] uppercase tracking-[0.3em] text-xs font-bold mb-2">Control Panel</h2>
+                <h1 className="font-serif text-4xl text-[#23211F]">Secure Login</h1>
               </div>
 
               {error && (
@@ -76,7 +76,7 @@ export default function AdminLogin() {
 
               <form onSubmit={handleLogin} className="space-y-6">
                 <div>
-                  <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-2">Usuario</label>
+                  <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-2">Username</label>
                   <div className="relative">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                       <User size={18} />
@@ -93,7 +93,7 @@ export default function AdminLogin() {
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-2">Contraseña</label>
+                  <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-2">Password</label>
                   <div className="relative">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                       <Lock size={18} />
@@ -110,7 +110,7 @@ export default function AdminLogin() {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#9B7E67] transition-colors focus:outline-none"
-                      aria-label={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       <AnimatePresence mode="wait" initial={false}>
                         <motion.div
@@ -132,7 +132,7 @@ export default function AdminLogin() {
                   disabled={isLoading}
                   className="w-full bg-[#23211F] text-[#F9F7F4] rounded-xl py-4 uppercase tracking-widest text-xs font-bold hover:bg-[#9B7E67] transition-colors disabled:opacity-50 mt-4"
                 >
-                  Iniciar Sesión
+                  Sign In
                 </button>
               </form>
           </motion.div>
@@ -140,8 +140,8 @@ export default function AdminLogin() {
 
       <ActionLoadingScreen 
         isOpen={isLoading || isSuccess}
-        message={isSuccess ? 'Acceso Concedido' : 'Validando...'}
-        subMessage={isSuccess ? 'Ingresando al panel...' : 'Iniciando sesión segura'}
+        message={isSuccess ? 'Access Granted' : 'Validating...'}
+        subMessage={isSuccess ? 'Redirecting to dashboard...' : 'Secure sign in'}
       />
     </div>
   );

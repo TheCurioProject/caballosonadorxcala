@@ -54,8 +54,8 @@ export default function DeleteBookingButton({ bookingId }: { bookingId: number }
             <div className="flex flex-col items-center">
               <FluidHorseAnimation className="w-24 h-24 text-[#9B7E67] drop-shadow-lg mb-4" />
               <Loader2 className="w-8 h-8 text-[#9B7E67] animate-spin mb-4" />
-              <p className="text-[#23211F] font-serif text-xl">Eliminando reserva...</p>
-              <p className="text-gray-500 text-sm uppercase tracking-widest font-bold mt-2">Por favor, espera</p>
+              <p className="text-[#23211F] font-serif text-xl">Deleting booking...</p>
+              <p className="text-gray-500 text-sm uppercase tracking-widest font-bold mt-2">Please wait</p>
             </div>
           </motion.div>
         )}

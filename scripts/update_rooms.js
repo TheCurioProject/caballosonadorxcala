@@ -11,8 +11,8 @@ const roomNames = {
   "2": "Estrella",
   "3": "La Luna",
   "4": "Campo Abierto",
-  "6": "Madera Viva",
-  "7": "El Sueño del Mar"
+  "5": "Madera Viva",
+  "6": "El Sueño del Mar"
 };
 
 for (const [id, name] of Object.entries(roomNames)) {

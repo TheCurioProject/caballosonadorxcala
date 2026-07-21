@@ -34,7 +34,7 @@ export default function AdminExperiencias() {
       }
     } catch (error) {
       console.error('Error fetching data:', error);
-      setMessage({ type: 'error', text: 'Error al cargar los datos' });
+      setMessage({ type: 'error', text: 'Error loading data' });
     } finally {
       setLoading(false);
     }
@@ -58,12 +58,12 @@ export default function AdminExperiencias() {
         body: JSON.stringify({ ...service, price: parseFloat(service.price) })
       });
       if (res.ok) {
-        setMessage({ type: 'success', text: `Guardado: ${service.name}` });
+        setMessage({ type: 'success', text: `Saved: ${service.name}` });
       } else {
-        setMessage({ type: 'error', text: 'Error al guardar servicio' });
+        setMessage({ type: 'error', text: 'Failed to save service' });
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Error de red' });
+      setMessage({ type: 'error', text: 'Network error' });
     } finally {
       setSaving(false);
       setTimeout(() => setMessage(null), 3000);
@@ -80,12 +80,12 @@ export default function AdminExperiencias() {
         body: JSON.stringify({ ...tour, pricePerPax: parseFloat(tour.pricePerPax) })
       });
       if (res.ok) {
-        setMessage({ type: 'success', text: `Guardado: ${tour.name}` });
+        setMessage({ type: 'success', text: `Saved: ${tour.name}` });
       } else {
-        setMessage({ type: 'error', text: 'Error al guardar tour' });
+        setMessage({ type: 'error', text: 'Failed to save tour' });
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Error de red' });
+      setMessage({ type: 'error', text: 'Network error' });
     } finally {
       setSaving(false);
       setTimeout(() => setMessage(null), 3000);
@@ -102,12 +102,12 @@ export default function AdminExperiencias() {
         body: JSON.stringify({ minTourPax, maxTourPax })
       });
       if (res.ok) {
-        setMessage({ type: 'success', text: 'Configuración guardada' });
+        setMessage({ type: 'success', text: 'Settings saved successfully' });
       } else {
-        setMessage({ type: 'error', text: 'Error al guardar configuración' });
+        setMessage({ type: 'error', text: 'Failed to save settings' });
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Error de red' });
+      setMessage({ type: 'error', text: 'Network error' });
     } finally {
       setSaving(false);
       setTimeout(() => setMessage(null), 3000);
@@ -121,10 +121,10 @@ export default function AdminExperiencias() {
   return (
     <div className="max-w-5xl mx-auto space-y-12 pb-12">
       <div>
-        <h2 className="text-3xl font-serif text-[#23211F]">Servicios y Tours</h2>
+        <h2 className="text-3xl font-serif text-[#23211F]">Services & Tours</h2>
         <p className="text-gray-500 font-light mt-2">
-          Configura los precios para los servicios de comida y los destinos de tour. 
-          Estos se mostrarán automáticamente en las páginas de reservas correspondientes. (Los precios son en MXN)
+          Configure prices for food services and tour destinations. 
+          These will be automatically displayed on the booking pages. (Prices in MXN)
         </p>
       </div>
 
@@ -142,28 +142,28 @@ export default function AdminExperiencias() {
             <div className="w-10 h-10 rounded-xl bg-[#9B7E67]/10 flex items-center justify-center">
               <Utensils className="text-[#9B7E67] w-5 h-5" />
             </div>
-            <h3 className="text-2xl font-serif text-[#23211F]">Servicios de Comida</h3>
+            <h3 className="text-2xl font-serif text-[#23211F]">Food Services</h3>
           </div>
           <button 
-            onClick={() => setFoodServices([{ id: 0, name: 'Nuevo Servicio', price: 0, isActive: true }, ...foodServices])}
+            onClick={() => setFoodServices([{ id: 0, name: 'New Service', price: 0, isActive: true }, ...foodServices])}
             className="text-sm font-bold text-[#9B7E67] hover:text-[#23211F] transition-colors"
           >
-            + Añadir Servicio
+            + Add Service
           </button>
         </div>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr>
-                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Servicio</th>
-                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Precio (MXN/Pax)</th>
-                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-center">Activo</th>
-                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-right">Acción</th>
+                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Service</th>
+                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Price (MXN/Pax)</th>
+                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-center">Active</th>
+                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-right">Action</th>
               </tr>
             </thead>
             <tbody>
               {foodServices.length === 0 ? (
-                <tr><td colSpan={4} className="p-6 text-center text-gray-500">No hay servicios de comida registrados.</td></tr>
+                <tr><td colSpan={4} className="p-6 text-center text-gray-500">No food services registered.</td></tr>
               ) : (
                 foodServices.map((service) => (
                   <tr key={service.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
@@ -201,7 +201,7 @@ export default function AdminExperiencias() {
                         className="inline-flex items-center gap-2 bg-[#23211F] text-white px-5 py-2.5 rounded-xl hover:bg-[#9B7E67] transition-colors text-sm font-medium disabled:opacity-50 shadow-sm"
                       >
                         <Save size={16} />
-                        Guardar
+                        Save
                       </button>
                     </td>
                   </tr>
@@ -219,28 +219,28 @@ export default function AdminExperiencias() {
             <div className="w-10 h-10 rounded-xl bg-[#9B7E67]/10 flex items-center justify-center">
               <Map className="text-[#9B7E67] w-5 h-5" />
             </div>
-            <h3 className="text-2xl font-serif text-[#23211F]">Destinos de Tours</h3>
+            <h3 className="text-2xl font-serif text-[#23211F]">Tour Destinations</h3>
           </div>
           <button 
-            onClick={() => setTours([{ id: 0, name: 'Nuevo Destino', pricePerPax: 0, isActive: true }, ...tours])}
+            onClick={() => setTours([{ id: 0, name: 'New Destination', pricePerPax: 0, isActive: true }, ...tours])}
             className="text-sm font-bold text-[#9B7E67] hover:text-[#23211F] transition-colors"
           >
-            + Añadir Destino
+            + Add Destination
           </button>
         </div>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr>
-                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Destino</th>
-                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Precio (MXN/Pax)</th>
-                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-center">Activo</th>
-                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-right">Acción</th>
+                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Destination</th>
+                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Price (MXN/Pax)</th>
+                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-center">Active</th>
+                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-right">Action</th>
               </tr>
             </thead>
             <tbody>
               {tours.length === 0 ? (
-                <tr><td colSpan={4} className="p-6 text-center text-gray-500">No hay destinos de tour registrados.</td></tr>
+                <tr><td colSpan={4} className="p-6 text-center text-gray-500">No tour destinations registered.</td></tr>
               ) : (
                 tours.map((tour) => (
                   <tr key={tour.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
@@ -278,7 +278,7 @@ export default function AdminExperiencias() {
                         className="inline-flex items-center gap-2 bg-[#23211F] text-white px-5 py-2.5 rounded-xl hover:bg-[#9B7E67] transition-colors text-sm font-medium disabled:opacity-50 shadow-sm"
                       >
                         <Save size={16} />
-                        Guardar
+                        Save
                       </button>
                     </td>
                   </tr>
@@ -295,11 +295,11 @@ export default function AdminExperiencias() {
           <div className="w-10 h-10 rounded-xl bg-[#9B7E67]/10 flex items-center justify-center">
             <Map className="text-[#9B7E67] w-5 h-5" />
           </div>
-          <h3 className="text-2xl font-serif text-[#23211F]">Configuración Global de Tours</h3>
+          <h3 className="text-2xl font-serif text-[#23211F]">Global Tour Settings</h3>
         </div>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 flex flex-col md:flex-row gap-6 md:items-end">
           <div className="flex-1">
-            <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">Mínimo de Personas</label>
+            <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">Minimum Guests</label>
             <input
               type="number"
               min="1"
@@ -309,7 +309,7 @@ export default function AdminExperiencias() {
             />
           </div>
           <div className="flex-1">
-            <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">Máximo de Personas</label>
+            <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">Maximum Guests</label>
             <input
               type="number"
               min="1"
@@ -324,7 +324,7 @@ export default function AdminExperiencias() {
             className="inline-flex items-center justify-center gap-2 bg-[#23211F] text-white px-8 py-3 rounded-xl hover:bg-[#9B7E67] transition-colors text-sm font-medium disabled:opacity-50 shadow-sm w-full md:w-auto h-[48px]"
           >
             <Save size={16} />
-            Guardar Configuración
+            Save Settings
           </button>
         </div>
       </section>
