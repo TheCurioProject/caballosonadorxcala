@@ -5,7 +5,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import BookingCalendarClient from './BookingCalendarClient';
 import ClearPendingButton from './ClearPendingButton';
-import DeleteBookingButton from './DeleteBookingButton';
+import BookingActions from './BookingActions';
 
 export const dynamic = 'force-dynamic';
 
@@ -196,7 +196,7 @@ export default async function AdminBookingsPage() {
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <DeleteBookingButton bookingId={b.id} />
+                        <BookingActions booking={b} basePrice={property.basePrice} />
                       </td>
                     </tr>
                   ))}

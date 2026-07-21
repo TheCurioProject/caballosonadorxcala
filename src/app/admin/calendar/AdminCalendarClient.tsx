@@ -76,8 +76,13 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
       return day >= start && day < end;
     });
 
-    // Check custom daily rate
-    const customRate = dailyRates.find(r => isSameDay(new Date(r.date), day));
+    // Check custom daily rate using UTC date to avoid timezone shift
+    const customRate = dailyRates.find(r => {
+      const d = new Date(r.date);
+      return d.getUTCFullYear() === day.getFullYear() && 
+             d.getUTCMonth() === day.getMonth() && 
+             d.getUTCDate() === day.getDate();
+    });
 
     let price = basePrice;
     if (customRate) price = customRate.priceOverride;

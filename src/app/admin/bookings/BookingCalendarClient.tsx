@@ -114,22 +114,47 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
       if (result.success && result.bookingId) {
         setCreatedBooking({ id: result.bookingId, email: guestEmail, name: guestName });
         setInvoiceEmail(guestEmail);
+        handleAutomaticInvoice(result.bookingId, guestEmail);
       } else {
         alert(result.error || 'Error creating booking');
       }
     });
   };
 
+  const handleAutomaticInvoice = async (bookingId: number, email: string) => {
+    // Automatically trigger local download and send to admin
+    try {
+      const res = await fetch('/api/admin/send-invoice-flow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId, sendToClient: false })
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Download PDF locally
+        const linkSource = `data:application/pdf;base64,${data.pdfBase64}`;
+        const downloadLink = document.createElement("a");
+        const fileName = `Invoice-${bookingId}.pdf`;
+        downloadLink.href = linkSource;
+        downloadLink.download = fileName;
+        downloadLink.click();
+      }
+    } catch (e) {
+      console.error('Error with automatic invoice generation:', e);
+    }
+  };
+
   const handleSendInvoice = async () => {
     if (!createdBooking || !invoiceEmail) return;
     setIsSendingInvoice(true);
     try {
-      const res = await fetch('/api/admin/send-invoice', {
+      const res = await fetch('/api/admin/send-invoice-flow', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId: createdBooking.id, email: invoiceEmail })
+        body: JSON.stringify({ bookingId: createdBooking.id, sendToClient: true, clientEmail: invoiceEmail })
       });
-      if (res.ok) {
+      const data = await res.json();
+      if (data.success) {
         setInvoiceSent(true);
         setTimeout(() => {
           setCreatedBooking(null);
@@ -138,7 +163,7 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
           setCheckOut(null);
         }, 3000);
       } else {
-        alert('Error sending invoice');
+        alert('Error sending invoice: ' + data.error);
       }
     } catch (err) {
       console.error(err);
@@ -194,16 +219,16 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
           {format(currentDate, 'MMMM yyyy', { locale: enUS })}
         </div>
 
-        <div className="overflow-x-auto pb-4 -mx-6 px-6 md:mx-0 md:px-0">
-          <div className="min-w-[700px]">
-            <div className="grid grid-cols-7 mb-2">
+        <div className="w-full">
+          <div className="w-full">
+            <div className="grid grid-cols-7 mb-2 gap-1 sm:gap-2">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
                 <div key={d} className="text-center text-[10px] font-bold text-gray-400 uppercase">
                   {d}
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-7">
+            <div className="grid grid-cols-7 gap-1 sm:gap-2">
               {days.map((day) => {
                 const isCurrentMonth = isSameMonth(day, currentDate);
                 const unavailable = isDateUnavailable(day);
@@ -234,10 +259,10 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
                   <div 
                     key={day.toString()}
                     onClick={() => isCurrentMonth && handleDayClick(day)}
-                    className={`h-12 flex items-center justify-center rounded-lg transition-colors ${bgClass}`}
+                    className={`h-10 sm:h-12 flex items-center justify-center rounded-lg transition-colors ${bgClass}`}
                   >
                     {isCurrentMonth && (
-                      <span className={`text-sm ${textClass}`}>
+                      <span className={`text-xs sm:text-sm ${textClass}`}>
                         {format(day, 'd')}
                       </span>
                     )}
