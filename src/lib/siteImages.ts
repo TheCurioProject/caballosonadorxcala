@@ -16,7 +16,7 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
   },
   '/casacuartos.webp': {
     url: '/casacuartos.webp',
-    name: 'Durante Tu Estancia (Cuartos)',
+    name: 'Imagen Principal (Izquierda) & Tarjeta 1 (Habitaciones)',
     group: 'DURANTE TU ESTANCIA (Tarjetas)'
   },
 
@@ -391,9 +391,34 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
     name: 'Habitaciones Hero Banner',
     group: 'ROOMS GENERAL'
   },
+  '/imagenes/05_amenities/amenity_02_pool_lounge_new.webp': {
+    url: '/imagenes/05_amenities/amenity_02_pool_lounge_new.webp',
+    name: 'Tarjeta 2: Piscina, Jacuzzi y Lounge',
+    group: 'DURANTE TU ESTANCIA (Tarjetas)'
+  },
   '/imagenes/05_amenities/amenity_02_pool_lounge.webp': {
     url: '/imagenes/05_amenities/amenity_02_pool_lounge.webp',
-    name: 'La Piscina (Pool Lounge)',
+    name: 'Tarjeta 2: Piscina (Legacy)',
+    group: 'DURANTE TU ESTANCIA (Tarjetas)'
+  },
+  '/imagenes/05_amenities/amenity_05_guest_kitchen.webp': {
+    url: '/imagenes/05_amenities/amenity_05_guest_kitchen.webp',
+    name: 'Tarjeta 3: Cocina para Huéspedes',
+    group: 'DURANTE TU ESTANCIA (Tarjetas)'
+  },
+  '/imagenes/05_amenities/amenity_06_wifi.webp': {
+    url: '/imagenes/05_amenities/amenity_06_wifi.webp',
+    name: 'Tarjeta 4: WiFi de Alta Velocidad',
+    group: 'DURANTE TU ESTANCIA (Tarjetas)'
+  },
+  '/imagenes/05_amenities/amenity_07_sunset_tour.webp': {
+    url: '/imagenes/05_amenities/amenity_07_sunset_tour.webp',
+    name: 'Tarjeta 5: Tour al Atardecer',
+    group: 'DURANTE TU ESTANCIA (Tarjetas)'
+  },
+  '/imagenes/05_amenities/amenity_09_rooftop_terrace.webp': {
+    url: '/imagenes/05_amenities/amenity_09_rooftop_terrace.webp',
+    name: 'Tarjeta 6: Terraza en la Azotea',
     group: 'DURANTE TU ESTANCIA (Tarjetas)'
   },
 };
@@ -406,6 +431,13 @@ export function getImageUrl(originalPath: string, siteImages: any): string {
     }
     if (siteImages[originalPath]?.url) {
       return siteImages[originalPath].url;
+    }
+    if (originalPath.includes('amenity_02_pool_lounge')) {
+      const altKey = originalPath.includes('_new') 
+        ? '/imagenes/05_amenities/amenity_02_pool_lounge.webp' 
+        : '/imagenes/05_amenities/amenity_02_pool_lounge_new.webp';
+      if (typeof siteImages[altKey] === 'string') return siteImages[altKey];
+      if (siteImages[altKey]?.url) return siteImages[altKey].url;
     }
   }
   return originalPath;
