@@ -489,13 +489,47 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
     name: 'Tours Hero',
     group: 'TOURS GENERAL'
   },
+  '/imagenes/04_about/about_casa_44.webp': {
+    url: '/imagenes/04_about/about_casa_44.webp',
+    name: 'Habitaciones Hero Banner',
+    group: 'ROOMS GENERAL'
+  },
+  '/imagenes/05_amenities/amenity_02_pool_lounge.webp': {
+    url: '/imagenes/05_amenities/amenity_02_pool_lounge.webp',
+    name: 'La Piscina (Pool Lounge)',
+    group: 'DURANTE TU ESTANCIA (Tarjetas)'
+  },
+  '/imagenes/09_events/events_retreat_intro.webp': {
+    url: '/imagenes/09_events/events_retreat_intro.webp',
+    name: 'Retiros Hero Banner',
+    group: 'EVENTS & RETREATS'
+  },
+  '/imagenes/09_events/events_retreat.webp': {
+    url: '/imagenes/09_events/events_retreat.webp',
+    name: 'Yoga y Bienestar (Espacio Retiros)',
+    group: 'EVENTS & RETREATS'
+  },
+  '/imagenes/11_blog/blog_elle_and_shawn.webp': {
+    url: '/imagenes/11_blog/blog_elle_and_shawn.webp',
+    name: 'Bodas Íntimas (Galería Eventos)',
+    group: 'EVENTS & RETREATS'
+  },
+  '/imagenes/07_tours/tour_molote_alt_rtrt001.webp': {
+    url: '/imagenes/07_tours/tour_molote_alt_rtrt001.webp',
+    name: 'Retiros Grupales (Galería Eventos)',
+    group: 'EVENTS & RETREATS'
+  },
 };
 
-export function getImageUrl(originalPath: string, siteImages: any) {
-  // Direct lookup: originalPath is the key in DEFAULT_IMAGES (e.g., '/rooms/room1/1.webp')
-  if (siteImages[originalPath]?.url) {
-    return siteImages[originalPath].url;
+export function getImageUrl(originalPath: string, siteImages: any): string {
+  if (!originalPath) return '';
+  if (siteImages) {
+    if (typeof siteImages[originalPath] === 'string') {
+      return siteImages[originalPath];
+    }
+    if (siteImages[originalPath]?.url) {
+      return siteImages[originalPath].url;
+    }
   }
-  // Fallback: return the original path as-is
   return originalPath;
 }

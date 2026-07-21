@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 
 export async function POST(request: Request) {
@@ -35,6 +36,19 @@ export async function POST(request: Request) {
       where: { id: image.id },
       data: { url: historyRecord.url }
     });
+
+    // Revalidate all pages to reflect changes immediately
+    try {
+      revalidatePath('/', 'layout');
+      revalidatePath('/[lang]', 'layout');
+      revalidatePath('/admin/content');
+      revalidatePath('/[lang]/rooms');
+      revalidatePath('/[lang]/events');
+      revalidatePath('/[lang]/tours');
+      revalidatePath('/[lang]/servicios-de-comida');
+    } catch (err) {
+      console.warn('Revalidation error:', err);
+    }
 
     return NextResponse.json({ success: true, url: historyRecord.url });
   } catch (error) {

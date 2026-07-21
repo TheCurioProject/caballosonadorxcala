@@ -22,15 +22,17 @@ export default function ContentAdminClient() {
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
   const [restoringKey, setRestoringKey] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<number>(Date.now());
 
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   const fetchImages = async () => {
     try {
-      const res = await fetch('/api/admin/images');
+      const res = await fetch(`/api/admin/images?t=${Date.now()}`);
       if (res.ok) {
         const data = await res.json();
         setImages(data);
+        setLastUpdated(Date.now());
       }
     } catch (error) {
       console.error('Error fetching images:', error);
@@ -177,12 +179,12 @@ export default function ContentAdminClient() {
             <div className="relative w-full aspect-video bg-gray-100 flex items-center justify-center overflow-hidden">
               {img.url ? (
                 <Image
-                  src={img.url}
+                  src={img.url.includes('?') ? `${img.url}&t=${lastUpdated}` : `${img.url}?t=${lastUpdated}`}
                   alt={img.name}
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 33vw"
-                  unoptimized // So local uploads work immediately without caching issues if needed
+                  unoptimized
                 />
               ) : (
                 <ImageIcon className="w-12 h-12 text-gray-300" />

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { DEFAULT_IMAGES } from '@/lib/siteImages';
 import fs from 'fs/promises';
@@ -101,6 +102,19 @@ export async function POST(request: Request) {
           url: newUrl
         }
       });
+    }
+
+    // Revalidate all pages to reflect changes immediately
+    try {
+      revalidatePath('/', 'layout');
+      revalidatePath('/[lang]', 'layout');
+      revalidatePath('/admin/content');
+      revalidatePath('/[lang]/rooms');
+      revalidatePath('/[lang]/events');
+      revalidatePath('/[lang]/tours');
+      revalidatePath('/[lang]/servicios-de-comida');
+    } catch (err) {
+      console.warn('Revalidation error:', err);
     }
 
     return NextResponse.json({ success: true, url: newUrl });
