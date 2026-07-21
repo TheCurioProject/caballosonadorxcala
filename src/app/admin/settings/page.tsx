@@ -6,16 +6,22 @@ import { createCoupon } from '@/lib/stripe';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminSettingsPage() {
-  let property = await prisma.property.findFirst();
+  let property: any = null;
+  try {
+    const fetchProp = prisma.property.findFirst();
+    const timeout = new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 3000));
+    property = await Promise.race([fetchProp, timeout]);
+  } catch (error) {
+    console.warn("Failed to fetch settings property from Prisma:", error);
+  }
 
   if (!property) {
-    property = await prisma.property.create({
-      data: {
-        name: 'Casa Caballo Soñador',
-        baseCapacity: 12,
-        basePrice: 1500
-      }
-    });
+    property = {
+      id: 1,
+      name: 'Casa Caballo Soñador',
+      baseCapacity: 12,
+      basePrice: 1500
+    };
   }
 
   // Server Actions for this page

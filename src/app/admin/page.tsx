@@ -6,27 +6,37 @@ import { Calendar, User, DollarSign, CalendarCheck } from 'lucide-react';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboard() {
-  let properties = await prisma.property.findMany({
-    include: {
-      bookings: {
-        where: { checkOut: { gte: new Date() } },
-        orderBy: { checkIn: 'asc' }
-      }
-    }
-  });
-
-  if (properties.length === 0) {
-    const newProperty = await prisma.property.create({
-      data: {
-        name: 'Casa Caballo Soñador',
-        baseCapacity: 12,
-        basePrice: 1500
-      },
+  let properties: any[] = [];
+  try {
+    const fetchProps = prisma.property.findMany({
       include: {
-        bookings: true
+        bookings: {
+          where: { checkOut: { gte: new Date() } },
+          orderBy: { checkIn: 'asc' }
+        }
       }
     });
-    properties = [newProperty];
+    const timeout = new Promise<any[]>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 3000));
+    properties = await Promise.race([fetchProps, timeout]);
+  } catch (error) {
+    console.warn("Failed to fetch properties from Prisma:", error);
+    properties = [{
+      id: 1,
+      name: 'Casa Caballo Soñador',
+      baseCapacity: 12,
+      basePrice: 1500,
+      bookings: []
+    }];
+  }
+
+  if (!properties || properties.length === 0) {
+    properties = [{
+      id: 1,
+      name: 'Casa Caballo Soñador',
+      baseCapacity: 12,
+      basePrice: 1500,
+      bookings: []
+    }];
   }
 
   const totalFutureBookings = properties.reduce((acc, p) => acc + p.bookings.length, 0);

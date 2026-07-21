@@ -10,30 +10,34 @@ import BookingActions from './BookingActions';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminBookingsPage() {
-  let property = await prisma.property.findFirst({
-    include: {
-      bookings: {
-        where: { checkOut: { gte: new Date() } },
-        orderBy: { checkIn: 'asc' }
-      },
-      blockedDates: {
-        where: { endDate: { gte: new Date() } }
-      }
-    }
-  });
-
-  if (!property) {
-    property = await prisma.property.create({
-      data: {
-        name: 'Casa Caballo Soñador',
-        baseCapacity: 12,
-        basePrice: 1500,
-      },
+  let property: any = null;
+  try {
+    const fetchProp = prisma.property.findFirst({
       include: {
-        bookings: true,
-        blockedDates: true
+        bookings: {
+          where: { checkOut: { gte: new Date() } },
+          orderBy: { checkIn: 'asc' }
+        },
+        blockedDates: {
+          where: { endDate: { gte: new Date() } }
+        }
       }
     });
+    const timeout = new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 3000));
+    property = await Promise.race([fetchProp, timeout]);
+  } catch (error) {
+    console.warn("Failed to fetch property from Prisma in bookings:", error);
+  }
+
+  if (!property) {
+    property = {
+      id: 1,
+      name: 'Casa Caballo Soñador',
+      baseCapacity: 12,
+      basePrice: 1500,
+      bookings: [],
+      blockedDates: []
+    };
   }
 
   async function addManualBooking(formData: FormData): Promise<{ success: boolean; bookingId?: number; error?: string }> {

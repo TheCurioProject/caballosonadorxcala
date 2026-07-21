@@ -3,8 +3,17 @@ import { revalidatePath } from 'next/cache';
 import { Utensils, Calendar as CalendarIcon } from 'lucide-react';
 
 export default async function ServiciosComidaAdminPage() {
-  const services = await getFoodServices();
-  const bookings = await getFoodBookings();
+  let services: any[] = [];
+  let bookings: any[] = [];
+  try {
+    const fetchServices = getFoodServices();
+    const fetchBookings = getFoodBookings();
+    const timeout = new Promise<any[]>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 3000));
+    services = await Promise.race([fetchServices, timeout]);
+    bookings = await Promise.race([fetchBookings, timeout]);
+  } catch (error) {
+    console.warn("Failed to fetch food services/bookings from Prisma:", error);
+  }
 
   async function handleUpdatePrice(formData: FormData) {
     'use server';

@@ -5,9 +5,21 @@ import { revalidatePath } from 'next/cache';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminStripePage() {
-  const coupons = await listCoupons();
-  const recentPayments = await getRecentPayments();
-  const balance = await getAccountBalance();
+  let coupons: any[] = [];
+  let recentPayments: any[] = [];
+  let balance: any = null;
+  try {
+    const [c, p, b] = await Promise.all([
+      listCoupons().catch(() => []),
+      getRecentPayments().catch(() => []),
+      getAccountBalance().catch(() => null)
+    ]);
+    coupons = c || [];
+    recentPayments = p || [];
+    balance = b;
+  } catch (error) {
+    console.warn("Failed to fetch Stripe data:", error);
+  }
 
   async function handleDeleteCoupon(formData: FormData) {
     'use server';

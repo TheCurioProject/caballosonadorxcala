@@ -5,23 +5,25 @@ import IcalWorkspace from './IcalWorkspace';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminICalPage() {
-  let property = await prisma.property.findFirst({
-    include: {
-      icalSources: true
-    }
-  });
+  let property: any = null;
+  try {
+    const fetchProp = prisma.property.findFirst({
+      include: { icalSources: true }
+    });
+    const timeout = new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 3000));
+    property = await Promise.race([fetchProp, timeout]);
+  } catch (error) {
+    console.warn("Failed to fetch ical property from Prisma:", error);
+  }
 
   if (!property) {
-    property = await prisma.property.create({
-      data: {
-        name: 'Casa Caballo Soñador',
-        baseCapacity: 12,
-        basePrice: 1500
-      },
-      include: {
-        icalSources: true
-      }
-    });
+    property = {
+      id: 1,
+      name: 'Casa Caballo Soñador',
+      baseCapacity: 12,
+      basePrice: 1500,
+      icalSources: []
+    };
   }
 
   return (
