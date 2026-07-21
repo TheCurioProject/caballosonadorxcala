@@ -3,8 +3,9 @@
 import React, { useState, useEffect, useTransition } from 'react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, addDays, differenceInDays } from 'date-fns';
 import { enUS } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, Calculator, CalendarDays, User, Mail, Phone, Image as ImageIcon, Loader2, Send, CheckCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calculator, CalendarDays, User, Mail, Phone, Image as ImageIcon, Loader2, Send, CheckCircle, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AdminToast } from '@/components/admin/AdminToast';
 
 type Booking = { checkIn: Date; checkOut: Date; };
 type BlockedDate = { startDate: Date; endDate: Date; };
@@ -30,6 +31,12 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
   const [isSendingInvoice, setIsSendingInvoice] = useState(false);
   const [invoiceSent, setInvoiceSent] = useState(false);
   const [invoiceEmail, setInvoiceEmail] = useState('');
+
+  const [toastState, setToastState] = useState<{ isOpen: boolean; message: string; type: 'success' | 'error' }>({
+    isOpen: false,
+    message: '',
+    type: 'success',
+  });
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(monthStart);
@@ -116,7 +123,11 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
         setInvoiceEmail(guestEmail);
         handleAutomaticInvoice(result.bookingId, guestEmail);
       } else {
-        alert(result.error || 'Error creating booking');
+        setToastState({
+          isOpen: true,
+          message: result.error || 'Error creating booking',
+          type: 'error',
+        });
       }
     });
   };
@@ -130,18 +141,30 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
         body: JSON.stringify({ bookingId, sendToClient: false })
       });
       const data = await res.json();
-      if (data.success) {
-        // Download PDF locally
-        const linkSource = `data:application/pdf;base64,${data.pdfBase64}`;
+      if (data.success && data.pdfBase64) {
+        // Convert base64 to Blob for robust cross-platform mobile & desktop downloading
+        const binary = atob(data.pdfBase64);
+        const array = [];
+        for (let i = 0; i < binary.length; i++) {
+          array.push(binary.charCodeAt(i));
+        }
+        const blob = new Blob([new Uint8Array(array)], { type: 'application/pdf' });
+        const blobUrl = URL.createObjectURL(blob);
+        
         const downloadLink = document.createElement("a");
-        const fileName = `Invoice-${bookingId}.pdf`;
-        downloadLink.href = linkSource;
-        downloadLink.download = fileName;
+        downloadLink.href = blobUrl;
+        downloadLink.download = `Invoice-${bookingId}.pdf`;
+        document.body.appendChild(downloadLink);
         downloadLink.click();
+        document.body.removeChild(downloadLink);
       }
     } catch (e) {
       console.error('Error with automatic invoice generation:', e);
     }
+  };
+
+  const handleManualDownload = (bookingId: number) => {
+    window.open(`/api/invoice/${bookingId}`, '_blank');
   };
 
   const handleSendInvoice = async () => {
@@ -154,20 +177,33 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
         body: JSON.stringify({ bookingId: createdBooking.id, sendToClient: true, clientEmail: invoiceEmail })
       });
       const data = await res.json();
-      if (data.success) {
+      if (data.success || data.clientEmailSent) {
         setInvoiceSent(true);
+        setToastState({
+          isOpen: true,
+          message: `Invoice successfully sent to ${invoiceEmail}`,
+          type: 'success',
+        });
         setTimeout(() => {
           setCreatedBooking(null);
           setInvoiceSent(false);
           setCheckIn(null);
           setCheckOut(null);
-        }, 3000);
+        }, 3500);
       } else {
-        alert('Error sending invoice: ' + data.error);
+        setToastState({
+          isOpen: true,
+          message: 'Error sending invoice: ' + (data.error || 'Check email configuration'),
+          type: 'error',
+        });
       }
     } catch (err) {
       console.error(err);
-      alert('Error sending invoice');
+      setToastState({
+        isOpen: true,
+        message: 'Error sending invoice email',
+        type: 'error',
+      });
     } finally {
       setIsSendingInvoice(false);
     }
@@ -306,9 +342,21 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
                 <CheckCircle className="w-8 h-8" />
               </div>
               <h3 className="text-2xl font-serif text-[#23211F] mb-2">Booking Registered!</h3>
-              <p className="text-gray-500 mb-8 max-w-sm">
-                The booking for {createdBooking.name} has been saved successfully. Would you like to send the PDF invoice by email?
+              <p className="text-gray-500 mb-6 max-w-sm">
+                The booking for <strong className="text-[#23211F]">{createdBooking.name}</strong> has been saved successfully.
               </p>
+
+              {/* Instant Download Button (Mobile & Desktop) */}
+              <div className="mb-6 w-full max-w-md">
+                <button
+                  type="button"
+                  onClick={() => handleManualDownload(createdBooking.id)}
+                  className="w-full py-3.5 px-4 rounded-xl border border-[#9B7E67] text-[#9B7E67] hover:bg-[#9B7E67] hover:text-white transition-all font-bold text-xs tracking-widest uppercase flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <Download className="w-4 h-4" />
+                  Download PDF Invoice
+                </button>
+              </div>
 
               {invoiceSent ? (
                 <div className="bg-[#F9F7F4] border border-[#E5E0D8] text-[#9B7E67] px-6 py-4 rounded-xl font-medium flex items-center gap-2">
@@ -505,6 +553,13 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
           )}
         </AnimatePresence>
       </div>
+
+      <AdminToast
+        isOpen={toastState.isOpen}
+        message={toastState.message}
+        type={toastState.type}
+        onClose={() => setToastState(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }

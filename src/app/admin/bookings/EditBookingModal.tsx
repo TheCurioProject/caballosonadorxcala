@@ -5,6 +5,7 @@ import { X, Loader2, Save, Printer, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { updateBooking } from './actions';
 import { format, differenceInDays } from 'date-fns';
+import { AdminToast } from '@/components/admin/AdminToast';
 
 export default function EditBookingModal({ 
   booking, 
@@ -20,6 +21,11 @@ export default function EditBookingModal({
   const [isPending, startTransition] = useTransition();
   const [isSendingInvoice, setIsSendingInvoice] = useState(false);
   const [invoiceSent, setInvoiceSent] = useState(false);
+  const [toastState, setToastState] = useState<{ isOpen: boolean; message: string; type: 'success' | 'error' }>({
+    isOpen: false,
+    message: '',
+    type: 'success',
+  });
   
   const [guestName, setGuestName] = useState(booking.guestName);
   const [guestEmail, setGuestEmail] = useState(booking.guestEmail || '');
@@ -59,7 +65,11 @@ export default function EditBookingModal({
       if (result.success) {
         onClose();
       } else {
-        alert(result.error);
+        setToastState({
+          isOpen: true,
+          message: result.error || 'Failed to update booking',
+          type: 'error',
+        });
       }
     });
   };
@@ -77,22 +87,43 @@ export default function EditBookingModal({
         })
       });
       const data = await res.json();
-      if (data.success) {
-        // Download PDF
-        const linkSource = `data:application/pdf;base64,${data.pdfBase64}`;
+      if (data.success && data.pdfBase64) {
+        // Blob download for mobile & desktop
+        const binary = atob(data.pdfBase64);
+        const array = [];
+        for (let i = 0; i < binary.length; i++) {
+          array.push(binary.charCodeAt(i));
+        }
+        const blob = new Blob([new Uint8Array(array)], { type: 'application/pdf' });
+        const blobUrl = URL.createObjectURL(blob);
+        
         const downloadLink = document.createElement("a");
-        const fileName = `Invoice-${booking.id}.pdf`;
-        downloadLink.href = linkSource;
-        downloadLink.download = fileName;
+        downloadLink.href = blobUrl;
+        downloadLink.download = `Invoice-${booking.id}.pdf`;
+        document.body.appendChild(downloadLink);
         downloadLink.click();
+        document.body.removeChild(downloadLink);
         
         setInvoiceSent(true);
+        setToastState({
+          isOpen: true,
+          message: sendToClient ? 'Invoice generated and sent to guest!' : 'Invoice generated successfully!',
+          type: 'success',
+        });
         setTimeout(() => setInvoiceSent(false), 3000);
       } else {
-        alert('Error generating invoice: ' + data.error);
+        setToastState({
+          isOpen: true,
+          message: 'Error generating invoice: ' + (data.error || 'Internal error'),
+          type: 'error',
+        });
       }
     } catch (e) {
-      alert('Error generating invoice');
+      setToastState({
+        isOpen: true,
+        message: 'Error generating invoice',
+        type: 'error',
+      });
     } finally {
       setIsSendingInvoice(false);
     }

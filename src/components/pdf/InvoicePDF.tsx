@@ -11,18 +11,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 40,
-    borderBottom: '2pt solid #23211F',
-    paddingBottom: 20,
+    marginBottom: 30,
+    backgroundColor: '#2C2927',
+    padding: 24,
+    borderRadius: 6,
+    borderBottom: '3pt solid #9B7E67',
   },
   logoContainer: {
     flexDirection: 'column',
     alignItems: 'flex-start',
   },
   logoText: {
-    fontSize: 20,
-    color: '#23211F',
-    marginTop: 10,
+    fontSize: 16,
+    color: '#F9F7F4',
+    marginTop: 8,
     letterSpacing: 2,
     fontFamily: 'Helvetica-Bold',
   },
@@ -30,15 +32,15 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   title: {
-    fontSize: 32,
-    color: '#23211F',
+    fontSize: 28,
+    color: '#9B7E67',
     letterSpacing: 4,
     fontFamily: 'Helvetica-Bold',
   },
   invoiceNumber: {
-    fontSize: 12,
-    color: '#666666',
-    marginTop: 6,
+    fontSize: 11,
+    color: '#D4C3AB',
+    marginTop: 4,
     letterSpacing: 1,
   },
   section: {
@@ -143,7 +145,7 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
           {logoBase64 && (
             <Image 
               src={`data:image/png;base64,${logoBase64}`} 
-              style={{ width: 80, height: 'auto', marginBottom: 5 }} 
+              style={{ width: 150, height: 'auto', marginBottom: 6 }} 
             />
           )}
           <Text style={styles.logoText}>CASA CABALLO SOÑADOR</Text>

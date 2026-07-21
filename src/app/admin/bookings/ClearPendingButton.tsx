@@ -1,39 +1,76 @@
 'use client';
 
-import { useTransition } from 'react';
+import React, { useState, useTransition } from 'react';
 import { clearPendingBookings } from './actions';
 import { Loader2, Trash2 } from 'lucide-react';
+import { AdminConfirmModal } from '@/components/admin/AdminConfirmModal';
+import { AdminToast } from '@/components/admin/AdminToast';
 
-export default function ClearPendingButton({ all = false, label = 'Limpiar Caducados' }: { all?: boolean, label?: string }) {
+export default function ClearPendingButton({ all = false, label = 'Clear Expired Locks' }: { all?: boolean, label?: string }) {
   const [isPending, startTransition] = useTransition();
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [toastState, setToastState] = useState<{ isOpen: boolean; message: string; type: 'success' | 'error' }>({
+    isOpen: false,
+    message: '',
+    type: 'success',
+  });
+
+  const handleClearConfirm = () => {
+    setIsConfirmOpen(false);
+    startTransition(async () => {
+      const res = await clearPendingBookings(all);
+      if (res.success) {
+        setToastState({
+          isOpen: true,
+          message: `Removed ${res.count} temporary date hold(s).`,
+          type: 'success',
+        });
+      } else {
+        setToastState({
+          isOpen: true,
+          message: res.error || 'Error clearing temporary date holds.',
+          type: 'error',
+        });
+      }
+    });
+  };
 
   return (
-    <button
-      onClick={() => {
-        if (confirm(all ? '¿Estás seguro de que quieres eliminar TODAS las reservas pendientes de pago (bloqueos temporales)?' : '¿Estás seguro de que quieres limpiar los bloqueos caducados (más de 15 minutos)?')) {
-          startTransition(async () => {
-            const res = await clearPendingBookings(all);
-            if (res.success) {
-              alert(`Se han eliminado ${res.count} bloqueos temporales.`);
-            } else {
-              alert('Hubo un error al limpiar los bloqueos.');
-            }
-          });
-        }
-      }}
-      disabled={isPending}
-      className={`inline-flex items-center gap-2 px-3 py-1.5 text-[10px] font-bold tracking-widest uppercase rounded-md transition-colors ${
-        all 
-          ? 'bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-50'
-          : 'bg-orange-50 text-orange-600 hover:bg-orange-100 disabled:opacity-50'
-      }`}
-    >
-      {isPending ? (
-        <Loader2 className="w-3 h-3 animate-spin" />
-      ) : (
-        <Trash2 className="w-3 h-3" />
-      )}
-      {isPending ? 'Procesando...' : label}
-    </button>
+    <>
+      <button
+        onClick={() => setIsConfirmOpen(true)}
+        disabled={isPending}
+        className={`inline-flex items-center gap-2 px-3 py-1.5 text-[10px] font-bold tracking-widest uppercase rounded-md transition-colors ${
+          all 
+            ? 'bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-50'
+            : 'bg-orange-50 text-orange-600 hover:bg-orange-100 disabled:opacity-50'
+        }`}
+      >
+        {isPending ? (
+          <Loader2 className="w-3 h-3 animate-spin" />
+        ) : (
+          <Trash2 className="w-3 h-3" />
+        )}
+        {isPending ? 'Processing...' : label}
+      </button>
+
+      <AdminConfirmModal
+        isOpen={isConfirmOpen}
+        title={all ? "Clear ALL Pending Holds" : "Clear Expired Holds"}
+        description={all ? "Are you sure you want to delete ALL pending unpaid booking holds?" : "Are you sure you want to clear holds older than 15 minutes?"}
+        confirmText="Clear Holds"
+        variant="warning"
+        isLoading={isPending}
+        onConfirm={handleClearConfirm}
+        onCancel={() => setIsConfirmOpen(false)}
+      />
+
+      <AdminToast
+        isOpen={toastState.isOpen}
+        message={toastState.message}
+        type={toastState.type}
+        onClose={() => setToastState(prev => ({ ...prev, isOpen: false }))}
+      />
+    </>
   );
 }

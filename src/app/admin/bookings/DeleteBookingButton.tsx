@@ -9,27 +9,39 @@ const FluidHorseAnimation = dynamic(() => import('@/components/FluidHorseAnimati
   ssr: false,
 });
 import { removeBooking } from './actions';
+import { AdminConfirmModal } from '@/components/admin/AdminConfirmModal';
 
 export default function DeleteBookingButton({ bookingId }: { bookingId: number }) {
   const [isPending, startTransition] = useTransition();
+  const [isConfirmOpen, setIsConfirmOpen] = React.useState(false);
 
-  const handleDelete = () => {
-    if (confirm('¿Estás seguro de que deseas eliminar esta reserva permanentemente?')) {
-      startTransition(async () => {
-        await removeBooking(bookingId);
-      });
-    }
+  const handleDeleteConfirm = () => {
+    setIsConfirmOpen(false);
+    startTransition(async () => {
+      await removeBooking(bookingId);
+    });
   };
 
   return (
     <>
       <button 
-        onClick={handleDelete} 
+        onClick={() => setIsConfirmOpen(true)} 
         disabled={isPending}
         className="text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-600 transition-colors"
       >
         Delete
       </button>
+
+      <AdminConfirmModal 
+        isOpen={isConfirmOpen}
+        title="Delete Booking"
+        description="Are you sure you want to permanently delete this booking? This action cannot be undone."
+        confirmText="Delete Permanently"
+        variant="danger"
+        isLoading={isPending}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setIsConfirmOpen(false)}
+      />
 
       <AnimatePresence>
         {isPending && (

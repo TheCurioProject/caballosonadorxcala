@@ -78,18 +78,27 @@ export async function POST(request: Request) {
       console.error('Failed to send invoice to admin:', adminResult.error);
     }
 
+    // Update booking guest email if clientEmail is provided and changed
+    if (clientEmail && clientEmail !== booking.guestEmail) {
+      await prisma.booking.update({
+        where: { id: bookingId },
+        data: { guestEmail: clientEmail }
+      });
+    }
+
     // Send email to client if requested
-    let clientResult = { success: false, error: 'Not requested' };
+    let clientResult: { success: boolean; error?: any } = { success: false, error: 'Not requested' };
     if (sendToClient && clientEmail) {
       const clientData = { ...data, guestEmail: clientEmail };
       clientResult = await sendInvoiceEmail(clientData, pdfBuffer as Buffer);
     }
 
     return NextResponse.json({ 
-      success: true, 
+      success: sendToClient ? clientResult.success : true, 
       pdfBase64, 
       adminEmailSent: adminResult.success,
-      clientEmailSent: clientResult.success 
+      clientEmailSent: clientResult.success,
+      error: clientResult.error ? String(clientResult.error) : undefined
     });
 
   } catch (error) {

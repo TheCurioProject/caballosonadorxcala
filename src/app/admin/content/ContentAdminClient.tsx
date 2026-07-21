@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { Upload, RotateCcw, Loader2, CheckCircle2, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AdminConfirmModal } from '@/components/admin/AdminConfirmModal';
 
 type SiteImage = {
   key: string;
@@ -79,9 +80,15 @@ export default function ContentAdminClient() {
     }
   };
 
-  const handleRestore = async (key: string, historyId: number) => {
-    if (!confirm('Are you sure you want to restore the previous image?')) return;
-    
+  const [restoreTarget, setRestoreTarget] = useState<{ key: string; historyId: number } | null>(null);
+
+  const triggerRestore = (key: string, historyId: number) => {
+    setRestoreTarget({ key, historyId });
+  };
+
+  const handleRestoreConfirm = async () => {
+    if (!restoreTarget) return;
+    const { key, historyId } = restoreTarget;
     setRestoringKey(key);
     try {
       const res = await fetch('/api/admin/images/restore', {
@@ -100,6 +107,7 @@ export default function ContentAdminClient() {
       showNotification('error', 'Network error restoring');
     } finally {
       setRestoringKey(null);
+      setRestoreTarget(null);
     }
   };
 
@@ -230,7 +238,7 @@ export default function ContentAdminClient() {
                 {/* Restore Button */}
                 {img.hasHistory && img.history.length > 0 && (
                   <button
-                    onClick={() => handleRestore(img.key, img.history[0].id)}
+                    onClick={() => triggerRestore(img.key, img.history[0].id)}
                     disabled={uploadingKey !== null || restoringKey !== null}
                     className="px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 hover:text-black font-medium transition-colors disabled:opacity-50"
                     title="Restore to previous image"
@@ -250,6 +258,17 @@ export default function ContentAdminClient() {
           </div>
         )}
       </div>
+
+      <AdminConfirmModal
+        isOpen={!!restoreTarget}
+        title="Restore Previous Image"
+        description="Are you sure you want to restore this image to its previous version? The current version will be overwritten."
+        confirmText="Restore Image"
+        variant="warning"
+        isLoading={restoringKey !== null}
+        onConfirm={handleRestoreConfirm}
+        onCancel={() => setRestoreTarget(null)}
+      />
     </div>
   );
 }
