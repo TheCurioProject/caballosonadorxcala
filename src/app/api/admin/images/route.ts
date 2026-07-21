@@ -105,14 +105,13 @@ export async function POST(request: Request) {
       });
     }
 
-    // Revalidate all pages to reflect changes immediately
+    // Revalidate public pages to reflect changes immediately
     try {
-      revalidatePath('/', 'layout');
-      revalidatePath('/[lang]', 'layout');
-      revalidatePath('/admin/content');
-      revalidatePath('/[lang]/rooms');
-      revalidatePath('/[lang]/tours');
-      revalidatePath('/[lang]/servicios-de-comida');
+      revalidatePath('/', 'page');
+      revalidatePath('/[lang]', 'page');
+      revalidatePath('/[lang]/rooms', 'page');
+      revalidatePath('/[lang]/tours', 'page');
+      revalidatePath('/[lang]/servicios-de-comida', 'page');
     } catch (err) {
       console.warn('Revalidation error:', err);
     }

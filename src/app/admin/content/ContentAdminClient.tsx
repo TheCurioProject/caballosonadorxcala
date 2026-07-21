@@ -235,13 +235,10 @@ export default function ContentAdminClient() {
             {/* Image Preview - Maintains aspect ratio safely in a container */}
             <div className="relative w-full aspect-video bg-gray-100 flex items-center justify-center overflow-hidden">
               {img.url ? (
-                <Image
-                  src={img.url.includes('?') ? `${img.url}&t=${lastUpdated}` : `${img.url}?t=${lastUpdated}`}
+                <img
+                  src={img.url.startsWith('data:') ? img.url : (img.url.includes('?') ? `${img.url}&t=${lastUpdated}` : `${img.url}?t=${lastUpdated}`)}
                   alt={img.name}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  unoptimized
+                  className="w-full h-full object-cover"
                 />
               ) : (
                 <ImageIcon className="w-12 h-12 text-gray-300" />
