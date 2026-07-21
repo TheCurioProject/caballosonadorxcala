@@ -19,7 +19,7 @@ import {
   ChevronUp,
   Loader2
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -27,6 +27,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
+  const dragControls = useDragControls();
   const isLoginPage = pathname.includes('/admin/login');
 
   useEffect(() => {
@@ -153,6 +154,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 280 }}
               drag="y"
+              dragControls={dragControls}
+              dragListener={false}
               dragConstraints={{ top: 0 }}
               dragElastic={{ top: 0, bottom: 0.3 }}
               onDragEnd={(e, info) => {
@@ -160,17 +163,26 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                   setIsToolsOpen(false);
                 }
               }}
-              className="relative z-10 bg-[#2C2927] border-t border-white/10 rounded-t-3xl p-6 shadow-2xl text-[#F9F7F4] max-h-[85vh] overflow-y-auto touch-pan-x"
+              className="relative z-10 bg-[#2C2927] border-t border-white/10 rounded-t-3xl p-6 pt-2 shadow-2xl text-[#F9F7F4] max-h-[85vh] overflow-y-auto"
             >
               {/* Drag Handle Indicator */}
-              <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6" />
+              <div 
+                className="w-full py-4 flex justify-center cursor-grab active:cursor-grabbing touch-none"
+                onPointerDown={(e) => dragControls.start(e)}
+              >
+                <div className="w-12 h-1.5 bg-white/20 rounded-full" />
+              </div>
 
-              <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+              <div 
+                className="flex items-center justify-between mb-6 pb-4 border-b border-white/10 cursor-grab active:cursor-grabbing touch-none"
+                onPointerDown={(e) => dragControls.start(e)}
+              >
                 <div>
                   <h2 className="font-serif text-xl font-bold text-[#9B7E67]">Admin Tools</h2>
                   <p className="text-xs text-gray-400 font-light">Select a category to navigate</p>
                 </div>
                 <button
+                  onPointerDown={(e) => e.stopPropagation()} // Prevent drag on button
                   onClick={() => setIsToolsOpen(false)}
                   className="p-2 text-gray-400 hover:text-white bg-white/5 rounded-full transition-colors"
                 >
