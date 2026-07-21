@@ -381,6 +381,7 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
                   </div>
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Deposit Currency</label>
                     <div className="flex bg-gray-100 p-1 rounded-xl">
@@ -397,7 +398,6 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
                     </div>
                   </div>
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Deposit Type</label>

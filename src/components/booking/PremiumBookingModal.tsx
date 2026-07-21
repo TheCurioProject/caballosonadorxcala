@@ -15,7 +15,6 @@ import { format, differenceInDays } from 'date-fns';
 import { es, enUS, de } from 'date-fns/locale';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { useScrollLock } from '@/hooks/useScrollLock';
-import { useScrollLock } from '@/hooks/useScrollLock';
 /* ─── Hook: useMediaQuery ─── */
 function useMediaQuery(query: string) {
   const [matches, setMatches] = useState(false);
