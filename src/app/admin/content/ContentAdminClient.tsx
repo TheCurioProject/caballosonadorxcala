@@ -208,9 +208,9 @@ export default function ContentAdminClient() {
       </AnimatePresence>
 
       {/* Category Tabs: Mobile Native Segment Pills / Desktop Underline Tabs */}
-      <div className="sm:border-b sm:border-gray-200">
+      <div className="md:border-b md:border-gray-200">
         {/* Mobile Segmented Control Pills */}
-        <div className="flex sm:hidden overflow-x-auto pb-2 gap-1.5 scrollbar-hide">
+        <div className="flex md:hidden overflow-x-auto pb-2 gap-1.5 scrollbar-hide">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -230,7 +230,7 @@ export default function ContentAdminClient() {
         </div>
 
         {/* Desktop Tab Strip */}
-        <nav className="hidden sm:flex -mb-px space-x-6 overflow-x-auto pb-2 scrollbar-hide" aria-label="Tabs">
+        <nav className="hidden md:flex -mb-px space-x-6 overflow-x-auto pb-2 scrollbar-hide" aria-label="Tabs">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -250,11 +250,11 @@ export default function ContentAdminClient() {
       </div>
 
       {/* Image Cards Container */}
-      <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 xl:grid-cols-3 sm:gap-6">
+      <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 xl:grid-cols-3 md:gap-6">
         {activeImages.map((img) => (
           <React.Fragment key={img.key}>
-            {/* Mobile Native App Card (sm:hidden) */}
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-3.5 sm:hidden">
+            {/* Mobile Native App Card (md:hidden) */}
+            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-3.5 md:hidden">
               <div className="flex gap-3.5 items-center">
                 <div className={`w-24 h-20 rounded-xl overflow-hidden relative shrink-0 border flex items-center justify-center ${img.url ? 'bg-gray-100 border-gray-200' : 'bg-gray-50 border-dashed border-gray-300'}`}>
                   {img.url ? (
@@ -318,8 +318,8 @@ export default function ContentAdminClient() {
               </div>
             </div>
 
-            {/* Desktop View Card (hidden on mobile, shown on sm+) */}
-            <div className="hidden sm:flex bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex-col">
+            {/* Desktop View Card (hidden on mobile, shown on md+) */}
+            <div className="hidden md:flex bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex-col">
               {/* Image Preview - Maintains aspect ratio safely in a container */}
               <div className={`relative w-full aspect-video flex flex-col items-center justify-center overflow-hidden transition-colors ${img.url ? 'bg-gray-100' : 'bg-gray-50 border-2 border-dashed border-gray-200'}`}>
                 {img.url ? (

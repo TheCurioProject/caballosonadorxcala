@@ -152,7 +152,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-              className="relative z-10 bg-[#2C2927] border-t border-white/10 rounded-t-3xl p-6 shadow-2xl text-[#F9F7F4] max-h-[85vh] overflow-y-auto"
+              drag="y"
+              dragConstraints={{ top: 0 }}
+              dragElastic={{ top: 0, bottom: 0.3 }}
+              onDragEnd={(e, info) => {
+                if (info.offset.y > 100 || info.velocity.y > 300) {
+                  setIsToolsOpen(false);
+                }
+              }}
+              className="relative z-10 bg-[#2C2927] border-t border-white/10 rounded-t-3xl p-6 shadow-2xl text-[#F9F7F4] max-h-[85vh] overflow-y-auto touch-pan-x"
             >
               {/* Drag Handle Indicator */}
               <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6" />
