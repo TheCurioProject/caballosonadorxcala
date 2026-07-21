@@ -233,7 +233,7 @@ export default function ContentAdminClient() {
         {activeImages.map((img) => (
           <div key={img.key} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
             {/* Image Preview - Maintains aspect ratio safely in a container */}
-            <div className="relative w-full aspect-video bg-gray-100 flex items-center justify-center overflow-hidden">
+            <div className={`relative w-full aspect-video flex flex-col items-center justify-center overflow-hidden transition-colors ${img.url ? 'bg-gray-100' : 'bg-gray-50 border-2 border-dashed border-gray-200'}`}>
               {img.url ? (
                 <img
                   src={img.url.startsWith('data:') ? img.url : (img.url.includes('?') ? `${img.url}&t=${lastUpdated}` : `${img.url}?t=${lastUpdated}`)}
@@ -241,7 +241,12 @@ export default function ContentAdminClient() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <ImageIcon className="w-12 h-12 text-gray-300" />
+                <div className="flex flex-col items-center gap-2 p-4 text-center">
+                  <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                    <ImageIcon className="w-6 h-6" />
+                  </div>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Slot Vacío</span>
+                </div>
               )}
               
               {/* Overlay for uploading state */}
@@ -252,7 +257,7 @@ export default function ContentAdminClient() {
                     className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white backdrop-blur-sm z-10"
                   >
                     <Loader2 className="w-8 h-8 animate-spin mb-2" />
-                    <span className="text-sm font-medium">Uploading...</span>
+                    <span className="text-sm font-medium">Subiendo...</span>
                   </motion.div>
                 )}
                 {restoringKey === img.key && (
@@ -261,7 +266,7 @@ export default function ContentAdminClient() {
                     className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white backdrop-blur-sm z-10"
                   >
                     <Loader2 className="w-8 h-8 animate-spin mb-2" />
-                    <span className="text-sm font-medium">Restoring...</span>
+                    <span className="text-sm font-medium">Restaurando...</span>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -270,8 +275,13 @@ export default function ContentAdminClient() {
             {/* Controls */}
             <div className="p-5 flex-1 flex flex-col justify-between">
               <div className="mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">{img.name}</h3>
-                <p className="text-xs text-gray-500 font-mono mt-1">{img.key}</p>
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="text-base font-semibold text-gray-900 line-clamp-1">{img.name}</h3>
+                  <span className={`text-[10px] px-2 py-0.5 rounded font-medium uppercase tracking-wide shrink-0 ${img.url ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                    {img.url ? 'Cargada' : 'Vacío'}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-400 font-mono mt-1 truncate">{img.key}</p>
               </div>
 
               <div className="flex items-center gap-3 mt-auto">
@@ -280,14 +290,14 @@ export default function ContentAdminClient() {
                   <input
                     type="file"
                     accept="image/*"
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
                     onChange={(e) => handleFileChange(e, img.key)}
                     disabled={uploadingKey !== null || restoringKey !== null}
                     ref={(el) => { fileInputRefs.current[img.key] = el; }}
                   />
-                  <div className="w-full bg-black text-white px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-medium hover:bg-gray-800 transition-colors pointer-events-none">
+                  <div className={`w-full px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors ${img.url ? 'bg-black text-white hover:bg-gray-800' : 'bg-brand-dark text-white hover:bg-black'}`}>
                     <Upload className="w-4 h-4" />
-                    <span>Change</span>
+                    <span>{img.url ? 'Cambiar' : 'Subir imagen'}</span>
                   </div>
                 </div>
 
@@ -297,10 +307,10 @@ export default function ContentAdminClient() {
                     onClick={() => triggerRestore(img.key, img.history[0].id)}
                     disabled={uploadingKey !== null || restoringKey !== null}
                     className="px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 hover:text-black font-medium transition-colors disabled:opacity-50"
-                    title="Restore to previous image"
+                    title="Restaurar a versión anterior"
                   >
                     <RotateCcw className="w-4 h-4" />
-                    <span className="hidden sm:inline">Restore</span>
+                    <span className="hidden sm:inline">Restaurar</span>
                   </button>
                 )}
               </div>

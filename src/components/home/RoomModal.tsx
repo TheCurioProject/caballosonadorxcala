@@ -69,59 +69,68 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
   };
 
   const carouselContent = (
-    <div className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden group">
-      {images.map((img: string, idx: number) => (
-        <motion.img
-          key={img + idx}
-          src={img}
-          alt={`Room image ${idx + 1}`}
-          className={`absolute inset-0 w-full h-full ${isFullscreen ? 'object-contain' : 'object-cover'}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: currentImageIndex === idx ? 1 : 0 }}
-          transition={{ duration: 0.5 }}
-          style={{ pointerEvents: currentImageIndex === idx ? 'auto' : 'none', touchAction: 'pan-y' }}
-          drag={currentImageIndex === idx ? "x" : false}
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.2}
-          onDragEnd={(e, { offset }) => {
-            const swipe = offset.x;
-            if (swipe < -50) {
-              handleNextImage();
-            } else if (swipe > 50) {
-              handlePrevImage();
-            }
-          }}
-        />
-      ))}
-
-      {/* Navigation arrows */}
-      {currentImageIndex > 0 && (
-        <button 
-          onClick={handlePrevImage}
-          className="hidden md:block absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20 opacity-0 group-hover:opacity-100 pointer-events-auto"
-        >
-          <ChevronLeft size={24} />
-        </button>
-      )}
-      
-      {currentImageIndex < images.length - 1 && (
-        <button 
-          onClick={handleNextImage}
-          className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20 opacity-0 group-hover:opacity-100 pointer-events-auto"
-        >
-          <ChevronRight size={24} />
-        </button>
-      )}
-      
-      {/* Indicators */}
-      {images.length > 1 && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-          {images.map((_: any, idx: number) => (
-            <div 
-              key={idx} 
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${currentImageIndex === idx ? 'bg-white scale-125' : 'bg-white/40'}`} 
+    <div className="relative w-full h-full bg-[#1A1816] flex items-center justify-center overflow-hidden group">
+      {images.length > 0 ? (
+        <>
+          {images.map((img: string, idx: number) => (
+            <motion.img
+              key={img + idx}
+              src={img}
+              alt={`Room image ${idx + 1}`}
+              className={`absolute inset-0 w-full h-full ${isFullscreen ? 'object-contain' : 'object-cover'}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: currentImageIndex === idx ? 1 : 0 }}
+              transition={{ duration: 0.5 }}
+              style={{ pointerEvents: currentImageIndex === idx ? 'auto' : 'none', touchAction: 'pan-y' }}
+              drag={currentImageIndex === idx ? "x" : false}
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.2}
+              onDragEnd={(e, { offset }) => {
+                const swipe = offset.x;
+                if (swipe < -50) {
+                  handleNextImage();
+                } else if (swipe > 50) {
+                  handlePrevImage();
+                }
+              }}
             />
           ))}
+
+          {/* Navigation arrows */}
+          {currentImageIndex > 0 && (
+            <button 
+              onClick={handlePrevImage}
+              className="hidden md:block absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20 opacity-0 group-hover:opacity-100 pointer-events-auto"
+            >
+              <ChevronLeft size={24} />
+            </button>
+          )}
+          
+          {currentImageIndex < images.length - 1 && (
+            <button 
+              onClick={handleNextImage}
+              className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all duration-300 border border-white/20 z-20 opacity-0 group-hover:opacity-100 pointer-events-auto"
+            >
+              <ChevronRight size={24} />
+            </button>
+          )}
+          
+          {/* Indicators */}
+          {images.length > 1 && (
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+              {images.map((_: any, idx: number) => (
+                <div 
+                  key={idx} 
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${currentImageIndex === idx ? 'bg-white scale-125' : 'bg-white/40'}`} 
+                />
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="flex flex-col items-center justify-center text-white/50 p-8 text-center gap-4">
+          <Bed size={48} className="opacity-40" />
+          <p className="text-sm uppercase tracking-widest font-medium">Fotos de la habitación próximamente</p>
         </div>
       )}
     </div>

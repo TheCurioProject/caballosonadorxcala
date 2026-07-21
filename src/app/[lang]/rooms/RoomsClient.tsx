@@ -14,6 +14,21 @@ const fadeIn = {
 export default function RoomsClient({ siteImages }: { siteImages: any }) {
   const { openBookingModal } = useBooking();
   
+  const getPrimaryImage = (roomNum: number) => {
+    const keys = [
+      `/rooms/room${roomNum}/1.webp`,
+      `/rooms/room${roomNum}/2.webp`,
+      `/rooms/room${roomNum}/3.webp`,
+      `/rooms/room${roomNum}/4.webp`,
+      `/rooms/room${roomNum}/5.webp`
+    ];
+    for (const key of keys) {
+      const url = getImageUrl(key, siteImages);
+      if (url && url.trim() !== '') return url;
+    }
+    return '';
+  };
+
   const rooms = [
     {
       id: 1,
@@ -21,7 +36,7 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
       desc: 'Su nombre significa "paso gentil". Es el espacio ideal para amigos, hermanos o viajeros solitarios que comparten una escapada de descanso. Un ambiente aireado con estilo minimalista, tonos calmos y un sutil toque boho.',
       details: { guests: '2', beds: '2 Individuales', bath: '1 Baño' },
       price: 'Desde $135 USD',
-      img: getImageUrl('/rooms/room1/1.webp', siteImages),
+      img: getPrimaryImage(1),
     },
     {
       id: 2,
@@ -29,7 +44,7 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
       desc: 'Brillante y acogedora, Estrella resplandece con un encanto íntimo y texturas costeras naturales. Es el lugar perfecto para dejar atrás el estrés y relajarse después de un día explorando las playas de Nayarit.',
       details: { guests: '2', beds: '1 Queen', bath: '1 Baño' },
       price: 'Desde $135 USD',
-      img: getImageUrl('/rooms/room2/1.webp', siteImages),
+      img: getPrimaryImage(2),
     },
     {
       id: 3,
@@ -37,7 +52,7 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
       desc: 'Un retiro pacífico bañado en tonos suaves y luz tenue. La Luna te invita a desconectar bajo una influencia calmante. Ideal para parejas o viajeros solitarios que buscan serenidad absoluta.',
       details: { guests: '2', beds: '1 Queen', bath: '1 Baño' },
       price: 'Desde $125 USD',
-      img: getImageUrl('/imagenes/03_rooms/room3_la_luna.webp', siteImages),
+      img: getPrimaryImage(3),
     },
     {
       id: 4,
@@ -45,7 +60,7 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
       desc: 'Espaciosa y versátil. Los materiales naturales y la decoración cálida crean un refugio hogareño excelente para parejas, amigos o familias pequeñas que valoran el confort.',
       details: { guests: '3', beds: '1 Matrimonial + 1 Day Bed', bath: '1 Baño' },
       price: 'Desde $125 USD',
-      img: getImageUrl('/imagenes/03_rooms/room4_campo_abierto.webp', siteImages),
+      img: getPrimaryImage(4),
     },
     {
       id: 5,
@@ -53,7 +68,7 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
       desc: 'Nombrada así por la hermosa madera natural presente en toda la habitación. Ofrece una atmósfera tranquila y arraigada a la tierra, con detalles en piedra tallada por artesanos locales. Para quienes valoran la amplitud y la simplicidad.',
       details: { guests: '2', beds: '1 King', bath: '1 Baño' },
       price: 'Desde $165 USD',
-      img: getImageUrl('/rooms/room5/1.webp', siteImages),
+      img: getPrimaryImage(5),
     },
     {
       id: 7,
@@ -61,7 +76,7 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
       desc: 'La joya de Casa Caballo Soñador. Un refugio sereno para estancias románticas o escapes conscientes. Elaborada con madera y piedra local, cuenta con espacio de oficina, sala de estar y vistas inspiradoras.',
       details: { guests: '2', beds: '1 King', bath: '1 Baño', extra: 'Jacuzzi Privado & Vista al Mar' },
       price: 'Desde $185 USD',
-      img: getImageUrl('/imagenes/03_rooms/room7_el_sueno_del_mar.webp', siteImages),
+      img: getPrimaryImage(7),
     },
   ];
 
@@ -105,8 +120,15 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
               }}
               className={`flex flex-col lg:flex-row gap-12 items-center ${i % 2 !== 0 ? 'lg:flex-row-reverse' : ''}`}
             >
-              <div className="w-full lg:w-1/2 overflow-hidden shadow-2xl">
-                <img src={room.img} alt={room.name} className="w-full h-[500px] lg:h-[750px] object-cover hover:scale-105 transition-transform duration-700" />
+              <div className="w-full lg:w-1/2 overflow-hidden shadow-2xl bg-[#EAE5DD] flex items-center justify-center">
+                {room.img ? (
+                  <img src={room.img} alt={room.name} className="w-full h-[500px] lg:h-[750px] object-cover hover:scale-105 transition-transform duration-700" />
+                ) : (
+                  <div className="w-full h-[500px] lg:h-[750px] flex flex-col items-center justify-center text-[#9B7E67] gap-3">
+                    <Bed className="w-12 h-12 opacity-40" />
+                    <span className="text-xs uppercase tracking-widest font-semibold opacity-60">Imágenes próximamente</span>
+                  </div>
+                )}
               </div>
               <div className="w-full lg:w-1/2 space-y-6">
                 <h2 className="text-3xl md:text-4xl font-serif text-brand-dark">{room.name}</h2>

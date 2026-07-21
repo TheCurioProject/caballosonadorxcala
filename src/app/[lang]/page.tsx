@@ -39,35 +39,30 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
     console.warn("Failed to fetch data from Prisma or timed out, using fallback data.");
   }
 
-  const getRoom = (id: number, basePrice: number, images: string[]) => {
+  const getRoom = (id: number, basePrice: number, imageKeys: string[]) => {
     const r = (dict.roomsData as any)[id.toString()];
+    const resolvedImages = imageKeys
+      .map(img => getImageUrl(img, siteImages))
+      .filter(url => url && url.trim() !== '');
+
     return {
       id,
       name: r.name,
       price: basePrice,
       description: r.description,
       shortDescription: r.shortDescription,
-      images: images.map(img => getImageUrl(img, siteImages)),
+      images: resolvedImages,
       details: { guests: r.guests, beds: r.beds, bath: r.bath, ...(r.extra ? { extra: r.extra } : {}) }
     };
   };
 
   const rooms = [
-    getRoom(1, 0, [
-      '/rooms/room1/1.webp', '/rooms/room1/3.webp', 
-      '/rooms/room1/4.webp', '/rooms/room1/5.webp', '/rooms/room1/6.webp'
-    ]),
-    getRoom(2, 0, [
-      '/rooms/room2/1.webp', '/rooms/room2/2.webp', '/rooms/room2/3.webp', 
-      '/rooms/room2/4.webp'
-    ]),
-    getRoom(3, 0, ['/imagenes/03_rooms/room3_la_luna.webp', '/imagenes/03_rooms/room_extra_img_3549.webp']),
-    getRoom(4, 0, ['/imagenes/03_rooms/room4_campo_abierto.webp', '/imagenes/03_rooms/room_extra_img_3549.webp']),
-    getRoom(6, 0, [
-      '/rooms/room5/1.webp', '/rooms/room5/2.webp', '/rooms/room5/3.webp', 
-      '/rooms/room5/4.webp', '/rooms/room5/5.webp'
-    ]),
-    getRoom(7, 0, ['/imagenes/03_rooms/room7_el_sueno_del_mar.webp', '/imagenes/03_rooms/room_extra_img_3549.webp'])
+    getRoom(1, 0, ['/rooms/room1/1.webp', '/rooms/room1/2.webp', '/rooms/room1/3.webp', '/rooms/room1/4.webp', '/rooms/room1/5.webp']),
+    getRoom(2, 0, ['/rooms/room2/1.webp', '/rooms/room2/2.webp', '/rooms/room2/3.webp', '/rooms/room2/4.webp', '/rooms/room2/5.webp']),
+    getRoom(3, 0, ['/rooms/room3/1.webp', '/rooms/room3/2.webp', '/rooms/room3/3.webp', '/rooms/room3/4.webp', '/rooms/room3/5.webp']),
+    getRoom(4, 0, ['/rooms/room4/1.webp', '/rooms/room4/2.webp', '/rooms/room4/3.webp', '/rooms/room4/4.webp', '/rooms/room4/5.webp']),
+    getRoom(6, 0, ['/rooms/room5/1.webp', '/rooms/room5/2.webp', '/rooms/room5/3.webp', '/rooms/room5/4.webp', '/rooms/room5/5.webp']),
+    getRoom(7, 0, ['/rooms/room7/1.webp', '/rooms/room7/2.webp', '/rooms/room7/3.webp', '/rooms/room7/4.webp', '/rooms/room7/5.webp'])
   ];
 
   if (experiences.length === 0) {

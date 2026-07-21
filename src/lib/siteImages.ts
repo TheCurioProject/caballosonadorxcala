@@ -25,125 +25,42 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
     name: 'Comida Hero',
     group: 'COMIDA'
   },
-  '/imagenes/03_rooms/room3_la_luna.webp': {
-    url: '/imagenes/03_rooms/room3_la_luna.webp',
-    name: 'Room 3 - Principal (Foto 1)',
-    group: 'ROOM 3 (La Luna)'
-  },
-  '/imagenes/03_rooms/room4_campo_abierto.webp': {
-    url: '/imagenes/03_rooms/room4_campo_abierto.webp',
-    name: 'Room 4 - Principal (Foto 1)',
-    group: 'ROOM 4 (Campo Abierto)'
-  },
-  '/imagenes/03_rooms/room7_el_sueno_del_mar.webp': {
-    url: '/imagenes/03_rooms/room7_el_sueno_del_mar.webp',
-    name: 'Room 7 - Principal (Foto 1)',
-    group: 'ROOM 7 (Sueño del Mar)'
-  },
-  '/imagenes/03_rooms/room_extra_img_3549.webp': {
-    url: '/imagenes/03_rooms/room_extra_img_3549.webp',
-    name: 'Detalle General Habitaciones',
-    group: 'ROOMS GENERAL'
-  },
+  // Rooms - 5 slots vacíos por habitación
+  '/rooms/room1/1.webp': { url: '', name: 'Room 1 - Foto 1 (Principal)', group: 'ROOM 1 (Paso Suave)' },
+  '/rooms/room1/2.webp': { url: '', name: 'Room 1 - Foto 2', group: 'ROOM 1 (Paso Suave)' },
+  '/rooms/room1/3.webp': { url: '', name: 'Room 1 - Foto 3', group: 'ROOM 1 (Paso Suave)' },
+  '/rooms/room1/4.webp': { url: '', name: 'Room 1 - Foto 4', group: 'ROOM 1 (Paso Suave)' },
+  '/rooms/room1/5.webp': { url: '', name: 'Room 1 - Foto 5', group: 'ROOM 1 (Paso Suave)' },
 
-  '/imagenes/05_amenities/amenity_02_pool_lounge_new.webp': {
-    url: '/imagenes/05_amenities/amenity_02_pool_lounge_new.webp',
-    name: 'amenity_02_pool_lounge_new.webp',
-    group: 'DURANTE TU ESTANCIA (Tarjetas)'
-  },
+  '/rooms/room2/1.webp': { url: '', name: 'Room 2 - Foto 1 (Principal)', group: 'ROOM 2 (Estrella)' },
+  '/rooms/room2/2.webp': { url: '', name: 'Room 2 - Foto 2', group: 'ROOM 2 (Estrella)' },
+  '/rooms/room2/3.webp': { url: '', name: 'Room 2 - Foto 3', group: 'ROOM 2 (Estrella)' },
+  '/rooms/room2/4.webp': { url: '', name: 'Room 2 - Foto 4', group: 'ROOM 2 (Estrella)' },
+  '/rooms/room2/5.webp': { url: '', name: 'Room 2 - Foto 5', group: 'ROOM 2 (Estrella)' },
 
-  '/imagenes/05_amenities/amenity_05_guest_kitchen.webp': {
-    url: '/imagenes/05_amenities/amenity_05_guest_kitchen.webp',
-    name: 'amenity_05_guest_kitchen.webp',
-    group: 'DURANTE TU ESTANCIA (Tarjetas)'
-  },
-  '/imagenes/05_amenities/amenity_06_wifi.webp': {
-    url: '/imagenes/05_amenities/amenity_06_wifi.webp',
-    name: 'amenity_06_wifi.webp',
-    group: 'DURANTE TU ESTANCIA (Tarjetas)'
-  },
-  '/imagenes/05_amenities/amenity_07_sunset_tour.webp': {
-    url: '/imagenes/05_amenities/amenity_07_sunset_tour.webp',
-    name: 'amenity_07_sunset_tour.webp',
-    group: 'DURANTE TU ESTANCIA (Tarjetas)'
-  },
+  '/rooms/room3/1.webp': { url: '', name: 'Room 3 - Foto 1 (Principal)', group: 'ROOM 3 (La Luna)' },
+  '/rooms/room3/2.webp': { url: '', name: 'Room 3 - Foto 2', group: 'ROOM 3 (La Luna)' },
+  '/rooms/room3/3.webp': { url: '', name: 'Room 3 - Foto 3', group: 'ROOM 3 (La Luna)' },
+  '/rooms/room3/4.webp': { url: '', name: 'Room 3 - Foto 4', group: 'ROOM 3 (La Luna)' },
+  '/rooms/room3/5.webp': { url: '', name: 'Room 3 - Foto 5', group: 'ROOM 3 (La Luna)' },
 
-  '/imagenes/05_amenities/amenity_09_rooftop_terrace.webp': {
-    url: '/imagenes/05_amenities/amenity_09_rooftop_terrace.webp',
-    name: 'amenity_09_rooftop_terrace.webp',
-    group: 'DURANTE TU ESTANCIA (Tarjetas)'
-  },
+  '/rooms/room4/1.webp': { url: '', name: 'Room 4 - Foto 1 (Principal)', group: 'ROOM 4 (Campo Abierto)' },
+  '/rooms/room4/2.webp': { url: '', name: 'Room 4 - Foto 2', group: 'ROOM 4 (Campo Abierto)' },
+  '/rooms/room4/3.webp': { url: '', name: 'Room 4 - Foto 3', group: 'ROOM 4 (Campo Abierto)' },
+  '/rooms/room4/4.webp': { url: '', name: 'Room 4 - Foto 4', group: 'ROOM 4 (Campo Abierto)' },
+  '/rooms/room4/5.webp': { url: '', name: 'Room 4 - Foto 5', group: 'ROOM 4 (Campo Abierto)' },
 
-  '/rooms/room1/1.webp': {
-    url: '/rooms/room1/1.webp',
-    name: 'Room 1 - Principal (Foto 1)',
-    group: 'ROOM 1 (Paso Suave)'
-  },
-  '/rooms/room1/3.webp': {
-    url: '/rooms/room1/3.webp',
-    name: 'Room 1 - Foto 2',
-    group: 'ROOM 1 (Paso Suave)'
-  },
-  '/rooms/room1/4.webp': {
-    url: '/rooms/room1/4.webp',
-    name: 'Room 1 - Foto 3',
-    group: 'ROOM 1 (Paso Suave)'
-  },
-  '/rooms/room1/5.webp': {
-    url: '/rooms/room1/5.webp',
-    name: 'Room 1 - Foto 4',
-    group: 'ROOM 1 (Paso Suave)'
-  },
-  '/rooms/room1/6.webp': {
-    url: '/rooms/room1/6.webp',
-    name: 'Room 1 - Foto 5',
-    group: 'ROOM 1 (Paso Suave)'
-  },
-  '/rooms/room2/1.webp': {
-    url: '/rooms/room2/1.webp',
-    name: 'Room 2 - Principal (Foto 1)',
-    group: 'ROOM 2 (Estrella)'
-  },
-  '/rooms/room2/2.webp': {
-    url: '/rooms/room2/2.webp',
-    name: 'Room 2 - Foto 2',
-    group: 'ROOM 2 (Estrella)'
-  },
-  '/rooms/room2/3.webp': {
-    url: '/rooms/room2/3.webp',
-    name: 'Room 2 - Foto 3',
-    group: 'ROOM 2 (Estrella)'
-  },
-  '/rooms/room2/4.webp': {
-    url: '/rooms/room2/4.webp',
-    name: 'Room 2 - Foto 4',
-    group: 'ROOM 2 (Estrella)'
-  },
-  '/rooms/room5/1.webp': {
-    url: '/rooms/room5/1.webp',
-    name: 'Room 5/6 - Principal (Foto 1)',
-    group: 'ROOM 5/6 (Madera Viva)'
-  },
-  '/rooms/room5/2.webp': {
-    url: '/rooms/room5/2.webp',
-    name: 'Room 5/6 - Foto 2',
-    group: 'ROOM 5/6 (Madera Viva)'
-  },
-  '/rooms/room5/3.webp': {
-    url: '/rooms/room5/3.webp',
-    name: 'Room 5/6 - Foto 3',
-    group: 'ROOM 5/6 (Madera Viva)'
-  },
-  '/rooms/room5/4.webp': {
-    url: '/rooms/room5/4.webp',
-    name: 'Room 5/6 - Foto 4',
-    group: 'ROOM 5/6 (Madera Viva)'
-  },
-  '/rooms/room5/5.webp': {
-    url: '/rooms/room5/5.webp',
-    name: 'Room 5/6 - Foto 5',
-    group: 'ROOM 5/6 (Madera Viva)'
-  },
+  '/rooms/room5/1.webp': { url: '', name: 'Room 5/6 - Foto 1 (Principal)', group: 'ROOM 5/6 (Madera Viva)' },
+  '/rooms/room5/2.webp': { url: '', name: 'Room 5/6 - Foto 2', group: 'ROOM 5/6 (Madera Viva)' },
+  '/rooms/room5/3.webp': { url: '', name: 'Room 5/6 - Foto 3', group: 'ROOM 5/6 (Madera Viva)' },
+  '/rooms/room5/4.webp': { url: '', name: 'Room 5/6 - Foto 4', group: 'ROOM 5/6 (Madera Viva)' },
+  '/rooms/room5/5.webp': { url: '', name: 'Room 5/6 - Foto 5', group: 'ROOM 5/6 (Madera Viva)' },
+
+  '/rooms/room7/1.webp': { url: '', name: 'Room 7 - Foto 1 (Principal)', group: 'ROOM 7 (Sueño del Mar)' },
+  '/rooms/room7/2.webp': { url: '', name: 'Room 7 - Foto 2', group: 'ROOM 7 (Sueño del Mar)' },
+  '/rooms/room7/3.webp': { url: '', name: 'Room 7 - Foto 3', group: 'ROOM 7 (Sueño del Mar)' },
+  '/rooms/room7/4.webp': { url: '', name: 'Room 7 - Foto 4', group: 'ROOM 7 (Sueño del Mar)' },
+  '/rooms/room7/5.webp': { url: '', name: 'Room 7 - Foto 5', group: 'ROOM 7 (Sueño del Mar)' },
   '/tours_gallery/01_ojo_de_agua/00_ojoagua_002.webp': {
     url: '/tours_gallery/01_ojo_de_agua/00_ojoagua_002.webp',
     name: '00_ojoagua_002.webp',
