@@ -254,9 +254,9 @@ export default function ContentAdminClient() {
         {activeImages.map((img) => (
           <React.Fragment key={img.key}>
             {/* Mobile Native App Card (md:hidden) */}
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-3.5 md:hidden">
-              <div className="flex gap-3.5 items-center">
-                <div className={`w-24 h-20 rounded-xl overflow-hidden relative shrink-0 border flex items-center justify-center ${img.url ? 'bg-gray-100 border-gray-200' : 'bg-gray-50 border-dashed border-gray-300'}`}>
+            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-4 md:hidden">
+              <div className="flex flex-col gap-3">
+                <div className={`w-full aspect-[4/3] rounded-xl overflow-hidden relative border flex items-center justify-center ${img.url ? 'bg-gray-100 border-gray-200' : 'bg-gray-50 border-dashed border-gray-300'}`}>
                   {img.url ? (
                     <img
                       src={img.url.startsWith('data:') ? img.url : (img.url.includes('?') ? `${img.url}&t=${lastUpdated}` : `${img.url}?t=${lastUpdated}`)}
@@ -264,7 +264,7 @@ export default function ContentAdminClient() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <ImageIcon className="w-6 h-6 text-gray-400" />
+                    <ImageIcon className="w-8 h-8 text-gray-400" />
                   )}
                   <AnimatePresence>
                     {(uploadingKey === img.key || restoringKey === img.key) && (
@@ -272,23 +272,24 @@ export default function ContentAdminClient() {
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         className="absolute inset-0 bg-black/60 flex items-center justify-center text-white backdrop-blur-xs"
                       >
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <Loader2 className="w-6 h-6 animate-spin" />
                       </motion.div>
                     )}
                   </AnimatePresence>
                 </div>
-                <div className="flex-1 min-w-0 space-y-1">
-                  <div className="flex items-center justify-between gap-1">
-                    <h3 className="text-sm font-bold text-[#23211F] truncate">{img.name}</h3>
+                
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-base font-bold text-[#23211F] line-clamp-1">{img.name}</h3>
+                    <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0 ${img.url ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
+                      {img.url ? 'Uploaded' : 'Empty'}
+                    </span>
                   </div>
                   <p className="text-[10px] text-gray-400 font-mono truncate">{img.key}</p>
-                  <span className={`inline-block text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${img.url ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
-                    {img.url ? 'Uploaded' : 'Empty'}
-                  </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 pt-1 border-t border-gray-50">
+              <div className="flex items-center gap-2 pt-1">
                 <div className="relative flex-1">
                   <input
                     type="file"
@@ -298,9 +299,9 @@ export default function ContentAdminClient() {
                     disabled={uploadingKey !== null || restoringKey !== null}
                     ref={(el) => { fileInputRefs.current[`mob-${img.key}`] = el; }}
                   />
-                  <div className={`w-full py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 font-bold text-xs uppercase tracking-wider transition-colors ${img.url ? 'bg-[#23211F] text-white hover:bg-[#9B7E67]' : 'bg-[#9B7E67] text-white'}`}>
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>{img.url ? 'Replace' : 'Upload'}</span>
+                  <div className={`w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-xs uppercase tracking-wider transition-colors ${img.url ? 'bg-[#F9F7F4] text-[#9B7E67] border border-[#E5D9C5]' : 'bg-[#9B7E67] text-white'}`}>
+                    <Upload className="w-4 h-4" />
+                    <span>{img.url ? 'Replace Image' : 'Upload Image'}</span>
                   </div>
                 </div>
 
@@ -308,11 +309,10 @@ export default function ContentAdminClient() {
                   <button
                     onClick={() => triggerRestore(img.key, img.history[0].id)}
                     disabled={uploadingKey !== null || restoringKey !== null}
-                    className="px-3.5 py-2.5 border border-gray-200 text-gray-700 rounded-xl flex items-center justify-center gap-1.5 hover:bg-gray-50 text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50"
+                    className="p-3 border border-gray-200 text-gray-700 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-50"
                     title="Restore version"
                   >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Restore</span>
+                    <RotateCcw className="w-5 h-5" />
                   </button>
                 )}
               </div>
