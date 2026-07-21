@@ -499,26 +499,6 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
     name: 'La Piscina (Pool Lounge)',
     group: 'DURANTE TU ESTANCIA (Tarjetas)'
   },
-  '/imagenes/09_events/events_retreat_intro.webp': {
-    url: '/imagenes/09_events/events_retreat_intro.webp',
-    name: 'Retiros Hero Banner',
-    group: 'EVENTS & RETREATS'
-  },
-  '/imagenes/09_events/events_retreat.webp': {
-    url: '/imagenes/09_events/events_retreat.webp',
-    name: 'Yoga y Bienestar (Espacio Retiros)',
-    group: 'EVENTS & RETREATS'
-  },
-  '/imagenes/11_blog/blog_elle_and_shawn.webp': {
-    url: '/imagenes/11_blog/blog_elle_and_shawn.webp',
-    name: 'Bodas Íntimas (Galería Eventos)',
-    group: 'EVENTS & RETREATS'
-  },
-  '/imagenes/07_tours/tour_molote_alt_rtrt001.webp': {
-    url: '/imagenes/07_tours/tour_molote_alt_rtrt001.webp',
-    name: 'Retiros Grupales (Galería Eventos)',
-    group: 'EVENTS & RETREATS'
-  },
 };
 
 export function getImageUrl(originalPath: string, siteImages: any): string {

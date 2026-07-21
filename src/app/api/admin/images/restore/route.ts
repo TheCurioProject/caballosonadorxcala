@@ -43,7 +43,6 @@ export async function POST(request: Request) {
       revalidatePath('/[lang]', 'layout');
       revalidatePath('/admin/content');
       revalidatePath('/[lang]/rooms');
-      revalidatePath('/[lang]/events');
       revalidatePath('/[lang]/tours');
       revalidatePath('/[lang]/servicios-de-comida');
     } catch (err) {
