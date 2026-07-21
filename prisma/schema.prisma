@@ -195,7 +195,7 @@ model SiteImage {
   key       String   @unique @db.VarChar(255) // e.g., '/rooms/room1/1.webp'
   group     String   @db.VarChar(50)          // 'HOMEPAGE', 'FOOD', 'TOURS'
   name      String   @db.VarChar(255)         // e.g., 'Hero Image'
-  url       String   @db.VarChar(500)
+  url       String   @db.LongText
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -207,7 +207,7 @@ model SiteImage {
 model SiteImageHistory {
   id          Int      @id @default(autoincrement())
   siteImageId Int      @map("site_image_id")
-  url         String   @db.VarChar(500)
+  url         String   @db.LongText
   createdAt   DateTime @default(now()) @map("created_at")
 
   siteImage   SiteImage @relation(fields: [siteImageId], references: [id], onDelete: Cascade)

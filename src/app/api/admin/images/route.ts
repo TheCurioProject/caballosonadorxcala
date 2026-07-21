@@ -50,32 +50,33 @@ export async function POST(request: Request) {
     const key = formData.get('key') as string;
 
     if (!file || !key) {
-      return NextResponse.json({ error: 'Faltan campos requeridos' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing required file or key' }, { status: 400 });
     }
 
-    const defaultData = (DEFAULT_IMAGES as any)[key];
-    if (!defaultData) {
-      return NextResponse.json({ error: 'Clave de imagen no válida' }, { status: 400 });
-    }
+    const defaultData = (DEFAULT_IMAGES as any)[key] || {
+      group: 'GENERAL',
+      name: key.split('/').pop() || key,
+      url: key,
+    };
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    
-    // Create unique filename
-    const ext = path.extname(file.name) || '.webp';
-    const safeKey = key.replace(/[\/\\.]/g, '_');
-    const filename = `${safeKey}_${Date.now()}${ext}`;
-    
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'images');
-    
-    // Ensure directory exists
-    try {
-      await fs.access(uploadDir);
-    } catch {
-      await fs.mkdir(uploadDir, { recursive: true });
-    }
+    let newUrl = '';
 
-    await fs.writeFile(path.join(uploadDir, filename), buffer);
-    const newUrl = `/uploads/images/${filename}`;
+    // Attempt to write to local disk first
+    try {
+      const ext = path.extname(file.name) || '.webp';
+      const safeKey = key.replace(/[\/\\.]/g, '_');
+      const filename = `${safeKey}_${Date.now()}${ext}`;
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'images');
+
+      await fs.mkdir(uploadDir, { recursive: true });
+      await fs.writeFile(path.join(uploadDir, filename), buffer);
+      newUrl = `/uploads/images/${filename}`;
+    } catch (fsErr) {
+      console.warn('Disk write unavailable, falling back to Base64 Data URI:', fsErr);
+      const mimeType = file.type || 'image/webp';
+      newUrl = `data:${mimeType};base64,${buffer.toString('base64')}`;
+    }
 
     // Update DB
     const existingImage = await prisma.siteImage.findUnique({ where: { key } });
@@ -97,8 +98,8 @@ export async function POST(request: Request) {
       await prisma.siteImage.create({
         data: {
           key,
-          group: defaultData.group,
-          name: defaultData.name,
+          group: defaultData.group || 'GENERAL',
+          name: defaultData.name || key,
           url: newUrl
         }
       });
@@ -120,6 +121,7 @@ export async function POST(request: Request) {
 
   } catch (error) {
     console.error('Error uploading image:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: errorMessage || 'Internal Server Error' }, { status: 500 });
   }
 }

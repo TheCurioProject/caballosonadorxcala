@@ -50,26 +50,83 @@ export default function ContentAdminClient() {
     setTimeout(() => setNotification(null), 3000);
   };
 
+  const compressImage = (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+      if (file.type.includes('svg') || file.size <= 500 * 1024) {
+        resolve(file);
+        return;
+      }
+      const img = document.createElement('img');
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const maxWidth = 1920;
+        const maxHeight = 1920;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxHeight) {
+          if (width > height) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".webp", {
+                  type: 'image/webp',
+                  lastModified: Date.now(),
+                });
+                resolve(compressedFile);
+              } else {
+                resolve(file);
+              }
+            },
+            'image/webp',
+            0.85
+          );
+        } else {
+          resolve(file);
+        }
+      };
+      img.onerror = () => resolve(file);
+      img.src = url;
+    });
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploadingKey(key);
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('key', key);
-
     try {
+      const processedFile = await compressImage(file);
+      const formData = new FormData();
+      formData.append('file', processedFile);
+      formData.append('key', key);
+
       const res = await fetch('/api/admin/images', {
         method: 'POST',
         body: formData,
       });
 
-      if (res.ok) {
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
         showNotification('success', 'Image successfully updated');
         await fetchImages();
       } else {
-        showNotification('error', 'Error uploading image');
+        showNotification('error', data.error || 'Error uploading image');
       }
     } catch (error) {
       showNotification('error', 'Network error uploading image');
