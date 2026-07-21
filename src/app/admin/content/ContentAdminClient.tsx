@@ -189,7 +189,7 @@ export default function ContentAdminClient() {
   const activeImages = images[activeTab] || [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-w-0 w-full">
       {/* Toast Notification */}
       <AnimatePresence>
         {notification && (
@@ -208,9 +208,9 @@ export default function ContentAdminClient() {
       </AnimatePresence>
 
       {/* Category Tabs: Mobile Native Segment Pills / Desktop Underline Tabs */}
-      <div className="md:border-b md:border-gray-200">
+      <div className="md:border-b md:border-gray-200 w-full min-w-0">
         {/* Mobile Segmented Control Pills */}
-        <div className="flex md:hidden overflow-x-auto pb-2 gap-1.5 scrollbar-hide">
+        <div className="flex md:hidden overflow-x-auto pb-2 gap-1.5 scrollbar-hide w-full">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
