@@ -236,29 +236,29 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
                 const isCleaning = bookings.some(b => isSameDay(day, new Date(b.checkOut)));
                 const isBlocked = blocks.some(b => day >= new Date(b.startDate) && day <= new Date(b.endDate));
                 
-                let bgClass = "bg-white hover:bg-gray-50 border border-gray-100 cursor-pointer";
-                let textClass = "text-[#23211F]";
+                let bgClass = "bg-[#F9F7F4] hover:bg-[#E5D9C5] border border-[#D4C3AB]/40 cursor-pointer shadow-sm transition-all";
+                let textClass = "text-[#23211F] font-medium";
 
                 if (!isCurrentMonth) {
                   bgClass = "bg-transparent opacity-0 pointer-events-none";
                 } else if (checkIn && checkOut && (isSameDay(day, checkIn) || isSameDay(day, checkOut))) {
-                  bgClass = "bg-[#9B7E67]";
+                  bgClass = "bg-[#9B7E67] shadow-md";
                   textClass = "text-[#F9F7F4] font-bold";
                 } else if (checkIn && !checkOut && isSameDay(day, checkIn)) {
-                  bgClass = "bg-[#9B7E67]"; 
+                  bgClass = "bg-[#9B7E67] shadow-md"; 
                   textClass = "text-[#F9F7F4] font-bold";
                 } else if (checkIn && checkOut && day > checkIn && day < checkOut) {
-                  bgClass = "bg-[#D4A574]";
+                  bgClass = "bg-[#D4A574] shadow-sm opacity-90";
                   textClass = "text-[#23211F] font-bold";
                 } else if (isPast) {
-                  bgClass = "bg-gray-100 cursor-not-allowed";
-                  textClass = "text-gray-400";
+                  bgClass = "bg-gray-50 border border-gray-200 cursor-not-allowed";
+                  textClass = "text-gray-400 font-medium";
                 } else if (isBooked || isBlocked) {
                   bgClass = "bg-[#c1121f] cursor-not-allowed shadow-inner";
-                  textClass = "text-white opacity-90";
+                  textClass = "text-white font-bold";
                 } else if (isCleaning) {
-                  bgClass = "bg-[#D4A574]";
-                  textClass = "text-[#23211F] opacity-90";
+                  bgClass = "bg-[#D4A574] cursor-pointer shadow-sm border border-[#c9955c]";
+                  textClass = "text-[#23211F] font-bold";
                 }
 
                 return (
