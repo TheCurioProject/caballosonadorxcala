@@ -94,7 +94,7 @@ export default async function AdminSettingsPage() {
               <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Name / Code</label>
               <input type="text" name="name" required placeholder="e.g. SUMMER20" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67]" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Type</label>
                 <select name="type" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67]">

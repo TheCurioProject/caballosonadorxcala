@@ -512,9 +512,9 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
                 </div>
 
                 <div className="bg-[#F9F7F4] p-5 rounded-xl border border-[#E5D9C5] mt-6">
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="bg-white p-2 rounded-lg shadow-sm">
+                      <div className="bg-white p-2 rounded-lg shadow-sm shrink-0">
                         <Calculator className="w-5 h-5 text-[#9B7E67]" />
                       </div>
                       <div>
@@ -522,7 +522,7 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
                         <p className="text-xs text-gray-500">At ${basePrice.toLocaleString('es-MX')} MXN per night</p>
                       </div>
                     </div>
-                    <div className="relative w-1/3">
+                    <div className="relative w-full sm:w-1/3">
                       <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 font-serif">$</span>
                       <input 
                         type="number" 

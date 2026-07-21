@@ -38,27 +38,27 @@ export default function IcalWorkspace({ roomId, initialFeeds }: { roomId: number
   return (
     <div className="space-y-8">
       {/* Export Section */}
-      <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-8">
-        <div className="flex items-start gap-4">
+      <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-5 sm:p-8">
+        <div className="flex flex-col sm:flex-row items-start gap-4">
           <div className="w-12 h-12 rounded-xl bg-[#9B7E67]/10 flex items-center justify-center shrink-0">
             <Link2 className="w-6 h-6 text-[#9B7E67]" />
           </div>
-          <div className="flex-1 space-y-4">
+          <div className="flex-1 space-y-4 w-full">
             <div>
               <h3 className="font-serif text-2xl text-[#23211F]">Export Calendar</h3>
               <p className="text-gray-500 text-sm mt-1">Copy this URL and paste it into Airbnb, Booking.com, or other channels so they can block their dates when you receive a booking here.</p>
             </div>
             
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input 
                 type="url" 
                 value={exportUrl} 
-                className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-500 font-mono" 
+                className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-500 font-mono overflow-x-auto" 
                 readOnly
               />
               <button 
                 onClick={copyToClipboard}
-                className="bg-[#2C2927] text-white px-6 py-3 rounded-xl text-sm font-bold uppercase tracking-widest hover:bg-[#1A1817] transition-colors flex items-center gap-2"
+                className="bg-[#2C2927] text-white px-6 py-3 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-widest hover:bg-[#1A1817] transition-colors flex items-center justify-center gap-2 shrink-0"
               >
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 {copied ? 'Copied' : 'Copy'}
@@ -69,7 +69,7 @@ export default function IcalWorkspace({ roomId, initialFeeds }: { roomId: number
       </div>
 
       {/* Import Section */}
-      <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-8">
+      <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-5 sm:p-8">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h3 className="font-serif text-2xl text-[#23211F]">Import Calendars</h3>
@@ -77,7 +77,7 @@ export default function IcalWorkspace({ roomId, initialFeeds }: { roomId: number
           </div>
           <button 
             onClick={handleAdd}
-            className="w-10 h-10 bg-[#F9F7F4] hover:bg-[#9B7E67]/10 text-[#9B7E67] rounded-full flex items-center justify-center transition-colors"
+            className="w-10 h-10 bg-[#F9F7F4] hover:bg-[#9B7E67]/10 text-[#9B7E67] rounded-full flex items-center justify-center transition-colors shrink-0"
           >
             <Plus className="w-5 h-5" />
           </button>
@@ -96,29 +96,35 @@ export default function IcalWorkspace({ roomId, initialFeeds }: { roomId: number
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="flex gap-4 items-center bg-gray-50 p-4 rounded-2xl"
+                className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center bg-gray-50 p-4 rounded-2xl"
               >
-                <div className="w-1/3">
+                <div className="w-full sm:w-1/3">
                   <input
                     type="text"
                     placeholder="Name (e.g. Airbnb)"
                     value={feed.name}
                     onChange={(e) => handleChange(index, 'name', e.target.value)}
-                    className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#9B7E67]"
+                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#9B7E67]"
                   />
                 </div>
-                <div className="flex-1">
+                <div className="w-full sm:flex-1">
                   <input
                     type="url"
                     placeholder="iCal Format URL (https://...)"
                     value={feed.url}
                     onChange={(e) => handleChange(index, 'url', e.target.value)}
-                    className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#9B7E67]"
+                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#9B7E67]"
                   />
                 </div>
-                <button onClick={() => handleRemove(index)} className="p-3 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                  <Trash2 className="w-5 h-5" />
-                </button>
+                <div className="flex justify-end sm:block">
+                  <button 
+                    onClick={() => handleRemove(index)} 
+                    className="p-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition-colors flex items-center gap-2 text-xs font-bold uppercase sm:normal-case"
+                  >
+                    <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="sm:hidden">Remove Feed</span>
+                  </button>
+                </div>
               </motion.div>
             ))}
           </AnimatePresence>
@@ -128,7 +134,7 @@ export default function IcalWorkspace({ roomId, initialFeeds }: { roomId: number
           <button 
             onClick={handleSave}
             disabled={isLoading}
-            className="bg-[#9B7E67] hover:bg-[#8A6D56] text-white px-8 py-3 rounded-xl font-medium transition-colors flex items-center gap-2"
+            className="w-full sm:w-auto bg-[#9B7E67] hover:bg-[#8A6D56] text-white px-8 py-3.5 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
           >
             {isLoading && <Loader2 className="w-5 h-5 animate-spin" />}
             Save Changes

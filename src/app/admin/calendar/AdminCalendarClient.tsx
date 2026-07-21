@@ -269,7 +269,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
-              className="fixed top-0 right-0 w-full max-w-md h-full bg-[#F9F7F4] shadow-2xl z-50 p-8 flex flex-col"
+              className="fixed top-0 right-0 w-full max-w-md h-full max-h-screen bg-[#F9F7F4] shadow-2xl z-50 p-6 sm:p-8 flex flex-col overflow-y-auto"
             >
               <div className="flex justify-between items-center mb-8">
                 <h3 className="text-2xl font-serif text-[#23211F] capitalize">

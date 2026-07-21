@@ -26,20 +26,20 @@ export default async function ServiciosComidaAdminPage() {
   }
 
   return (
-    <div className="p-8 max-w-6xl mx-auto font-sans">
+    <div className="p-4 sm:p-6 md:p-8 max-w-6xl mx-auto font-sans">
       <div className="mb-10 flex items-center gap-4">
-        <div className="p-4 bg-[#9B7E67]/10 rounded-full text-[#9B7E67]">
+        <div className="p-4 bg-[#9B7E67]/10 rounded-full text-[#9B7E67] shrink-0">
           <Utensils size={32} />
         </div>
         <div>
-          <h1 className="text-4xl font-serif text-[#2C2621]">Food Services</h1>
-          <p className="text-gray-500 mt-1">Manage prices and private chef food bookings.</p>
+          <h1 className="text-3xl sm:text-4xl font-serif text-[#2C2621]">Food Services</h1>
+          <p className="text-gray-500 mt-1 text-sm sm:text-base">Manage prices and private chef food bookings.</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10">
         {/* Precios Section */}
-        <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+        <section className="bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-gray-100">
           <h2 className="text-2xl font-serif text-[#2C2621] mb-6 flex items-center gap-3">
             <span className="w-8 h-[2px] bg-[#9B7E67]"></span> Base Prices (MXN)
           </h2>
@@ -71,7 +71,7 @@ export default async function ServiciosComidaAdminPage() {
         </section>
 
         {/* Reservas Section */}
-        <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+        <section className="bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-gray-100">
           <h2 className="text-2xl font-serif text-[#2C2621] mb-6 flex items-center gap-3">
             <span className="w-8 h-[2px] bg-[#9B7E67]"></span> Food Bookings
           </h2>

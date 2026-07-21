@@ -135,7 +135,7 @@ export default function AdminExperiencias() {
         </div>
       )}
 
-      {/* Food Services Table */}
+      {/* Food Services Section */}
       <section>
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -151,8 +151,64 @@ export default function AdminExperiencias() {
             + Add Service
           </button>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <table className="w-full text-left border-collapse">
+
+        {/* Mobile View: Cards */}
+        <div className="space-y-4 sm:hidden">
+          {foodServices.length === 0 ? (
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center text-gray-500">
+              No food services registered.
+            </div>
+          ) : (
+            foodServices.map((service) => (
+              <div key={service.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Service Name</label>
+                  <input 
+                    type="text" 
+                    value={service.name}
+                    onChange={(e) => handleFoodChange(service.id, 'name', e.target.value)}
+                    className="w-full bg-[#F9F7F4] border-none rounded-xl px-4 py-2.5 text-[#23211F] font-medium text-sm focus:ring-2 focus:ring-[#9B7E67]"
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Price (MXN/Pax)</label>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
+                      <input 
+                        type="number" 
+                        value={service.price}
+                        onChange={(e) => handleFoodChange(service.id, 'price', e.target.value)}
+                        className="w-full pl-8 pr-3 py-2.5 bg-[#F9F7F4] border-none rounded-xl text-[#23211F] font-medium text-sm focus:ring-2 focus:ring-[#9B7E67]"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center shrink-0">
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Active</label>
+                    <input 
+                      type="checkbox"
+                      checked={service.isActive}
+                      onChange={(e) => handleFoodChange(service.id, 'isActive', e.target.checked)}
+                      className="w-6 h-6 rounded text-[#9B7E67] focus:ring-[#9B7E67] border-gray-300"
+                    />
+                  </div>
+                </div>
+                <button 
+                  onClick={() => handleSaveFood(service)}
+                  disabled={saving}
+                  className="w-full py-3 bg-[#23211F] text-white rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#9B7E67] transition-colors shadow-sm disabled:opacity-50"
+                >
+                  <Save size={16} />
+                  Save Service
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop View: Table */}
+        <div className="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[600px]">
             <thead>
               <tr>
                 <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Service</th>
@@ -212,7 +268,7 @@ export default function AdminExperiencias() {
         </div>
       </section>
 
-      {/* Tour Destinations Table */}
+      {/* Tour Destinations Section */}
       <section>
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -228,8 +284,64 @@ export default function AdminExperiencias() {
             + Add Destination
           </button>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <table className="w-full text-left border-collapse">
+
+        {/* Mobile View: Cards */}
+        <div className="space-y-4 sm:hidden">
+          {tours.length === 0 ? (
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center text-gray-500">
+              No tour destinations registered.
+            </div>
+          ) : (
+            tours.map((tour) => (
+              <div key={tour.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Destination Name</label>
+                  <input 
+                    type="text" 
+                    value={tour.name}
+                    onChange={(e) => handleTourChange(tour.id, 'name', e.target.value)}
+                    className="w-full bg-[#F9F7F4] border-none rounded-xl px-4 py-2.5 text-[#23211F] font-medium text-sm focus:ring-2 focus:ring-[#9B7E67]"
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Price (MXN/Pax)</label>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
+                      <input 
+                        type="number" 
+                        value={tour.pricePerPax}
+                        onChange={(e) => handleTourChange(tour.id, 'pricePerPax', e.target.value)}
+                        className="w-full pl-8 pr-3 py-2.5 bg-[#F9F7F4] border-none rounded-xl text-[#23211F] font-medium text-sm focus:ring-2 focus:ring-[#9B7E67]"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center shrink-0">
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Active</label>
+                    <input 
+                      type="checkbox"
+                      checked={tour.isActive}
+                      onChange={(e) => handleTourChange(tour.id, 'isActive', e.target.checked)}
+                      className="w-6 h-6 rounded text-[#9B7E67] focus:ring-[#9B7E67] border-gray-300"
+                    />
+                  </div>
+                </div>
+                <button 
+                  onClick={() => handleSaveTour(tour)}
+                  disabled={saving}
+                  className="w-full py-3 bg-[#23211F] text-white rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#9B7E67] transition-colors shadow-sm disabled:opacity-50"
+                >
+                  <Save size={16} />
+                  Save Destination
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop View: Table */}
+        <div className="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[600px]">
             <thead>
               <tr>
                 <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Destination</th>
@@ -297,7 +409,7 @@ export default function AdminExperiencias() {
           </div>
           <h3 className="text-2xl font-serif text-[#23211F]">Global Tour Settings</h3>
         </div>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 flex flex-col md:flex-row gap-6 md:items-end">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-8 flex flex-col md:flex-row gap-6 md:items-end">
           <div className="flex-1">
             <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">Minimum Guests</label>
             <input

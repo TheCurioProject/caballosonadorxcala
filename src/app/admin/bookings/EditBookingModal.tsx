@@ -200,15 +200,15 @@ export default function EditBookingModal({
             </form>
           </div>
 
-          <div className="p-6 border-t border-gray-100 bg-gray-50 flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+          <div className="p-4 sm:p-6 border-t border-gray-100 bg-gray-50 flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
             
             <div className="flex flex-col gap-2 w-full sm:w-auto">
-              {invoiceSent && <span className="text-xs text-green-600 font-bold uppercase tracking-widest">Invoice Downloaded & Sent!</span>}
-              <div className="flex gap-2">
+              {invoiceSent && <span className="text-xs text-green-600 font-bold uppercase tracking-widest text-center sm:text-left">Invoice Downloaded & Sent!</span>}
+              <div className="flex flex-col sm:flex-row gap-2">
                 <button 
                   onClick={() => handlePrintInvoice(false)}
                   disabled={isSendingInvoice}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+                  className="px-4 py-2.5 border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
                 >
                   {isSendingInvoice ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
                   Save & Print
@@ -216,7 +216,7 @@ export default function EditBookingModal({
                 <button 
                   onClick={() => handlePrintInvoice(true)}
                   disabled={isSendingInvoice || !guestEmail}
-                  className="px-4 py-2 bg-[#F9F7F4] border border-[#E5D9C5] text-[#9B7E67] hover:bg-[#E5D9C5] rounded-lg text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="px-4 py-2.5 bg-[#F9F7F4] border border-[#E5D9C5] text-[#9B7E67] hover:bg-[#E5D9C5] rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                   title={!guestEmail ? "Guest email required" : ""}
                 >
                   {isSendingInvoice ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
@@ -228,7 +228,7 @@ export default function EditBookingModal({
             <div className="flex gap-3 w-full sm:w-auto justify-end">
               <button 
                 onClick={onClose}
-                className="px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest text-gray-500 hover:bg-gray-200 transition-colors"
+                className="flex-1 sm:flex-none px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-widest text-gray-500 hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>
@@ -236,7 +236,7 @@ export default function EditBookingModal({
                 form="edit-booking-form"
                 type="submit"
                 disabled={isPending}
-                className="px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest text-white bg-[#9B7E67] hover:bg-[#23211F] transition-colors flex items-center gap-2"
+                className="flex-1 sm:flex-none px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest text-white bg-[#9B7E67] hover:bg-[#23211F] transition-colors flex items-center justify-center gap-2"
               >
                 {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 Save Changes
