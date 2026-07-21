@@ -19,7 +19,7 @@ const prismaClientSingleton = () => {
   
   if (!cleanUrl.includes('connection_limit')) {
     const separator = cleanUrl.includes('?') ? '&' : '?';
-    cleanUrl += `${separator}connection_limit=3&pool_timeout=15`;
+    cleanUrl += `${separator}connection_limit=5&pool_timeout=30&connect_timeout=30`;
   }
   
   // The PrismaMariaDb adapter strictly expects mariadb:// instead of mysql://
@@ -36,6 +36,7 @@ declare global {
 
 const prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
 
-export default prisma;
+// Always preserve singleton in globalThis for serverless warm lambda reuse
+globalThis.prismaGlobal = prisma;
 
-if (process.env.NODE_ENV !== 'production') globalThis.prismaGlobal = prisma;
+export default prisma;
