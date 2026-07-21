@@ -391,14 +391,14 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
     name: 'Habitaciones Hero Banner',
     group: 'ROOMS GENERAL'
   },
+  '/imagenes/05_amenities/amenity_01_private_rooms.webp': {
+    url: '/casacuartos.webp',
+    name: 'Tarjeta 1: 6 Habitaciones Privadas',
+    group: 'DURANTE TU ESTANCIA (Tarjetas)'
+  },
   '/imagenes/05_amenities/amenity_02_pool_lounge_new.webp': {
     url: '/imagenes/05_amenities/amenity_02_pool_lounge_new.webp',
     name: 'Tarjeta 2: Piscina, Jacuzzi y Lounge',
-    group: 'DURANTE TU ESTANCIA (Tarjetas)'
-  },
-  '/imagenes/05_amenities/amenity_02_pool_lounge.webp': {
-    url: '/imagenes/05_amenities/amenity_02_pool_lounge.webp',
-    name: 'Tarjeta 2: Piscina (Legacy)',
     group: 'DURANTE TU ESTANCIA (Tarjetas)'
   },
   '/imagenes/05_amenities/amenity_05_guest_kitchen.webp': {

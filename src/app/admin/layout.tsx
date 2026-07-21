@@ -194,8 +194,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={() => setIsToolsOpen(!isToolsOpen)}
-            className={`w-14 h-14 rounded-2xl bg-[#9B7E67] text-white flex items-center justify-center shadow-xl shadow-[#9B7E67]/35 border border-[#9B7E67]/30 transition-all duration-300 ${
-              isToolsOpen ? 'ring-4 ring-[#9B7E67]/30 scale-105' : 'hover:bg-[#886C56]'
+            className={`w-14 h-14 rounded-2xl bg-[#2C2927] border border-white/15 text-white flex items-center justify-center shadow-2xl transition-all duration-300 ${
+              isToolsOpen ? 'ring-4 ring-white/20 scale-105' : 'hover:bg-[#3A3634]'
             }`}
             aria-label="Tools Menu"
           >
