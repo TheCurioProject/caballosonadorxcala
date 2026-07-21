@@ -39,6 +39,8 @@ export async function GET(
         checkIn={booking.checkIn.toLocaleDateString()}
         checkOut={booking.checkOut.toLocaleDateString()}
         totalPrice={booking.totalPrice}
+        depositPaid={booking.depositPaid || 0}
+        depositCurrency={booking.depositCurrency || 'MXN'}
         date={new Date().toLocaleDateString()}
         logoBase64={logoBase64}
       /> as any

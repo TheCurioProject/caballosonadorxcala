@@ -63,13 +63,13 @@ export default function ContentAdminClient() {
       });
 
       if (res.ok) {
-        showNotification('success', 'Imagen actualizada correctamente');
+        showNotification('success', 'Image successfully updated');
         await fetchImages();
       } else {
-        showNotification('error', 'Error al subir la imagen');
+        showNotification('error', 'Error uploading image');
       }
     } catch (error) {
-      showNotification('error', 'Error de red al subir la imagen');
+      showNotification('error', 'Network error uploading image');
     } finally {
       setUploadingKey(null);
       // Reset input
@@ -80,7 +80,7 @@ export default function ContentAdminClient() {
   };
 
   const handleRestore = async (key: string, historyId: number) => {
-    if (!confirm('¿Estás seguro de que deseas restaurar la imagen anterior?')) return;
+    if (!confirm('Are you sure you want to restore the previous image?')) return;
     
     setRestoringKey(key);
     try {
@@ -91,13 +91,13 @@ export default function ContentAdminClient() {
       });
 
       if (res.ok) {
-        showNotification('success', 'Imagen restaurada con éxito');
+        showNotification('success', 'Image successfully restored');
         await fetchImages();
       } else {
-        showNotification('error', 'Error al restaurar la imagen');
+        showNotification('error', 'Error restoring image');
       }
     } catch (error) {
-      showNotification('error', 'Error de red al restaurar');
+      showNotification('error', 'Network error restoring');
     } finally {
       setRestoringKey(null);
     }
@@ -188,7 +188,7 @@ export default function ContentAdminClient() {
                     className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white backdrop-blur-sm z-10"
                   >
                     <Loader2 className="w-8 h-8 animate-spin mb-2" />
-                    <span className="text-sm font-medium">Subiendo...</span>
+                    <span className="text-sm font-medium">Uploading...</span>
                   </motion.div>
                 )}
                 {restoringKey === img.key && (
@@ -197,7 +197,7 @@ export default function ContentAdminClient() {
                     className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white backdrop-blur-sm z-10"
                   >
                     <Loader2 className="w-8 h-8 animate-spin mb-2" />
-                    <span className="text-sm font-medium">Restaurando...</span>
+                    <span className="text-sm font-medium">Restoring...</span>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -223,7 +223,7 @@ export default function ContentAdminClient() {
                   />
                   <div className="w-full bg-black text-white px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-medium hover:bg-gray-800 transition-colors pointer-events-none">
                     <Upload className="w-4 h-4" />
-                    <span>Cambiar</span>
+                    <span>Change</span>
                   </div>
                 </div>
 
@@ -233,10 +233,10 @@ export default function ContentAdminClient() {
                     onClick={() => handleRestore(img.key, img.history[0].id)}
                     disabled={uploadingKey !== null || restoringKey !== null}
                     className="px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 hover:text-black font-medium transition-colors disabled:opacity-50"
-                    title="Restaurar a la imagen anterior"
+                    title="Restore to previous image"
                   >
                     <RotateCcw className="w-4 h-4" />
-                    <span className="hidden sm:inline">Restaurar</span>
+                    <span className="hidden sm:inline">Restore</span>
                   </button>
                 )}
               </div>
@@ -246,7 +246,7 @@ export default function ContentAdminClient() {
 
         {activeImages.length === 0 && (
           <div className="col-span-full py-12 text-center text-gray-500 bg-white border border-gray-200 border-dashed rounded-xl">
-            No hay imágenes configuradas para esta sección.
+            There are no images configured for this section.
           </div>
         )}
       </div>

@@ -9,7 +9,6 @@ import { useDictionary } from '@/i18n/DictionaryContext';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { useCurrency } from '@/context/CurrencyContext';
 
 const FluidHorseAnimation = dynamic(() => import('../FluidHorseAnimation'), {
   ssr: false,
@@ -210,7 +209,6 @@ export const HomeNavigation = () => {
   const router = useRouter();
   const dict = useDictionary();
   const { openBookingModal } = useBooking();
-  const { currency, setCurrency } = useCurrency();
 
   const changeLanguage = (lang: string) => {
     setIsSwitchingLang(true);

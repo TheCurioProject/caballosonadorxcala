@@ -9,7 +9,6 @@ import Link from 'next/link';
 import { Footer } from '@/components/home/Footer';
 import { useBooking } from '@/context/BookingContext';
 import { ActionLoadingScreen } from '@/components/ui/ActionLoadingScreen';
-import { useCurrency } from '@/context/CurrencyContext';
 
 import { getImageUrl } from '@/lib/siteImages';
 
@@ -22,7 +21,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
   const langPrefix = `/${lang || 'es'}`;
   const [isNavigating, setIsNavigating] = useState(false);
   const { openBookingModal } = useBooking();
-  const { currency, setCurrency, formatPrice } = useCurrency();
+  const formatPrice = (amountInMxn: number) => `$${Math.round(amountInMxn)} MXN`;
 
   const texts = {
     heroTitle: isEn ? 'Food Services' : 'Servicios de Comida',

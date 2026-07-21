@@ -15,8 +15,7 @@ import { format, differenceInDays } from 'date-fns';
 import { es, enUS, de } from 'date-fns/locale';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { useScrollLock } from '@/hooks/useScrollLock';
-import { useCurrency } from '@/context/CurrencyContext';
-
+import { useScrollLock } from '@/hooks/useScrollLock';
 /* ─── Hook: useMediaQuery ─── */
 function useMediaQuery(query: string) {
   const [matches, setMatches] = useState(false);
@@ -353,7 +352,9 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [atvPeople, setAtvPeople] = useState(3);
   const [atvSelections, setAtvSelections] = useState<Record<string, number>>({});
 
-  const { currency, setCurrency, formatPrice, getConvertedPrice } = useCurrency();
+  const currency = 'MXN';
+  const formatPrice = (amountInMxn: number) => `$${Math.round(amountInMxn).toLocaleString()} MXN`;
+  const getConvertedPrice = (amountInMxn: number) => amountInMxn;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -693,17 +694,9 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   <div className="flex flex-col gap-1">
                     <p className="text-xs uppercase tracking-widest font-bold text-gray-400">{dict.modal?.total} {nights > 0 && `(${nights} ${dict.modal?.nights})`}</p>
                     <div className="flex gap-2 items-center mt-2">
-                      {(['MXN', 'USD', 'CAD'] as const).map((c) => (
-                        <button
-                          key={c}
-                          onClick={() => setCurrency(c)}
-                          className={`text-[10px] font-bold tracking-widest transition-colors ${
-                            currency === c ? 'text-[#9B7E67]' : 'text-gray-500 hover:text-gray-300'
-                          }`}
-                        >
-                          {c}
-                        </button>
-                      ))}
+                      <span className="text-[8px] uppercase text-[#9B7E67] font-bold tracking-widest max-w-[200px]">
+                        {isEn ? '* Stripe will handle the currency conversion at checkout' : '* Stripe aplicará el tipo de cambio correspondiente al momento del pago'}
+                      </span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end">

@@ -127,11 +127,13 @@ interface InvoiceProps {
   checkIn: string;
   checkOut: string;
   totalPrice: number;
+  depositPaid?: number;
+  depositCurrency?: string;
   date: string;
   logoBase64: string;
 }
 
-export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, totalPrice, date, logoBase64 }: InvoiceProps) => (
+export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, totalPrice, depositPaid = 0, depositCurrency = 'MXN', date, logoBase64 }: InvoiceProps) => (
   <Document>
     <Page size="A4" style={styles.page}>
       
@@ -180,9 +182,26 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
       </View>
 
       {/* TOTAL */}
+      <View style={{ ...styles.section, marginTop: 20 }}>
+        <Text style={styles.sectionTitle}>Resumen de Pago / Payment Summary</Text>
+        <View style={styles.row}>
+          <Text style={styles.label}>Total de la reserva / Total amount:</Text>
+          <Text style={styles.value}>${totalPrice.toLocaleString('es-MX')} MXN</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Anticipo pagado / Deposit paid:</Text>
+          <Text style={styles.value}>${depositPaid.toLocaleString('es-MX')} {depositCurrency}</Text>
+        </View>
+      </View>
+
       <View style={styles.totalSection}>
-        <Text style={styles.totalLabel}>Total Pagado</Text>
-        <Text style={styles.totalValue}>${totalPrice.toLocaleString('es-MX')} MXN</Text>
+        <Text style={styles.totalLabel}>Balance Pendiente / Balance Due</Text>
+        <Text style={styles.totalValue}>
+          {depositCurrency === 'MXN' 
+            ? `$${(totalPrice - depositPaid).toLocaleString('es-MX')} MXN`
+            : `$${totalPrice.toLocaleString('es-MX')} MXN - $${depositPaid.toLocaleString('es-MX')} ${depositCurrency}`
+          }
+        </Text>
       </View>
 
       {/* RULES */}

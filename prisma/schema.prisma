@@ -13,8 +13,6 @@ model Property {
   description  String?       @db.Text
   basePrice    Float         @default(15000) @map("base_price")
   baseCapacity    Int           @default(12) @map("base_capacity")
-  exchangeRateUsd Float         @default(18.8) @map("exchange_rate_usd")
-  exchangeRateCad Float         @default(17.7) @map("exchange_rate_cad")
   icalToken       String?       @unique @map("ical_token") @db.VarChar(255)
   isActive     Boolean       @default(true) @map("is_active")
   createdAt    DateTime      @default(now()) @map("created_at")
@@ -40,6 +38,8 @@ model Booking {
   payment_status String         @default("PENDING") @db.VarChar(50)
   origin         String         @db.VarChar(100)
   totalPrice     Float
+  depositPaid    Float?         @default(0) @map("deposit_paid")
+  depositCurrency String        @default("MXN") @map("deposit_currency")
   externalId     String?        @unique @db.VarChar(255)
   idCardUrl      String?        @db.VarChar(500)
   notes          String?        @db.Text

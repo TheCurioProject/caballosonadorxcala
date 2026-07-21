@@ -9,7 +9,6 @@ import { useDictionary } from '@/i18n/DictionaryContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { ActionLoadingScreen } from '@/components/ui/ActionLoadingScreen';
 import { TourBookingModal } from '@/components/booking/TourBookingModal';
-import { useCurrency } from '@/context/CurrencyContext';
 
 const Footer = dynamic(() => import('@/components/home/Footer').then(mod => mod.Footer));
 
@@ -101,7 +100,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
   const pathname = usePathname();
   const router = useRouter();
   const langPrefix = `/${lang || 'es'}`;
-  const { currency, setCurrency, formatPrice } = useCurrency();
+  const formatPrice = (amountInMxn: number) => `$${Math.round(amountInMxn)} MXN`;
 
   const [prices, setPrices] = useState<Record<string, number>>({});
   const [selectedTour, setSelectedTour] = useState<any | null>(null);

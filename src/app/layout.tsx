@@ -7,7 +7,6 @@ import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { cookies } from 'next/headers';
 import { getDictionary } from '@/i18n/dictionaries';
 import { DictionaryProvider } from '@/i18n/DictionaryContext';
-import { CurrencyProvider } from '@/context/CurrencyContext';
 
 const syne = Syne({
   subsets: ["latin"],
@@ -46,15 +45,13 @@ export default async function RootLayout({
     <html lang={lang} className={`${syne.variable} ${cormorant.variable}`}>
       <body className="font-sans bg-brand-beige text-brand-dark antialiased selection:bg-brand-terracotta selection:text-brand-beige">
         <DictionaryProvider dict={dict}>
-          <CurrencyProvider>
-            <BookingProvider>
-              <LoadingScreen />
-              <Navigation />
-              <main className="min-h-screen">
-                {children}
-              </main>
-            </BookingProvider>
-          </CurrencyProvider>
+          <BookingProvider>
+            <LoadingScreen />
+            <Navigation />
+            <main className="min-h-screen">
+              {children}
+            </main>
+          </BookingProvider>
         </DictionaryProvider>
       </body>
     </html>

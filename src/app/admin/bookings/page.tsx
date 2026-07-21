@@ -45,6 +45,8 @@ export default async function AdminBookingsPage() {
     const guestPhone = formData.get('guestPhone') as string || null;
     const origin = 'MANUAL';
     const price = parseFloat(formData.get('price') as string);
+    const depositPaid = parseFloat(formData.get('depositPaid') as string) || 0;
+    const depositCurrency = formData.get('depositCurrency') as string || 'MXN';
     const idCardFile = formData.get('idCard') as File | null;
 
     let idCardUrl = null;
@@ -78,6 +80,8 @@ export default async function AdminBookingsPage() {
             origin,
             payment_status: 'CONFIRMED',
             totalPrice: isNaN(price) ? 0 : price,
+            depositPaid: depositPaid,
+            depositCurrency: depositCurrency,
             idCardUrl
           }
         });
@@ -121,19 +125,19 @@ export default async function AdminBookingsPage() {
           {property.bookings.filter(b => b.payment_status === 'PENDING').length > 0 && (
             <div className="bg-white rounded-2xl shadow-sm border border-orange-200 overflow-hidden">
               <div className="px-6 py-4 border-b border-orange-100 flex justify-between items-center bg-orange-50/30">
-                <h2 className="font-serif text-orange-900 text-xl">Bloqueos Temporales</h2>
+                <h2 className="font-serif text-orange-900 text-xl">Temporary Locks</h2>
                 <div className="flex gap-2">
                   <ClearPendingButton />
-                  <ClearPendingButton all={true} label="Limpiar Todos" />
+                  <ClearPendingButton all={true} label="Clear All" />
                 </div>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-max">
                   <thead>
                     <tr className="bg-orange-50/50 text-[10px] font-bold text-orange-400 uppercase tracking-widest text-left">
-                      <th className="py-4 px-6">Invitado</th>
-                      <th className="py-4 px-6">Fecha Creación</th>
-                      <th className="py-4 px-6 text-right">Acción</th>
+                      <th className="py-4 px-6">Guest</th>
+                      <th className="py-4 px-6">Creation Date</th>
+                      <th className="py-4 px-6 text-right">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-orange-50 text-sm">

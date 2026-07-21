@@ -21,6 +21,9 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
   const [checkIn, setCheckIn] = useState<Date | null>(null);
   const [checkOut, setCheckOut] = useState<Date | null>(null);
   const [calculatedPrice, setCalculatedPrice] = useState<number>(0);
+  const [depositType, setDepositType] = useState<'percentage' | 'fixed'>('percentage');
+  const [depositValue, setDepositValue] = useState<number>(50);
+  const [depositCurrency, setDepositCurrency] = useState<string>('MXN');
   
   const [isPending, startTransition] = useTransition();
   const [createdBooking, setCreatedBooking] = useState<{ id: number, email: string, name: string } | null>(null);
@@ -100,6 +103,12 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
     const guestEmail = formData.get('guestEmail') as string || '';
     const guestName = formData.get('guestName') as string || '';
     
+    const depositPaid = depositType === 'percentage' 
+      ? calculatedPrice * ((depositValue || 0) / 100)
+      : (depositValue || 0);
+    formData.append('depositPaid', depositPaid.toString());
+    formData.append('depositCurrency', depositCurrency);
+
     startTransition(async () => {
       const result = await addManualBooking(formData);
       if (result.success && result.bookingId) {
@@ -158,8 +167,8 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
             className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm rounded-2xl"
           >
             <Loader2 className="w-10 h-10 text-[#9B7E67] animate-spin mb-4" />
-            <p className="text-[#23211F] font-serif text-xl">Procesando reserva...</p>
-            <p className="text-gray-500 text-sm uppercase tracking-widest font-bold mt-2">Por favor, espera</p>
+            <p className="text-[#23211F] font-serif text-xl">Processing booking...</p>
+            <p className="text-gray-500 text-sm uppercase tracking-widest font-bold mt-2">Please wait</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -169,7 +178,7 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-serif text-[#23211F] capitalize flex items-center gap-2">
             <CalendarDays className="w-5 h-5 text-[#9B7E67]" />
-            Fechas de Estancia
+            Stay Dates
           </h3>
           <div className="flex space-x-2">
             <button type="button" onClick={prevMonth} className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
@@ -265,15 +274,15 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
               <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
                 <CheckCircle className="w-8 h-8" />
               </div>
-              <h3 className="text-2xl font-serif text-[#23211F] mb-2">¡Reserva Registrada!</h3>
+              <h3 className="text-2xl font-serif text-[#23211F] mb-2">Booking Registered!</h3>
               <p className="text-gray-500 mb-8 max-w-sm">
-                La reserva para {createdBooking.name} se ha guardado exitosamente. ¿Deseas enviar el comprobante en PDF por correo electrónico?
+                The booking for {createdBooking.name} has been saved successfully. Would you like to send the PDF invoice by email?
               </p>
 
               {invoiceSent ? (
                 <div className="bg-[#F9F7F4] border border-[#E5E0D8] text-[#9B7E67] px-6 py-4 rounded-xl font-medium flex items-center gap-2">
                   <CheckCircle className="w-5 h-5" />
-                  Comprobante enviado exitosamente
+                  Invoice sent successfully
                 </div>
               ) : (
                 <div className="w-full max-w-md space-y-4">
@@ -285,7 +294,7 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
                       type="email" 
                       value={invoiceEmail}
                       onChange={(e) => setInvoiceEmail(e.target.value)}
-                      placeholder="Correo electrónico del cliente"
+                      placeholder="Client email address"
                       className="w-full border border-gray-200 rounded-xl pl-10 px-4 py-4 text-[#23211F] focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all"
                     />
                   </div>
@@ -298,7 +307,7 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
                       }}
                       className="flex-1 py-4 rounded-xl font-bold text-xs tracking-widest uppercase text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors"
                     >
-                      Omitir
+                      Skip
                     </button>
                     <button 
                       onClick={handleSendInvoice}
@@ -306,7 +315,7 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
                       className="flex-1 py-4 rounded-xl font-bold text-xs tracking-widest uppercase text-white bg-[#9B7E67] hover:bg-[#23211F] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                       {isSendingInvoice ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                      {isSendingInvoice ? 'Enviando...' : 'Enviar PDF'}
+                      {isSendingInvoice ? 'Sending...' : 'Send PDF'}
                     </button>
                   </div>
                 </div>
@@ -321,7 +330,7 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
             >
               <h3 className="text-xl font-serif text-[#23211F] mb-6 flex items-center gap-2">
                 <User className="w-5 h-5 text-[#9B7E67]" />
-                Detalles del Huésped
+                Guest Details
               </h3>
 
               <form onSubmit={onSubmit} className="space-y-5">
@@ -330,45 +339,96 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Nombre Completo</label>
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Full Name</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <User className="h-4 w-4 text-gray-400" />
                       </div>
-                      <input type="text" name="guestName" required placeholder="Ej. Juan Pérez" className="w-full border border-gray-200 rounded-xl pl-10 px-3 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all" />
+                      <input type="text" name="guestName" required placeholder="e.g., John Doe" className="w-full border border-gray-200 rounded-xl pl-10 px-3 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all" />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Correo (Opcional)</label>
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Email (Optional)</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <Mail className="h-4 w-4 text-gray-400" />
                       </div>
-                      <input type="email" name="guestEmail" placeholder="juan@ejemplo.com" className="w-full border border-gray-200 rounded-xl pl-10 px-3 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all" />
+                      <input type="email" name="guestEmail" placeholder="john@example.com" className="w-full border border-gray-200 rounded-xl pl-10 px-3 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all" />
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Teléfono (Opcional)</label>
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Phone (Optional)</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <Phone className="h-4 w-4 text-gray-400" />
                       </div>
-                      <input type="tel" name="guestPhone" placeholder="+52 123 456 7890" className="w-full border border-gray-200 rounded-xl pl-10 px-3 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all" />
+                      <input type="tel" name="guestPhone" placeholder="+1 234 567 8900" className="w-full border border-gray-200 rounded-xl pl-10 px-3 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all" />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Identificación (Opcional)</label>
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">ID Document (Optional)</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <ImageIcon className="h-4 w-4 text-gray-400" />
                       </div>
                       <input type="file" name="idCard" accept="image/*" className="w-full border border-gray-200 rounded-xl pl-10 px-3 py-2 text-gray-500 text-sm focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] bg-white transition-all file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100" />
                     </div>
+                  </div>
+                </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Deposit Currency</label>
+                    <div className="flex bg-gray-100 p-1 rounded-xl">
+                      {(['MXN', 'USD', 'CAD']).map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setDepositCurrency(c)}
+                          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${depositCurrency === c ? 'bg-white shadow-sm text-[#23211F]' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Deposit Type</label>
+                    <div className="flex bg-gray-100 p-1 rounded-xl">
+                      <button
+                        type="button"
+                        onClick={() => setDepositType('percentage')}
+                        className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${depositType === 'percentage' ? 'bg-white shadow-sm text-[#23211F]' : 'text-gray-500 hover:text-gray-700'}`}
+                      >
+                        Percentage (%)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDepositType('fixed')}
+                        className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${depositType === 'fixed' ? 'bg-white shadow-sm text-[#23211F]' : 'text-gray-500 hover:text-gray-700'}`}
+                      >
+                        Fixed ({depositCurrency})
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
+                      {depositType === 'percentage' ? 'Deposit Percentage (%)' : `Deposit Amount (${depositCurrency})`}
+                    </label>
+                    <input 
+                      type="number" 
+                      value={depositValue === 0 && depositType === 'percentage' ? '' : depositValue}
+                      onChange={(e) => setDepositValue(parseFloat(e.target.value) || 0)}
+                      placeholder={depositType === 'percentage' ? '50' : '0'} 
+                      className="w-full border border-gray-200 rounded-xl px-3 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all" 
+                    />
                   </div>
                 </div>
 
@@ -379,8 +439,8 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
                         <Calculator className="w-5 h-5 text-[#9B7E67]" />
                       </div>
                       <div>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Costo Estimado ({checkIn && checkOut ? differenceInDays(checkOut, checkIn) : 0} noches)</p>
-                        <p className="text-xs text-gray-500">A ${basePrice.toLocaleString('es-MX')} MXN por noche</p>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Estimated Cost ({checkIn && checkOut ? differenceInDays(checkOut, checkIn) : 0} nights)</p>
+                        <p className="text-xs text-gray-500">At ${basePrice.toLocaleString('es-MX')} MXN per night</p>
                       </div>
                     </div>
                     <div className="relative w-1/3">
@@ -407,7 +467,7 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
                   }`}
                 >
                   {isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
-                  {isPending ? 'REGISTRANDO...' : 'CONFIRMAR RESERVA'}
+                  {isPending ? 'REGISTERING...' : 'CONFIRM BOOKING'}
                 </button>
               </form>
             </motion.div>

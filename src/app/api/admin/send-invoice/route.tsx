@@ -43,6 +43,8 @@ export async function POST(request: Request) {
         checkIn={checkIn}
         checkOut={checkOut}
         totalPrice={booking.totalPrice}
+        depositPaid={booking.depositPaid || 0}
+        depositCurrency={booking.depositCurrency || 'MXN'}
         date={date}
         logoBase64={logoBase64}
       /> as any

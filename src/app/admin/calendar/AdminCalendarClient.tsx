@@ -189,7 +189,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
               } else if (info.isCheckoutBuffer) {
                 bgClass = "bg-[#D4A574] shadow-[inset_3px_3px_6px_rgba(0,0,0,0.2)]"; 
                 textClass = "text-white";
-                label = "Limpieza / Margen";
+                label = "Cleaning / Buffer";
               } else if (info.isHoliday) {
                 bgClass = "bg-[#e5d9c5] shadow-[5px_5px_10px_#e3e1de,-5px_-5px_10px_#ffffff] border border-[#d4c3ab]";
                 textClass = "text-[#9B7E67]";
@@ -230,19 +230,19 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
           <div className="flex flex-wrap items-center justify-center gap-6 mt-8 pt-6 border-t border-gray-200 text-[10px] font-bold uppercase tracking-widest text-gray-500 w-full">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-red-500 shadow-inner"></div>
-              <span>Reservado (Stripe)</span>
+              <span>Booked (Stripe)</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-[#c1121f] shadow-inner"></div>
-              <span>Reservado (Manual)</span>
+              <span>Booked (Manual)</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-[#D4A574] shadow-inner"></div>
-              <span>Limpieza / Margen</span>
+              <span>Cleaning / Buffer</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-gray-400 shadow-inner"></div>
-              <span>Bloqueado (Manual)</span>
+              <span>Blocked (Manual)</span>
             </div>
           </div>
         </div>
@@ -331,8 +331,8 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
 
       <ActionLoadingScreen 
         isOpen={isLoading}
-        message="Guardando Cambios..."
-        subMessage="Sincronizando calendario y tarifas"
+        message="Saving Changes..."
+        subMessage="Syncing calendar and rates"
       />
     </div>
   );

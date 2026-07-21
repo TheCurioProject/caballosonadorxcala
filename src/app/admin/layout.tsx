@@ -1,15 +1,16 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Book, CalendarDays, CreditCard, Settings, CalendarSync, LogOut, Image as ImageIcon } from 'lucide-react';
+import { LayoutDashboard, Book, CalendarDays, CreditCard, Settings, CalendarSync, LogOut, Image as ImageIcon, Menu, X } from 'lucide-react';
 
 import { motion } from 'framer-motion';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const isLoginPage = pathname.includes('/admin/login');
 
   if (isLoginPage) {
@@ -28,29 +29,46 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   const navItems = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-    { name: 'Editar', href: '/admin/content', icon: ImageIcon },
+    { name: 'Edit Content', href: '/admin/content', icon: ImageIcon },
     { name: 'Bookings', href: '/admin/bookings', icon: Book },
     { name: 'Calendar', href: '/admin/calendar', icon: CalendarDays },
-    { name: 'Experiencias', href: '/admin/experiencias', icon: Book }, // New tab
+    { name: 'Experiences', href: '/admin/experiencias', icon: Book }, // New tab
     { name: 'Payments', href: '/admin/stripe', icon: CreditCard },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
     { name: 'iCal', href: '/admin/ical', icon: CalendarSync },
   ];
 
   const mobileNavItems = [
-    { name: 'Inicio', href: '/admin', icon: LayoutDashboard },
-    { name: 'Editar', href: '/admin/content', icon: ImageIcon },
-    { name: 'Reservas', href: '/admin/bookings', icon: Book },
-    { name: 'Extras', href: '/admin/experiencias', icon: CalendarDays },
-    { name: 'Fechas', href: '/admin/calendar', icon: CalendarDays },
-    { name: 'Ajustes', href: '/admin/settings', icon: Settings },
+    { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+    { name: 'Edit Content', href: '/admin/content', icon: ImageIcon },
+    { name: 'Bookings', href: '/admin/bookings', icon: Book },
+    { name: 'Experiences', href: '/admin/experiencias', icon: CalendarDays },
+    { name: 'Calendar', href: '/admin/calendar', icon: CalendarDays },
+    { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
 
   return (
     <div className="min-h-screen flex bg-[#F9F7F4] text-[#23211F] pb-24 md:pb-0">
+      
+      {/* Floating Toggle Button (Desktop) */}
+      {!isSidebarOpen && !isLoginPage && (
+        <button
+          onClick={() => setIsSidebarOpen(true)}
+          className="fixed top-6 left-6 z-50 p-3 bg-white rounded-full shadow-lg border border-gray-100 text-[#23211F] hover:bg-gray-50 transition-all hidden md:flex"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+      )}
+
       {/* Sidebar (Desktop) */}
-      <aside className="w-64 bg-[#2C2927] text-[#F9F7F4] flex-col shadow-xl z-20 hidden md:flex">
-        <div className="p-8 border-b border-[#F9F7F4]/10">
+      <aside className={`w-64 bg-[#2C2927] text-[#F9F7F4] flex-col shadow-xl z-20 hidden md:flex transition-all duration-300 ${isSidebarOpen ? 'ml-0' : '-ml-64'}`}>
+        <div className="p-8 border-b border-[#F9F7F4]/10 relative">
+          <button 
+            onClick={() => setIsSidebarOpen(false)}
+            className="absolute top-8 right-6 text-gray-400 hover:text-white transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
           <h1 className="font-serif text-2xl font-bold tracking-wide text-[#9B7E67]">Casa Caballo Soñador</h1>
           <p className="text-xs font-light opacity-60 uppercase tracking-widest mt-2">Admin Panel</p>
         </div>
@@ -75,7 +93,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             className="flex items-center gap-3 text-sm font-medium text-red-400 hover:text-red-300 transition-colors w-full"
           >
             <LogOut className="w-4 h-4" />
-            Cerrar Sesión
+            Log Out
           </button>
         </div>
       </aside>
@@ -129,7 +147,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             >
               <LogOut className="w-5 h-5" />
               <span className="text-[9px] uppercase tracking-widest font-bold opacity-70 group-hover:opacity-100">
-                Salir
+                Log Out
               </span>
             </motion.div>
           </button>

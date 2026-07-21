@@ -8,7 +8,6 @@ import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
-import { useCurrency } from '@/context/CurrencyContext';
 
 export const TourBookingModal = ({ 
   isOpen, 
@@ -22,7 +21,7 @@ export const TourBookingModal = ({
   lang?: string;
 }) => {
   const isEn = lang === 'en';
-  const { currency, formatPrice, getConvertedPrice } = useCurrency();
+  const formatPrice = (amountInMxn: number) => `$${Math.round(amountInMxn).toLocaleString()} MXN`;
   const [step, setStep] = useState(1);
   const [destinations, setDestinations] = useState<any[]>([]);
   const [selectedDestination, setSelectedDestination] = useState<any | null>(initialTour);
@@ -71,7 +70,7 @@ export const TourBookingModal = ({
     if (!selectedDestination || !date) return;
     setIsSubmitting(true);
 
-    const convertedPricePerPax = getConvertedPrice(selectedDestination.pricePerPax);
+    const convertedPricePerPax = selectedDestination.pricePerPax;
     const convertedTotalPrice = convertedPricePerPax * pax;
 
     try {
@@ -94,7 +93,7 @@ export const TourBookingModal = ({
             unitPrice: convertedPricePerPax,
             quantity: pax
           }],
-          currency: currency.toLowerCase()
+          currency: 'mxn'
         })
       });
 
@@ -178,6 +177,9 @@ export const TourBookingModal = ({
                   <div>
                     <span className="block text-[10px] uppercase text-white/50 mb-1">Total ({pax} pax)</span>
                     <span className="font-serif text-3xl">{formatPrice(selectedDestination.pricePerPax * pax)}</span>
+                    <span className="block text-[8px] uppercase text-[#9B7E67] mt-2 font-bold tracking-widest max-w-[200px]">
+                      {isEn ? '* Stripe will handle the currency conversion at checkout' : '* Stripe aplicará el tipo de cambio correspondiente al momento del pago'}
+                    </span>
                   </div>
                 </div>
               </div>
