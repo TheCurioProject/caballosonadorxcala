@@ -207,17 +207,38 @@ export default function ContentAdminClient() {
         )}
       </AnimatePresence>
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-4 overflow-x-auto pb-2 scrollbar-hide" aria-label="Tabs">
+      {/* Category Tabs: Mobile Native Segment Pills / Desktop Underline Tabs */}
+      <div className="sm:border-b sm:border-gray-200">
+        {/* Mobile Segmented Control Pills */}
+        <div className="flex sm:hidden overflow-x-auto pb-2 gap-1.5 scrollbar-hide">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 shrink-0 ${
+                  isActive 
+                    ? 'bg-[#2C2927] text-white shadow-sm' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Desktop Tab Strip */}
+        <nav className="hidden sm:flex -mb-px space-x-6 overflow-x-auto pb-2 scrollbar-hide" aria-label="Tabs">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`
-                whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors
                 ${activeTab === tab.id
-                  ? 'border-black text-black'
+                  ? 'border-[#23211F] text-[#23211F] font-bold'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }
               `}
@@ -228,64 +249,46 @@ export default function ContentAdminClient() {
         </nav>
       </div>
 
-      {/* Image Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      {/* Image Cards Container */}
+      <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 xl:grid-cols-3 sm:gap-6">
         {activeImages.map((img) => (
-          <div key={img.key} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
-            {/* Image Preview - Maintains aspect ratio safely in a container */}
-            <div className={`relative w-full aspect-video flex flex-col items-center justify-center overflow-hidden transition-colors ${img.url ? 'bg-gray-100' : 'bg-gray-50 border-2 border-dashed border-gray-200'}`}>
-              {img.url ? (
-                <img
-                  src={img.url.startsWith('data:') ? img.url : (img.url.includes('?') ? `${img.url}&t=${lastUpdated}` : `${img.url}?t=${lastUpdated}`)}
-                  alt={img.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="flex flex-col items-center gap-2 p-4 text-center">
-                  <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
-                    <ImageIcon className="w-6 h-6" />
-                  </div>
-                  <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Empty Slot</span>
+          <React.Fragment key={img.key}>
+            {/* Mobile Native App Card (sm:hidden) */}
+            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col gap-3.5 sm:hidden">
+              <div className="flex gap-3.5 items-center">
+                <div className={`w-24 h-20 rounded-xl overflow-hidden relative shrink-0 border flex items-center justify-center ${img.url ? 'bg-gray-100 border-gray-200' : 'bg-gray-50 border-dashed border-gray-300'}`}>
+                  {img.url ? (
+                    <img
+                      src={img.url.startsWith('data:') ? img.url : (img.url.includes('?') ? `${img.url}&t=${lastUpdated}` : `${img.url}?t=${lastUpdated}`)}
+                      alt={img.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <ImageIcon className="w-6 h-6 text-gray-400" />
+                  )}
+                  <AnimatePresence>
+                    {(uploadingKey === img.key || restoringKey === img.key) && (
+                      <motion.div 
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-black/60 flex items-center justify-center text-white backdrop-blur-xs"
+                      >
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-              )}
-              
-              {/* Overlay for uploading state */}
-              <AnimatePresence>
-                {uploadingKey === img.key && (
-                  <motion.div 
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white backdrop-blur-sm z-10"
-                  >
-                    <Loader2 className="w-8 h-8 animate-spin mb-2" />
-                    <span className="text-sm font-medium">Uploading...</span>
-                  </motion.div>
-                )}
-                {restoringKey === img.key && (
-                  <motion.div 
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white backdrop-blur-sm z-10"
-                  >
-                    <Loader2 className="w-8 h-8 animate-spin mb-2" />
-                    <span className="text-sm font-medium">Restoring...</span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Controls */}
-            <div className="p-5 flex-1 flex flex-col justify-between">
-              <div className="mb-4">
-                <div className="flex items-center justify-between gap-2">
-                  <h3 className="text-base font-semibold text-gray-900 line-clamp-1">{img.name}</h3>
-                  <span className={`text-[10px] px-2 py-0.5 rounded font-medium uppercase tracking-wide shrink-0 ${img.url ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                <div className="flex-1 min-w-0 space-y-1">
+                  <div className="flex items-center justify-between gap-1">
+                    <h3 className="text-sm font-bold text-[#23211F] truncate">{img.name}</h3>
+                  </div>
+                  <p className="text-[10px] text-gray-400 font-mono truncate">{img.key}</p>
+                  <span className={`inline-block text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${img.url ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
                     {img.url ? 'Uploaded' : 'Empty'}
                   </span>
                 </div>
-                <p className="text-xs text-gray-400 font-mono mt-1 truncate">{img.key}</p>
               </div>
 
-              <div className="flex items-center gap-3 mt-auto">
-                {/* Upload Button */}
+              <div className="flex items-center gap-2 pt-1 border-t border-gray-50">
                 <div className="relative flex-1">
                   <input
                     type="file"
@@ -293,29 +296,115 @@ export default function ContentAdminClient() {
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
                     onChange={(e) => handleFileChange(e, img.key)}
                     disabled={uploadingKey !== null || restoringKey !== null}
-                    ref={(el) => { fileInputRefs.current[img.key] = el; }}
+                    ref={(el) => { fileInputRefs.current[`mob-${img.key}`] = el; }}
                   />
-                  <div className={`w-full px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors ${img.url ? 'bg-black text-white hover:bg-gray-800' : 'bg-brand-dark text-white hover:bg-black'}`}>
-                    <Upload className="w-4 h-4" />
-                    <span>{img.url ? 'Replace' : 'Upload image'}</span>
+                  <div className={`w-full py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 font-bold text-xs uppercase tracking-wider transition-colors ${img.url ? 'bg-[#23211F] text-white hover:bg-[#9B7E67]' : 'bg-[#9B7E67] text-white'}`}>
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>{img.url ? 'Replace' : 'Upload'}</span>
                   </div>
                 </div>
 
-                {/* Restore Button */}
                 {img.hasHistory && img.history.length > 0 && (
                   <button
                     onClick={() => triggerRestore(img.key, img.history[0].id)}
                     disabled={uploadingKey !== null || restoringKey !== null}
-                    className="px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 hover:text-black font-medium transition-colors disabled:opacity-50"
-                    title="Restore to previous version"
+                    className="px-3.5 py-2.5 border border-gray-200 text-gray-700 rounded-xl flex items-center justify-center gap-1.5 hover:bg-gray-50 text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50"
+                    title="Restore version"
                   >
-                    <RotateCcw className="w-4 h-4" />
-                    <span className="hidden sm:inline">Restore</span>
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Restore</span>
                   </button>
                 )}
               </div>
             </div>
-          </div>
+
+            {/* Desktop View Card (hidden on mobile, shown on sm+) */}
+            <div className="hidden sm:flex bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex-col">
+              {/* Image Preview - Maintains aspect ratio safely in a container */}
+              <div className={`relative w-full aspect-video flex flex-col items-center justify-center overflow-hidden transition-colors ${img.url ? 'bg-gray-100' : 'bg-gray-50 border-2 border-dashed border-gray-200'}`}>
+                {img.url ? (
+                  <img
+                    src={img.url.startsWith('data:') ? img.url : (img.url.includes('?') ? `${img.url}&t=${lastUpdated}` : `${img.url}?t=${lastUpdated}`)}
+                    alt={img.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center gap-2 p-4 text-center">
+                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                      <ImageIcon className="w-6 h-6" />
+                    </div>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Empty Slot</span>
+                  </div>
+                )}
+                
+                {/* Overlay for uploading state */}
+                <AnimatePresence>
+                  {uploadingKey === img.key && (
+                    <motion.div 
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white backdrop-blur-sm z-10"
+                    >
+                      <Loader2 className="w-8 h-8 animate-spin mb-2" />
+                      <span className="text-sm font-medium">Uploading...</span>
+                    </motion.div>
+                  )}
+                  {restoringKey === img.key && (
+                    <motion.div 
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white backdrop-blur-sm z-10"
+                    >
+                      <Loader2 className="w-8 h-8 animate-spin mb-2" />
+                      <span className="text-sm font-medium">Restoring...</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Controls */}
+              <div className="p-5 flex-1 flex flex-col justify-between">
+                <div className="mb-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-base font-semibold text-gray-900 line-clamp-1">{img.name}</h3>
+                    <span className={`text-[10px] px-2 py-0.5 rounded font-medium uppercase tracking-wide shrink-0 ${img.url ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                      {img.url ? 'Uploaded' : 'Empty'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-400 font-mono mt-1 truncate">{img.key}</p>
+                </div>
+
+                <div className="flex items-center gap-3 mt-auto">
+                  {/* Upload Button */}
+                  <div className="relative flex-1">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
+                      onChange={(e) => handleFileChange(e, img.key)}
+                      disabled={uploadingKey !== null || restoringKey !== null}
+                      ref={(el) => { fileInputRefs.current[img.key] = el; }}
+                    />
+                    <div className={`w-full px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors ${img.url ? 'bg-black text-white hover:bg-gray-800' : 'bg-brand-dark text-white hover:bg-black'}`}>
+                      <Upload className="w-4 h-4" />
+                      <span>{img.url ? 'Replace' : 'Upload image'}</span>
+                    </div>
+                  </div>
+
+                  {/* Restore Button */}
+                  {img.hasHistory && img.history.length > 0 && (
+                    <button
+                      onClick={() => triggerRestore(img.key, img.history[0].id)}
+                      disabled={uploadingKey !== null || restoringKey !== null}
+                      className="px-4 py-2.5 border border-gray-200 text-gray-700 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 hover:text-black font-medium transition-colors disabled:opacity-50"
+                      title="Restore to previous version"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      <span>Restore</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </React.Fragment>
         ))}
 
         {activeImages.length === 0 && (

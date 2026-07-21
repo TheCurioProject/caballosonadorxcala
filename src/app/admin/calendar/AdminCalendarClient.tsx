@@ -149,8 +149,79 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
         </div>
       </div>
 
-      {/* Calendar Grid Wrapper for Mobile Scrolling */}
-      <div className="overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0">
+      {/* Mobile View Calendar (Fits 100% screen width, no side scrolling) */}
+      <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 sm:hidden">
+        <div className="grid grid-cols-7 mb-2 gap-1">
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+            <div key={d} className="text-center text-[10px] font-bold text-gray-400 uppercase">
+              {d}
+            </div>
+          ))}
+        </div>
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={`mob-${currentDate.toISOString()}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="grid grid-cols-7 gap-1"
+          >
+            {days.map((day) => {
+              const isCurrentMonth = isSameMonth(day, currentDate);
+              const info = getDayInfo(day);
+              const isToday = isSameDay(day, new Date());
+
+              let bgClass = "bg-[#F9F7F4] hover:bg-[#E5D9C5] border border-gray-200 cursor-pointer shadow-sm";
+              let textClass = "text-[#23211F] font-bold";
+
+              if (!isCurrentMonth) {
+                bgClass = "bg-transparent opacity-0 pointer-events-none";
+              } else if (info.isBlocked) {
+                bgClass = "bg-gray-400 text-white shadow-inner";
+                textClass = "text-white font-bold";
+              } else if (info.isBooked) {
+                const color = info.bookingOrigin === 'MANUAL' ? 'bg-[#c1121f]' : 'bg-red-500';
+                bgClass = `${color} text-white shadow-inner`;
+                textClass = "text-white font-bold";
+              } else if (info.isCheckoutBuffer) {
+                bgClass = "bg-[#D4A574] text-white shadow-inner";
+                textClass = "text-white font-bold";
+              } else if (info.isHoliday) {
+                bgClass = "bg-[#e5d9c5] border border-[#d4c3ab] text-[#9B7E67]";
+                textClass = "text-[#9B7E67] font-bold";
+              }
+
+              return (
+                <div 
+                  key={`mob-${day.toString()}`}
+                  onClick={() => isCurrentMonth && handleDayClick(day)}
+                  className={`h-12 flex flex-col items-center justify-between p-1 rounded-xl transition-all ${bgClass} ${isCurrentMonth ? '' : 'pointer-events-none'}`}
+                >
+                  <span className={`text-xs ${textClass} ${isToday && !info.isBlocked && !info.isBooked ? 'underline font-extrabold text-[#9B7E67]' : ''}`}>
+                    {format(day, 'd')}
+                  </span>
+                  {isCurrentMonth && (
+                    <span className="text-[8px] opacity-90 truncate max-w-full font-sans font-medium">
+                      {info.isBlocked ? 'Blocked' : info.isBooked ? 'Booked' : info.isCheckoutBuffer ? 'Buffer' : `$${info.price}`}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Legend for Mobile */}
+        <div className="flex flex-wrap items-center justify-center gap-3 mt-4 pt-3 border-t border-gray-100 text-[9px] font-bold uppercase tracking-widest text-gray-500">
+          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><span>Stripe</span></div>
+          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#c1121f]" /><span>Manual</span></div>
+          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#D4A574]" /><span>Buffer</span></div>
+          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-gray-400" /><span>Blocked</span></div>
+        </div>
+      </div>
+
+      {/* Desktop View Calendar Grid */}
+      <div className="hidden sm:block overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0">
         <div className="bg-[#F9F7F4] p-6 rounded-[2rem] shadow-[10px_10px_20px_#e3e1de,-10px_-10px_20px_#ffffff] min-w-[700px]">
           {/* Days of week */}
           <div className="grid grid-cols-7 mb-4">
