@@ -1,7 +1,7 @@
 'use server';
 
 import prisma from './prisma';
-import ical from 'node-ical';
+import * as ical from 'node-ical';
 import { revalidatePath } from 'next/cache';
 
 export async function setDailyRates(propertyId: number, dates: Date[], price: number) {
@@ -195,12 +195,14 @@ export async function syncIcalSources(propertyId: number) {
             (start < b.endDate && end > b.startDate)
           );
 
+          const summaryText = typeof ev.summary === 'string' ? ev.summary : (ev.summary?.val || 'External Sync');
+
           if (!bookingOverlap && !blockOverlap) {
             newBlocks.push({
               propertyId,
               startDate: start,
               endDate: end,
-              reason: ev.summary || 'External Sync',
+              reason: summaryText,
               source: `ical-${source.id}`
             });
           }
