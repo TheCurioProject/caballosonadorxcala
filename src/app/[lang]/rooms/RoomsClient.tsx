@@ -23,9 +23,6 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
       `/rooms/room${roomNum}/4.webp`,
       `/rooms/room${roomNum}/5.webp`
     ];
-    if (roomNum === 6) {
-      keys.push('/rooms/room7/1.webp', '/rooms/room7/2.webp', '/rooms/room7/3.webp');
-    }
     for (const key of keys) {
       const url = getImageUrl(key, siteImages);
       if (url && url.trim() !== '') return url;
