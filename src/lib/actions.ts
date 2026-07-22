@@ -175,7 +175,7 @@ export async function syncIcalSources(propertyId: number) {
         where: { propertyId, source: 'manual' }
       });
 
-      const newBlocks = [];
+      const newBlocks: any[] = [];
 
       for (const key in events) {
         const ev = events[key];

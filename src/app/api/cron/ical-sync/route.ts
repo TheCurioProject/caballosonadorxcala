@@ -3,7 +3,6 @@ import prisma from '@/lib/prisma';
 import { syncIcalSources } from '@/lib/actions';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60; // Allow up to 60 seconds for execution
 
 export async function GET(request: Request) {
   try {
