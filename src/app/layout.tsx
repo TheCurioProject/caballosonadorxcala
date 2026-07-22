@@ -9,12 +9,12 @@ import { getDictionary } from '@/i18n/dictionaries';
 import { DictionaryProvider } from '@/i18n/DictionaryContext';
 
 const syne = Syne({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   variable: "--font-syne",
 });
 
 const cormorant = Cormorant({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   weight: ["300", "400", "500", "600", "700"],
   style: ['normal', 'italic'],
   variable: "--font-cormorant",
