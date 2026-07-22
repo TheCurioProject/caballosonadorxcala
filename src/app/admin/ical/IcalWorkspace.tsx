@@ -33,7 +33,8 @@ export default function IcalWorkspace({ roomId, initialFeeds }: { roomId: number
     setIsLoading(false);
   };
 
-  const exportUrl = `https://hotelsonador.com/api/ical/export/${roomId}/calendar.ics`;
+  const domain = typeof window !== 'undefined' ? window.location.origin : 'https://casacaballosonador.com';
+  const exportUrl = `${domain}/api/ical/export/${roomId}/calendar.ics`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(exportUrl);
