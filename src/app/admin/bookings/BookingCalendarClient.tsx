@@ -13,6 +13,7 @@ type BlockedDate = { startDate: Date; endDate: Date; };
 
 interface BookingCalendarProps {
   bookings: Booking[];
+  tourBookings?: any[];
   blocks: BlockedDate[];
   pricingRules?: PricingRule[];
   addManualBooking: (formData: FormData) => Promise<{ success: boolean; bookingId?: number; error?: string }>;
@@ -20,7 +21,7 @@ interface BookingCalendarProps {
   basePrice: number;
 }
 
-export default function BookingCalendarClient({ bookings, blocks, pricingRules = [], addManualBooking, manageDateRange, basePrice }: BookingCalendarProps) {
+export default function BookingCalendarClient({ bookings, tourBookings = [], blocks, pricingRules = [], addManualBooking, manageDateRange, basePrice }: BookingCalendarProps) {
   const [activeTab, setActiveTab] = useState<'booking' | 'block' | 'price'>('booking');
   const [manualPrice, setManualPrice] = useState<number>(basePrice);
   
@@ -321,6 +322,15 @@ export default function BookingCalendarClient({ bookings, blocks, pricingRules =
                 const isBooked = bookings.some(b => day >= new Date(b.checkIn) && day < new Date(b.checkOut));
                 const isCleaning = bookings.some(b => isSameDay(day, new Date(b.checkOut)));
                 const isBlocked = blocks.some(b => day >= new Date(b.startDate) && day <= new Date(b.endDate));
+                const isTour = tourBookings.some(t => {
+                  let d = new Date(t.startDate);
+                  d.setHours(0,0,0,0);
+                  const end = new Date(t.endDate);
+                  end.setHours(0,0,0,0);
+                  const currentDay = new Date(day);
+                  currentDay.setHours(0,0,0,0);
+                  return currentDay >= d && currentDay <= end;
+                });
                 
                 let bgClass = "bg-[#F9F7F4] hover:bg-[#E5D9C5] border border-[#D4C3AB]/40 cursor-pointer shadow-sm transition-all";
                 let textClass = "text-[#23211F] font-medium";
@@ -350,6 +360,9 @@ export default function BookingCalendarClient({ bookings, blocks, pricingRules =
                 } else if (isCleaning) {
                   bgClass = "bg-[#D4A574] cursor-pointer shadow-sm border border-[#c9955c]";
                   textClass = "text-[#23211F] font-bold";
+                } else if (isTour) {
+                  bgClass = "bg-[#6B705C] hover:bg-[#5A5E4E] text-[#F9F7F4] shadow-sm";
+                  textClass = "text-[#F9F7F4] font-bold";
                 }
 
                 return (
@@ -371,6 +384,11 @@ export default function BookingCalendarClient({ bookings, blocks, pricingRules =
                         {isBlocked && (
                           <div className="absolute top-0 left-0 p-[2px] bg-red-600/90 rounded-br-md rounded-tl-md">
                             <Lock className="w-2 sm:w-3 h-2 sm:h-3 text-white" />
+                          </div>
+                        )}
+                        {isTour && (isBooked || (isBlocked && activeTab === 'booking')) && (
+                          <div className="absolute bottom-0 right-0 p-[2px] bg-[#6B705C]/90 rounded-tl-md rounded-br-md" title="Tour Booked">
+                            <div className="w-2 sm:w-3 h-2 sm:h-3 rounded-full bg-[#F9F7F4]" />
                           </div>
                         )}
                       </div>

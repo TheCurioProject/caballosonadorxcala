@@ -11,6 +11,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function AdminBookingsPage() {
   let property: any = null;
+  let tourBookings: any[] = [];
   try {
     const fetchProp = prisma.property.findFirst({
       include: {
@@ -26,8 +27,19 @@ export default async function AdminBookingsPage() {
         }
       }
     });
+    
+    const fetchTours = prisma.serviceBooking.findMany({
+      where: {
+        serviceType: 'TOUR',
+        paymentStatus: { in: ['CONFIRMED', 'PENDING'] },
+        endDate: { gte: new Date() }
+      }
+    });
+
     const timeout = new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 12000));
-    property = await Promise.race([fetchProp, timeout]);
+    const [fetchedProperty, fetchedTours] = await Promise.race([Promise.all([fetchProp, fetchTours]), timeout]);
+    property = fetchedProperty;
+    tourBookings = fetchedTours || [];
   } catch (error) {
     console.warn("Failed to fetch property from Prisma in bookings:", error);
   }
@@ -43,6 +55,8 @@ export default async function AdminBookingsPage() {
       pricingRules: []
     };
   }
+  
+  property.tourBookings = tourBookings;
 
   async function addManualBooking(formData: FormData): Promise<{ success: boolean; bookingId?: number; error?: string }> {
     'use server';
@@ -201,6 +215,7 @@ export default async function AdminBookingsPage() {
         <div className="lg:col-span-2">
           <BookingCalendarClient 
             bookings={property.bookings} 
+            tourBookings={property.tourBookings || []}
             blocks={property.blockedDates}
             pricingRules={property.pricingRules}
             basePrice={property.basePrice}

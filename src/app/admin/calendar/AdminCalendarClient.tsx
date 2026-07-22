@@ -17,12 +17,13 @@ interface CalendarProps {
   roomId: number;
   basePrice: number;
   bookings: Booking[];
+  tourBookings?: any[];
   blocks: BlockedDate[];
   dailyRates: PricingRule[];
   holidays: HolidayRule[];
 }
 
-export default function AdminCalendarClient({ roomId, basePrice, bookings, blocks, dailyRates, holidays }: CalendarProps) {
+export default function AdminCalendarClient({ roomId, basePrice, bookings, tourBookings = [], blocks, dailyRates, holidays }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   
   // Airbnb style selection
@@ -91,6 +92,16 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
              d.getUTCDate() === day.getDate();
     });
 
+    const isTour = tourBookings.some(t => {
+      let d = new Date(t.startDate);
+      d.setHours(0,0,0,0);
+      const end = new Date(t.endDate);
+      end.setHours(0,0,0,0);
+      const currentDay = new Date(day);
+      currentDay.setHours(0,0,0,0);
+      return currentDay >= d && currentDay <= end;
+    });
+
     let price = basePrice;
     if (customRate) price = customRate.priceOverride;
     else if (holiday) price = holiday.price;
@@ -104,6 +115,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
       blockReason: block?.reason,
       isHoliday: !!holiday,
       holidayName: holiday?.name,
+      isTour,
       price
     };
   };
@@ -233,6 +245,9 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
                 } else if (info.isHoliday) {
                   bgClass = "bg-[#e5d9c5] border border-[#d4c3ab] text-[#9B7E67]";
                   textClass = "text-[#9B7E67] font-bold";
+                } else if (info.isTour) {
+                  bgClass = "bg-[#6B705C] hover:bg-[#5A5E4E] text-white shadow-inner";
+                  textClass = "text-white font-bold";
                 }
 
                 if (isSelected && isCurrentMonth) {
@@ -251,7 +266,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
                     </span>
                     {isCurrentMonth && (
                       <span className="text-[8px] opacity-90 truncate max-w-full font-sans font-medium">
-                        {info.isBlocked ? 'Blocked' : info.isBooked ? 'Booked' : info.isCheckoutBuffer ? 'Buffer' : `$${info.price}`}
+                        {info.isBlocked ? 'Blocked' : info.isBooked ? 'Booked' : info.isCheckoutBuffer ? 'Buffer' : info.isTour ? 'Tour' : `$${info.price}`}
                       </span>
                     )}
                   </div>
@@ -267,6 +282,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
             <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#FF5A5F]" /><span>Airbnb</span></div>
             <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#003B95]" /><span>Externo</span></div>
             <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#D4A574]" /><span>Buffer</span></div>
+            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#6B705C]" /><span>Tour</span></div>
             <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-gray-400" /><span>Blocked</span></div>
           </div>
         </div>
@@ -333,6 +349,10 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
                   bgClass = "bg-[#e5d9c5] shadow-[5px_5px_10px_#e3e1de,-5px_-5px_10px_#ffffff] border border-[#d4c3ab]";
                   textClass = "text-[#9B7E67]";
                   label = info.holidayName;
+                } else if (info.isTour) {
+                  bgClass = "bg-[#6B705C] shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3)] hover:bg-[#5A5E4E]";
+                  textClass = "text-white";
+                  label = "Tour";
                 }
 
                 if (isSelected && isCurrentMonth) {
@@ -391,6 +411,10 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#D4A574] shadow-inner"></div>
                 <span>Cleaning / Buffer</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#6B705C] shadow-inner"></div>
+                <span>Tour</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-gray-400 shadow-inner"></div>

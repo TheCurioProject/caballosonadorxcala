@@ -21,47 +21,42 @@ export default async function AdminCalendarPage() {
           where: { date: { gte: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1) } }
         }
       }
-    });
-    let timeoutId: NodeJS.Timeout;
-    const timeout = new Promise<any>((_, reject) => {
-      timeoutId = setTimeout(() => reject(new Error('Prisma timeout')), 12000);
-    });
-    property = await Promise.race([fetchProp, timeout]).finally(() => clearTimeout(timeoutId));
-  } catch (error) {
-    console.warn("Failed to fetch property from Prisma in calendar:", error);
-  }
+    }),
+    // @ts-ignore
+    prisma.holidayRule ? prisma.holidayRule.findMany({
+      where: { endDate: { gte: new Date() } }
+    }) : Promise.resolve([]),
+    prisma.serviceBooking.findMany({
+      where: {
+        serviceType: 'TOUR',
+        paymentStatus: { in: ['CONFIRMED', 'PENDING'] },
+        endDate: { gte: new Date() }
+      }
+    })
+  ]);
 
   if (!property) {
-    property = {
-      id: 1,
-      name: 'Casa Caballo Soñador',
-      baseCapacity: 12,
-      basePrice: 1500,
-      bookings: [],
-      blockedDates: [],
-      pricingRules: []
-    };
+    return <div className="p-8 text-center text-gray-500">Property configuration not found</div>;
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-12">
-      <div className="mb-4 sm:mb-8">
-        <h2 className="text-2xl sm:text-4xl font-serif text-[#23211F]">Master Calendar</h2>
-        <p className="text-gray-500 font-light mt-1 sm:mt-2 text-sm sm:text-base">
-          Visual management of availability and daily rates. Click on a day to interact.
+    <div className="max-w-[1400px] mx-auto px-6 py-12">
+      <div className="mb-12">
+        <h1 className="text-4xl font-serif text-[#23211F] mb-4">Calendar & Pricing</h1>
+        <p className="text-gray-500 font-light text-lg">
+          Manage bookings, block dates, and adjust daily rates for your property.
         </p>
       </div>
 
-        <div className="w-full">
-          <AdminCalendarClient 
-            roomId={property.id}
-            basePrice={property.basePrice}
-            bookings={property.bookings}
-            blocks={property.blockedDates}
-            holidays={[]}
-            dailyRates={property.pricingRules as any}
-          />
-        </div>
+      <AdminCalendarClient 
+        roomId={property.id}
+        basePrice={property.basePrice}
+        bookings={property.bookings}
+        tourBookings={tourBookings}
+        blocks={property.blockedDates}
+        dailyRates={property.pricingRules}
+        holidays={holidays}
+      />
     </div>
   );
 }

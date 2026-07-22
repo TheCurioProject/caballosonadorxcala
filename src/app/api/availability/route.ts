@@ -40,11 +40,23 @@ export async function GET() {
       }
     });
 
+    // Get all TOUR service bookings
+    const tourBookings = await prisma.serviceBooking.findMany({
+      where: {
+        serviceType: 'TOUR',
+        paymentStatus: {
+          in: ['CONFIRMED', 'PENDING']
+        },
+        endDate: { gte: new Date() }
+      }
+    });
+
     // We will send back a list of blocked ranges split by type
     const disabledRanges = [];
     const bookedRanges = [];
     const bufferRanges = [];
     const blockedRanges = [];
+    const tourBookedDates = []; // List of specific dates that have a tour booked
 
     for (const b of blocks) {
       disabledRanges.push({ from: b.startDate, to: b.endDate });
@@ -65,11 +77,24 @@ export async function GET() {
       bufferRanges.push({ from: b.checkOut, to: b.checkOut });
     }
 
+    // Populate tour booked dates
+    for (const t of tourBookings) {
+      let d = new Date(t.startDate);
+      d.setHours(0,0,0,0);
+      const end = new Date(t.endDate);
+      end.setHours(0,0,0,0);
+      while (d <= end) {
+        tourBookedDates.push(d.toISOString());
+        d = new Date(d.setDate(d.getDate() + 1));
+      }
+    }
+
     return NextResponse.json({ 
       disabledRanges,
       bookedRanges,
       bufferRanges,
       blockedRanges,
+      tourBookedDates,
       propertySettings: {
         checkInTime: "15:00",
         checkOutTime: "12:00"

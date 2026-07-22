@@ -330,8 +330,10 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [range, setRange] = useState<DateRange | undefined>(undefined);
   const [disabledRanges, setDisabledRanges] = useState<{from: Date, to: Date}[]>([]);
   const [bookedRanges, setBookedRanges] = useState<{from: Date, to: Date}[]>([]);
-  const [bufferRanges, setBufferRanges] = useState<{from: Date, to: Date}[]>([]);
-  const [blockedRanges, setBlockedRanges] = useState<{from: Date, to: Date}[]>([]);
+  const [bufferRanges, setBufferRanges] = useState<DateRange[]>([]);
+  const [blockedRanges, setBlockedRanges] = useState<DateRange[]>([]);
+  const [tourBookedDates, setTourBookedDates] = useState<string[]>([]);
+  const [propertySettings, setPropertySettings] = useState<any>(null);
   
   // Form Data
   const [guestName, setGuestName] = useState('');
@@ -391,11 +393,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
           if (data.bookedRanges) {
             setBookedRanges(data.bookedRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })));
           }
-          if (data.bufferRanges) {
-            setBufferRanges(data.bufferRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })));
-          }
-          if (data.blockedRanges) {
-            setBlockedRanges(data.blockedRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })));
+          setBufferRanges(data.bufferRanges || []);
+          setBlockedRanges(data.blockedRanges || []);
+          setTourBookedDates(data.tourBookedDates || []);
+          if (data.propertySettings) {
+            setPropertySettings(data.propertySettings);
           }
         })
         .catch(console.error);
@@ -417,6 +419,28 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
       }, 500);
     }
   }, [isOpen]);
+
+  const isTourBookedOnSelectedDates = React.useMemo(() => {
+    if (!range?.from || !range?.to || !tourBookedDates.length) return false;
+    let current = new Date(range.from);
+    current.setHours(0,0,0,0);
+    const end = new Date(range.to);
+    end.setHours(0,0,0,0);
+    while (current <= end) {
+      if (tourBookedDates.includes(current.toISOString())) {
+        return true;
+      }
+      current.setDate(current.getDate() + 1);
+    }
+    return false;
+  }, [range, tourBookedDates]);
+
+  useEffect(() => {
+    if (isTourBookedOnSelectedDates && wantsATV === true) {
+      setWantsATV(false);
+      setAtvSelections({});
+    }
+  }, [isTourBookedOnSelectedDates, wantsATV]);
 
   const basePrice = useMemo(() => {
     return getConvertedPrice(15000); // 15000 MXN base price for accommodation
@@ -860,7 +884,16 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         <p className="text-gray-500 font-light">{dict.addons?.atvDesc}</p>
                       </div>
 
-                      {wantsATV === null ? (
+                      {isTourBookedOnSelectedDates ? (
+                        <div className="bg-[#FAF8F5] border border-[#D4A574] text-[#9B7E67] p-4 rounded-xl mb-6 text-sm">
+                          <strong>{isEn ? 'Tour already booked' : 'Tour ya reservado'}</strong>
+                          <p className="mt-1 opacity-80">
+                            {isEn 
+                              ? 'There is already a tour booked for these dates. You can still book the accommodation, but the ATV tour option is currently unavailable.' 
+                              : 'Ya hay un tour reservado para estas fechas. Puedes reservar el alojamiento, pero la opción de tour en cuatrimoto no está disponible actualmente.'}
+                          </p>
+                        </div>
+                      ) : wantsATV === null ? (
                         <div className="grid grid-cols-2 gap-4 mt-auto md:mt-0 pb-4">
                           <button onClick={() => handleWantsATV(true)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
                             <span className="w-8 h-8 rounded-full border-2 border-gray-300 group-hover:border-[#9B7E67] flex items-center justify-center text-transparent group-hover:bg-[#9B7E67] group-hover:text-white transition-all">✓</span>
@@ -1140,8 +1173,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 )}
                 {step === 3 && (
                   <div className="flex flex-col items-end">
-                    {wantsATV === null ? <span className="text-amber-600 text-[10px] font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : wantsATV && (totalAtvTours === 0 || atvPeople < minTourPax) ? <span className="text-amber-600 text-[10px] font-bold mb-1 mr-2">{isEn ? 'Select destination' : 'Selecciona un destino'}</span> : null}
-                    <button onClick={nextStep} disabled={wantsATV === null || (wantsATV && (totalAtvTours === 0 || atvPeople < minTourPax))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
+                    {(!isTourBookedOnSelectedDates && wantsATV === null) ? <span className="text-amber-600 text-[10px] font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : wantsATV && (totalAtvTours === 0 || atvPeople < minTourPax) ? <span className="text-amber-600 text-[10px] font-bold mb-1 mr-2">{isEn ? 'Select destination' : 'Selecciona un destino'}</span> : null}
+                    <button onClick={nextStep} disabled={(!isTourBookedOnSelectedDates && wantsATV === null) || (wantsATV && (totalAtvTours === 0 || atvPeople < minTourPax))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {dictContext?.modal?.next || (isEn ? 'Next' : 'Siguiente')}
                     </button>
                   </div>
