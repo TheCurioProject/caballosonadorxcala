@@ -33,6 +33,9 @@ export async function POST(request: Request) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     const bookingId = session.metadata?.bookingId;
+    const serviceBookingId = session.metadata?.serviceBookingId;
+    const type = session.metadata?.type;
+    const currency = (session.currency || 'mxn').toUpperCase();
     
     if (bookingId) {
       try {
@@ -45,8 +48,6 @@ export async function POST(request: Request) {
 
         console.log('[Webhook] Booking confirmed:', bookingId);
 
-        // Determine currency from Stripe session
-        const currency = (session.currency || 'mxn').toUpperCase();
         const nights = differenceInDays(new Date(booking.checkOut), new Date(booking.checkIn));
 
         // Send confirmation email to guest
@@ -93,7 +94,72 @@ export async function POST(request: Request) {
 
       } catch (dbError) {
         console.error('[Webhook] Error updating booking:', dbError);
-        // Don't return error to Stripe - we got the event, just log the DB failure
+      }
+    } else if (serviceBookingId && type === 'tour') {
+      try {
+        const booking = await prisma.serviceBooking.update({
+          where: { id: parseInt(serviceBookingId) },
+          data: { paymentStatus: 'CONFIRMED' }
+        });
+
+        console.log('[Webhook] Tour Booking confirmed:', serviceBookingId);
+
+        let tourDetails = { destinations: [] as any[] };
+        try {
+          tourDetails = JSON.parse(booking.serviceDetails);
+        } catch (e) {
+          console.warn('Failed to parse serviceDetails in webhook', e);
+        }
+        const destinationNames = tourDetails.destinations?.map((d: any) => d.name).join(', ') || 'Tour';
+
+        const { sendTourConfirmation, sendTourInvoiceEmail } = await import('@/lib/resend');
+
+        // Fetch property admin emails
+        const property = await prisma.property.findFirst();
+        const rawAdminEmails = property?.adminEmails || 'kelli9@telus.net';
+        const adminEmailArray = rawAdminEmails.split(',').map((e: string) => e.trim()).filter((e: string) => e);
+
+        // Send confirmation to guest
+        await sendTourConfirmation({
+          guestName: booking.guestName,
+          guestEmail: booking.guestEmail,
+          tourDestination: destinationNames,
+          date: new Date(booking.startDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+          pax: booking.pax || 1,
+          totalPrice: booking.totalPrice,
+          currency,
+          bookingId: booking.id
+        });
+
+        // Send confirmation to admin
+        if (adminEmailArray.length > 0) {
+          await sendTourConfirmation({
+            guestName: booking.guestName,
+            guestEmail: booking.guestEmail,
+            tourDestination: destinationNames,
+            date: new Date(booking.startDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+            pax: booking.pax || 1,
+            totalPrice: booking.totalPrice,
+            currency,
+            bookingId: booking.id,
+            toEmails: adminEmailArray
+          });
+        }
+
+        // Send Invoice email without pdf attachment initially
+        await sendTourInvoiceEmail({
+          guestName: booking.guestName,
+          guestEmail: booking.guestEmail,
+          tourDestination: destinationNames,
+          date: new Date(booking.startDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+          pax: booking.pax || 1,
+          totalPrice: booking.totalPrice,
+          currency,
+          bookingId: booking.id
+        });
+
+      } catch (error) {
+        console.error('[Webhook] Error updating tour booking:', error);
       }
     }
   }

@@ -14,7 +14,8 @@ import {
   Image as ImageIcon, 
   Menu, 
   X,
-  Sparkles
+  Sparkles,
+  Compass
 } from 'lucide-react';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 
@@ -48,6 +49,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const navItems = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, desc: 'Overview & Analytics' },
     { name: 'Bookings', href: '/admin/bookings', icon: Book, desc: 'Guest Reservations' },
+    { name: 'Tour Bookings', href: '/admin/tours-bookings', icon: Compass, desc: 'Tour Reservations' },
     { name: 'Calendar', href: '/admin/calendar', icon: CalendarDays, desc: 'Availability & Date Lock' },
     { name: 'Edit Content', href: '/admin/content', icon: ImageIcon, desc: 'Site Media & Images' },
     { name: 'Experiences', href: '/admin/experiencias', icon: Sparkles, desc: 'Guest Activities' },
