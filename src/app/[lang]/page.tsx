@@ -9,14 +9,19 @@ import { unstable_cache } from 'next/cache';
 
 const getCachedExperiences = unstable_cache(
   async () => {
+    let timeoutId: NodeJS.Timeout;
     try {
       // Reduced timeout to 4 seconds to prevent server-side hang
       const fetchExperiences = prisma.experience.findMany();
-      const timeout = new Promise<any[]>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 4000));
+      const timeout = new Promise<any[]>((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('Prisma timeout')), 4000);
+      });
       return await Promise.race([fetchExperiences, timeout]);
     } catch (error) {
       console.warn("Failed to fetch data from Prisma or timed out, using fallback data.");
       return [];
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
     }
   },
   ['experiences'],

@@ -207,13 +207,13 @@ export const TourBookingModal = ({
                 {step === 1 && (
                   <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="h-full">
                     <h3 className="font-serif text-3xl text-[#23211F] mb-4">{isEn ? "Select Destination" : "Selecciona un destino"}</h3>
-                    <AnimatePresence>
-                      {selectedDestination && (
-                        <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-xs text-[#9B7E67] font-bold uppercase tracking-widest mb-4">
+                    <div className={`grid transition-[grid-template-rows,opacity,margin] duration-300 ease-in-out ${selectedDestination ? 'grid-rows-[1fr] opacity-100 mb-4' : 'grid-rows-[0fr] opacity-0 mb-0'}`}>
+                      <div className="overflow-hidden">
+                        <p className="text-xs text-[#9B7E67] font-bold uppercase tracking-widest">
                           {isEn ? 'Click again to unselect' : 'Haz clic de nuevo para deseleccionar'}
-                        </motion.p>
-                      )}
-                    </AnimatePresence>
+                        </p>
+                      </div>
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {destinations.map(dest => (
                         <button
@@ -327,18 +327,13 @@ export const TourBookingModal = ({
                           placeholder={isEn ? "Email (e.g. name@domain.com)" : "Correo (ej. nombre@dominio.com)"}
                           className="w-full bg-transparent border-b-2 border-gray-200 py-4 text-[#23211F] text-lg focus:outline-none focus:border-[#9B7E67] transition-colors"
                         />
-                        <AnimatePresence>
-                          {guestEmail.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail) && (
-                            <motion.p 
-                              initial={{ opacity: 0, height: 0, marginTop: 0 }} 
-                              animate={{ opacity: 1, height: 'auto', marginTop: 8 }} 
-                              exit={{ opacity: 0, height: 0, marginTop: 0 }} 
-                              className="text-red-500 text-[10px] font-bold tracking-widest uppercase overflow-hidden"
-                            >
+                        <div className={`grid transition-[grid-template-rows,opacity,margin] duration-300 ease-in-out ${guestEmail.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail) ? 'grid-rows-[1fr] opacity-100 mt-2' : 'grid-rows-[0fr] opacity-0 mt-0'}`}>
+                          <div className="overflow-hidden">
+                            <p className="text-red-500 text-[10px] font-bold tracking-widest uppercase">
                               {isEn ? "Invalid email format" : "Formato de correo inválido"}
-                            </motion.p>
-                          )}
-                        </AnimatePresence>
+                            </p>
+                          </div>
+                        </div>
                       </div>
                       <div>
                         <input

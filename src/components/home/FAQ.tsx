@@ -55,20 +55,17 @@ export const FAQ = () => {
                 </div>
               </button>
               
-              <AnimatePresence>
-                {openIndex === index && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
-                  >
-                    <div className="pb-8 text-gray-600 leading-relaxed font-light">
-                      {faq.a}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              <div 
+                className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
+                  openIndex === index ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                }`}
+              >
+                <div className="overflow-hidden">
+                  <div className="pb-8 text-gray-600 leading-relaxed font-light">
+                    {faq.a}
+                  </div>
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>

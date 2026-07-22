@@ -3,6 +3,7 @@
 import React, { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import Image from 'next/image';
 import { ArrowLeft, X, Clock, Users, CheckCircle2, DollarSign, Compass, ShieldCheck, Backpack, Maximize2, ChevronLeft, ChevronRight } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useDictionary } from '@/i18n/DictionaryContext';
@@ -116,12 +117,14 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
   const y1 = useTransform(scrollY, [0, 1000], [0, 400]);
   const y2 = useTransform(scrollY, [0, 1000], [0, 200]);
   const opacity = useTransform(scrollY, [0, 600], [1, 0]);
+  const willChange = useTransform(scrollY, (v) => v < 1000 ? "transform" : "auto");
   
   useEffect(() => {
+    const abortController = new AbortController();
     // Fetch prices from DB (using the new tours API instead of addons)
     const fetchPrices = async () => {
       try {
-        const res = await fetch('/api/admin/tours');
+        const res = await fetch('/api/admin/tours', { signal: abortController.signal });
         if (res.ok) {
           const data = await res.json();
           const priceMap: Record<string, number> = {};
@@ -133,18 +136,22 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
           });
           setPrices(priceMap);
         }
-      } catch (error) {
+      } catch (error: any) {
+        if (error.name === 'AbortError') return;
         console.error('Failed to fetch prices', error);
       }
     };
     fetchPrices();
+    return () => abortController.abort();
   }, []);
 
 
   useEffect(() => {
     if (!selectedTour || selectedTour.images.length <= 1 || isFullscreen) return;
     const interval = setInterval(() => {
-      setActiveImageIndex((prev) => (prev + 1) % selectedTour.images.length);
+      if (document.visibilityState === 'visible') {
+        setActiveImageIndex((prev) => (prev + 1) % selectedTour.images.length);
+      }
     }, 4000);
     return () => clearInterval(interval);
   }, [selectedTour, isFullscreen]);
@@ -350,20 +357,22 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
       {/* Hero Section */}
       <header className="relative w-full h-screen bg-[#0A0908] flex items-center justify-center overflow-hidden border-b border-white/5">
         <motion.div 
-          style={{ y: y1 }}
-          className="absolute inset-0 z-0"
+          style={{ y: y1, willChange }}
+          className="absolute inset-0 z-0 transform-gpu origin-top"
         >
-          <img 
+          <Image 
             src={getImageUrl('/imagenes/07_tours/atvhero.webp', siteImages)}
             alt="ATV Tours Chacala"
-            className="w-full h-full object-cover opacity-60 object-[center_30%]"
+            fill
+            sizes="100vw"
+            className="object-cover opacity-60 object-[center_30%]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0A0908] via-black/20 to-black/60 opacity-100"></div>
         </motion.div>
 
         <motion.div 
-          style={{ y: y2, opacity }}
-          className="relative z-10 text-center px-4 md:px-6 max-w-5xl pt-32 md:pt-40"
+          style={{ y: y2, opacity, willChange }}
+          className="relative z-10 text-center px-4 md:px-6 max-w-5xl pt-32 md:pt-40 transform-gpu"
         >
            <motion.h1 
              initial={{ y: 20, opacity: 0 }}
@@ -493,10 +502,12 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                   {/* Image Block */}
                   <div className="w-full md:w-1/2 overflow-hidden rounded-3xl relative aspect-[4/5] md:aspect-[3/4] shadow-2xl shadow-black/50 border border-white/5">
                     <div className="absolute inset-0 bg-[#9B7E67]/20 group-hover:bg-transparent transition-colors duration-700 z-10 pointer-events-none mix-blend-overlay"></div>
-                    <img 
+                    <Image 
                       src={tour.images[0]}
                       alt={tour.title}
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-[3s] ease-out group-hover:scale-110 filter brightness-90 group-hover:brightness-100"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover transition-transform duration-[3s] ease-out group-hover:scale-110 filter brightness-90 group-hover:brightness-100"
                     />
                   </div>
 
@@ -753,11 +764,9 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
             {/* Images */}
             <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
               {selectedTour.images.map((img: string, idx: number) => (
-                <motion.img 
+                <motion.div 
                   key={'fullscreen-' + img + idx}
-                  src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${img}`}
-                  alt={`${selectedTour.title} fullscreen image ${idx + 1}`}
-                  className="absolute inset-0 w-full h-full object-contain"
+                  className="absolute inset-0 w-full h-full flex items-center justify-center"
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ 
                     opacity: activeImageIndex === idx ? 1 : 0,
@@ -776,7 +785,15 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                       handlePrevImage();
                     }
                   }}
-                />
+                >
+                  <Image 
+                    src={img}
+                    alt={`${selectedTour.title} fullscreen image ${idx + 1}`}
+                    fill
+                    sizes="100vw"
+                    className="object-contain pointer-events-none"
+                  />
+                </motion.div>
               ))}
               
               {/* Navigation Arrows */}

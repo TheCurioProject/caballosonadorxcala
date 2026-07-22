@@ -14,10 +14,11 @@ export const Hero = ({ imageSrc }: { imageSrc?: string }) => {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
   const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
+  const willChange = useTransform(scrollYProgress, (v) => (v > 0 && v < 1 ? "transform" : "auto"));
 
   return (
     <section ref={ref} className="relative min-h-[100dvh] w-full overflow-hidden bg-[#1A1817]">
-      <motion.div style={{ y, scale, opacity }} className="absolute inset-0 w-full h-full transform-gpu origin-top">
+      <motion.div style={{ y, scale, opacity, willChange }} className="absolute inset-0 w-full h-full transform-gpu origin-top">
         <Image 
           src={imageSrc || `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/casaexterior.webp`}
           alt="Casa Caballo Soñador - Hotel Boutique" 

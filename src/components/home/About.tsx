@@ -10,12 +10,6 @@ export const About = ({ imageSrc }: { imageSrc?: string }) => {
   const dict = useDictionary();
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  
-  const yImage1Transform = useTransform(scrollYProgress, [0, 1], ["-10%", "20%"]);
-  const yImage2Transform = useTransform(scrollYProgress, [0, 1], ["20%", "-20%"]);
-  const yImage1 = useSpring(yImage1Transform, { stiffness: 400, damping: 90 });
-  const yImage2 = useSpring(yImage2Transform, { stiffness: 400, damping: 90 });
-
   return (
     <section id="nuestra-historia" ref={ref} className="py-16 md:py-32 px-6 md:px-16 bg-[#F9F7F4] text-[#23211F] relative overflow-hidden">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">

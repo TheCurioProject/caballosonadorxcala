@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Bed, Users, Bath, Wind, Wifi, Droplets, Tv } from 'lucide-react';
 import { useBooking } from '@/context/BookingContext';
@@ -94,7 +95,7 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
       {/* Hero */}
       <section className="relative h-[60vh] flex items-center justify-center">
         <div className="absolute inset-0 z-0">
-          <img src={heroImg} alt="Habitaciones" className="w-full h-full object-cover" />
+          <Image src={heroImg} alt="Habitaciones" fill priority className="object-cover" sizes="100vw" />
           <div className="absolute inset-0 bg-black/50"></div>
         </div>
         <motion.div 
@@ -123,11 +124,11 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
               }}
               className={`flex flex-col lg:flex-row gap-12 items-center ${i % 2 !== 0 ? 'lg:flex-row-reverse' : ''}`}
             >
-              <div className="w-full lg:w-1/2 overflow-hidden shadow-2xl bg-[#EAE5DD] flex items-center justify-center">
+              <div className="relative w-full lg:w-1/2 h-[500px] lg:h-[750px] overflow-hidden shadow-2xl bg-[#EAE5DD] flex items-center justify-center">
                 {room.img ? (
-                  <img src={room.img} alt={room.name} className="w-full h-[500px] lg:h-[750px] object-cover hover:scale-105 transition-transform duration-700" />
+                  <Image src={room.img} alt={room.name} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover hover:scale-105 transition-transform duration-700" />
                 ) : (
-                  <div className="w-full h-[500px] lg:h-[750px] flex flex-col items-center justify-center text-[#9B7E67] gap-3">
+                  <div className="w-full h-full flex flex-col items-center justify-center text-[#9B7E67] gap-3">
                     <Bed className="w-12 h-12 opacity-40" />
                     <span className="text-xs uppercase tracking-widest font-semibold opacity-60">Imágenes próximamente</span>
                   </div>
@@ -175,17 +176,23 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="bg-white p-8 shadow-sm hover:shadow-xl transition-shadow text-center">
-              <img src={rooftopImg} alt="Rooftop" className="w-full h-64 object-cover mb-6" />
+              <div className="relative w-full h-64 mb-6">
+                <Image src={rooftopImg} alt="Rooftop" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
+              </div>
               <h3 className="text-2xl font-serif mb-4">La Palapa / Rooftop</h3>
               <p className="text-gray-600 font-light text-sm leading-relaxed">Impresionante palapa al aire libre, perfecta para yoga, meditación, masajes o una siesta. Disfruta de vistas al Océano Pacífico.</p>
             </motion.div>
             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="bg-white p-8 shadow-sm hover:shadow-xl transition-shadow text-center">
-              <img src={poolImg} alt="Pool" className="w-full h-64 object-cover mb-6" />
+              <div className="relative w-full h-64 mb-6">
+                <Image src={poolImg} alt="Pool" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
+              </div>
               <h3 className="text-2xl font-serif mb-4">La Piscina</h3>
               <p className="text-gray-600 font-light text-sm leading-relaxed">Un oasis tropical inmerso en la selva. Sumérgete, toma el sol y experimenta la energía vibrante de México en total privacidad.</p>
             </motion.div>
             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="bg-white p-8 shadow-sm hover:shadow-xl transition-shadow text-center">
-              <img src={kitchenImg} alt="Cocina" className="w-full h-64 object-cover mb-6" />
+              <div className="relative w-full h-64 mb-6">
+                <Image src={kitchenImg} alt="Cocina" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
+              </div>
               <h3 className="text-2xl font-serif mb-4">Cocina para Huéspedes</h3>
               <p className="text-gray-600 font-light text-sm leading-relaxed">Espacio comunal totalmente equipado donde puedes preparar tus platillos y compartir experiencias culinarias, sintiéndote como en casa.</p>
             </motion.div>

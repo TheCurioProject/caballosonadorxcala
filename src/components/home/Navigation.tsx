@@ -240,27 +240,36 @@ export const HomeNavigation = () => {
   }, [menuOpen]);
 
   useEffect(() => {
+    let ticking = false;
+
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setScrolled(currentScrollY > 50);
-      
-      const suitesSection = document.getElementById('suites');
-      let hideForSuites = false;
-      if (suitesSection) {
-        const rect = suitesSection.getBoundingClientRect();
-        hideForSuites = rect.top <= 100 && rect.bottom >= 100;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          // Handle iOS overscroll bounce by constraining to 0
+          const currentScrollY = Math.max(0, window.scrollY);
+          setScrolled(currentScrollY > 50);
+          
+          const suitesSection = document.getElementById('suites');
+          let hideForSuites = false;
+          if (suitesSection) {
+            const rect = suitesSection.getBoundingClientRect();
+            hideForSuites = rect.top <= 100 && rect.bottom >= 100;
+          }
+          
+          if (menuOpen) {
+            setHidden(false);
+          } else if (hideForSuites) {
+            setHidden(true);
+          } else if (currentScrollY > lastScrollY.current && currentScrollY > 500) {
+            setHidden(true);
+          } else {
+            setHidden(false);
+          }
+          lastScrollY.current = currentScrollY;
+          ticking = false;
+        });
+        ticking = true;
       }
-      
-      if (menuOpen) {
-        setHidden(false);
-      } else if (hideForSuites) {
-        setHidden(true);
-      } else if (currentScrollY > lastScrollY.current && currentScrollY > 500) {
-        setHidden(true);
-      } else {
-        setHidden(false);
-      }
-      lastScrollY.current = currentScrollY;
     };
     
     window.addEventListener('scroll', handleScroll, { passive: true });

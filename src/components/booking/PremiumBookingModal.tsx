@@ -70,15 +70,21 @@ const AnimatedCounter = ({ value, prefix = '$' }: { value: number; prefix?: stri
     const duration = 800;
     const startTime = performance.now();
 
+    let frameId: number;
+
     const tick = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
       controls.set(start + (value - start) * eased);
       setDisplay(`${prefix}${Math.round(controls.get()).toLocaleString('en-US')}`);
-      if (progress < 1) requestAnimationFrame(tick);
+      if (progress < 1) {
+        frameId = requestAnimationFrame(tick);
+      }
     };
-    requestAnimationFrame(tick);
+    frameId = requestAnimationFrame(tick);
+
+    return () => cancelAnimationFrame(frameId);
   }, [value, motionValue, prefix]);
 
   return <span>{display}</span>;
@@ -161,18 +167,13 @@ const PremiumInput = ({
             </motion.div>
           )}
         </AnimatePresence>
-        <AnimatePresence>
-          {!isValid && value.length > 0 && errorMessage && (
-            <motion.p 
-              initial={{ opacity: 0, height: 0, marginTop: 0 }} 
-              animate={{ opacity: 1, height: 'auto', marginTop: 8 }} 
-              exit={{ opacity: 0, height: 0, marginTop: 0 }} 
-              className="text-red-500 text-[10px] font-bold tracking-widest uppercase overflow-hidden"
-            >
+        <div className={`grid transition-[grid-template-rows,opacity,margin] duration-300 ease-in-out ${!isValid && value.length > 0 && errorMessage ? 'grid-rows-[1fr] opacity-100 mt-2' : 'grid-rows-[0fr] opacity-0 mt-0'}`}>
+          <div className="overflow-hidden">
+            <p className="text-red-500 text-[10px] font-bold tracking-widest uppercase">
               {errorMessage}
-            </motion.p>
-          )}
-        </AnimatePresence>
+            </p>
+          </div>
+        </div>
       </div>
     </motion.div>
   );
