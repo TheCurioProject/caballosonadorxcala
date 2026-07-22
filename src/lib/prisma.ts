@@ -1,15 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
-import mariadb from 'mariadb';
 
 const prismaClientSingleton = () => {
   const dbUrl = process.env.DATABASE_URL || '';
   
   if (!dbUrl) {
     console.warn('[Prisma] DATABASE_URL is not set. Using dummy adapter for build phase.');
-    // Provide a dummy string that satisfies the parsing for build phase
-    const pool = mariadb.createPool('mariadb://user:pass@localhost:3306/db');
-    const adapter = new PrismaMariaDb(pool);
+    const adapter = new PrismaMariaDb('mariadb://user:pass@localhost:3306/db');
     return new PrismaClient({ adapter });
   }
 
@@ -18,19 +15,18 @@ const prismaClientSingleton = () => {
   cleanUrl = cleanUrl.replace(/@https?:\/\//, '@');
   cleanUrl = cleanUrl.replace(/@www\./, '@');
   cleanUrl = cleanUrl.replace(/\/:(\d+)/, ':$1');
-  
-  // The PrismaMariaDb adapter strictly expects mariadb:// instead of mysql://
   cleanUrl = cleanUrl.replace(/^mysql:\/\//, 'mariadb://');
 
   // For Vercel Serverless + Hostgator shared hosting, we explicitly set connectionLimit to 1.
-  const pool = mariadb.createPool({
-    uri: cleanUrl,
-    connectionLimit: 1,
-    connectTimeout: 15000,
-    acquireTimeout: 15000
-  });
+  // We append it to the query string because mariadb creates the pool internally from the string.
+  const separator = cleanUrl.includes('?') ? '&' : '?';
+  // Remove existing connection_limit if any
+  cleanUrl = cleanUrl.replace(/([?&])connection_limit=\d+&?/, '$1');
+  cleanUrl = cleanUrl.replace(/([?&])connectionLimit=\d+&?/, '$1');
+  
+  cleanUrl += `${cleanUrl.includes('?') ? '&' : '?'}connectionLimit=1&connectTimeout=15000&acquireTimeout=15000`;
 
-  const adapter = new PrismaMariaDb(pool);
+  const adapter = new PrismaMariaDb(cleanUrl);
   return new PrismaClient({ adapter });
 };
 
