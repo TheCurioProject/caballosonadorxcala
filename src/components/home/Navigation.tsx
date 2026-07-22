@@ -169,11 +169,11 @@ const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, 
                   {dict?.footer?.contact || 'Contacto'}
                 </p>
                 <div className="flex flex-col gap-2">
-                  <a href="mailto:info@hotel.com" className="font-light text-sm text-[#2C2927]/80 hover:text-[#9B7E67] transition-colors flex items-center gap-3 group">
+                  <a href="mailto:info@hotelsonador.com" className="font-light text-sm text-[#2C2927]/80 hover:text-[#9B7E67] transition-colors flex items-center gap-3 group">
                     <div className="w-7 h-7 rounded-full bg-[#2C2927]/5 flex items-center justify-center group-hover:bg-[#9B7E67]/10 transition-colors">
                       <svg className="w-3.5 h-3.5 text-[#2C2927] group-hover:text-[#9B7E67] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </div>
-                    info@hotel.com
+                    info@hotelsonador.com
                   </a>
                   <a href="https://wa.me/12509612351" target="_blank" rel="noopener noreferrer" className="font-light text-sm text-[#2C2927]/80 hover:text-[#9B7E67] transition-colors flex items-center gap-3 group">
                     <div className="w-7 h-7 rounded-full bg-[#2C2927]/5 flex items-center justify-center group-hover:bg-[#9B7E67]/10 transition-colors">
