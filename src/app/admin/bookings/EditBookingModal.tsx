@@ -245,6 +245,13 @@ export default function EditBookingModal({
           </div>
         </motion.div>
       </div>
+      
+      <AdminToast
+        isOpen={toastState.isOpen}
+        message={toastState.message}
+        type={toastState.type}
+        onClose={() => setToastState(prev => ({ ...prev, isOpen: false }))}
+      />
     </AnimatePresence>
   );
 }

@@ -93,12 +93,17 @@ export async function POST(request: Request) {
       clientResult = await sendInvoiceEmail(clientData, pdfBuffer as Buffer);
     }
 
+    let errorMessage = clientResult.error;
+    if (clientResult.error && typeof clientResult.error === 'object') {
+      errorMessage = clientResult.error.message || JSON.stringify(clientResult.error);
+    }
+
     return NextResponse.json({ 
       success: sendToClient ? clientResult.success : true, 
       pdfBase64, 
       adminEmailSent: adminResult.success,
       clientEmailSent: clientResult.success,
-      error: clientResult.error ? String(clientResult.error) : undefined
+      error: errorMessage ? String(errorMessage) : undefined
     });
 
   } catch (error) {

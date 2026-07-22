@@ -68,8 +68,12 @@ export async function POST(request: Request) {
     if (result.success) {
       return NextResponse.json({ success: true });
     } else {
-      console.error('Error in sendInvoiceEmail:', result.error);
-      return NextResponse.json({ success: false, error: 'Error sending email' }, { status: 500 });
+      let errorMessage = result.error;
+      if (result.error && typeof result.error === 'object') {
+        errorMessage = result.error.message || JSON.stringify(result.error);
+      }
+      console.error('Error in sendInvoiceEmail:', errorMessage);
+      return NextResponse.json({ success: false, error: errorMessage ? String(errorMessage) : 'Error sending email' }, { status: 500 });
     }
 
   } catch (error) {
