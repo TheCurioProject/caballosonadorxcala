@@ -22,8 +22,11 @@ export default async function AdminCalendarPage() {
         }
       }
     });
-    const timeout = new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 12000));
-    property = await Promise.race([fetchProp, timeout]);
+    let timeoutId: NodeJS.Timeout;
+    const timeout = new Promise<any>((_, reject) => {
+      timeoutId = setTimeout(() => reject(new Error('Prisma timeout')), 12000);
+    });
+    property = await Promise.race([fetchProp, timeout]).finally(() => clearTimeout(timeoutId));
   } catch (error) {
     console.warn("Failed to fetch property from Prisma in calendar:", error);
   }

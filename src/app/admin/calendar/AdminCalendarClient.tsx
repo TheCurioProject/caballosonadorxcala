@@ -46,6 +46,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
     let isBooked = false;
     let isCheckoutBuffer = false;
     let bookingOrigin = undefined;
+    let guestName: string | undefined = undefined;
 
     const booking = bookings.find(b => {
       const checkIn = new Date(b.checkIn);
