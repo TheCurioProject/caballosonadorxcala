@@ -34,6 +34,7 @@ export async function GET(request: Request) {
             });
 
             if (!existing && event.start && event.end) {
+              const isAirbnb = source.url.toLowerCase().includes('airbnb') || source.name.toLowerCase().includes('airbnb') || (event.summary && typeof event.summary === 'string' && event.summary.toLowerCase().includes('airbnb'));
               await prisma.booking.create({
                 data: {
                   propertyId: source.propertyId,
@@ -41,7 +42,7 @@ export async function GET(request: Request) {
                   checkOut: event.end,
                   guestName: (typeof event.summary === 'string' ? event.summary : event.summary?.val) || 'Reserva Externa',
                   guestEmail: 'no-reply@external.com',
-                  origin: 'ICAL_SYNC',
+                  origin: isAirbnb ? 'AIRBNB' : 'EXTERNAL',
                   totalPrice: 0,
                   externalId: externalId,
                   payment_status: 'PAID'

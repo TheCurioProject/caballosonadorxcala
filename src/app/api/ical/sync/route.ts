@@ -51,6 +51,7 @@ export async function GET(request: Request) {
                 updatedCount++;
               }
             } else {
+              const isAirbnb = source.url.toLowerCase().includes('airbnb') || source.name.toLowerCase().includes('airbnb');
               // Create new booking
               await prisma.booking.create({
                 data: {
@@ -59,7 +60,7 @@ export async function GET(request: Request) {
                   checkOut,
                   guestName: 'Reserva Externa',
                   guestEmail: 'no-reply@external.com',
-                  origin: 'ICAL_SYNC',
+                  origin: isAirbnb ? 'AIRBNB' : 'EXTERNAL',
                   totalPrice: 0,
                   payment_status: 'PAID',
                   externalId,

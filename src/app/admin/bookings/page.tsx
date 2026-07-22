@@ -178,6 +178,15 @@ export default async function AdminBookingsPage() {
 
   const formatDate = (date: Date) => new Date(date).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
+  const getOriginDisplay = (b: any) => {
+    const isAirbnb = b.origin === 'AIRBNB' || (b.origin === 'ICAL_SYNC' && b.guestName?.toLowerCase().includes('airbnb'));
+    const isExternal = b.origin === 'EXTERNAL' || (b.origin === 'ICAL_SYNC' && !isAirbnb);
+    if (isAirbnb) return { label: 'AIRBNB', color: 'bg-[#FF5A5F]/10 text-[#FF5A5F]' };
+    if (isExternal) return { label: 'EXTERNAL', color: 'bg-[#003B95]/10 text-[#003B95]' };
+    if (b.origin === 'MANUAL') return { label: 'MANUAL', color: 'bg-orange-50 text-orange-600' };
+    return { label: b.origin, color: 'bg-green-50 text-green-600' };
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-12">
       <div className="mb-4 sm:mb-8">
@@ -278,8 +287,8 @@ export default async function AdminBookingsPage() {
                     <BookingActions booking={b} basePrice={property.basePrice} />
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`inline-block px-2 py-0.5 rounded-full text-[9px] font-bold tracking-widest uppercase ${b.origin === 'MANUAL' ? 'bg-orange-50 text-orange-600' : 'bg-green-50 text-green-600'}`}>
-                      {b.origin}
+                    <span className={`inline-block px-2 py-0.5 rounded-full text-[9px] font-bold tracking-widest uppercase ${getOriginDisplay(b).color}`}>
+                      {getOriginDisplay(b).label}
                     </span>
                   </div>
                   <p className="text-xs text-gray-500 pt-1 border-t border-gray-100">
@@ -318,8 +327,8 @@ export default async function AdminBookingsPage() {
                         {formatDate(b.checkIn)} — {formatDate(b.checkOut)}
                       </td>
                       <td className="py-4 px-6">
-                        <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase ${b.origin === 'MANUAL' ? 'bg-orange-50 text-orange-600' : 'bg-green-50 text-green-600'}`}>
-                          {b.origin}
+                        <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase ${getOriginDisplay(b).color}`}>
+                          {getOriginDisplay(b).label}
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right">

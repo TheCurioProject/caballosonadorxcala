@@ -56,11 +56,13 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
       if (isNight) {
         isBooked = true;
         bookingOrigin = b.origin;
+        guestName = b.guestName;
         return true;
       }
       if (isBuffer) {
         isCheckoutBuffer = true;
         bookingOrigin = b.origin;
+        guestName = b.guestName;
         return true;
       }
       return false;
@@ -96,6 +98,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
       isBooked,
       isCheckoutBuffer,
       bookingOrigin,
+      guestName,
       isBlocked: !!block,
       blockReason: block?.reason,
       isHoliday: !!holiday,
@@ -213,7 +216,14 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
                   bgClass = "bg-gray-400 text-white shadow-inner";
                   textClass = "text-white font-bold";
                 } else if (info.isBooked) {
-                  const color = info.bookingOrigin === 'MANUAL' ? 'bg-[#c1121f]' : 'bg-red-500';
+                  const isAirbnb = info.bookingOrigin === 'AIRBNB' || (info.bookingOrigin === 'ICAL_SYNC' && info.guestName?.toLowerCase().includes('airbnb'));
+                  const isExternal = info.bookingOrigin === 'EXTERNAL' || (info.bookingOrigin === 'ICAL_SYNC' && !isAirbnb);
+                  
+                  let color = 'bg-red-500';
+                  if (info.bookingOrigin === 'MANUAL') color = 'bg-[#c1121f]';
+                  else if (isAirbnb) color = 'bg-[#FF5A5F]';
+                  else if (isExternal) color = 'bg-[#003B95]';
+
                   bgClass = `${color} text-white shadow-inner`;
                   textClass = "text-white font-bold";
                 } else if (info.isCheckoutBuffer) {
@@ -253,6 +263,8 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
           <div className="flex flex-wrap items-center justify-center gap-3 mt-4 pt-3 border-t border-gray-100 text-[9px] font-bold uppercase tracking-widest text-gray-500">
             <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><span>Stripe</span></div>
             <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#c1121f]" /><span>Manual</span></div>
+            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#FF5A5F]" /><span>Airbnb</span></div>
+            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#003B95]" /><span>Externo</span></div>
             <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#D4A574]" /><span>Buffer</span></div>
             <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-gray-400" /><span>Blocked</span></div>
           </div>
@@ -297,10 +309,21 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
                   textClass = "text-white";
                   label = info.blockReason === 'Bloqueo manual' ? 'Manual Block' : (info.blockReason || "Blocked");
                 } else if (info.isBooked) {
-                  const color = info.bookingOrigin === 'MANUAL' ? 'bg-[#c1121f]' : 'bg-red-500';
+                  const isAirbnb = info.bookingOrigin === 'AIRBNB' || (info.bookingOrigin === 'ICAL_SYNC' && info.guestName?.toLowerCase().includes('airbnb'));
+                  const isExternal = info.bookingOrigin === 'EXTERNAL' || (info.bookingOrigin === 'ICAL_SYNC' && !isAirbnb);
+
+                  let color = 'bg-red-500';
+                  if (info.bookingOrigin === 'MANUAL') color = 'bg-[#c1121f]';
+                  else if (isAirbnb) color = 'bg-[#FF5A5F]';
+                  else if (isExternal) color = 'bg-[#003B95]';
+
                   bgClass = `${color} shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3)]`; 
                   textClass = "text-white";
-                  label = info.bookingOrigin;
+                  
+                  if (info.bookingOrigin === 'MANUAL') label = 'Manual';
+                  else if (isAirbnb) label = 'Airbnb';
+                  else if (isExternal) label = 'External';
+                  else label = info.bookingOrigin;
                 } else if (info.isCheckoutBuffer) {
                   bgClass = "bg-[#D4A574] shadow-[inset_3px_3px_6px_rgba(0,0,0,0.2)]"; 
                   textClass = "text-white";
@@ -355,6 +378,14 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#c1121f] shadow-inner"></div>
                 <span>Booked (Manual)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#FF5A5F] shadow-inner"></div>
+                <span>Airbnb</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#003B95] shadow-inner"></div>
+                <span>External</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#D4A574] shadow-inner"></div>
