@@ -5,7 +5,7 @@ const prismaClientSingleton = () => {
   
   if (!dbUrl) {
     console.warn('[Prisma] DATABASE_URL is not set. Using dummy client for build phase.');
-    return new PrismaClient();
+    return new PrismaClient({});
   }
 
   // Clean the URL: fix common formatting issues
@@ -22,13 +22,9 @@ const prismaClientSingleton = () => {
   cleanUrl = cleanUrl.replace(/([?&])connectionLimit=\d+&?/, '$1');
   cleanUrl += `${cleanUrl.includes('?') ? '&' : '?'}connection_limit=1&connect_timeout=15`;
 
-  return new PrismaClient({
-    datasources: {
-      db: {
-        url: cleanUrl,
-      },
-    },
-  });
+  process.env.DATABASE_URL = cleanUrl;
+
+  return new PrismaClient({});
 };
 
 declare global {

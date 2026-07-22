@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   allowedDevOrigins: ['localhost', '127.0.0.1'],
+  serverExternalPackages: ['@prisma/client', 'prisma', 'node-ical'],
 };
 
 export default nextConfig;
