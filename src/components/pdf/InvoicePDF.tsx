@@ -80,15 +80,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#23211F',
     padding: 20,
     borderRadius: 4,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
   },
   totalLabel: {
-    fontSize: 14,
-    color: '#FFFFFF',
+    fontSize: 12,
+    color: '#D4C3AB',
     textTransform: 'uppercase',
     letterSpacing: 2,
+    marginBottom: 8,
     fontFamily: 'Helvetica-Bold',
   },
   totalValue: {
@@ -142,13 +143,14 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
       {/* HEADER */}
       <View style={styles.header}>
         <View style={styles.logoContainer}>
-          {logoBase64 && (
+          {logoBase64 ? (
             <Image 
               src={`data:image/png;base64,${logoBase64}`} 
-              style={{ width: 150, height: 'auto', marginBottom: 6 }} 
+              style={{ width: 220, height: 'auto' }} 
             />
+          ) : (
+            <Text style={styles.logoText}>CASA CABALLO SOÑADOR</Text>
           )}
-          <Text style={styles.logoText}>CASA CABALLO SOÑADOR</Text>
         </View>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>INVOICE</Text>

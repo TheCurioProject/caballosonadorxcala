@@ -31,14 +31,14 @@ export async function POST(request: Request) {
     const date = new Date().toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' });
 
     // Read Logo as base64
-    const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_secondary_dark.png');
+    const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_primary_white.png');
     let logoBase64 = '';
     if (fs.existsSync(logoPath)) {
       logoBase64 = fs.readFileSync(logoPath).toString('base64');
     } else {
-      const webpPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_secondary_dark.webp');
-      if (fs.existsSync(webpPath)) {
-        logoBase64 = fs.readFileSync(webpPath).toString('base64');
+      const fallbackPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_secondary_dark.png');
+      if (fs.existsSync(fallbackPath)) {
+        logoBase64 = fs.readFileSync(fallbackPath).toString('base64');
       }
     }
 

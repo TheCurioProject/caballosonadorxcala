@@ -225,7 +225,7 @@ export default function BookingCalendarClient({ bookings, blocks, addManualBooki
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm rounded-2xl"
+            className="fixed inset-0 md:absolute md:inset-0 z-[100] md:z-50 flex flex-col items-center justify-center bg-white/95 md:bg-white/80 backdrop-blur-md md:backdrop-blur-sm md:rounded-2xl"
           >
             <Loader2 className="w-10 h-10 text-[#9B7E67] animate-spin mb-4" />
             <p className="text-[#23211F] font-serif text-xl">Processing booking...</p>

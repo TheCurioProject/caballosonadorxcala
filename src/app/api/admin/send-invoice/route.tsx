@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     const date = new Date().toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' });
 
     // Read Logo as base64
-    const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_secondary_dark.png');
+    const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_primary_white.png');
     const logoBase64 = fs.existsSync(logoPath) ? fs.readFileSync(logoPath).toString('base64') : '';
 
     // Generate PDF Buffer
