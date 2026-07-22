@@ -1,19 +1,14 @@
 import prisma from '@/lib/prisma';
 import { DEFAULT_IMAGES } from '@/lib/siteImages';
-import { unstable_cache } from 'next/cache';
 
-const fetchSiteImagesRaw = unstable_cache(
-  async () => {
-    try {
-      return await prisma.siteImage.findMany();
-    } catch (error) {
-      console.error("Failed to fetch site images from Prisma:", error);
-      throw error; // Throw so unstable_cache aborts and keeps stale data instead of caching []
-    }
-  },
-  ['site-images-all'],
-  { revalidate: 3600, tags: ['siteImages'] }
-);
+const fetchSiteImagesRaw = async () => {
+  try {
+    return await prisma.siteImage.findMany();
+  } catch (error) {
+    console.error("Failed to fetch site images from Prisma:", error);
+    throw error;
+  }
+};
 
 export async function getSiteImages() {
   const images = await fetchSiteImagesRaw();
@@ -39,19 +34,15 @@ export async function getSiteImages() {
   return mergedImages;
 }
 
-const fetchSiteImageRaw = unstable_cache(
-  async (key: string) => {
-    try {
-      const image = await prisma.siteImage.findUnique({ where: { key } });
-      return image ? image.url : null;
-    } catch (error) {
-      console.error(`Failed to fetch site image ${key} from Prisma:`, error);
-      throw error;
-    }
-  },
-  ['site-image-single'],
-  { revalidate: 3600, tags: ['siteImages'] }
-);
+const fetchSiteImageRaw = async (key: string) => {
+  try {
+    const image = await prisma.siteImage.findUnique({ where: { key } });
+    return image ? image.url : null;
+  } catch (error) {
+    console.error(`Failed to fetch site image ${key} from Prisma:`, error);
+    throw error;
+  }
+};
 
 export async function getSiteImage(key: string) {
   const cachedUrl = await fetchSiteImageRaw(key);
