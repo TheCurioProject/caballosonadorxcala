@@ -1,16 +1,29 @@
 import { NextResponse } from 'next/server';
 import { DEFAULT_IMAGES, keyToCloudinaryUrl } from '@/lib/siteImages';
 import { v2 as cloudinary } from 'cloudinary';
+import prisma from '@/lib/prisma';
+import { revalidatePath } from 'next/cache';
 
 export async function GET() {
   try {
-    // Build image list purely from DEFAULT_IMAGES + Cloudinary URL construction
+    const dbImages = await prisma.siteImage.findMany();
+    const dbMap = new Map(dbImages.map(img => [img.key, img]));
+
+    // Build image list from DEFAULT_IMAGES + DB override or Cloudinary URL construction
     const responseData = Object.entries(DEFAULT_IMAGES).map(([key, defaultData]) => {
+      const dbImg = dbMap.get(key);
+      let url = dbImg?.url || defaultData.url || keyToCloudinaryUrl(key);
+      
+      // Ensure a timestamp is appended so admin panel always bypasses browser cache
+      if (dbImg) {
+        url = url.includes('?') ? `${url}&t=${dbImg.updatedAt.getTime()}` : `${url}?t=${dbImg.updatedAt.getTime()}`;
+      }
+
       return {
         key,
         group: defaultData.group,
         name: defaultData.name,
-        url: defaultData.url || keyToCloudinaryUrl(key),
+        url,
         hasHistory: false,
         history: []
       };
@@ -63,8 +76,26 @@ export async function POST(request: Request) {
         uploadStream.end(buffer);
       });
 
-      // The URL is deterministic: always https://res.cloudinary.com/{cloud}/image/upload/{publicId}
+      // The URL from cloudinary contains a unique version hash automatically
       const newUrl = result.secure_url;
+      const defaultData = DEFAULT_IMAGES[key];
+
+      await prisma.siteImage.upsert({
+        where: { key },
+        update: {
+          url: newUrl,
+          updatedAt: new Date()
+        },
+        create: {
+          key,
+          group: defaultData?.group || 'HOMEPAGE',
+          name: defaultData?.name || 'Image',
+          url: newUrl
+        }
+      });
+
+      // Clear Next.js cache so the public site immediately reflects the change
+      revalidatePath('/', 'layout');
 
       return NextResponse.json({ success: true, url: newUrl });
     } catch (cloudErr) {
