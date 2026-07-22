@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { DEFAULT_IMAGES } from '@/lib/siteImages';
 import fs from 'fs/promises';
@@ -107,6 +107,7 @@ export async function POST(request: Request) {
 
     // Revalidate public pages to reflect changes immediately
     try {
+      revalidateTag('siteImages');
       revalidatePath('/', 'layout');
     } catch (err) {
       console.warn('Revalidation error:', err);
