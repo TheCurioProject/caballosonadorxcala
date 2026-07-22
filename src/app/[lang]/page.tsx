@@ -5,6 +5,24 @@ import { getDictionary } from '@/i18n/dictionaries';
 import { getImageUrl } from '@/lib/siteImages';
 import { getSiteImages } from '@/lib/siteImages.server';
 
+import { unstable_cache } from 'next/cache';
+
+const getCachedExperiences = unstable_cache(
+  async () => {
+    try {
+      // Reduced timeout to 4 seconds to prevent server-side hang
+      const fetchExperiences = prisma.experience.findMany();
+      const timeout = new Promise<any[]>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 4000));
+      return await Promise.race([fetchExperiences, timeout]);
+    } catch (error) {
+      console.warn("Failed to fetch data from Prisma or timed out, using fallback data.");
+      return [];
+    }
+  },
+  ['experiences'],
+  { revalidate: 3600, tags: ['experiences'] }
+);
+
 // Dynamic imports for below-the-fold components to improve initial load performance
 const About = dynamic(() => import('@/components/home/About').then(mod => mod.About));
 const Concept = dynamic(() => import('@/components/home/Concept').then(mod => mod.Concept));
@@ -26,19 +44,8 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
   const dict = await getDictionary(safeLang);
   const siteImages = await getSiteImages();
 
-  // Fetch from database
-  let experiences = [];
-  
-  try {
-    // Timeout prisma query after 8 seconds to prevent server-side hang
-    const fetchExperiences = prisma.experience.findMany();
-    const timeout = new Promise<any[]>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 8000));
-    experiences = await Promise.race([fetchExperiences, timeout]);
-  } catch (error) {
-    // Next.js dev server intercepts console.error and displays a full-screen overlay.
-    // Since we have a fallback for experiences, we log a warning instead.
-    console.warn("Failed to fetch data from Prisma or timed out, using fallback data.");
-  }
+  // Fetch from database using Next.js cache
+  let experiences = await getCachedExperiences();
 
   const getRoom = (id: number, basePrice: number, imageKeys: string[]) => {
     const r = (dict.roomsData as any)[id.toString()];
