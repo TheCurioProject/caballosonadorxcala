@@ -1,6 +1,7 @@
 'use server';
 
 import prisma from './prisma';
+import ical from 'node-ical';
 import { revalidatePath } from 'next/cache';
 
 export async function setDailyRates(propertyId: number, dates: Date[], price: number) {
@@ -152,4 +153,79 @@ export async function addHolidayRule(propertyId: number, name: string, startDate
 export async function removeHolidayRule(id: number) {
   await prisma.pricingRule.delete({ where: { id } });
   revalidatePath('/admin/calendar');
+}
+export async function syncIcalSources(propertyId: number) {
+  const sources = await prisma.icalSource.findMany({ where: { propertyId } });
+  if (sources.length === 0) return;
+
+  for (const source of sources) {
+    try {
+      const events = await ical.async.fromURL(source.url);
+      
+      // Delete previous blocks from this specific source
+      await prisma.blockedDate.deleteMany({
+        where: { propertyId, source: `ical-${source.id}` }
+      });
+
+      // Fetch our existing internal bookings and manual blocks to prevent double-blocking
+      const internalBookings = await prisma.booking.findMany({
+        where: { propertyId, origin: { not: 'ICAL_SYNC' } }
+      });
+      const manualBlocks = await prisma.blockedDate.findMany({
+        where: { propertyId, source: 'manual' }
+      });
+
+      const newBlocks = [];
+
+      for (const key in events) {
+        const ev = events[key];
+        if (ev.type === 'VEVENT') {
+          const start = new Date(ev.start as Date);
+          const end = new Date(ev.end as Date);
+          
+          if (isNaN(start.getTime()) || isNaN(end.getTime())) continue;
+
+          // Check for overlap with internal bookings
+          const bookingOverlap = internalBookings.some(b => 
+            (start < b.checkOut && end > b.checkIn)
+          );
+          
+          // Check for overlap with manual blocks
+          const blockOverlap = manualBlocks.some(b => 
+            (start < b.endDate && end > b.startDate)
+          );
+
+          if (!bookingOverlap && !blockOverlap) {
+            newBlocks.push({
+              propertyId,
+              startDate: start,
+              endDate: end,
+              reason: ev.summary || 'External Sync',
+              source: `ical-${source.id}`
+            });
+          }
+        }
+      }
+
+      if (newBlocks.length > 0) {
+        await prisma.blockedDate.createMany({ data: newBlocks });
+      }
+
+      // Update source status to success
+      await prisma.icalSource.update({
+        where: { id: source.id },
+        data: { syncStatus: 'success', lastSync: new Date(), syncError: null }
+      });
+    } catch (error: any) {
+      console.error(`Error syncing iCal source ${source.name}:`, error);
+      // Update source status to error
+      await prisma.icalSource.update({
+        where: { id: source.id },
+        data: { syncStatus: 'error', syncError: error.message || 'Unknown error' }
+      });
+    }
+  }
+  
+  revalidatePath('/admin/calendar');
+  revalidatePath('/admin/ical');
 }

@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { saveIcalFeeds } from '@/lib/actions';
-import { Loader2, Link2, Plus, Trash2, Copy, Check } from 'lucide-react';
+import { saveIcalFeeds, syncIcalSources } from '@/lib/actions';
+import { Loader2, Link2, Plus, Trash2, Copy, Check, RefreshCw, AlertCircle } from 'lucide-react';
 import { ActionLoadingScreen } from '@/components/ui/ActionLoadingScreen';
 import { motion, AnimatePresence } from 'framer-motion';
 
-type Feed = { name: string; url: string };
+type Feed = { id?: number; name: string; url: string; syncStatus?: string; lastSync?: Date | string; syncError?: string; };
 
 export default function IcalWorkspace({ roomId, initialFeeds }: { roomId: number, initialFeeds: Feed[] }) {
   const [feeds, setFeeds] = useState<Feed[]>(initialFeeds);
@@ -23,11 +23,17 @@ export default function IcalWorkspace({ roomId, initialFeeds }: { roomId: number
 
   const handleSave = async () => {
     setIsLoading(true);
-    await saveIcalFeeds(roomId, feeds.filter(f => f.name && f.url));
+    await saveIcalFeeds(roomId, feeds.filter(f => f.name && f.url).map(f => ({ name: f.name, url: f.url })));
     setIsLoading(false);
   };
 
-  const exportUrl = `https://hotelsonador.com/api/ical/export/${roomId}`;
+  const handleSync = async () => {
+    setIsLoading(true);
+    await syncIcalSources(roomId);
+    setIsLoading(false);
+  };
+
+  const exportUrl = `https://hotelsonador.com/api/ical/export/${roomId}/calendar.ics`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(exportUrl);
@@ -96,8 +102,9 @@ export default function IcalWorkspace({ roomId, initialFeeds }: { roomId: number
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center bg-gray-50 p-4 rounded-2xl"
+                className="flex flex-col gap-3 bg-gray-50 p-4 rounded-2xl"
               >
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center w-full">
                 <div className="w-full sm:w-1/3">
                   <input
                     type="text"
@@ -125,12 +132,48 @@ export default function IcalWorkspace({ roomId, initialFeeds }: { roomId: number
                     <span className="sm:hidden">Remove Feed</span>
                   </button>
                 </div>
+                </div>
+                {feed.id && (
+                  <div className="flex items-center gap-2 text-xs">
+                    {feed.syncStatus === 'success' ? (
+                      <span className="flex items-center gap-1 text-green-600 bg-green-100 px-2 py-1 rounded-md">
+                        <Check className="w-3 h-3" /> Online
+                      </span>
+                    ) : feed.syncStatus === 'error' ? (
+                      <span className="flex items-center gap-1 text-red-600 bg-red-100 px-2 py-1 rounded-md">
+                        <AlertCircle className="w-3 h-3" /> Failed
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-gray-500 bg-gray-200 px-2 py-1 rounded-md">
+                        Pending
+                      </span>
+                    )}
+                    {feed.lastSync && (
+                      <span className="text-gray-400">
+                        Last sync: {new Date(feed.lastSync).toLocaleString()}
+                      </span>
+                    )}
+                    {feed.syncError && (
+                      <span className="text-red-500 truncate max-w-xs" title={feed.syncError}>
+                        - {feed.syncError}
+                      </span>
+                    )}
+                  </div>
+                )}
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
 
-        <div className="mt-8 flex justify-end">
+        <div className="mt-8 flex justify-end gap-3 flex-wrap">
+          <button 
+            onClick={handleSync}
+            disabled={isLoading || feeds.length === 0}
+            className="w-full sm:w-auto bg-[#F9F7F4] hover:bg-[#EBE7E0] text-[#9B7E67] border border-[#9B7E67]/20 px-8 py-3.5 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+          >
+            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <RefreshCw className="w-5 h-5" />}
+            Sync Now
+          </button>
           <button 
             onClick={handleSave}
             disabled={isLoading}

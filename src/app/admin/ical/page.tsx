@@ -37,7 +37,14 @@ export default async function AdminICalPage() {
 
       <IcalWorkspace 
         roomId={property.id}
-        initialFeeds={property.icalSources.map(f => ({ name: f.name, url: f.url }))}
+        initialFeeds={property.icalSources.map((f: any) => ({ 
+          id: f.id, 
+          name: f.name, 
+          url: f.url,
+          syncStatus: f.syncStatus,
+          lastSync: f.lastSync,
+          syncError: f.syncError
+        }))}
       />
     </div>
   );
