@@ -20,6 +20,9 @@ export default async function AdminBookingsPage() {
         },
         blockedDates: {
           where: { endDate: { gte: new Date() } }
+        },
+        pricingRules: {
+          where: { date: { gte: new Date(new Date().setHours(0,0,0,0)) } }
         }
       }
     });
@@ -36,7 +39,8 @@ export default async function AdminBookingsPage() {
       baseCapacity: 12,
       basePrice: 1500,
       bookings: [],
-      blockedDates: []
+      blockedDates: [],
+      pricingRules: []
     };
   }
 
@@ -100,6 +104,78 @@ export default async function AdminBookingsPage() {
     return { success: false, error: 'Invalid dates' };
   }
 
+  async function manageDateRange(formData: FormData): Promise<{ success: boolean; error?: string }> {
+    'use server';
+    const action = formData.get('action') as string;
+    const startDate = new Date(formData.get('startDate') as string);
+    const endDate = new Date(formData.get('endDate') as string);
+    
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      return { success: false, error: 'Invalid dates' };
+    }
+
+    try {
+      if (action === 'BLOCK') {
+        await prisma.blockedDate.create({
+          data: {
+            propertyId: property!.id,
+            startDate,
+            endDate,
+            reason: 'Manual Block',
+            source: 'manual'
+          }
+        });
+      } else if (action === 'UNBLOCK') {
+        await prisma.blockedDate.deleteMany({
+          where: {
+            propertyId: property!.id,
+            startDate: { lte: endDate },
+            endDate: { gte: startDate }
+          }
+        });
+      } else if (action === 'SET_PRICE' || action === 'CLEAR_PRICE') {
+        const price = parseFloat(formData.get('price') as string);
+        const datesToUpdate: Date[] = [];
+        let d = new Date(startDate);
+        while (d <= endDate) {
+          datesToUpdate.push(new Date(d));
+          d.setDate(d.getDate() + 1);
+        }
+
+        if (action === 'CLEAR_PRICE') {
+          await prisma.pricingRule.deleteMany({
+            where: {
+              propertyId: property!.id,
+              date: { in: datesToUpdate }
+            }
+          });
+        } else if (action === 'SET_PRICE' && !isNaN(price)) {
+          // Prisma doesn't have an upsertMany, so we delete existing for the dates and createMany
+          await prisma.pricingRule.deleteMany({
+            where: {
+              propertyId: property!.id,
+              date: { in: datesToUpdate }
+            }
+          });
+          await prisma.pricingRule.createMany({
+            data: datesToUpdate.map(date => ({
+              propertyId: property!.id,
+              date,
+              priceOverride: price
+            }))
+          });
+        }
+      }
+      
+      revalidatePath('/admin/bookings');
+      revalidatePath('/admin/calendar');
+      return { success: true };
+    } catch (e) {
+      console.error(e);
+      return { success: false, error: 'Database error' };
+    }
+  }
+
   const formatDate = (date: Date) => new Date(date).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   return (
@@ -117,8 +193,10 @@ export default async function AdminBookingsPage() {
           <BookingCalendarClient 
             bookings={property.bookings} 
             blocks={property.blockedDates}
+            pricingRules={property.pricingRules}
             basePrice={property.basePrice}
             addManualBooking={addManualBooking}
+            manageDateRange={manageDateRange}
           />
         </div>
 

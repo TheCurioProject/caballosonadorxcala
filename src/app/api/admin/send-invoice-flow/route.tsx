@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     const date = new Date().toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' });
 
     // Read Logo as base64
-    const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'invoice_logo.png');
+    const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_official.png');
     let logoBase64 = '';
     if (fs.existsSync(logoPath)) {
       logoBase64 = fs.readFileSync(logoPath).toString('base64');

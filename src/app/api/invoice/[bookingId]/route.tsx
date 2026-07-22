@@ -28,7 +28,7 @@ export async function GET(
       return new NextResponse('Booking not found', { status: 404 });
     }
 
-    const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_secondary_dark.png');
+    const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_official.png');
     const logoBase64 = fs.existsSync(logoPath) ? fs.readFileSync(logoPath).toString('base64') : '';
 
     const pdfBuffer = await renderToBuffer(
