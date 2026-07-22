@@ -14,10 +14,7 @@ import {
   Image as ImageIcon, 
   Menu, 
   X,
-  Wrench,
-  Sparkles,
-  ChevronUp,
-  Loader2
+  Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 

@@ -1,13 +1,11 @@
 import { PrismaClient } from '@prisma/client';
-import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 
 const prismaClientSingleton = () => {
   const dbUrl = process.env.DATABASE_URL || '';
   
   if (!dbUrl) {
-    console.warn('[Prisma] DATABASE_URL is not set. Using dummy adapter for build phase.');
-    const adapter = new PrismaMariaDb('mariadb://user:pass@localhost:3306/db');
-    return new PrismaClient({ adapter });
+    console.warn('[Prisma] DATABASE_URL is not set. Using dummy client for build phase.');
+    return new PrismaClient();
   }
 
   // Clean the URL: fix common formatting issues
@@ -15,19 +13,22 @@ const prismaClientSingleton = () => {
   cleanUrl = cleanUrl.replace(/@https?:\/\//, '@');
   cleanUrl = cleanUrl.replace(/@www\./, '@');
   cleanUrl = cleanUrl.replace(/\/:(\d+)/, ':$1');
-  cleanUrl = cleanUrl.replace(/^mysql:\/\//, 'mariadb://');
+  
+  // Convert mariadb:// back to mysql:// for native Prisma
+  cleanUrl = cleanUrl.replace(/^mariadb:\/\//, 'mysql://');
 
-  // For Vercel Serverless + Hostgator shared hosting, we explicitly set connectionLimit to 1.
-  // We append it to the query string because mariadb creates the pool internally from the string.
-  const separator = cleanUrl.includes('?') ? '&' : '?';
-  // Remove existing connection_limit if any
+  // Enforce connection_limit=1 for Serverless
   cleanUrl = cleanUrl.replace(/([?&])connection_limit=\d+&?/, '$1');
   cleanUrl = cleanUrl.replace(/([?&])connectionLimit=\d+&?/, '$1');
-  
-  cleanUrl += `${cleanUrl.includes('?') ? '&' : '?'}connectionLimit=1&connectTimeout=15000&acquireTimeout=15000`;
+  cleanUrl += `${cleanUrl.includes('?') ? '&' : '?'}connection_limit=1&connect_timeout=15`;
 
-  const adapter = new PrismaMariaDb(cleanUrl);
-  return new PrismaClient({ adapter });
+  return new PrismaClient({
+    datasources: {
+      db: {
+        url: cleanUrl,
+      },
+    },
+  });
 };
 
 declare global {

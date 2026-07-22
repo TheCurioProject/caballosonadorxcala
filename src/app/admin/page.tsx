@@ -1,7 +1,7 @@
 import prisma from '@/lib/prisma';
 
 import Link from 'next/link';
-import { Calendar, User, DollarSign, CalendarCheck } from 'lucide-react';
+import { User, CalendarCheck } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
