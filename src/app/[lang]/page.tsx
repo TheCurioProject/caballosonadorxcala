@@ -17,7 +17,8 @@ const Location = dynamic(() => import('@/components/home/Location').then(mod => 
 const Footer = dynamic(() => import('@/components/home/Footer').then(mod => mod.Footer));
 const FoodServices = dynamic(() => import('@/components/home/FoodServices').then(mod => mod.FoodServices));
 
-// Removed force-dynamic for static export
+// Revalidate page every 60 seconds (ISR) to fix caching issues without losing performance
+export const revalidate = 60;
 
 export default async function Home({ params }: { params: Promise<{ lang: 'es' | 'en' }> }) {
   const { lang } = await params;

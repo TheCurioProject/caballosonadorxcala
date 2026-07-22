@@ -2,7 +2,14 @@ import prisma from '@/lib/prisma';
 import { DEFAULT_IMAGES } from '@/lib/siteImages';
 
 export async function getSiteImages() {
-  const images = await prisma.siteImage.findMany();
+  let images: any[] = [];
+  try {
+    const fetchImages = prisma.siteImage.findMany();
+    const timeout = new Promise<any[]>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 1500));
+    images = await Promise.race([fetchImages, timeout]);
+  } catch (error) {
+    console.warn("Failed to fetch site images from Prisma or timed out, using fallback defaults.");
+  }
   
   const mergedImages: Record<string, { url: string; name: string; group: string }> = {};
   
@@ -26,8 +33,14 @@ export async function getSiteImages() {
 }
 
 export async function getSiteImage(key: string) {
-  const image = await prisma.siteImage.findUnique({ where: { key } });
-  if (image) return image.url;
+  try {
+    const fetchImage = prisma.siteImage.findUnique({ where: { key } });
+    const timeout = new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 1000));
+    const image = await Promise.race([fetchImage, timeout]);
+    if (image) return image.url;
+  } catch (error) {
+    console.warn(`Failed to fetch site image ${key} from Prisma, using fallback default.`);
+  }
   
   const defaultImage = DEFAULT_IMAGES[key];
   return defaultImage ? defaultImage.url : '';

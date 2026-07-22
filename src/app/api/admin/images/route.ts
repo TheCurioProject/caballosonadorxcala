@@ -107,11 +107,7 @@ export async function POST(request: Request) {
 
     // Revalidate public pages to reflect changes immediately
     try {
-      revalidatePath('/', 'page');
-      revalidatePath('/[lang]', 'page');
-      revalidatePath('/[lang]/rooms', 'page');
-      revalidatePath('/[lang]/tours', 'page');
-      revalidatePath('/[lang]/servicios-de-comida', 'page');
+      revalidatePath('/', 'layout');
     } catch (err) {
       console.warn('Revalidation error:', err);
     }
