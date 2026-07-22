@@ -19,7 +19,8 @@ const prismaClientSingleton = () => {
   
   if (!cleanUrl.includes('connection_limit')) {
     const separator = cleanUrl.includes('?') ? '&' : '?';
-    cleanUrl += `${separator}connection_limit=5&pool_timeout=30&connect_timeout=30`;
+    // Optimized strictly for Hostgator shared hosting to prevent "Too many connections"
+    cleanUrl += `${separator}connection_limit=3&pool_timeout=15&connect_timeout=15`;
   }
   
   // The PrismaMariaDb adapter strictly expects mariadb:// instead of mysql://

@@ -386,11 +386,6 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
     name: 'Tours Hero',
     group: 'TOURS GENERAL'
   },
-  '/imagenes/04_about/about_casa_44.webp': {
-    url: '/imagenes/04_about/about_casa_44.webp',
-    name: 'Habitaciones Hero Banner',
-    group: 'ROOMS GENERAL'
-  },
   '/imagenes/05_amenities/amenity_01_private_rooms.webp': {
     url: '/casacuartos.webp',
     name: 'Tarjeta 1: 6 Habitaciones Privadas',

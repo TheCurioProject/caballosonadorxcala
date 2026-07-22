@@ -52,7 +52,7 @@ export default function ContentAdminClient() {
 
   const compressImage = (file: File): Promise<File> => {
     return new Promise((resolve) => {
-      if (file.type.includes('svg') || file.size <= 500 * 1024) {
+      if (file.type.includes('svg')) {
         resolve(file);
         return;
       }
@@ -60,8 +60,8 @@ export default function ContentAdminClient() {
       const url = URL.createObjectURL(file);
       img.onload = () => {
         URL.revokeObjectURL(url);
-        const maxWidth = 1920;
-        const maxHeight = 1920;
+        const maxWidth = 1400;
+        const maxHeight = 1400;
         let width = img.width;
         let height = img.height;
 
@@ -94,7 +94,7 @@ export default function ContentAdminClient() {
               }
             },
             'image/webp',
-            0.85
+            0.7
           );
         } else {
           resolve(file);
