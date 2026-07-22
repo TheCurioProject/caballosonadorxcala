@@ -46,7 +46,7 @@ export async function toggleBlockDates(propertyId: number, dates: Date[], block:
             checkIn: d,
             checkOut: nextDay,
             guestName: 'Bloqueo Manual',
-            guestEmail: 'admin@hotelsonador.com',
+            guestEmail: 'admin@casacaballosonador.com',
             origin: 'MANUAL_BLOCK',
             totalPrice: 0,
             payment_status: 'PAID'

@@ -165,7 +165,7 @@ export const InvoiceDocument = ({ data }: { data: InvoiceProps }) => (
       </View>
 
       <Text style={styles.footer}>
-        Gracias por su preferencia. Si tiene alguna duda con su factura, contacte a admin@hotelsonador.com.
+        Gracias por su preferencia. Si tiene alguna duda con su factura, contacte a admin@casacaballosonador.com.
       </Text>
       
     </Page>
