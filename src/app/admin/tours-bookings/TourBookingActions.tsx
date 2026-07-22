@@ -1,15 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MoreVertical, Download, Mail, Check, X, Loader2, Edit, Trash2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { MoreVertical, Download, Mail, Check, X, Loader2 } from 'lucide-react';
 
 export default function TourBookingActions({ booking }: { booking: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [sendSuccess, setSendSuccess] = useState(false);
   const [sendError, setSendError] = useState(false);
-  const router = useRouter();
 
   const handleSendInvoice = async () => {
     setIsSending(true);
