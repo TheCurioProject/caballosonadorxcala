@@ -20,7 +20,8 @@ export default async function AdminSettingsPage() {
       id: 1,
       name: 'Casa Caballo Soñador',
       baseCapacity: 12,
-      basePrice: 1500
+      basePrice: 1500,
+      adminEmails: 'kelli9@telus.net'
     };
   }
 
@@ -29,13 +30,15 @@ export default async function AdminSettingsPage() {
     'use server';
     const basePrice = parseFloat(formData.get('basePrice') as string);
     const baseCapacity = parseInt(formData.get('baseCapacity') as string, 10);
+    const adminEmails = formData.get('adminEmails') as string || 'kelli9@telus.net';
     
     if (!isNaN(basePrice) && !isNaN(baseCapacity)) {
       await prisma.property.update({
         where: { id: property!.id },
         data: { 
           basePrice, 
-          baseCapacity
+          baseCapacity,
+          adminEmails
         }
       });
       revalidatePath('/admin/settings');
@@ -79,6 +82,11 @@ export default async function AdminSettingsPage() {
             <div>
               <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Base Capacity</label>
               <input type="number" name="baseCapacity" defaultValue={property.baseCapacity} required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Admin Notification Emails (comma separated)</label>
+              <input type="text" name="adminEmails" defaultValue={property.adminEmails} placeholder="admin1@example.com, admin2@example.com" required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
+              <p className="text-[10px] text-gray-400 mt-1">These emails receive invoice copies and new booking alerts.</p>
             </div>
             <button type="submit" className="w-full bg-[#23211F] hover:bg-[#9B7E67] text-white font-bold text-xs tracking-widest uppercase py-3 rounded-xl transition-all duration-300">
               SAVE SETTINGS

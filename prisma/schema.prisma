@@ -22,6 +22,7 @@ model Property {
   pricingRules PricingRule[]
   minTourPax    Int           @default(3) @map("min_tour_pax")
   maxTourPax    Int           @default(10) @map("max_tour_pax")
+  adminEmails   String        @default("kelli9@telus.net") @map("admin_emails") @db.VarChar(500)
   bookings     Booking[]
 
   @@map("properties")

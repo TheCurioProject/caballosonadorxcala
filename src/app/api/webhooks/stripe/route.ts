@@ -49,7 +49,7 @@ export async function POST(request: Request) {
         const currency = (session.currency || 'mxn').toUpperCase();
         const nights = differenceInDays(new Date(booking.checkOut), new Date(booking.checkIn));
 
-        // Send confirmation email via Resend
+        // Send confirmation email to guest
         await sendBookingConfirmation({
           guestName: booking.guestName,
           guestEmail: booking.guestEmail,
@@ -60,6 +60,24 @@ export async function POST(request: Request) {
           bookingId: booking.id,
           nights,
         });
+
+        const rawAdminEmails = booking.property?.adminEmails || 'kelli9@telus.net';
+        const adminEmailArray = rawAdminEmails.split(',').map((e: string) => e.trim()).filter((e: string) => e);
+
+        // Send confirmation to admins
+        if (adminEmailArray.length > 0) {
+          await sendBookingConfirmation({
+            guestName: booking.guestName,
+            guestEmail: booking.guestEmail,
+            toEmails: adminEmailArray,
+            checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+            checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+            totalPrice: booking.totalPrice,
+            currency,
+            bookingId: booking.id,
+            nights,
+          });
+        }
 
         // Send invoice email (without PDF attachment for now)
         await sendInvoiceEmail({

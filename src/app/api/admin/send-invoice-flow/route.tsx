@@ -60,10 +60,13 @@ export async function POST(request: Request) {
 
     const pdfBase64 = (pdfBuffer as Buffer).toString('base64');
 
+    const rawAdminEmails = booking.property?.adminEmails || 'kelli9@telus.net';
+    const adminEmailArray = rawAdminEmails.split(',').map(e => e.trim()).filter(e => e);
+
     // Prepare data for Resend
     const data = {
       guestName: booking.guestName,
-      guestEmail: 'kelli9@telus.net', // Always send to Kelli first
+      guestEmail: booking.guestEmail, // This is just for the PDF/logs
       checkIn: checkIn,
       checkOut: checkOut,
       totalPrice: booking.totalPrice,
@@ -72,8 +75,9 @@ export async function POST(request: Request) {
       nights: Math.ceil((booking.checkOut.getTime() - booking.checkIn.getTime()) / (1000 * 3600 * 24))
     };
 
-    // Send email to admin (Kelli)
-    const adminResult = await sendInvoiceEmail(data, pdfBuffer as Buffer);
+    // Send email to admin(s)
+    const adminData = { ...data, toEmails: adminEmailArray.length > 0 ? adminEmailArray : ['kelli9@telus.net'] };
+    const adminResult = await sendInvoiceEmail(adminData, pdfBuffer as Buffer);
     if (!adminResult.success) {
       console.error('Failed to send invoice to admin:', adminResult.error);
     }

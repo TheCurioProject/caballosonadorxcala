@@ -17,6 +17,7 @@ interface BookingEmailData {
   currency: string;
   bookingId: number;
   nights: number;
+  toEmails?: string[];
 }
 
 // Helper para reintentar envíos en caso de errores de conexión intermitentes
@@ -53,7 +54,7 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
     
     const { data: responseData, error } = await withRetry(() => resend.emails.send({
       from: 'Casa Caballo Soñador <reservas@casacaballosonador.com>',
-      to: [data.guestEmail],
+      to: data.toEmails || [data.guestEmail],
       subject: `Confirmación de Reserva #${data.bookingId} — Casa Caballo Soñador`,
       html: `
         <!DOCTYPE html>
@@ -137,7 +138,7 @@ export async function sendInvoiceEmail(data: BookingEmailData, pdfBuffer?: Buffe
 
     const { data: responseData, error } = await withRetry(() => resend.emails.send({
       from: 'Casa Caballo Soñador <facturas@casacaballosonador.com>',
-      to: [data.guestEmail],
+      to: data.toEmails || [data.guestEmail],
       subject: `Factura de Reserva #${data.bookingId} — Casa Caballo Soñador`,
       html: `
         <!DOCTYPE html>
