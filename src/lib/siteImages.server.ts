@@ -4,21 +4,12 @@ import { unstable_cache } from 'next/cache';
 
 const fetchSiteImagesRaw = unstable_cache(
   async () => {
-    let images: any[] = [];
-    let timeoutId: NodeJS.Timeout;
     try {
-      const fetchImages = prisma.siteImage.findMany();
-      // Reduced timeout to 4 seconds to fail fast if DB is slow
-      const timeout = new Promise<any[]>((_, reject) => {
-        timeoutId = setTimeout(() => reject(new Error('Prisma timeout')), 4000);
-      });
-      images = await Promise.race([fetchImages, timeout]);
+      return await prisma.siteImage.findMany();
     } catch (error) {
-      console.warn("Failed to fetch site images from Prisma or timed out, using fallback defaults.");
-    } finally {
-      if (timeoutId) clearTimeout(timeoutId);
+      console.error("Failed to fetch site images from Prisma:", error);
+      throw error; // Throw so unstable_cache aborts and keeps stale data instead of caching []
     }
-    return images;
   },
   ['site-images-all'],
   { revalidate: 3600, tags: ['siteImages'] }
@@ -50,20 +41,13 @@ export async function getSiteImages() {
 
 const fetchSiteImageRaw = unstable_cache(
   async (key: string) => {
-    let timeoutId: NodeJS.Timeout;
     try {
-      const fetchImage = prisma.siteImage.findUnique({ where: { key } });
-      const timeout = new Promise<any>((_, reject) => {
-        timeoutId = setTimeout(() => reject(new Error('Prisma timeout')), 4000);
-      });
-      const image = await Promise.race([fetchImage, timeout]);
-      if (image) return image.url;
+      const image = await prisma.siteImage.findUnique({ where: { key } });
+      return image ? image.url : null;
     } catch (error) {
-      console.warn(`Failed to fetch site image ${key} from Prisma, using fallback default.`);
-    } finally {
-      if (timeoutId) clearTimeout(timeoutId);
+      console.error(`Failed to fetch site image ${key} from Prisma:`, error);
+      throw error;
     }
-    return null;
   },
   ['site-image-single'],
   { revalidate: 3600, tags: ['siteImages'] }
