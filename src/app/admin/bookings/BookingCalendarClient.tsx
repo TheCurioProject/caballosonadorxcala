@@ -400,19 +400,19 @@ export default function BookingCalendarClient({ bookings, blocks, pricingRules =
           onClick={() => setActiveTab('booking')}
           className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors uppercase tracking-widest ${activeTab === 'booking' ? 'bg-white shadow-sm text-[#23211F]' : 'text-gray-500 hover:text-gray-700'}`}
         >
-          Nueva Reserva
+          New Booking
         </button>
         <button
           onClick={() => setActiveTab('block')}
           className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors uppercase tracking-widest ${activeTab === 'block' ? 'bg-white shadow-sm text-[#23211F]' : 'text-gray-500 hover:text-gray-700'}`}
         >
-          Bloquear Fechas
+          Block Dates
         </button>
         <button
           onClick={() => setActiveTab('price')}
           className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors uppercase tracking-widest ${activeTab === 'price' ? 'bg-white shadow-sm text-[#23211F]' : 'text-gray-500 hover:text-gray-700'}`}
         >
-          Precio Manual
+          Manual Price
         </button>
       </div>
 

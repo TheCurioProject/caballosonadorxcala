@@ -3,7 +3,7 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
-export async function toggleBlockDates(propertyId: number, dates: Date[], isBlocking: boolean, reason: string = 'Bloqueo manual') {
+export async function toggleBlockDates(propertyId: number, dates: Date[], isBlocking: boolean, reason: string = 'Manual block') {
   for (const date of dates) {
     const startDate = new Date(date);
     startDate.setUTCHours(0, 0, 0, 0);
