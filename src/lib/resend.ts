@@ -19,12 +19,39 @@ interface BookingEmailData {
   nights: number;
 }
 
+// Helper para reintentar envíos en caso de errores de conexión intermitentes
+async function withRetry<T extends { error: any }>(operation: () => Promise<T>, maxRetries = 3, baseDelay = 1000): Promise<T> {
+  let attempt = 0;
+  while (attempt < maxRetries) {
+    try {
+      const result = await operation();
+      if (result.error) {
+        // Resend returns an error object on API/network failure instead of throwing
+        const msg = result.error.message || '';
+        if (msg.toLowerCase().includes('timeout') || msg.toLowerCase().includes('network') || msg.toLowerCase().includes('fetch') || (result.error.statusCode && result.error.statusCode >= 500)) {
+          throw new Error(msg || 'Resend network error');
+        }
+      }
+      return result;
+    } catch (error: any) {
+      attempt++;
+      console.warn(`[Resend] Attempt ${attempt} failed. Error: ${error?.message || error}`);
+      if (attempt >= maxRetries) {
+        return { error } as any;
+      }
+      // Esperar antes de reintentar (backoff exponencial simple)
+      await new Promise(resolve => setTimeout(resolve, baseDelay * attempt));
+    }
+  }
+  return { error: new Error('Unreachable') } as any;
+}
+
 export async function sendBookingConfirmation(data: BookingEmailData) {
   try {
     const currencySymbol = data.currency === 'MXN' ? '$' : data.currency === 'USD' ? 'US$' : '€';
     const formattedPrice = `${currencySymbol}${data.totalPrice.toLocaleString()}`;
     
-    const { error } = await resend.emails.send({
+    const { data: responseData, error } = await withRetry(() => resend.emails.send({
       from: 'Casa Caballo Soñador <reservas@casacaballosonador.com>',
       to: [data.guestEmail],
       subject: `Confirmación de Reserva #${data.bookingId} — Casa Caballo Soñador`,
@@ -83,7 +110,7 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
         </body>
         </html>
       `,
-    });
+    }));
 
     if (error) {
       console.error('[Resend] Error sending booking confirmation:', error);
@@ -108,7 +135,7 @@ export async function sendInvoiceEmail(data: BookingEmailData, pdfBuffer?: Buffe
       content: pdfBuffer,
     }] : [];
 
-    const { error } = await resend.emails.send({
+    const { data: responseData, error } = await withRetry(() => resend.emails.send({
       from: 'Casa Caballo Soñador <facturas@casacaballosonador.com>',
       to: [data.guestEmail],
       subject: `Factura de Reserva #${data.bookingId} — Casa Caballo Soñador`,
@@ -134,7 +161,7 @@ export async function sendInvoiceEmail(data: BookingEmailData, pdfBuffer?: Buffe
         </html>
       `,
       attachments,
-    });
+    }));
 
     if (error) {
       console.error('[Resend] Error sending invoice:', error);
