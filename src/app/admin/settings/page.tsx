@@ -2,6 +2,11 @@ import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import React from 'react';
 import { createCoupon } from '@/lib/stripe';
+import AdminEmailsEditor from './AdminEmailsEditor';
+import bcrypt from 'bcryptjs';
+import { getSession } from '@/lib/auth';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,6 +66,33 @@ export default async function AdminSettingsPage() {
     }
   }
 
+  async function updateAdminCredentials(formData: FormData) {
+    'use server';
+    const newUsername = formData.get('newUsername') as string;
+    const newPassword = formData.get('newPassword') as string;
+    
+    if (newUsername && newPassword) {
+      const session = await getSession();
+      if (!session || !session?.user?.id) {
+        return;
+      }
+      
+      const hash = await bcrypt.hash(newPassword, 10);
+      
+      await prisma.adminUser.update({
+        where: { id: session.user.id },
+        data: {
+          email: newUsername,
+          passwordHash: hash
+        }
+      });
+      
+      const cookieStore = await cookies();
+      cookieStore.delete('admin_session');
+      redirect('/admin/login');
+    }
+  }
+
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-12">
       <div className="mb-4 sm:mb-8">
@@ -84,9 +116,7 @@ export default async function AdminSettingsPage() {
               <input type="number" name="baseCapacity" defaultValue={property.baseCapacity} required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Admin Notification Emails (comma separated)</label>
-              <input type="text" name="adminEmails" defaultValue={property.adminEmails} placeholder="admin1@example.com, admin2@example.com" required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
-              <p className="text-[10px] text-gray-400 mt-1">These emails receive invoice copies and new booking alerts.</p>
+              <AdminEmailsEditor initialEmails={property.adminEmails} />
             </div>
             <button type="submit" className="w-full bg-[#23211F] hover:bg-[#9B7E67] text-white font-bold text-xs tracking-widest uppercase py-3 rounded-xl transition-all duration-300">
               SAVE SETTINGS
@@ -120,6 +150,27 @@ export default async function AdminSettingsPage() {
             </button>
           </form>
           <p className="text-[10px] text-gray-400 mt-4 text-center">Coupons will appear in the Stripe dashboard.</p>
+        </div>
+
+        {/* Update Credentials Form */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:col-span-2">
+          <h2 className="text-lg font-serif text-[#23211F] mb-4">Update Administrator Credentials</h2>
+          <form action={updateAdminCredentials} className="space-y-4 max-w-xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">New Username (Email)</label>
+                <input type="text" name="newUsername" required placeholder="admin" className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">New Password</label>
+                <input type="password" name="newPassword" required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
+              </div>
+            </div>
+            <button type="submit" className="w-full sm:w-auto bg-[#9c2b2b] hover:bg-[#7a2222] text-white font-bold text-xs tracking-widest uppercase py-3 px-8 rounded-xl transition-all duration-300 mt-2">
+              UPDATE CREDENTIALS & LOGOUT
+            </button>
+            <p className="text-[10px] text-gray-400 mt-2">You will be logged out immediately upon updating these credentials.</p>
+          </form>
         </div>
       </div>
     </div>
