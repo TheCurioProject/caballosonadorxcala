@@ -4,16 +4,11 @@ import prisma from '@/lib/prisma';
 import { DEFAULT_IMAGES } from '@/lib/siteImages';
 import fs from 'fs/promises';
 import path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
 
 export async function GET() {
   try {
-    const images = await prisma.siteImage.findMany({
-      include: {
-        history: {
-          orderBy: { createdAt: 'desc' }
-        }
-      }
-    });
+    const images = await prisma.siteImage.findMany();
 
     // Merge with defaults
     const responseData = Object.entries(DEFAULT_IMAGES).map(([key, defaultData]) => {
@@ -23,8 +18,8 @@ export async function GET() {
         group: defaultData.group,
         name: defaultData.name,
         url: dbImage?.url || defaultData.url,
-        hasHistory: dbImage ? dbImage.history.length > 0 : false,
-        history: dbImage?.history || []
+        hasHistory: false,
+        history: []
       };
     });
 
@@ -62,34 +57,33 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(await file.arrayBuffer());
     let newUrl = '';
 
-    // Attempt to write to local disk first
+    // Upload to Cloudinary
+    const safeKey = key.replace(/[\/\\.]/g, '_');
     try {
-      const ext = path.extname(file.name) || '.webp';
-      const safeKey = key.replace(/[\/\\.]/g, '_');
-      const filename = `${safeKey}_${Date.now()}${ext}`;
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'images');
-
-      await fs.mkdir(uploadDir, { recursive: true });
-      await fs.writeFile(path.join(uploadDir, filename), buffer);
-      newUrl = `/uploads/images/${filename}`;
-    } catch (fsErr) {
-      console.warn('Disk write unavailable, falling back to Base64 Data URI:', fsErr);
-      const mimeType = file.type || 'image/webp';
-      newUrl = `data:${mimeType};base64,${buffer.toString('base64')}`;
+      const result = await new Promise<any>((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            public_id: safeKey,
+            overwrite: true,
+            resource_type: 'image',
+          },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        );
+        uploadStream.end(buffer);
+      });
+      newUrl = result.secure_url;
+    } catch (cloudErr) {
+      console.error('Cloudinary upload failed:', cloudErr);
+      return NextResponse.json({ error: 'Failed to upload image to Cloudinary' }, { status: 500 });
     }
 
     // Update DB
     const existingImage = await prisma.siteImage.findUnique({ where: { key } });
 
     if (existingImage) {
-      // Save to history before updating
-      await prisma.siteImageHistory.create({
-        data: {
-          siteImageId: existingImage.id,
-          url: existingImage.url,
-        }
-      });
-
       await prisma.siteImage.update({
         where: { key },
         data: { url: newUrl }
