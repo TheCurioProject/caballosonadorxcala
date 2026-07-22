@@ -295,7 +295,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, block
                 } else if (info.isBlocked) {
                   bgClass = "bg-gray-400 shadow-[inset_3px_3px_6px_rgba(0,0,0,0.2)]"; // Gray block
                   textClass = "text-white";
-                  label = info.blockReason || "Blocked";
+                  label = info.blockReason === 'Bloqueo manual' ? 'Manual Block' : (info.blockReason || "Blocked");
                 } else if (info.isBooked) {
                   const color = info.bookingOrigin === 'MANUAL' ? 'bg-[#c1121f]' : 'bg-red-500';
                   bgClass = `${color} shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3)]`; 
