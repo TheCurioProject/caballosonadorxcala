@@ -26,7 +26,7 @@ export default async function AdminBookingsPage() {
         }
       }
     });
-    const timeout = new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 3000));
+    const timeout = new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 12000));
     property = await Promise.race([fetchProp, timeout]);
   } catch (error) {
     console.warn("Failed to fetch property from Prisma in bookings:", error);

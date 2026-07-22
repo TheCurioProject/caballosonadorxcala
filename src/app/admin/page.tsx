@@ -16,7 +16,7 @@ export default async function AdminDashboard() {
         }
       }
     });
-    const timeout = new Promise<any[]>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 3000));
+    const timeout = new Promise<any[]>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 12000));
     properties = await Promise.race([fetchProps, timeout]);
   } catch (error) {
     console.warn("Failed to fetch properties from Prisma:", error);

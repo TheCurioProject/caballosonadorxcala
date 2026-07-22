@@ -30,9 +30,9 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
   let experiences = [];
   
   try {
-    // Timeout prisma query after 1.5 seconds to prevent server-side hang
+    // Timeout prisma query after 8 seconds to prevent server-side hang
     const fetchExperiences = prisma.experience.findMany();
-    const timeout = new Promise<any[]>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 1500));
+    const timeout = new Promise<any[]>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 8000));
     experiences = await Promise.race([fetchExperiences, timeout]);
   } catch (error) {
     // Next.js dev server intercepts console.error and displays a full-screen overlay.

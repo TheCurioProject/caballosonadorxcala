@@ -10,7 +10,7 @@ export default async function AdminICalPage() {
     const fetchProp = prisma.property.findFirst({
       include: { icalSources: true }
     });
-    const timeout = new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 3000));
+    const timeout = new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 12000));
     property = await Promise.race([fetchProp, timeout]);
   } catch (error) {
     console.warn("Failed to fetch ical property from Prisma:", error);

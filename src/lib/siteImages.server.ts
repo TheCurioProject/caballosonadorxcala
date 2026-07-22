@@ -5,7 +5,7 @@ export async function getSiteImages() {
   let images: any[] = [];
   try {
     const fetchImages = prisma.siteImage.findMany();
-    const timeout = new Promise<any[]>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 1500));
+    const timeout = new Promise<any[]>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 8000));
     images = await Promise.race([fetchImages, timeout]);
   } catch (error) {
     console.warn("Failed to fetch site images from Prisma or timed out, using fallback defaults.");
@@ -35,7 +35,7 @@ export async function getSiteImages() {
 export async function getSiteImage(key: string) {
   try {
     const fetchImage = prisma.siteImage.findUnique({ where: { key } });
-    const timeout = new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 1000));
+    const timeout = new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 8000));
     const image = await Promise.race([fetchImage, timeout]);
     if (image) return image.url;
   } catch (error) {

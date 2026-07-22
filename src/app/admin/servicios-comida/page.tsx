@@ -8,7 +8,7 @@ export default async function ServiciosComidaAdminPage() {
   try {
     const fetchServices = getFoodServices();
     const fetchBookings = getFoodBookings();
-    const timeout = new Promise<any[]>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 3000));
+    const timeout = new Promise<any[]>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 12000));
     services = await Promise.race([fetchServices, timeout]);
     bookings = await Promise.race([fetchBookings, timeout]);
   } catch (error) {

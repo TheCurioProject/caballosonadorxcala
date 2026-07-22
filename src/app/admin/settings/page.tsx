@@ -14,7 +14,7 @@ export default async function AdminSettingsPage() {
   let property: any = null;
   try {
     const fetchProp = prisma.property.findFirst();
-    const timeout = new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 3000));
+    const timeout = new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Prisma timeout')), 12000));
     property = await Promise.race([fetchProp, timeout]);
   } catch (error) {
     console.warn("Failed to fetch settings property from Prisma:", error);
