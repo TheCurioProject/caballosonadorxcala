@@ -1,48 +1,48 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { DEFAULT_IMAGES } from '@/lib/siteImages';
 import { v2 as cloudinary } from 'cloudinary';
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const imagesToMigrate = await prisma.siteImage.findMany({
-      where: {
-        url: {
-          startsWith: 'data:image'
-        }
-      }
-    });
+    // Re-upload images that were previously uploaded with old naming convention
+    // Old convention: public_id = key.replace(/[\/\\.]/g, '_')  e.g. "_rooms_room1_1_webp"
+    // New convention: public_id = "hotelsonador" + key without extension  e.g. "hotelsonador/rooms/room1/1"
+    
+    const keysToMigrate = Object.keys(DEFAULT_IMAGES).filter(k => 
+      k.startsWith('/rooms/') || k.startsWith('/imagenes/')
+    );
 
-    if (imagesToMigrate.length === 0) {
-      return NextResponse.json({ message: 'No Base64 images found to migrate.' });
+    if (keysToMigrate.length === 0) {
+      return NextResponse.json({ message: 'No images to migrate.' });
     }
 
     const results = [];
 
-    for (const img of imagesToMigrate) {
-      const safeKey = img.key.replace(/[\/\\.]/g, '_');
-      
+    for (const key of keysToMigrate) {
+      const oldSafeKey = key.replace(/[\/\\.]/g, '_');
+      const oldUrl = `https://res.cloudinary.com/p6nhvksw/image/upload/${oldSafeKey}`;
+      const newPublicId = 'hotelsonador' + key.replace(/\.[^.]+$/, '');
+
       try {
-        const result = await cloudinary.uploader.upload(img.url, {
-          public_id: safeKey,
+        // Upload from old Cloudinary URL to new public_id
+        const result = await cloudinary.uploader.upload(oldUrl, {
+          public_id: newPublicId,
           overwrite: true,
+          invalidate: true,
           resource_type: 'image'
         });
 
-        await prisma.siteImage.update({
-          where: { id: img.id },
-          data: { url: result.secure_url }
-        });
-
-        results.push({ key: img.key, status: 'success', newUrl: result.secure_url });
+        results.push({ key, status: 'success', newUrl: result.secure_url });
       } catch (err) {
-        console.error(`Failed to migrate image ${img.key}:`, err);
-        results.push({ key: img.key, status: 'error', error: String(err) });
+        // Image might not exist with old naming (never uploaded from admin)
+        results.push({ key, status: 'skipped', error: String(err) });
       }
     }
 
     return NextResponse.json({
       message: 'Migration complete',
       totalMigrated: results.filter(r => r.status === 'success').length,
+      totalSkipped: results.filter(r => r.status === 'skipped').length,
       results
     });
 

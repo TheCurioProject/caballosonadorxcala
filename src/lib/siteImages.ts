@@ -418,22 +418,36 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
   },
 };
 
+export const CLOUDINARY_CLOUD_NAME = 'p6nhvksw';
+
+export function keyToCloudinaryUrl(key: string): string {
+  if (!key) return '';
+  // Deterministic: key starts with '/', so this produces e.g.
+  // https://res.cloudinary.com/p6nhvksw/image/upload/hotelsonador/casaexterior.webp
+  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload/hotelsonador${key}`;
+}
+
 export function getImageUrl(originalPath: string, siteImages: any): string {
   if (!originalPath) return '';
   if (siteImages) {
-    if (typeof siteImages[originalPath] === 'string') {
+    // Check if siteImages has a direct string value
+    if (typeof siteImages[originalPath] === 'string' && siteImages[originalPath]) {
       return siteImages[originalPath];
     }
+    // Check if siteImages has an object with a url
     if (siteImages[originalPath]?.url) {
       return siteImages[originalPath].url;
     }
+    // Pool lounge alternate key fallback
     if (originalPath.includes('amenity_02_pool_lounge')) {
       const altKey = originalPath.includes('_new') 
         ? '/imagenes/05_amenities/amenity_02_pool_lounge.webp' 
         : '/imagenes/05_amenities/amenity_02_pool_lounge_new.webp';
-      if (typeof siteImages[altKey] === 'string') return siteImages[altKey];
+      if (typeof siteImages[altKey] === 'string' && siteImages[altKey]) return siteImages[altKey];
       if (siteImages[altKey]?.url) return siteImages[altKey].url;
     }
   }
-  return originalPath;
+  // Fallback: construct Cloudinary URL deterministically from the key
+  return keyToCloudinaryUrl(originalPath);
 }
+

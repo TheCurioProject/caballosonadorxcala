@@ -1,23 +1,16 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath, revalidateTag } from 'next/cache';
-import prisma from '@/lib/prisma';
-import { DEFAULT_IMAGES } from '@/lib/siteImages';
-import fs from 'fs/promises';
-import path from 'path';
+import { DEFAULT_IMAGES, keyToCloudinaryUrl } from '@/lib/siteImages';
 import { v2 as cloudinary } from 'cloudinary';
 
 export async function GET() {
   try {
-    const images = await prisma.siteImage.findMany();
-
-    // Merge with defaults
+    // Build image list purely from DEFAULT_IMAGES + Cloudinary URL construction
     const responseData = Object.entries(DEFAULT_IMAGES).map(([key, defaultData]) => {
-      const dbImage = images.find(img => img.key === key);
       return {
         key,
         group: defaultData.group,
         name: defaultData.name,
-        url: dbImage?.url || defaultData.url,
+        url: defaultData.url || keyToCloudinaryUrl(key),
         hasHistory: false,
         history: []
       };
@@ -48,23 +41,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required file or key' }, { status: 400 });
     }
 
-    const defaultData = (DEFAULT_IMAGES as any)[key] || {
-      group: 'GENERAL',
-      name: key.split('/').pop() || key,
-      url: key,
-    };
-
     const buffer = Buffer.from(await file.arrayBuffer());
-    let newUrl = '';
 
-    // Upload to Cloudinary
-    const safeKey = key.replace(/[\/\\.]/g, '_');
+    // Deterministic public_id: hotelsonador/casaexterior (without extension)
+    const publicId = 'hotelsonador' + key.replace(/\.[^.]+$/, '');
+
     try {
       const result = await new Promise<any>((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
-            public_id: safeKey,
+            public_id: publicId,
             overwrite: true,
+            invalidate: true, // Purge CDN cache so new image shows immediately
             resource_type: 'image',
           },
           (error, result) => {
@@ -74,40 +62,15 @@ export async function POST(request: Request) {
         );
         uploadStream.end(buffer);
       });
-      newUrl = result.secure_url;
+
+      // The URL is deterministic: always https://res.cloudinary.com/{cloud}/image/upload/{publicId}
+      const newUrl = result.secure_url;
+
+      return NextResponse.json({ success: true, url: newUrl });
     } catch (cloudErr) {
       console.error('Cloudinary upload failed:', cloudErr);
       return NextResponse.json({ error: 'Failed to upload image to Cloudinary' }, { status: 500 });
     }
-
-    // Update DB
-    const existingImage = await prisma.siteImage.findUnique({ where: { key } });
-
-    if (existingImage) {
-      await prisma.siteImage.update({
-        where: { key },
-        data: { url: newUrl }
-      });
-    } else {
-      await prisma.siteImage.create({
-        data: {
-          key,
-          group: defaultData.group || 'GENERAL',
-          name: defaultData.name || key,
-          url: newUrl
-        }
-      });
-    }
-
-    // Revalidate public pages to reflect changes immediately
-    try {
-      revalidateTag('siteImages');
-      revalidatePath('/', 'layout');
-    } catch (err) {
-      console.warn('Revalidation error:', err);
-    }
-
-    return NextResponse.json({ success: true, url: newUrl });
 
   } catch (error) {
     console.error('Error uploading image:', error);
