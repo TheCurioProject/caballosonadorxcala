@@ -97,7 +97,8 @@ export async function GET() {
       tourBookedDates,
       propertySettings: {
         checkInTime: "15:00",
-        checkOutTime: "12:00"
+        checkOutTime: "12:00",
+        basePrice: property.basePrice
       }
     });
   } catch (error) {

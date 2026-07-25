@@ -443,8 +443,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   }, [isTourBookedOnSelectedDates, wantsATV]);
 
   const basePrice = useMemo(() => {
-    return getConvertedPrice(15000); // 15000 MXN base price for accommodation
-  }, [getConvertedPrice]);
+    return getConvertedPrice(propertySettings?.basePrice || 15000); // Dynamic base price from settings
+  }, [getConvertedPrice, propertySettings]);
 
   const nights = (range?.from && range?.to) ? differenceInDays(range.to, range.from) : 0;
   const accommodationTotal = nights > 0 ? nights * basePrice : 0;
@@ -735,7 +735,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
             {/* Right Panel */}
             <div className="w-full md:w-7/12 flex flex-col h-full bg-[#F9F7F4] text-[#23211F] relative">
-              <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-12 pb-32 md:pb-12 scroll-smooth">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-12 pb-32 md:pb-12 scroll-smooth flex flex-col">
+                <div className="shrink-0 z-10">
+                  {step > 1 && step <= 5 && (
+                    <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
+                  )}
+                  <StepIndicator currentStep={step} totalSteps={5} />
+                </div>
                 <AnimatePresence mode="wait">
                   {step === 1 && (
                     <motion.div
@@ -744,9 +750,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-full flex flex-col"
+                      className="min-h-full flex flex-col flex-1"
                     >
-                      <StepIndicator currentStep={1} totalSteps={5} />
                       <h3 className="text-2xl font-serif text-[#23211F] mb-6">{dict.modal?.selectDates}</h3>
                       <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-sm border border-gray-100 min-h-[350px]">
                         <DayPicker
@@ -812,10 +817,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-full flex flex-col"
+                      className="min-h-full flex flex-col flex-1"
                     >
-                      <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
-                      <StepIndicator currentStep={2} totalSteps={5} />
                       <div className="mb-8 shrink-0">
                         <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] mb-4 shadow-sm border border-[#E8D5B7]">
                           <Utensils size={24} />
@@ -872,10 +875,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-full flex flex-col"
+                      className="min-h-full flex flex-col flex-1"
                     >
-                      <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
-                      <StepIndicator currentStep={3} totalSteps={5} />
                       <div className="mb-6 shrink-0">
                         <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] mb-4 shadow-sm border border-[#E8D5B7]">
                           <Map size={24} />
@@ -966,10 +967,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-full flex flex-col"
+                      className="min-h-full flex flex-col flex-1"
                     >
-                      <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
-                      <StepIndicator currentStep={4} totalSteps={5} />
                       <h3 className="text-3xl font-serif text-[#23211F] mb-8 shrink-0">{dict.modal?.yourData}</h3>
                       
                       <form 
@@ -1056,15 +1055,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-full flex flex-col"
+                      className="min-h-full flex flex-col flex-1"
                     >
                       {showConfetti && Array.from({ length: 40 }).map((_, i) => (
                         <ConfettiParticle key={i} index={i} delay={Math.random() * 0.5} />
                       ))}
 
                       <div className="flex flex-col h-full">
-                        <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
-                        <StepIndicator currentStep={5} totalSteps={5} />
                         <h3 className="text-3xl font-serif text-[#23211F] mb-6 shrink-0">{dict.modal?.summary || (isEn ? 'Summary' : 'Resumen')}</h3>
                         
                         <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex-1 overflow-y-auto space-y-6 mb-8">
