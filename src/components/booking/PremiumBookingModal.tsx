@@ -311,7 +311,6 @@ const PremiumButton = ({
         {children}
       </span>
     </motion.button>
-    </motion.button>
   );
 };
 
