@@ -48,8 +48,8 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
         time: 'Upon Request',
         icon: Utensils,
         desc: isEn 
-          ? 'Large groups and families often purchase their own ingredients. Upon request we provide Personalized Service to manage preparations allowing more time with family and less Stress in the Kitchen.'
-          : 'Grupos grandes y familias a menudo compran sus propios ingredientes. A petición, ofrecemos un Servicio Personalizado para manejar las preparaciones, permitiendo más tiempo con la familia y menos estrés en la cocina.',
+          ? 'Large groups and families often purchase ingredients and prepare their own meals. Select from our Personalized Service options to request extra help in the kitchen. Our staff will assist you with preparations, service and clean up allowing more for more time with family and less stress in the kitchen.'
+          : 'Los grupos grandes y las familias a menudo compran ingredientes y preparan sus propias comidas. Elija entre nuestras opciones de Servicio Personalizado para solicitar ayuda adicional en la cocina. Nuestro personal lo asistirá con las preparaciones, el servicio y la limpieza, permitiendo más tiempo con la familia y menos estrés en la cocina.',
         image: getImageUrl('/food_services/service_1.webp', siteImages)
       },
       {
@@ -58,8 +58,8 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
         time: '5:00 PM - 7:00 PM',
         icon: Sunset,
         desc: isEn 
-          ? 'For groups wanting to maximize daily activities we offer dinner Service between 5:00 and 7:00 PM (Pacific Time). Our chef will prepare a meal from our dinner menu and look after the kitchen for you. Treat your family to an evening of Authentic Mexican Cuisine! This Service is perfect for groups of 6–12 people. Select these Service Options when booking your stay!'
-          : 'Para grupos que deseen maximizar las actividades diarias, ofrecemos Servicio de Cena entre 5:00 y 7:00 PM (Hora del Pacífico). Nuestro chef preparará una comida de nuestro menú de cena y se encargará de la cocina por usted. ¡Invite a su familia a una noche de auténtica cocina mexicana! Este servicio es perfecto para grupos de 6 a 12 personas. ¡Seleccione estas opciones de servicio al reservar su estancia!',
+          ? 'For groups wanting to maximize daily activities we offer dinner Service between 5:00 and 7:00 PM (Pacific Time). Our chef will prepare a meal from our dinner menu and look after the kitchen for you. Treat your family to an evening of Authentic Mexican Cuisine! This Service is perfect for groups of 6-12 people.'
+          : 'Para los grupos que desean maximizar las actividades diarias, ofrecemos servicio de cena entre las 5:00 y las 7:00 PM (hora del Pacífico). Nuestro chef preparará una comida de nuestro menú de cena y se encargará de la cocina por usted. ¡Invite a su familia a una noche de auténtica cocina mexicana! Este servicio es perfecto para grupos de 6 a 12 personas.',
         image: getImageUrl('/food_services/service_2.webp', siteImages)
       }
     ]
