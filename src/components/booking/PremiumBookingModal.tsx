@@ -910,7 +910,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         <h3 className="text-3xl font-serif text-[#23211F] mb-2">{dict.addons?.chefTitle}</h3>
                         <p className="text-gray-500 font-light">
                           {wantsCook 
-                            ? (isEn ? "Would you like dinners prepared for you or extra help in the kitchen. Select from the options below" : "¿Le gustaría que le prepararan la cena o ayuda extra en la cocina? Seleccione de las opciones a continuación.")
+                            ? (isEn ? "Would you like dinners prepared for you or extra help in the kitchen? Select from the options below" : "¿Le gustaría que le prepararan la cena o ayuda extra en la cocina? Seleccione de las opciones a continuación.")
                             : dict.addons?.chefDesc}
                         </p>
                       </div>
@@ -945,9 +945,6 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           
                           {!selectedCookService ? (
                             <div>
-                              <h4 className="text-lg font-serif text-[#23211F] mb-4">
-                                {isEn ? 'We have 2 service options, which do you prefer?' : 'Tenemos 2 opciones de servicio, ¿cuál prefieres?'}
-                              </h4>
                               <div className="grid gap-3">
                                 {foodServices.filter(s => s.serviceType === 'FOOD_SERVICE').map(service => (
                                   <button 
