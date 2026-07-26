@@ -265,7 +265,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
             {texts.servicesTitle}
           </h2>
           <h3 className="font-serif text-4xl md:text-5xl lg:text-6xl text-[#2C2621]">
-            {isEn ? 'Food Service Options' : 'Opciones de Servicio de Comida'}
+            {isEn ? 'Food Services Options' : 'Opciones de Servicios de Comida'}
           </h3>
         </div>
 
