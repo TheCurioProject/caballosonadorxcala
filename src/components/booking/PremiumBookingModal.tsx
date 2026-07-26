@@ -951,7 +951,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                       value={cookSelections[priceOption.id.toString()] || 0} 
                                       onChange={(val) => setCookSelections(prev => ({ ...prev, [priceOption.id.toString()]: val }))} 
                                       max={(cookSelections[priceOption.id.toString()] || 0) + (Math.max(1, nights - 1) - totalCookServices)} 
-                                      sublabel={`+${formatPrice(priceOption.price)} / ${isEn ? 'day' : 'día'}`} 
+                                      sublabel={`+${formatPrice(priceOption.price || 0)} / ${isEn ? 'day' : 'día'}`} 
                                     />
                                   );
                                 })}
@@ -1295,7 +1295,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                     return (
                                       <div key={id} className="flex justify-between text-sm text-gray-600 mb-1">
                                         <span>{count}x {translateDB(service.name, isEn)}</span>
-                                        <span>${(count * service.price).toLocaleString('en-US')}</span>
+                                        <span>${(count * (service.price || 0)).toLocaleString('en-US')}</span>
                                       </div>
                                     );
                                   }
@@ -1311,7 +1311,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                       return (
                                         <div key={dishId} className="flex justify-between text-sm text-gray-500 mb-0.5 ml-2">
                                           <span>• {translateDB(dish.name, isEn)}</span>
-                                          {dish.price > 0 && <span>${dish.price.toLocaleString('en-US')}</span>}
+                                          {(dish.price || 0) > 0 && <span>${(dish.price || 0).toLocaleString('en-US')}</span>}
                                         </div>
                                       );
                                     }
@@ -1332,7 +1332,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                     return (
                                       <div key={id} className="flex justify-between text-sm text-gray-600 mb-1">
                                         <span>{count}x {atvPeople} pax - {translateDB(tour.name, isEn)}</span>
-                                        <span>${(count * atvPeople * tour.pricePerPax).toLocaleString('en-US')}</span>
+                                        <span>${(count * atvPeople * (tour.pricePerPax || 0)).toLocaleString('en-US')}</span>
                                       </div>
                                     );
                                   }
