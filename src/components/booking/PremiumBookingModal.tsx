@@ -814,8 +814,17 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
             {/* Right Panel */}
             <div className="w-full md:w-7/12 flex flex-col h-full bg-[#F9F7F4] text-[#23211F] relative">
-              <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-12 pb-32 md:pb-12 scroll-smooth flex flex-col">
-                <div className="shrink-0 z-10">
+              {/* Mobile Fixed Header */}
+              <div className="shrink-0 z-20 p-6 pb-2 md:hidden relative bg-[#F9F7F4]">
+                {step > 1 && step <= 5 && (
+                  <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
+                )}
+                <StepIndicator currentStep={step} totalSteps={5} />
+              </div>
+
+              <div className="flex-1 md:overflow-y-auto md:overflow-x-hidden md:p-12 md:pb-12 scroll-smooth flex flex-col relative">
+                {/* Desktop Header */}
+                <div className="shrink-0 z-10 hidden md:block">
                   {step > 1 && step <= 5 && (
                     <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
                   )}
@@ -829,7 +838,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-full flex flex-col flex-1"
+                      className="min-h-full flex flex-col flex-1 max-md:absolute max-md:inset-0 max-md:overflow-y-auto max-md:p-6 max-md:pb-32"
                     >
                       <h3 className="text-2xl font-serif text-[#23211F] mb-6">{dict.modal?.selectDates}</h3>
                       <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-sm border border-gray-100 min-h-[350px]">
@@ -876,7 +885,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </div>
                         </div>
                       </div>
-                      <div className="mt-8 shrink-0">
+                      <div className="mt-8 shrink-0 hidden md:block">
                         {(!range?.from || !range?.to) && (
                           <p className="text-amber-600 text-xs font-bold mb-3 text-center">
                             {isEn ? 'Please select your check-in and check-out dates' : 'Por favor selecciona tus fechas de entrada y salida'}
@@ -901,7 +910,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-full flex flex-col flex-1"
+                      className="min-h-full flex flex-col flex-1 max-md:absolute max-md:inset-0 max-md:overflow-y-auto max-md:p-6 max-md:pb-32"
                     >
                       <div className="mb-8 shrink-0">
                         <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] mb-4 shadow-sm border border-[#E8D5B7]">
@@ -1079,7 +1088,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                               </div>
 
                               {selectedDishes.length < Math.max(1, nights - 1) && (
-                                <div className="shrink-0 mt-4">
+                                <div className="shrink-0 mt-4 hidden md:block">
                                   {totalCookServices === 0 && (
                                     <p className="text-amber-600 text-xs font-bold mb-3 text-center">
                                       {isEn ? 'Please select a Catering Plan for your days' : 'Por favor selecciona un Plan de Alimentos para tus días'}
@@ -1109,7 +1118,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-full flex flex-col flex-1"
+                      className="min-h-full flex flex-col flex-1 max-md:absolute max-md:inset-0 max-md:overflow-y-auto max-md:p-6 max-md:pb-32"
                     >
                       <div className="mb-6 shrink-0">
                         <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] mb-4 shadow-sm border border-[#E8D5B7]">
@@ -1179,7 +1188,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             ))}
                           </div>
 
-                          <div className="mt-4 pb-4 shrink-0">
+                          <div className="mt-4 pb-4 shrink-0 hidden md:block">
                             {(totalAtvTours === 0 || atvPeople < minTourPax) && (
                               <p className="text-amber-600 text-xs font-bold mb-3 text-center">
                                 {isEn ? 'Please select at least one destination and number of people' : 'Por favor selecciona al menos un destino y personas'}
@@ -1201,7 +1210,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-full flex flex-col flex-1"
+                      className="min-h-full flex flex-col flex-1 max-md:absolute max-md:inset-0 max-md:overflow-y-auto max-md:p-6 max-md:pb-32"
                     >
                       <h3 className="text-3xl font-serif text-[#23211F] mb-8 shrink-0">{dict.modal?.yourData}</h3>
                       
@@ -1260,7 +1269,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </div>
                         </div>
 
-                        <div className="mt-8 pb-4 shrink-0">
+                        <div className="mt-8 pb-4 shrink-0 hidden md:block">
                           {!isFormValid && (
                             <p className="text-amber-600 text-xs font-bold mb-3 text-center">
                               {isEn ? 'Please fill in all required fields correctly' : 'Por favor completa todos los campos requeridos correctamente'}
@@ -1289,7 +1298,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-full flex flex-col flex-1"
+                      className="min-h-full flex flex-col flex-1 max-md:absolute max-md:inset-0 max-md:overflow-y-auto max-md:p-6 max-md:pb-6"
                     >
                       {showConfetti && Array.from({ length: 40 }).map((_, i) => (
                         <ConfettiParticle key={i} index={i} delay={Math.random() * 0.5} />
