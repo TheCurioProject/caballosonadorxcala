@@ -344,10 +344,10 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
             </AnimatePresence>
             {/* Blinking Drag Indicator */}
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-10">
-              <motion.div 
+              <motion.div
                 animate={{ opacity: [0.3, 1, 0.3] }} 
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                className="bg-black/50 backdrop-blur-sm text-white px-6 py-3 rounded-full flex flex-col items-center gap-2 shadow-xl border border-white/20"
+                className="text-white/90 drop-shadow-md flex flex-col items-center gap-2"
               >
                 <div className="flex items-center gap-4">
                   <motion.div
