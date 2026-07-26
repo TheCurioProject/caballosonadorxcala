@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useDragControls } from 'framer-motion';
-import { X, CalendarDays, ArrowRight, Check, ChefHat, CreditCard, User, Map, Utensils, Minus, Plus } from 'lucide-react';
+import { X, CalendarDays, ArrowRight, Check, ChefHat, CreditCard, User, Map, Utensils, Minus, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 import { ActionLoadingScreen } from '../ui/ActionLoadingScreen';
 import { DayPicker, DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
@@ -346,6 +346,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [tours, setTours] = useState<any[]>([]);
   
   const [wantsCook, setWantsCook] = useState<boolean | null>(null);
+  const [selectedCookService, setSelectedCookService] = useState<any | null>(null);
+  const [expandedDishId, setExpandedDishId] = useState<number | null>(null);
   const [cookSelections, setCookSelections] = useState<Record<string, number>>({});
 
   const [wantsATV, setWantsATV] = useState<boolean | null>(null);
@@ -409,6 +411,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         setGuestEmail('');
         setGuestPhone('');
         setWantsCook(null);
+        setSelectedCookService(null);
+        setExpandedDishId(null);
         setCookSelections({});
         setWantsATV(null);
         setAtvPeople(1);
@@ -489,7 +493,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
           const service = foodServices.find(s => s.id.toString() === id);
           if (service) {
             const unitPrice = getConvertedPrice(service.price);
-            selectedAddons.push({ type: `FOOD_${service.id}`, name: service.name, quantity: count, unitPrice, price: count * unitPrice });
+            selectedAddons.push({ type: `FOOD_${service.id}`, name: service.name, quantity: count, unitPrice, price: count * unitPrice, details: selectedCookService ? JSON.stringify({ service: selectedCookService.name }) : null });
           }
         }
       });
@@ -839,30 +843,93 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </button>
                         </div>
                       ) : wantsCook === true ? (
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 flex-1">
-                          <button onClick={() => setWantsCook(null)} className="text-xs text-[#9B7E67] font-bold tracking-widest uppercase mb-4 block w-full text-left hover:text-[#23211F] transition-colors">{isEn ? '← Change option (Unselect)' : '← Cambiar opción (Deseleccionar)'}</button>
-                          <div className="bg-amber-50 text-amber-800 text-xs px-4 py-2 rounded-lg font-medium">
-                            {isEn ? `Choose your services per day (${nights} available total)` : `Escoge tus servicios por día (${nights} disponibles en total)`}
-                          </div>
-                          {foodServices.map(service => (
-                            <Counter 
-                              key={service.id}
-                              label={service.name} 
-                              value={cookSelections[service.id.toString()] || 0} 
-                              onChange={(val) => handleCookChange(service.id.toString(), val)} 
-                              max={nights} 
-                              sublabel={`+${formatPrice(service.price)} / ${dict.modal?.day || 'day'}`}                          />
-                          ))}
-                          <div className="mt-8 pb-4">
-                            {totalCookServices === 0 && (
-                              <p className="text-amber-600 text-xs font-bold mb-3 text-center">
-                                {isEn ? 'Please select at least one meal to proceed' : 'Por favor selecciona al menos una comida para continuar'}
-                              </p>
-                            )}
-                            <PremiumButton onClick={nextStep} disabled={totalCookServices === 0}>
-                              {dict.addons?.confirmChef} <ArrowRight size={16} />
-                            </PremiumButton>
-                          </div>
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 flex-1 pb-4">
+                          <button onClick={() => { setWantsCook(null); setSelectedCookService(null); setCookSelections({}); }} className="text-xs text-[#9B7E67] font-bold tracking-widest uppercase block w-full text-left hover:text-[#23211F] transition-colors">{isEn ? '← Change option (Unselect)' : '← Cambiar opción (Deseleccionar)'}</button>
+                          
+                          {!selectedCookService ? (
+                            <div>
+                              <h4 className="text-lg font-serif text-[#23211F] mb-4">
+                                {isEn ? 'We have 2 service options, which do you prefer?' : 'Tenemos 2 opciones de servicio, cual prefieres?'}
+                              </h4>
+                              <div className="grid gap-3">
+                                {foodServices.filter(s => s.serviceType === 'FOOD_SERVICE').map(service => (
+                                  <button 
+                                    key={service.id}
+                                    onClick={() => setSelectedCookService(service)}
+                                    className="p-5 border border-[#E8D5B7] rounded-xl hover:bg-[#F9F7F4] text-left transition-colors flex flex-col group bg-white"
+                                  >
+                                    <span className="font-bold text-[#23211F] group-hover:text-[#9B7E67] transition-colors">{service.name}</span>
+                                    {service.description && <span className="text-sm text-gray-500 mt-1">{service.description}</span>}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          ) : (
+                            <div>
+                              <button onClick={() => { setSelectedCookService(null); setCookSelections({}); }} className="text-xs text-[#9B7E67] font-bold tracking-widest uppercase mb-4 block w-full text-left hover:text-[#23211F] transition-colors">
+                                {isEn ? '← Change service type' : '← Cambiar tipo de servicio'}
+                              </button>
+                              
+                              <h4 className="text-lg font-serif text-[#23211F] mb-4">
+                                {isEn ? 'Select a Catering Plan' : 'Selecciona un Plan de Catering'}
+                              </h4>
+                              <div className="grid gap-3 mb-8">
+                                {foodServices.filter(s => s.serviceType === 'FOOD_PRICE').map(priceOption => {
+                                  const isSelected = cookSelections[priceOption.id.toString()] > 0;
+                                  return (
+                                    <button 
+                                      key={priceOption.id}
+                                      onClick={() => setCookSelections({ [priceOption.id.toString()]: nights })}
+                                      className={`p-4 border rounded-xl text-left transition-colors flex items-center justify-between ${isSelected ? 'border-[#9B7E67] bg-[#F9F7F4] ring-1 ring-[#9B7E67]' : 'border-gray-200 hover:border-[#9B7E67] bg-white'}`}
+                                    >
+                                      <span className={`font-bold ${isSelected ? 'text-[#9B7E67]' : 'text-[#23211F]'}`}>{priceOption.name}</span>
+                                      <span className="text-[#9B7E67] font-bold text-lg">{formatPrice(priceOption.price)}</span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+
+                              <div className="bg-[#FAF8F5] p-5 rounded-2xl border border-[#E8D5B7] mb-8">
+                                <h4 className="text-sm font-bold uppercase tracking-widest text-[#9B7E67] mb-4">
+                                  {isEn ? 'Available Dishes (Menu)' : 'Platillos Disponibles (Menú)'}
+                                </h4>
+                                <div className="space-y-2">
+                                  {foodServices.filter(s => s.serviceType === 'FOOD_DISH').map(dish => {
+                                    const isExpanded = expandedDishId === dish.id;
+                                    return (
+                                      <div key={dish.id} className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm">
+                                        <button 
+                                          onClick={() => setExpandedDishId(isExpanded ? null : dish.id)}
+                                          className="w-full px-4 py-3 text-left font-medium text-[#23211F] flex justify-between items-center hover:bg-gray-50 transition-colors"
+                                        >
+                                          {dish.name}
+                                          {isExpanded ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
+                                        </button>
+                                        <AnimatePresence>
+                                          {isExpanded && (
+                                            <motion.div 
+                                              initial={{ height: 0, opacity: 0 }}
+                                              animate={{ height: 'auto', opacity: 1 }}
+                                              exit={{ height: 0, opacity: 0 }}
+                                              className="overflow-hidden bg-gray-50"
+                                            >
+                                              <p className="p-4 text-sm text-gray-600 font-light leading-relaxed border-t border-gray-100">
+                                                {dish.description}
+                                              </p>
+                                            </motion.div>
+                                          )}
+                                        </AnimatePresence>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+
+                              <PremiumButton onClick={nextStep} disabled={totalCookServices === 0}>
+                                {dict.addons?.confirmChef} <ArrowRight size={16} />
+                              </PremiumButton>
+                            </div>
+                          )}
                         </motion.div>
                       ) : null}
                     </motion.div>
