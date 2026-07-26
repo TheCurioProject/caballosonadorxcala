@@ -311,7 +311,53 @@ const PremiumButton = ({
         {children}
       </span>
     </motion.button>
+    </motion.button>
   );
+};
+
+/* ─── Dynamic DB Translation Helper ─── */
+const dbTranslations: Record<string, { en: string, es: string }> = {
+  "Personalized Service": {
+    en: "Personalized Service",
+    es: "Servicio Personalizado"
+  },
+  "Servicio Personalizado": {
+    en: "Personalized Service",
+    es: "Servicio Personalizado"
+  },
+  "Dinner Service": {
+    en: "Dinner Service",
+    es: "Servicio de Cena"
+  },
+  "Servicio de Cena": {
+    en: "Dinner Service",
+    es: "Servicio de Cena"
+  },
+  "Large groups and families often purchase their own ingredients. Upon request we provide Personalized Service to manage preparations allowing more time with family and less Stress in the Kitchen.": {
+    en: "Large groups and families often purchase their own ingredients. Upon request we provide Personalized Service to manage preparations allowing more time with family and less Stress in the Kitchen.",
+    es: "Los grupos grandes y las familias a menudo compran sus propios ingredientes. A pedido, brindamos un Servicio Personalizado para administrar las preparaciones, lo que permite más tiempo con la familia y menos estrés en la cocina."
+  },
+  "For groups wanting to maximize daily activities we offer dinner Service between 5:00 and 7:00 PM (Pacific Time). Our chef will prepare a meal from our dinner menu and look after the kitchen for you. Treat your family to an evening of Authentic Mexican Cuisine! This Service is perfect for groups of 6-12 people. Select these Service Options when booking your stay!": {
+    en: "For groups wanting to maximize daily activities we offer dinner Service between 5:00 and 7:00 PM (Pacific Time). Our chef will prepare a meal from our dinner menu and look after the kitchen for you. Treat your family to an evening of Authentic Mexican Cuisine! This Service is perfect for groups of 6-12 people. Select these Service Options when booking your stay!",
+    es: "Para los grupos que desean maximizar las actividades diarias, ofrecemos servicio de cena entre las 5:00 y las 7:00 PM (hora del Pacífico). Nuestro chef preparará una comida de nuestro menú de cena y se encargará de la cocina por usted. ¡Invite a su familia a una noche de auténtica cocina mexicana! Este servicio es perfecto para grupos de 6 a 12 personas. ¡Seleccione estas opciones de servicio al reservar su estadía!"
+  }
+};
+
+const translateDB = (text: string | undefined | null, isEn: boolean): string => {
+  if (!text) return text || '';
+  const trimmed = text.trim();
+  
+  if (dbTranslations[trimmed]) {
+    return isEn ? dbTranslations[trimmed].en : dbTranslations[trimmed].es;
+  }
+
+  for (const [key, val] of Object.entries(dbTranslations)) {
+    if (key.toLowerCase() === trimmed.toLowerCase()) {
+      return isEn ? val.en : val.es;
+    }
+  }
+  
+  return text;
 };
 
 /* ─── Main Modal ─── */
@@ -876,8 +922,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                     onClick={() => setSelectedCookService(service)}
                                     className="p-5 border border-[#E8D5B7] rounded-xl hover:bg-[#F9F7F4] text-left transition-colors flex flex-col group bg-white"
                                   >
-                                    <span className="font-bold text-[#23211F] group-hover:text-[#9B7E67] transition-colors">{service.name}</span>
-                                    {service.description && <span className="text-sm text-gray-500 mt-1">{service.description}</span>}
+                                    <span className="font-bold text-[#23211F] group-hover:text-[#9B7E67] transition-colors">{translateDB(service.name, isEn)}</span>
+                                    {service.description && <span className="text-sm text-gray-500 mt-1">{translateDB(service.description, isEn)}</span>}
                                   </button>
                                 ))}
                               </div>
@@ -900,7 +946,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                       onClick={() => setCookSelections({ [priceOption.id.toString()]: nights })}
                                       className={`p-4 border rounded-xl text-left transition-colors flex items-center justify-between ${isSelected ? 'border-[#9B7E67] bg-[#F9F7F4] ring-1 ring-[#9B7E67]' : 'border-gray-200 hover:border-[#9B7E67] bg-white'}`}
                                     >
-                                      <span className={`font-bold ${isSelected ? 'text-[#9B7E67]' : 'text-[#23211F]'}`}>{priceOption.name}</span>
+                                      <span className={`font-bold ${isSelected ? 'text-[#9B7E67]' : 'text-[#23211F]'}`}>{translateDB(priceOption.name, isEn)}</span>
                                       <span className="text-[#9B7E67] font-bold text-lg">{formatPrice(priceOption.price)}</span>
                                     </button>
                                   );
@@ -943,7 +989,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                           className="w-full px-6 py-4 text-left font-medium text-[#23211F] flex justify-between items-center"
                                         >
                                           <span className="flex items-center gap-3">
-                                            {dish.name}
+                                            {translateDB(dish.name, isEn)}
                                             {isSelected && (
                                               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-5 h-5 rounded-full bg-[#9B7E67] text-white flex items-center justify-center">
                                                 <Check size={12} strokeWidth={3} />
@@ -963,8 +1009,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                               className="overflow-hidden bg-gray-50 rounded-b-[2rem]"
                                             >
                                               <div className="p-6 border-t border-gray-100 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-                                                <p className="text-sm text-gray-600 font-light leading-relaxed flex-1">
-                                                  {dish.description}
+                                                <p className="text-sm text-gray-600 font-light leading-relaxed flex-1 whitespace-pre-wrap">
+                                                  {translateDB(dish.description, isEn)}
                                                 </p>
                                                 <div className="shrink-0">
                                                   {!isSelected && selectedDishes.length < maxDishes && (
@@ -1086,7 +1132,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             {tours.map(tour => (
                               <Counter 
                                 key={tour.id}
-                                label={tour.name} 
+                                label={translateDB(tour.name, isEn)} 
                                 value={atvSelections[tour.id.toString()] || 0} 
                                 onChange={(val) => handleAtvChange(tour.id.toString(), val)} 
                                 max={(atvSelections[tour.id.toString()] || 0) + (nights - totalAtvTours)} 
@@ -1232,7 +1278,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                   if (service) {
                                     return (
                                       <div key={id} className="flex justify-between text-sm text-gray-600 mb-1">
-                                        <span>{count}x {service.name}</span>
+                                        <span>{count}x {translateDB(service.name, isEn)}</span>
                                         <span>${(count * service.price).toLocaleString('en-US')}</span>
                                       </div>
                                     );
@@ -1248,7 +1294,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                     if (dish) {
                                       return (
                                         <div key={dishId} className="flex justify-between text-sm text-gray-500 mb-0.5 ml-2">
-                                          <span>• {dish.name}</span>
+                                          <span>• {translateDB(dish.name, isEn)}</span>
                                           {dish.price > 0 && <span>${dish.price.toLocaleString('en-US')}</span>}
                                         </div>
                                       );
@@ -1269,7 +1315,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                   if (tour) {
                                     return (
                                       <div key={id} className="flex justify-between text-sm text-gray-600 mb-1">
-                                        <span>{count}x {atvPeople} pax - {tour.name}</span>
+                                        <span>{count}x {atvPeople} pax - {translateDB(tour.name, isEn)}</span>
                                         <span>${(count * atvPeople * tour.pricePerPax).toLocaleString('en-US')}</span>
                                       </div>
                                     );
