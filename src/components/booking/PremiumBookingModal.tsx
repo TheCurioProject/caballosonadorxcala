@@ -342,17 +342,17 @@ const dbTranslations: Record<string, { en: string, es: string }> = {
     en: "For groups wanting to maximize daily activities we offer dinner Service between 5:00 and 7:00 PM (Pacific Time). Our chef will prepare a meal from our dinner menu and look after the kitchen for you. Treat your family to an evening of Authentic Mexican Cuisine! This Service is perfect for groups of 6-12 people.",
     es: "Para los grupos que desean maximizar las actividades diarias, ofrecemos servicio de cena entre las 5:00 y las 7:00 PM (hora del Pacífico). Nuestro chef preparará una comida de nuestro menú de cena y se encargará de la cocina por usted. ¡Invite a su familia a una noche de auténtica cocina mexicana! Este servicio es perfecto para grupos de 6 a 12 personas."
   },
-  "Catering Breakfast": {
-    en: "Catering Breakfast",
-    es: "Catering de Desayuno"
+  "Breakfast Assistance": {
+    en: "Breakfast Assistance",
+    es: "Asistencia para Desayuno"
   },
-  "Catering Dinner": {
-    en: "Catering Dinner",
-    es: "Catering de Cena"
+  "Dinner Assistance": {
+    en: "Dinner Assistance",
+    es: "Asistencia para Cena"
   },
-  "Both": {
-    en: "Both",
-    es: "Ambos"
+  "Breakfast & Dinner Assistance": {
+    en: "Breakfast & Dinner Assistance",
+    es: "Asistencia para Desayuno y Cena"
   }
 };
 
@@ -921,7 +921,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         <h3 className="text-3xl font-serif text-[#23211F] mb-2">{dict.addons?.chefTitle}</h3>
                         <p className="text-gray-500 font-light">
                           {wantsCook 
-                            ? (isEn ? "Would you like dinners prepared for you or extra help in the kitchen? Select from the options below" : "¿Le gustaría que le prepararan la cena o ayuda extra en la cocina? Seleccione de las opciones a continuación.")
+                            ? (isEn ? "We provide a staff member to assist with prep, cooking, and clean up. You provide the ingredients, and we cook it for you! Select an assistance plan below:" : "Proveemos personal para asistir con la preparación, cocina y limpieza. Usted pone los ingredientes, ¡nosotros lo cocinamos! Seleccione un plan de asistencia a continuación:")
                             : dict.addons?.chefDesc}
                         </p>
                       </div>
@@ -973,7 +973,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             <div>
                               
                               <h4 className="text-lg font-serif text-[#23211F] mb-4">
-                                {isEn ? 'Select a Catering Plan' : 'Selecciona un Plan de Alimentos'}
+                                {isEn ? 'Select an Assistance Plan' : 'Selecciona un Plan de Asistencia'}
                               </h4>
                               <div className="space-y-3 mb-8">
                                 {foodServices.filter(s => s.serviceType === 'FOOD_PRICE').map(priceOption => {
@@ -1093,7 +1093,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                 <div className="shrink-0 mt-4 hidden md:block">
                                   {totalCookServices === 0 && (
                                     <p className="text-amber-600 text-sm font-bold mb-3 text-center">
-                                      {isEn ? 'Please select a Catering Plan for your days' : 'Por favor selecciona un Plan de Alimentos para tus días'}
+                                      {isEn ? 'Please select an Assistance Plan for your days' : 'Por favor selecciona un Plan de Asistencia para tus días'}
                                     </p>
                                   )}
                                   {totalCookServices > 0 && selectedDishes.length < Math.max(1, nights - 1) && (

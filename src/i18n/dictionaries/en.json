@@ -453,8 +453,8 @@
   "addons": {
     "optional": "Extras (Optional)",
     "optionalDesc": "Private cook and ATV tours.",
-    "chefTitle": "Food Services",
-    "chefDesc": "Would you like to add a personalized service to your stay? Select your service from the next screen",
+    "chefTitle": "Kitchen Assistance",
+    "chefDesc": "Would you like a staff member to assist you with preparation, cooking, and clean up? You provide the ingredients, we do the rest!",
     "yesPlease": "Yes, please",
     "noThanks": "No, thanks",
     "breakfasts": "Breakfasts",
