@@ -192,7 +192,7 @@ const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; total
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
           <motion.div
-            className="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] md:text-xs font-bold relative overflow-hidden shrink-0"
+            className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-xs md:text-sm font-bold relative overflow-hidden shrink-0"
             animate={{
               backgroundColor: currentStep >= step ? '#23211F' : '#E5E7EB',
               color: currentStep >= step ? '#F9F7F4' : '#9CA3AF',
@@ -208,7 +208,7 @@ const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; total
                   exit={{ scale: 0 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 >
-                  <Check size={14} strokeWidth={3} />
+                  <Check size={16} strokeWidth={3} />
                 </motion.div>
               ) : (
                 <motion.span
@@ -224,10 +224,12 @@ const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; total
           </motion.div>
           {currentStep === step && (
             <motion.div
-              className="absolute inset-0 rounded-full border-2 border-[#9B7E67] shrink-0"
-              initial={{ scale: 1, opacity: 0.5 }}
-              animate={{ scale: 1.5, opacity: 0 }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut' }}
+              className="absolute inset-[-4px] md:inset-[-6px] rounded-full border-[1.5px] border-[#9B7E67] shrink-0"
+              animate={{ 
+                scale: [0.95, 1, 1.05, 1, 0.95],
+                opacity: [0.2, 0.6, 1, 0.6, 0.2]
+              }}
+              transition={{ duration: 1.2, repeat: Infinity, ease: "steps(5)" }}
             />
           )}
         </motion.div>
@@ -290,7 +292,7 @@ const PremiumButton = ({
       disabled={disabled}
       whileHover={disabled ? {} : { scale: 1.02, y: -2 }}
       whileTap={disabled ? {} : { scale: 0.98 }}
-      className={`w-full py-4 rounded-full font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-3 transition-all relative overflow-hidden ${
+      className={`w-full py-4 rounded-full font-bold text-sm uppercase tracking-widest flex items-center justify-center gap-3 transition-all relative overflow-hidden ${
         disabled
           ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
           : 'bg-[#23211F] text-[#F9F7F4] shadow-xl hover:shadow-2xl'
@@ -652,8 +654,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const Counter = ({ label, value, onChange, max, sublabel = null }: { label: string, value: number, onChange: (v: number) => void, max: number, sublabel?: string | null }) => (
     <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
       <div className="flex flex-col">
-        <span className="font-bold text-sm text-[#23211F]">{label}</span>
-        {sublabel && <span className="text-xs text-gray-400 mt-1">{sublabel}</span>}
+        <span className="font-bold text-base text-[#23211F]">{label}</span>
+        {sublabel && <span className="text-sm text-gray-400 mt-1">{sublabel}</span>}
       </div>
       <div className="flex items-center gap-3">
         <button 
@@ -870,7 +872,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             {dict.modal?.minStay}
                           </motion.p>
                         )}
-                        <div className="flex flex-wrap items-center justify-center gap-4 mt-8 pt-6 border-t border-gray-50 text-[9px] font-bold uppercase tracking-widest text-gray-500 w-full">
+                        <div className="flex flex-wrap items-center justify-center gap-4 mt-8 pt-6 border-t border-gray-50 text-xs font-bold uppercase tracking-widest text-gray-500 w-full">
                           <div className="flex items-center gap-1.5">
                             <div className="w-2.5 h-2.5 rounded-full bg-red-500 opacity-80"></div>
                             <span>{isEn ? 'Booked' : 'Reservado'}</span>
@@ -887,12 +889,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       </div>
                       <div className="mt-8 shrink-0 hidden md:block">
                         {(!range?.from || !range?.to) && (
-                          <p className="text-amber-600 text-xs font-bold mb-3 text-center">
+                          <p className="text-amber-600 text-sm font-bold mb-3 text-center">
                             {isEn ? 'Please select your check-in and check-out dates' : 'Por favor selecciona tus fechas de entrada y salida'}
                           </p>
                         )}
                         {range?.from && range?.to && nights < 2 && (
-                          <p className="text-red-500 text-xs font-bold mb-3 text-center">
+                          <p className="text-red-500 text-sm font-bold mb-3 text-center">
                             {dict.modal?.minStay || (isEn ? 'Minimum 2 nights required' : 'Mínimo 2 noches requeridas')}
                           </p>
                         )}
@@ -947,7 +949,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                 setWantsCook(null);
                               }
                             }} 
-                            className="text-xs text-[#9B7E67] font-bold tracking-widest uppercase mb-2 block w-full text-left hover:text-[#23211F] transition-colors"
+                            className="text-sm text-[#9B7E67] font-bold tracking-widest uppercase mb-2 block w-full text-left hover:text-[#23211F] transition-colors"
                           >
                             {isEn ? '← Change option' : '← Cambiar opción'}
                           </button>
@@ -993,11 +995,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                   <h4 className="text-sm font-bold uppercase tracking-widest text-[#9B7E67]">
                                     {isEn ? 'Available Dishes (Menu)' : 'Platillos Disponibles (Menú)'}
                                   </h4>
-                                  <span className="text-xs font-bold text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">
+                                  <span className="text-sm font-bold text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">
                                     {selectedDishes.length} / {Math.max(1, nights - 1)} {isEn ? 'selected' : 'seleccionados'}
                                   </span>
                                 </div>
-                                <p className="text-xs text-gray-500 mb-4 font-light">
+                                <p className="text-sm text-gray-500 mb-4 font-light">
                                   {isEn 
                                     ? `Based on your stay, you can select up to ${Math.max(1, nights - 1)} dishes (1 per day).` 
                                     : `Basado en tu estadía, puedes seleccionar hasta ${Math.max(1, nights - 1)} platillos (1 por día).`}
@@ -1044,7 +1046,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                               className="overflow-hidden bg-gray-50 rounded-b-[2rem]"
                                             >
                                               <div className="p-6 border-t border-gray-100 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-                                                <p className="text-sm text-gray-600 font-light leading-relaxed flex-1 whitespace-pre-wrap">
+                                                <p className="text-base text-gray-600 font-light leading-relaxed flex-1 whitespace-pre-wrap">
                                                   {translateDB(dish.description, isEn)}
                                                 </p>
                                                 <div className="shrink-0">
@@ -1061,7 +1063,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                                           return next;
                                                         });
                                                       }}
-                                                      className="text-xs uppercase tracking-widest font-bold bg-[#23211F] text-white px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all"
+                                                      className="text-sm uppercase tracking-widest font-bold bg-[#23211F] text-white px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all"
                                                     >
                                                       {isEn ? 'Select Dish' : 'Seleccionar'}
                                                     </motion.button>
@@ -1071,7 +1073,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                                       whileHover={{ scale: 1.05 }}
                                                       whileTap={{ scale: 0.95 }}
                                                       onClick={() => setSelectedDishes(prev => prev.filter(id => id !== dish.id))}
-                                                      className="text-xs uppercase tracking-widest font-bold text-red-500 border border-red-200 bg-red-50 px-6 py-3 rounded-full hover:bg-red-100 transition-colors"
+                                                      className="text-sm uppercase tracking-widest font-bold text-red-500 border border-red-200 bg-red-50 px-6 py-3 rounded-full hover:bg-red-100 transition-colors"
                                                     >
                                                       {isEn ? 'Remove' : 'Quitar'}
                                                     </motion.button>
@@ -1090,12 +1092,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                               {selectedDishes.length < Math.max(1, nights - 1) && (
                                 <div className="shrink-0 mt-4 hidden md:block">
                                   {totalCookServices === 0 && (
-                                    <p className="text-amber-600 text-xs font-bold mb-3 text-center">
+                                    <p className="text-amber-600 text-sm font-bold mb-3 text-center">
                                       {isEn ? 'Please select a Catering Plan for your days' : 'Por favor selecciona un Plan de Alimentos para tus días'}
                                     </p>
                                   )}
                                   {totalCookServices > 0 && selectedDishes.length < Math.max(1, nights - 1) && (
-                                    <p className="text-amber-600 text-xs font-bold mb-3 text-center animate-pulse">
+                                    <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
                                       {isEn ? `Please select ${Math.max(1, nights - 1) - selectedDishes.length} more dish(es)` : `Por favor selecciona ${Math.max(1, nights - 1) - selectedDishes.length} platillo(s) más`}
                                     </p>
                                   )}
@@ -1129,7 +1131,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       </div>
 
                       {isTourBookedOnSelectedDates ? (
-                        <div className="bg-[#FAF8F5] border border-[#D4A574] text-[#9B7E67] p-4 rounded-xl mb-6 text-sm">
+                        <div className="bg-[#FAF8F5] border border-[#D4A574] text-[#9B7E67] p-4 rounded-xl mb-6 text-base">
                           <strong>{isEn ? 'Tour already booked' : 'Tour ya reservado'}</strong>
                           <p className="mt-1 opacity-80">
                             {isEn 
@@ -1150,13 +1152,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </div>
                       ) : wantsATV === true ? (
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 flex-1 flex flex-col">
-                          <button onClick={() => setWantsATV(null)} className="text-xs text-[#9B7E67] font-bold tracking-widest uppercase mb-2 block w-full text-left hover:text-[#23211F] transition-colors">{isEn ? '← Change option (Unselect)' : '← Cambiar opción (Deseleccionar)'}</button>
-                          <div className="bg-amber-50 text-amber-800 text-xs px-4 py-2 rounded-lg font-medium shrink-0">
+                          <button onClick={() => setWantsATV(null)} className="text-sm text-[#9B7E67] font-bold tracking-widest uppercase mb-2 block w-full text-left hover:text-[#23211F] transition-colors">{isEn ? '← Change option (Unselect)' : '← Cambiar opción (Deseleccionar)'}</button>
+                          <div className="bg-amber-50 text-amber-800 text-sm px-4 py-2 rounded-lg font-medium shrink-0">
                             {isEn ? `Maximum 1 tour per day (${nights - totalAtvTours} available)` : `Máximo 1 recorrido por día (${nights - totalAtvTours} disponibles)`}
                           </div>
                           
                           <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm shrink-0">
-                            <div className="font-bold text-sm text-[#23211F] mb-2">{dict.addons?.howManyPeople} (Min {minTourPax}, Max {maxTourPax})</div>
+                            <div className="font-bold text-base text-[#23211F] mb-2">{dict.addons?.howManyPeople} (Min {minTourPax}, Max {maxTourPax})</div>
                             <div className="flex items-center gap-3">
                               <button 
                                 onClick={() => setAtvPeople(Math.max(minTourPax, atvPeople - 1))}
@@ -1175,7 +1177,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </div>
                           
                           <div className="flex-1 space-y-3 pb-4">
-                            <p className="font-bold text-sm text-[#23211F] mb-2">{dict.addons?.selectDestination}</p>
+                            <p className="font-bold text-base text-[#23211F] mb-2">{dict.addons?.selectDestination}</p>
                             {tours.map(tour => (
                               <Counter 
                                 key={tour.id}
@@ -1190,7 +1192,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
                           <div className="mt-4 pb-4 shrink-0 hidden md:block">
                             {(totalAtvTours === 0 || atvPeople < minTourPax) && (
-                              <p className="text-amber-600 text-xs font-bold mb-3 text-center">
+                              <p className="text-amber-600 text-sm font-bold mb-3 text-center">
                                 {isEn ? 'Please select at least one destination and number of people' : 'Por favor selecciona al menos un destino y personas'}
                               </p>
                             )}
@@ -1271,14 +1273,14 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
                         <div className="mt-8 pb-4 shrink-0 hidden md:block">
                           {!isFormValid && (
-                            <p className="text-amber-600 text-xs font-bold mb-3 text-center">
+                            <p className="text-amber-600 text-sm font-bold mb-3 text-center">
                               {isEn ? 'Please fill in all required fields correctly' : 'Por favor completa todos los campos requeridos correctamente'}
                             </p>
                           )}
                           <button 
                             type="submit"
                             disabled={!isFormValid}
-                            className={`flex items-center justify-center gap-4 text-xs uppercase tracking-[0.2em] font-bold px-10 py-5 rounded-full transition-all duration-300 transform w-full ${
+                            className={`flex items-center justify-center gap-4 text-sm uppercase tracking-[0.2em] font-bold px-10 py-5 rounded-full transition-all duration-300 transform w-full ${
                               !isFormValid 
                                 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
                                 : 'bg-[#9B7E67] text-[#0A0908] hover:bg-[#F9F7F4] hover:-translate-y-1 shadow-md hover:shadow-xl hover:shadow-black/10'
@@ -1311,7 +1313,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           <div className="flex justify-between items-center pb-6 border-b border-gray-100">
                             <div>
                               <h4 className="font-bold text-[#23211F]">{dict.addons?.accommodation}</h4>
-                              <p className="text-sm text-gray-500">{nights} {dict.modal?.nights}</p>
+                              <p className="text-base text-gray-500">{nights} {dict.modal?.nights}</p>
                             </div>
                             <div className="font-serif text-xl text-[#9B7E67]">${accommodationTotal.toLocaleString('en-US')} {currency}</div>
                           </div>
@@ -1324,7 +1326,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                   const service = foodServices.find(s => s.id.toString() === id);
                                   if (service) {
                                     return (
-                                      <div key={id} className="flex justify-between text-sm text-gray-600 mb-1">
+                                      <div key={id} className="flex justify-between text-base text-gray-600 mb-1">
                                         <span>{count}x {translateDB(service.name, isEn)}</span>
                                         <span>${(count * (service.price || 0)).toLocaleString('en-US')}</span>
                                       </div>
@@ -1335,12 +1337,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                               })}
                               {selectedDishes.length > 0 && (
                                 <div className="mt-2 pt-2 border-t border-gray-50">
-                                  <p className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-1">{isEn ? 'Selected Dishes:' : 'Platillos Seleccionados:'}</p>
+                                  <p className="text-sm uppercase tracking-widest text-gray-400 font-bold mb-1">{isEn ? 'Selected Dishes:' : 'Platillos Seleccionados:'}</p>
                                   {selectedDishes.map(dishId => {
                                     const dish = foodServices.find(s => s.id === dishId);
                                     if (dish) {
                                       return (
-                                        <div key={dishId} className="flex justify-between text-sm text-gray-500 mb-0.5 ml-2">
+                                        <div key={dishId} className="flex justify-between text-base text-gray-500 mb-0.5 ml-2">
                                           <span>• {translateDB(dish.name, isEn)}</span>
                                           {(dish.price || 0) > 0 && <span>${(dish.price || 0).toLocaleString('en-US')}</span>}
                                         </div>
@@ -1361,7 +1363,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                   const tour = tours.find(t => t.id.toString() === id);
                                   if (tour) {
                                     return (
-                                      <div key={id} className="flex justify-between text-sm text-gray-600 mb-1">
+                                      <div key={id} className="flex justify-between text-base text-gray-600 mb-1">
                                         <span>{count}x {atvPeople} pax - {translateDB(tour.name, isEn)}</span>
                                         <span>${(count * atvPeople * (tour.pricePerPax || 0)).toLocaleString('en-US')}</span>
                                       </div>
@@ -1376,14 +1378,14 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           <div className="flex justify-between items-center pt-2">
                             <div>
                               <h4 className="font-bold text-2xl text-[#23211F]">{dict.modal?.total}</h4>
-                              <p className="text-xs text-gray-400 uppercase tracking-widest">{dict.modal?.taxesIncluded}</p>
+                              <p className="text-sm text-gray-400 uppercase tracking-widest">{dict.modal?.taxesIncluded}</p>
                             </div>
                             <div className="font-serif text-3xl text-[#23211F]">${grandTotal.toLocaleString('en-US')} {currency}</div>
                           </div>
                         </div>
 
                         {error && (
-                          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium mb-6 text-center shrink-0">
+                          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 text-red-600 p-4 rounded-xl text-base font-medium mb-6 text-center shrink-0">
                             {error}
                           </motion.div>
                         )}
@@ -1409,37 +1411,37 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-8 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-20"
               >
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-1">{isEn ? 'Subtotal' : 'Total Parcial'}</p>
+                  <p className="text-xs uppercase tracking-widest font-bold text-gray-400 mb-1">{isEn ? 'Subtotal' : 'Total Parcial'}</p>
                   <div className="font-serif text-xl text-[#23211F] leading-none">${grandTotal.toLocaleString('en-US')}</div>
                 </div>
                 {step === 1 && (
                   <div className="flex flex-col items-end">
-                    {range?.from && range?.to && nights < 2 && <span className="text-red-500 text-[10px] font-bold mb-1 mr-2">{isEn ? 'Min 2 nights' : 'Mínimo 2 noches'}</span>}
-                    <button onClick={nextStep} disabled={!range?.from || !range?.to || nights < 2} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
+                    {range?.from && range?.to && nights < 2 && <span className="text-red-500 text-xs font-bold mb-1 mr-2">{isEn ? 'Min 2 nights' : 'Mínimo 2 noches'}</span>}
+                    <button onClick={nextStep} disabled={!range?.from || !range?.to || nights < 2} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {dictContext?.modal?.next || (isEn ? 'Next' : 'Siguiente')}
                     </button>
                   </div>
                 )}
                 {step === 2 && (
                   <div className="flex flex-col items-end">
-                    {wantsCook === null ? <span className="text-amber-600 text-[10px] font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : wantsCook && (totalCookServices === 0 || selectedDishes.length < Math.max(1, nights - 1)) ? <span className="text-amber-600 text-[10px] font-bold mb-1 mr-2">{isEn ? 'Select your dishes' : 'Selecciona tus platillos'}</span> : null}
-                    <button onClick={nextStep} disabled={wantsCook === null || (wantsCook && (totalCookServices === 0 || selectedDishes.length < Math.max(1, nights - 1)))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
+                    {wantsCook === null ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : wantsCook && (totalCookServices === 0 || selectedDishes.length < Math.max(1, nights - 1)) ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select your dishes' : 'Selecciona tus platillos'}</span> : null}
+                    <button onClick={nextStep} disabled={wantsCook === null || (wantsCook && (totalCookServices === 0 || selectedDishes.length < Math.max(1, nights - 1)))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {dictContext?.modal?.next || (isEn ? 'Next' : 'Siguiente')}
                     </button>
                   </div>
                 )}
                 {step === 3 && (
                   <div className="flex flex-col items-end">
-                    {(!isTourBookedOnSelectedDates && wantsATV === null) ? <span className="text-amber-600 text-[10px] font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : wantsATV && (totalAtvTours === 0 || atvPeople < minTourPax) ? <span className="text-amber-600 text-[10px] font-bold mb-1 mr-2">{isEn ? 'Select destination' : 'Selecciona un destino'}</span> : null}
-                    <button onClick={nextStep} disabled={(!isTourBookedOnSelectedDates && wantsATV === null) || (wantsATV && (totalAtvTours === 0 || atvPeople < minTourPax))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
+                    {(!isTourBookedOnSelectedDates && wantsATV === null) ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : wantsATV && (totalAtvTours === 0 || atvPeople < minTourPax) ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select destination' : 'Selecciona un destino'}</span> : null}
+                    <button onClick={nextStep} disabled={(!isTourBookedOnSelectedDates && wantsATV === null) || (wantsATV && (totalAtvTours === 0 || atvPeople < minTourPax))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {dictContext?.modal?.next || (isEn ? 'Next' : 'Siguiente')}
                     </button>
                   </div>
                 )}
                 {step === 4 && (
                   <div className="flex flex-col items-end">
-                    {!isFormValid && <span className="text-amber-600 text-[10px] font-bold mb-1 mr-2">{isEn ? 'Fill required fields' : 'Llena los campos'}</span>}
-                    <button onClick={nextStep} disabled={!isFormValid} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
+                    {!isFormValid && <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Fill required fields' : 'Llena los campos'}</span>}
+                    <button onClick={nextStep} disabled={!isFormValid} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {dictContext?.modal?.summary || (isEn ? 'Summary' : 'Resumen')}
                     </button>
                   </div>
