@@ -918,7 +918,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] mb-4 shadow-sm border border-[#E8D5B7]">
                           <Utensils size={24} />
                         </div>
-                        <h3 className="text-3xl font-serif text-[#23211F] mb-2">{dict.addons?.chefTitle}</h3>
+                        <h3 className="text-3xl font-serif text-[#23211F] mb-2">
+                          {wantsCook 
+                            ? (isEn ? "Choose Your Service" : "Elige tu Servicio") 
+                            : dict.addons?.chefTitle}
+                        </h3>
                         <p className="text-gray-500 font-light">
                           {wantsCook 
                             ? (isEn ? "We provide a staff member to assist with prep, cooking, and clean up. You provide the ingredients, and we cook it for you! Select an assistance plan below:" : "Proveemos personal para asistir con la preparación, cocina y limpieza. Usted pone los ingredientes, ¡nosotros lo cocinamos! Seleccione un plan de asistencia a continuación:")
