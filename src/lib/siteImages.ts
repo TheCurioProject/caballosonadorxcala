@@ -25,6 +25,14 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
     name: 'Food Hero',
     group: 'FOOD'
   },
+  '/food_services/service_1.webp': { url: '', name: 'Food Service 1', group: 'FOOD' },
+  '/food_services/service_2.webp': { url: '', name: 'Food Service 2', group: 'FOOD' },
+  '/food_services/carousel_1.webp': { url: '', name: 'Food Carousel 1', group: 'FOOD' },
+  '/food_services/carousel_2.webp': { url: '', name: 'Food Carousel 2', group: 'FOOD' },
+  '/food_services/carousel_3.webp': { url: '', name: 'Food Carousel 3', group: 'FOOD' },
+  '/food_services/carousel_4.webp': { url: '', name: 'Food Carousel 4', group: 'FOOD' },
+  '/food_services/carousel_5.webp': { url: '', name: 'Food Carousel 5', group: 'FOOD' },
+  '/food_services/carousel_6.webp': { url: '', name: 'Food Carousel 6', group: 'FOOD' },
   // Rooms - 5 slots vacíos por habitación
   '/rooms/room1/1.webp': { url: '', name: 'Room 1 - Photo 1 (Main)', group: 'ROOM 1 (Soft Step)' },
   '/rooms/room1/2.webp': { url: '', name: 'Room 1 - Photo 2', group: 'ROOM 1 (Soft Step)' },

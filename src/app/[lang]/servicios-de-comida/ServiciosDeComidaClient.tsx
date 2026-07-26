@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Utensils, ArrowLeft, CheckCircle2, Coffee, Sunset } from 'lucide-react';
 import Image from 'next/image';
 import { useParams, usePathname, useRouter } from 'next/navigation';
@@ -38,45 +38,52 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
     features: [
       isEn ? 'Fresh, local ingredients' : 'Ingredientes frescos y locales',
       isEn ? 'Personalized service' : 'Servicio personalizado',
-      isEn ? 'No cooking required' : 'Sin preocuparte por cocinar',
+      isEn ? 'No cleaning required' : 'Sin preocuparte por limpiar',
       isEn ? 'Traditional Mexican flavors' : 'Sabores tradicionales mexicanos'
     ],
     services: [
       {
-        id: 'breakfast',
-        title: isEn ? 'Breakfast' : 'Desayuno',
-        time: '8:00 AM - 10:00 AM',
-        icon: Coffee,
-        desc: isEn 
-          ? 'Start your day with a delicious freshly prepared breakfast. Includes coffee, fresh juices, seasonal fruit, and your choice of main dish.'
-          : 'Comienza tu día con un delicioso desayuno preparado al momento. Incluye café, jugos frescos, fruta de temporada y plato fuerte a elegir.',
-        price: (isEn ? 'From ' : 'Desde ') + formatPrice(500) + ' / pax',
-        image: getImageUrl('/imagenes/05_amenities/amenity_05_guest_kitchen.webp', siteImages)
-      },
-      {
-        id: 'breakfast_lunch',
-        title: isEn ? 'Breakfast & Lunch' : 'Desayuno y Comida',
-        time: '8:00 AM - 2:00 PM',
+        id: 'personalized',
+        title: isEn ? 'Personalized Service' : 'Servicio Personalizado',
+        time: 'Upon Request',
         icon: Utensils,
         desc: isEn 
-          ? 'The perfect option for those planning to spend the day at the house. Enjoy a full breakfast and a spectacular lunch by the pool.'
-          : 'La opción perfecta para quienes planean pasar el día en la casa. Disfruta de un desayuno completo y una comida espectacular junto a la piscina.',
-        price: (isEn ? 'From ' : 'Desde ') + formatPrice(900) + ' / pax',
-        image: getImageUrl('/imagenes/05_amenities/amenity_02_pool_lounge.webp', siteImages)
+          ? 'Large groups and families often purchase their own ingredients. Upon request we provide Personalized Service to manage preparations allowing more time with family and less Stress in the Kitchen.'
+          : 'Grupos grandes y familias a menudo compran sus propios ingredientes. A petición, ofrecemos un Servicio Personalizado para manejar las preparaciones, permitiendo más tiempo con la familia y menos estrés en la cocina.',
+        image: getImageUrl('/food_services/service_1.webp', siteImages)
       },
       {
         id: 'dinner',
-        title: isEn ? 'Dinner' : 'Cena',
+        title: isEn ? 'Dinner Service' : 'Servicio de Cena',
         time: '5:00 PM - 7:00 PM',
         icon: Sunset,
         desc: isEn 
-          ? 'An unforgettable culinary evening. Exquisite dishes to close the day while enjoying the sunset and the sea breeze.'
-          : 'Una velada culinaria inolvidable. Platillos exquisitos para cerrar el día mientras disfrutas del atardecer y la brisa marina.',
-        price: (isEn ? 'From ' : 'Desde ') + formatPrice(700) + ' / pax',
-        image: getImageUrl('/tours_gallery/07_volcano/00_sunset_019.webp', siteImages)
+          ? 'For groups wanting to maximize daily activities we offer dinner Service between 5:00 and 7:00 PM (Pacific Time). Our chef will prepare a meal from our dinner menu and look after the kitchen for you. Treat your family to an evening of Authentic Mexican Cuisine! This Service is perfect for groups of 6–12 people. Select these Service Options when booking your stay!'
+          : 'Para grupos que deseen maximizar las actividades diarias, ofrecemos Servicio de Cena entre 5:00 y 7:00 PM (Hora del Pacífico). Nuestro chef preparará una comida de nuestro menú de cena y se encargará de la cocina por usted. ¡Invite a su familia a una noche de auténtica cocina mexicana! Este servicio es perfecto para grupos de 6 a 12 personas. ¡Seleccione estas opciones de servicio al reservar su estancia!',
+        image: getImageUrl('/food_services/service_2.webp', siteImages)
       }
     ]
   };
+
+  const carouselImages = [
+    getImageUrl('/food_services/carousel_1.webp', siteImages),
+    getImageUrl('/food_services/carousel_2.webp', siteImages),
+    getImageUrl('/food_services/carousel_3.webp', siteImages),
+    getImageUrl('/food_services/carousel_4.webp', siteImages),
+    getImageUrl('/food_services/carousel_5.webp', siteImages),
+    getImageUrl('/food_services/carousel_6.webp', siteImages),
+  ];
+
+  const [[page, direction], setPage] = useState([0, 0]);
+  const handleDragEnd = (e: any, { offset, velocity }: any) => {
+    const swipe = Math.abs(offset.x) * velocity.x;
+    if (swipe < -10000 || offset.x < -50) {
+      setPage([page + 1, 1]);
+    } else if (swipe > 10000 || offset.x > 50) {
+      setPage([page - 1, -1]);
+    }
+  };
+  const currentImageIndex = Math.abs(page % carouselImages.length);
 
   return (
     <div className="bg-[#FAF8F5] min-h-screen font-sans selection:bg-[#9B7E67] selection:text-white">
@@ -327,6 +334,45 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
               </motion.div>
             );
           })}
+        </div>
+
+        {/* Carousel Gallery */}
+        <div className="mt-24 md:mt-32 max-w-[1000px] mx-auto overflow-hidden relative" style={{ touchAction: 'pan-y' }}>
+          <div className="relative h-[300px] md:h-[500px] w-full rounded-[2rem] overflow-hidden bg-gray-100 flex items-center justify-center">
+            <AnimatePresence initial={false} custom={direction}>
+              <motion.div
+                key={page}
+                custom={direction}
+                initial={{ x: direction > 0 ? 1000 : -1000, opacity: 0 }}
+                animate={{ zIndex: 1, x: 0, opacity: 1 }}
+                exit={{ zIndex: 0, x: direction < 0 ? 1000 : -1000, opacity: 0 }}
+                transition={{ x: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.2 } }}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={1}
+                onDragEnd={handleDragEnd}
+                className="absolute inset-0 cursor-grab active:cursor-grabbing"
+              >
+                <Image 
+                  src={carouselImages[currentImageIndex]} 
+                  alt="Gallery" 
+                  fill 
+                  className="object-cover" 
+                  draggable={false} 
+                />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+          <div className="flex justify-center gap-2 mt-6">
+            {carouselImages.map((_, idx) => (
+              <button 
+                key={idx} 
+                onClick={() => setPage([idx, idx > currentImageIndex ? 1 : -1])}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${idx === currentImageIndex ? 'bg-[#9B7E67] w-6' : 'bg-[#E5E0D8]'}`}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
