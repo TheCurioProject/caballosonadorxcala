@@ -339,6 +339,18 @@ const dbTranslations: Record<string, { en: string, es: string }> = {
   "For groups wanting to maximize daily activities we offer dinner Service between 5:00 and 7:00 PM (Pacific Time). Our chef will prepare a meal from our dinner menu and look after the kitchen for you. Treat your family to an evening of Authentic Mexican Cuisine! This Service is perfect for groups of 6-12 people. Select these Service Options when booking your stay!": {
     en: "For groups wanting to maximize daily activities we offer dinner Service between 5:00 and 7:00 PM (Pacific Time). Our chef will prepare a meal from our dinner menu and look after the kitchen for you. Treat your family to an evening of Authentic Mexican Cuisine! This Service is perfect for groups of 6-12 people. Select these Service Options when booking your stay!",
     es: "Para los grupos que desean maximizar las actividades diarias, ofrecemos servicio de cena entre las 5:00 y las 7:00 PM (hora del Pacífico). Nuestro chef preparará una comida de nuestro menú de cena y se encargará de la cocina por usted. ¡Invite a su familia a una noche de auténtica cocina mexicana! Este servicio es perfecto para grupos de 6 a 12 personas. ¡Seleccione estas opciones de servicio al reservar su estadía!"
+  },
+  "Catering Breakfast": {
+    en: "Catering Breakfast",
+    es: "Catering de Desayuno"
+  },
+  "Catering Dinner": {
+    en: "Catering Dinner",
+    es: "Catering de Cena"
+  },
+  "Both": {
+    en: "Both",
+    es: "Ambos"
   }
 };
 
@@ -896,7 +908,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           <Utensils size={24} />
                         </div>
                         <h3 className="text-3xl font-serif text-[#23211F] mb-2">{dict.addons?.chefTitle}</h3>
-                        <p className="text-gray-500 font-light">{dict.addons?.chefDesc}</p>
+                        <p className="text-gray-500 font-light">
+                          {wantsCook 
+                            ? (isEn ? "Would you like dinners prepared for you or extra help in the kitchen. Select from the options below" : "¿Le gustaría que le prepararan la cena o ayuda extra en la cocina? Seleccione de las opciones a continuación.")
+                            : dict.addons?.chefDesc}
+                        </p>
                       </div>
 
                       {wantsCook === null ? (
@@ -912,7 +928,20 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </div>
                       ) : wantsCook === true ? (
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 flex-1 pb-4">
-                          <button onClick={() => { setWantsCook(null); setSelectedCookService(null); setCookSelections({}); setSelectedDishes([]); }} className="text-xs text-[#9B7E67] font-bold tracking-widest uppercase block w-full text-left hover:text-[#23211F] transition-colors">{isEn ? '← Change option (Unselect)' : '← Cambiar opción (Deseleccionar)'}</button>
+                          <button 
+                            onClick={() => { 
+                              if (selectedCookService) {
+                                setSelectedCookService(null); 
+                                setCookSelections({}); 
+                                setSelectedDishes([]);
+                              } else {
+                                setWantsCook(null);
+                              }
+                            }} 
+                            className="text-xs text-[#9B7E67] font-bold tracking-widest uppercase mb-2 block w-full text-left hover:text-[#23211F] transition-colors"
+                          >
+                            {isEn ? '← Change option' : '← Cambiar opción'}
+                          </button>
                           
                           {!selectedCookService ? (
                             <div>
@@ -934,9 +963,6 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             </div>
                           ) : (
                             <div>
-                              <button onClick={() => { setSelectedCookService(null); setCookSelections({}); setSelectedDishes([]); }} className="text-xs text-[#9B7E67] font-bold tracking-widest uppercase mb-4 block w-full text-left hover:text-[#23211F] transition-colors">
-                                {isEn ? '← Change service type' : '← Cambiar tipo de servicio'}
-                              </button>
                               
                               <h4 className="text-lg font-serif text-[#23211F] mb-4">
                                 {isEn ? 'Select a Catering Plan' : 'Selecciona un Plan de Alimentos'}
