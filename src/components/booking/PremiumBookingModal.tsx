@@ -865,7 +865,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </div>
                         </div>
                       </div>
-                      <div className="mt-8">
+                      <div className="mt-8 shrink-0">
+                        {(!range?.from || !range?.to) && (
+                          <p className="text-amber-600 text-xs font-bold mb-3 text-center">
+                            {isEn ? 'Please select your check-in and check-out dates' : 'Por favor selecciona tus fechas de entrada y salida'}
+                          </p>
+                        )}
                         {range?.from && range?.to && nights < 2 && (
                           <p className="text-red-500 text-xs font-bold mb-3 text-center">
                             {dict.modal?.minStay || (isEn ? 'Minimum 2 nights required' : 'Mínimo 2 noches requeridas')}
@@ -937,18 +942,17 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                               <h4 className="text-lg font-serif text-[#23211F] mb-4">
                                 {isEn ? 'Select a Catering Plan' : 'Selecciona un Plan de Alimentos'}
                               </h4>
-                              <div className="grid gap-3 mb-8">
+                              <div className="space-y-3 mb-8">
                                 {foodServices.filter(s => s.serviceType === 'FOOD_PRICE').map(priceOption => {
-                                  const isSelected = cookSelections[priceOption.id.toString()] > 0;
                                   return (
-                                    <button 
+                                    <Counter 
                                       key={priceOption.id}
-                                      onClick={() => setCookSelections({ [priceOption.id.toString()]: nights })}
-                                      className={`p-4 border rounded-xl text-left transition-colors flex items-center justify-between ${isSelected ? 'border-[#9B7E67] bg-[#F9F7F4] ring-1 ring-[#9B7E67]' : 'border-gray-200 hover:border-[#9B7E67] bg-white'}`}
-                                    >
-                                      <span className={`font-bold ${isSelected ? 'text-[#9B7E67]' : 'text-[#23211F]'}`}>{translateDB(priceOption.name, isEn)}</span>
-                                      <span className="text-[#9B7E67] font-bold text-lg">{formatPrice(priceOption.price)}</span>
-                                    </button>
+                                      label={translateDB(priceOption.name, isEn)} 
+                                      value={cookSelections[priceOption.id.toString()] || 0} 
+                                      onChange={(val) => setCookSelections(prev => ({ ...prev, [priceOption.id.toString()]: val }))} 
+                                      max={(cookSelections[priceOption.id.toString()] || 0) + (Math.max(1, nights - 1) - totalCookServices)} 
+                                      sublabel={`+${formatPrice(priceOption.price)} / ${isEn ? 'day' : 'día'}`} 
+                                    />
                                   );
                                 })}
                               </div>
@@ -1053,9 +1057,21 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                               </div>
 
                               {selectedDishes.length < Math.max(1, nights - 1) && (
-                                <PremiumButton onClick={nextStep} disabled={totalCookServices === 0}>
-                                  {dict.addons?.confirmChef} <ArrowRight size={16} />
-                                </PremiumButton>
+                                <div className="shrink-0 mt-4">
+                                  {totalCookServices === 0 && (
+                                    <p className="text-amber-600 text-xs font-bold mb-3 text-center">
+                                      {isEn ? 'Please select a Catering Plan for your days' : 'Por favor selecciona un Plan de Alimentos para tus días'}
+                                    </p>
+                                  )}
+                                  {totalCookServices > 0 && selectedDishes.length < Math.max(1, nights - 1) && (
+                                    <p className="text-amber-600 text-xs font-bold mb-3 text-center animate-pulse">
+                                      {isEn ? `Please select ${Math.max(1, nights - 1) - selectedDishes.length} more dish(es)` : `Por favor selecciona ${Math.max(1, nights - 1) - selectedDishes.length} platillo(s) más`}
+                                    </p>
+                                  )}
+                                  <PremiumButton onClick={nextStep} disabled={totalCookServices === 0 || selectedDishes.length < Math.max(1, nights - 1)}>
+                                    {dict.addons?.confirmChef} <ArrowRight size={16} />
+                                  </PremiumButton>
+                                </div>
                               )}
                             </div>
                           )}
