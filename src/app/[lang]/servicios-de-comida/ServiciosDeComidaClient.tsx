@@ -292,26 +292,6 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#2C2621]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   </div>
-                  {/* Floating time badge */}
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.4 }}
-                    className={`absolute ${index % 2 !== 0 ? 'left-6 md:-left-8' : 'right-6 md:-right-8'} -bottom-8 bg-white p-4 md:p-6 rounded-2xl shadow-xl flex items-center gap-4 border border-[#E5E0D8]`}
-                  >
-                    <div className="bg-[#D4A373]/10 p-3 rounded-full text-[#D4A373]">
-                      <Icon size={24} />
-                    </div>
-                    <div>
-                      <span className="block text-[10px] uppercase tracking-widest text-[#9B7E67] font-bold mb-1">
-                        {isEn ? 'Schedule' : 'Horario'}
-                      </span>
-                      <span className="block font-serif text-lg md:text-xl text-[#2C2621]">
-                        {service.time}
-                      </span>
-                    </div>
-                  </motion.div>
                 </div>
 
                 {/* Content */}
@@ -362,6 +342,35 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
                 />
               </motion.div>
             </AnimatePresence>
+            {/* Blinking Drag Indicator */}
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-10">
+              <motion.div 
+                animate={{ opacity: [0.3, 1, 0.3] }} 
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="bg-black/50 backdrop-blur-sm text-white px-6 py-3 rounded-full flex flex-col items-center gap-2 shadow-xl border border-white/20"
+              >
+                <div className="flex items-center gap-4">
+                  <motion.div
+                    animate={{ x: [0, -5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                  </motion.div>
+                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 10a.5.5 0 0 1 .5.5V14a.5.5 0 0 0 1 0v-4a.5.5 0 0 1 .5.5v3.5a.5.5 0 0 0 1 0v-3.2a.5.5 0 0 1 .5.5v3a.5.5 0 0 0 1 0v-2a.5.5 0 0 1 1 0v6.1c0 2.2-2 4.1-4 4.1S7 20 7 17.8V11a1 1 0 0 1 2 0Z"/>
+                  </svg>
+                  <motion.div
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <ArrowLeft className="w-4 h-4 rotate-180" />
+                  </motion.div>
+                </div>
+                <span className="text-xs font-bold uppercase tracking-[0.2em]">
+                  {isEn ? 'Drag to explore' : 'Arrastra para explorar'}
+                </span>
+              </motion.div>
+            </div>
           </div>
           <div className="flex justify-center gap-2 mt-6">
             {carouselImages.map((_, idx) => (
