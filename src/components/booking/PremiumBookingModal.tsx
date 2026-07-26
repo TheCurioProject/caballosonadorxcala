@@ -349,6 +349,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [selectedCookService, setSelectedCookService] = useState<any | null>(null);
   const [expandedDishId, setExpandedDishId] = useState<number | null>(null);
   const [cookSelections, setCookSelections] = useState<Record<string, number>>({});
+  const [selectedDishes, setSelectedDishes] = useState<number[]>([]);
 
   const [wantsATV, setWantsATV] = useState<boolean | null>(null);
   const [minTourPax, setMinTourPax] = useState(3);
@@ -414,6 +415,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         setSelectedCookService(null);
         setExpandedDishId(null);
         setCookSelections({});
+        setSelectedDishes([]);
         setWantsATV(null);
         setAtvPeople(1);
         setAtvSelections({});
@@ -497,6 +499,21 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
           }
         }
       });
+      // Register selected dishes for database and invoice
+      selectedDishes.forEach(dishId => {
+        const dish = foodServices.find(s => s.id === dishId);
+        if (dish) {
+          const unitPrice = getConvertedPrice(dish.price || 0);
+          selectedAddons.push({
+            type: `FOOD_DISH_${dish.id}`,
+            name: dish.name,
+            quantity: 1,
+            unitPrice,
+            price: unitPrice,
+            details: JSON.stringify({ plan: selectedCookService?.name || 'Chef', type: 'Dish Selection' })
+          });
+        }
+      });
     }
     if (wantsATV) {
       Object.entries(atvSelections).forEach(([id, count]) => {
@@ -556,6 +573,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     setWantsCook(wants);
     if (!wants) {
       setCookSelections({});
+      setSelectedDishes([]);
       nextStep();
     }
   };
@@ -844,12 +862,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </div>
                       ) : wantsCook === true ? (
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 flex-1 pb-4">
-                          <button onClick={() => { setWantsCook(null); setSelectedCookService(null); setCookSelections({}); }} className="text-xs text-[#9B7E67] font-bold tracking-widest uppercase block w-full text-left hover:text-[#23211F] transition-colors">{isEn ? '← Change option (Unselect)' : '← Cambiar opción (Deseleccionar)'}</button>
+                          <button onClick={() => { setWantsCook(null); setSelectedCookService(null); setCookSelections({}); setSelectedDishes([]); }} className="text-xs text-[#9B7E67] font-bold tracking-widest uppercase block w-full text-left hover:text-[#23211F] transition-colors">{isEn ? '← Change option (Unselect)' : '← Cambiar opción (Deseleccionar)'}</button>
                           
                           {!selectedCookService ? (
                             <div>
                               <h4 className="text-lg font-serif text-[#23211F] mb-4">
-                                {isEn ? 'We have 2 service options, which do you prefer?' : 'Tenemos 2 opciones de servicio, cual prefieres?'}
+                                {isEn ? 'We have 2 service options, which do you prefer?' : 'Tenemos 2 opciones de servicio, ¿cuál prefieres?'}
                               </h4>
                               <div className="grid gap-3">
                                 {foodServices.filter(s => s.serviceType === 'FOOD_SERVICE').map(service => (
@@ -866,12 +884,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             </div>
                           ) : (
                             <div>
-                              <button onClick={() => { setSelectedCookService(null); setCookSelections({}); }} className="text-xs text-[#9B7E67] font-bold tracking-widest uppercase mb-4 block w-full text-left hover:text-[#23211F] transition-colors">
+                              <button onClick={() => { setSelectedCookService(null); setCookSelections({}); setSelectedDishes([]); }} className="text-xs text-[#9B7E67] font-bold tracking-widest uppercase mb-4 block w-full text-left hover:text-[#23211F] transition-colors">
                                 {isEn ? '← Change service type' : '← Cambiar tipo de servicio'}
                               </button>
                               
                               <h4 className="text-lg font-serif text-[#23211F] mb-4">
-                                {isEn ? 'Select a Catering Plan' : 'Selecciona un Plan de Catering'}
+                                {isEn ? 'Select a Catering Plan' : 'Selecciona un Plan de Alimentos'}
                               </h4>
                               <div className="grid gap-3 mb-8">
                                 {foodServices.filter(s => s.serviceType === 'FOOD_PRICE').map(priceOption => {
@@ -889,21 +907,52 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                 })}
                               </div>
 
-                              <div className="bg-[#FAF8F5] p-5 rounded-2xl border border-[#E8D5B7] mb-8">
-                                <h4 className="text-sm font-bold uppercase tracking-widest text-[#9B7E67] mb-4">
-                                  {isEn ? 'Available Dishes (Menu)' : 'Platillos Disponibles (Menú)'}
-                                </h4>
-                                <div className="space-y-2">
+                              <div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-8">
+                                <div className="flex justify-between items-center mb-4">
+                                  <h4 className="text-sm font-bold uppercase tracking-widest text-[#9B7E67]">
+                                    {isEn ? 'Available Dishes (Menu)' : 'Platillos Disponibles (Menú)'}
+                                  </h4>
+                                  <span className="text-xs font-bold text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">
+                                    {selectedDishes.length} / {Math.max(1, nights - 1)} {isEn ? 'selected' : 'seleccionados'}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-gray-500 mb-4 font-light">
+                                  {isEn 
+                                    ? `Based on your stay, you can select up to ${Math.max(1, nights - 1)} dishes (1 per day).` 
+                                    : `Basado en tu estadía, puedes seleccionar hasta ${Math.max(1, nights - 1)} platillos (1 por día).`}
+                                  <br/>
+                                  <span className="font-medium mt-2 inline-block text-[#9B7E67]">
+                                    {isEn 
+                                      ? "Dinner includes an afternoon appetizer, fresh salad, your choice of main course, and dessert."
+                                      : "La cena incluye un aperitivo por la tarde, ensalada fresca, su elección de plato principal y postre."}
+                                  </span>
+                                </p>
+                                <div className="space-y-3">
                                   {foodServices.filter(s => s.serviceType === 'FOOD_DISH').map(dish => {
                                     const isExpanded = expandedDishId === dish.id;
+                                    const isSelected = selectedDishes.includes(dish.id);
+                                    const maxDishes = Math.max(1, nights - 1);
                                     return (
-                                      <div key={dish.id} className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm">
+                                      <motion.div 
+                                        layout
+                                        key={dish.id} 
+                                        className={`bg-white border rounded-[2rem] overflow-hidden shadow-sm transition-colors ${isSelected ? 'border-[#9B7E67] ring-1 ring-[#9B7E67]' : 'border-gray-100 hover:border-gray-200'}`}
+                                      >
                                         <button 
                                           onClick={() => setExpandedDishId(isExpanded ? null : dish.id)}
-                                          className="w-full px-4 py-3 text-left font-medium text-[#23211F] flex justify-between items-center hover:bg-gray-50 transition-colors"
+                                          className="w-full px-6 py-4 text-left font-medium text-[#23211F] flex justify-between items-center"
                                         >
-                                          {dish.name}
-                                          {isExpanded ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
+                                          <span className="flex items-center gap-3">
+                                            {dish.name}
+                                            {isSelected && (
+                                              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-5 h-5 rounded-full bg-[#9B7E67] text-white flex items-center justify-center">
+                                                <Check size={12} strokeWidth={3} />
+                                              </motion.div>
+                                            )}
+                                          </span>
+                                          <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
+                                            <ChevronDown size={16} className="text-gray-400" />
+                                          </motion.div>
                                         </button>
                                         <AnimatePresence>
                                           {isExpanded && (
@@ -911,23 +960,57 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                               initial={{ height: 0, opacity: 0 }}
                                               animate={{ height: 'auto', opacity: 1 }}
                                               exit={{ height: 0, opacity: 0 }}
-                                              className="overflow-hidden bg-gray-50"
+                                              className="overflow-hidden bg-gray-50 rounded-b-[2rem]"
                                             >
-                                              <p className="p-4 text-sm text-gray-600 font-light leading-relaxed border-t border-gray-100">
-                                                {dish.description}
-                                              </p>
+                                              <div className="p-6 border-t border-gray-100 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                                                <p className="text-sm text-gray-600 font-light leading-relaxed flex-1">
+                                                  {dish.description}
+                                                </p>
+                                                <div className="shrink-0">
+                                                  {!isSelected && selectedDishes.length < maxDishes && (
+                                                    <motion.button 
+                                                      whileHover={{ scale: 1.05 }}
+                                                      whileTap={{ scale: 0.95 }}
+                                                      onClick={() => {
+                                                        setSelectedDishes(prev => {
+                                                          const next = [...prev, dish.id];
+                                                          if (next.length === maxDishes && totalCookServices > 0) {
+                                                            setTimeout(() => nextStep(), 800);
+                                                          }
+                                                          return next;
+                                                        });
+                                                      }}
+                                                      className="text-xs uppercase tracking-widest font-bold bg-[#23211F] text-white px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all"
+                                                    >
+                                                      {isEn ? 'Select Dish' : 'Seleccionar'}
+                                                    </motion.button>
+                                                  )}
+                                                  {isSelected && (
+                                                    <motion.button 
+                                                      whileHover={{ scale: 1.05 }}
+                                                      whileTap={{ scale: 0.95 }}
+                                                      onClick={() => setSelectedDishes(prev => prev.filter(id => id !== dish.id))}
+                                                      className="text-xs uppercase tracking-widest font-bold text-red-500 border border-red-200 bg-red-50 px-6 py-3 rounded-full hover:bg-red-100 transition-colors"
+                                                    >
+                                                      {isEn ? 'Remove' : 'Quitar'}
+                                                    </motion.button>
+                                                  )}
+                                                </div>
+                                              </div>
                                             </motion.div>
                                           )}
                                         </AnimatePresence>
-                                      </div>
+                                      </motion.div>
                                     );
                                   })}
                                 </div>
                               </div>
 
-                              <PremiumButton onClick={nextStep} disabled={totalCookServices === 0}>
-                                {dict.addons?.confirmChef} <ArrowRight size={16} />
-                              </PremiumButton>
+                              {selectedDishes.length < Math.max(1, nights - 1) && (
+                                <PremiumButton onClick={nextStep} disabled={totalCookServices === 0}>
+                                  {dict.addons?.confirmChef} <ArrowRight size={16} />
+                                </PremiumButton>
+                              )}
                             </div>
                           )}
                         </motion.div>
@@ -1157,6 +1240,23 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                 }
                                 return null;
                               })}
+                              {selectedDishes.length > 0 && (
+                                <div className="mt-2 pt-2 border-t border-gray-50">
+                                  <p className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-1">{isEn ? 'Selected Dishes:' : 'Platillos Seleccionados:'}</p>
+                                  {selectedDishes.map(dishId => {
+                                    const dish = foodServices.find(s => s.id === dishId);
+                                    if (dish) {
+                                      return (
+                                        <div key={dishId} className="flex justify-between text-sm text-gray-500 mb-0.5 ml-2">
+                                          <span>• {dish.name}</span>
+                                          {dish.price > 0 && <span>${dish.price.toLocaleString('en-US')}</span>}
+                                        </div>
+                                      );
+                                    }
+                                    return null;
+                                  })}
+                                </div>
+                              )}
                             </div>
                           )}
 
@@ -1229,8 +1329,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 )}
                 {step === 2 && (
                   <div className="flex flex-col items-end">
-                    {wantsCook === null ? <span className="text-amber-600 text-[10px] font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : wantsCook && totalCookServices === 0 ? <span className="text-amber-600 text-[10px] font-bold mb-1 mr-2">{isEn ? 'Select a meal' : 'Selecciona una comida'}</span> : null}
-                    <button onClick={nextStep} disabled={wantsCook === null || (wantsCook && totalCookServices === 0)} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
+                    {wantsCook === null ? <span className="text-amber-600 text-[10px] font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : wantsCook && (totalCookServices === 0 || selectedDishes.length < Math.max(1, nights - 1)) ? <span className="text-amber-600 text-[10px] font-bold mb-1 mr-2">{isEn ? 'Select your dishes' : 'Selecciona tus platillos'}</span> : null}
+                    <button onClick={nextStep} disabled={wantsCook === null || (wantsCook && (totalCookServices === 0 || selectedDishes.length < Math.max(1, nights - 1)))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {dictContext?.modal?.next || (isEn ? 'Next' : 'Siguiente')}
                     </button>
                   </div>
