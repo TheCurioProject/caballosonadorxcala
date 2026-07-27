@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, CalendarDays, ArrowRight, User, Map, Check, CreditCard, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ActionLoadingScreen } from '../ui/ActionLoadingScreen';
 import { DayPicker } from 'react-day-picker';
-import 'react-day-picker/dist/style.css';
+import 'react-day-picker/style.css';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 
@@ -283,7 +283,7 @@ export const TourBookingModal = ({
                       </div>
                     </div>
 
-                    <div className="mb-8">
+                    <div className="mb-8 [&_.rdp-selected]:!bg-[#9B7E67] [&_.rdp-selected]:!text-[#F9F7F4] [&_.rdp-selected]:!rounded-none [&_.rdp-selected]:![clip-path:polygon(15%_0%,100%_0%,85%_100%,0%_100%)] [&_.rdp-selected]:!z-20 [&_.rdp-selected]:!font-bold [&_.rdp-selected]:!w-full [&_.rdp-selected]:!max-w-full [&_.rdp-selected]:!m-0">
                       <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">{isEn ? "Select Date" : "Selecciona la fecha"}</label>
                       <DayPicker
                         mode="single"
@@ -292,9 +292,6 @@ export const TourBookingModal = ({
                         locale={isEn ? enUS : es}
                         disabled={[{ before: new Date() }]}
                         className="border border-gray-200 rounded-2xl p-4 inline-block bg-white shadow-sm"
-                        modifiersClassNames={{
-                          selected: '!bg-[#9B7E67] !text-[#F9F7F4] !rounded-none ![clip-path:polygon(15%_0%,100%_0%,85%_100%,0%_100%)] !z-20 !font-bold !w-full !max-w-full !m-0',
-                        }}
                       />
                     </div>
 
