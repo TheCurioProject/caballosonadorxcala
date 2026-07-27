@@ -14,37 +14,57 @@
 
 
 /* Premium react-day-picker v10 styles */
+/* Premium react-day-picker v10 styles */
 .rdp-root {
-  --rdp-accent-color: #9B7E67;
-  --rdp-accent-background-color: #E6D5C3;
-  --rdp-day_button-border-radius: 0.75rem;
+  --rdp-accent-color: #9B7E67 !important;
+  --rdp-accent-background-color: #E6D5C3 !important;
+  --rdp-day_button-border-radius: 0.75rem !important;
   
-  --rdp-range_middle-background-color: var(--rdp-accent-background-color);
-  --rdp-range_middle-color: #23211F;
-  --rdp-range_start-date-background-color: var(--rdp-accent-color);
-  --rdp-range_end-date-background-color: var(--rdp-accent-color);
+  --rdp-range_middle-background-color: var(--rdp-accent-background-color) !important;
+  --rdp-range_middle-color: #23211F !important;
+  --rdp-range_start-date-background-color: var(--rdp-accent-color) !important;
+  --rdp-range_end-date-background-color: var(--rdp-accent-color) !important;
   
-  --rdp-selected-border: 2px solid transparent;
+  --rdp-selected-border: 2px solid transparent !important;
+  
+  /* Make it fill the container elegantly */
+  --rdp-day-width: 100% !important;
+  --rdp-day-height: 48px !important;
+  --rdp-day_button-width: 100% !important;
+  --rdp-day_button-height: 100% !important;
   width: 100%;
+}
+
+/* Ensure the calendar grid expands */
+.rdp-months {
+  width: 100%;
+  max-width: 100%;
+  justify-content: center;
+}
+.rdp-month_grid {
+  width: 100%;
+}
+.rdp-day {
+  padding: 0.125rem;
 }
 
 /* Day buttons base styles */
 .rdp-day_button {
-  border: 1px solid #f3f4f6; /* Gray-100 outline */
-  transition: all 0.2s ease;
-  background-color: #ffffff;
+  border: 1px solid #f3f4f6 !important; /* Gray-100 outline */
+  transition: all 0.2s ease !important;
+  background-color: #ffffff !important;
 }
 .rdp-day_button:hover:not([disabled]) {
-  border-color: #9B7E67;
-  color: #9B7E67;
+  border-color: #9B7E67 !important;
+  color: #9B7E67 !important;
 }
 .rdp-selected .rdp-day_button {
-  border-color: transparent;
-  font-weight: bold;
+  border-color: transparent !important;
+  font-weight: bold !important;
 }
 .rdp-disabled .rdp-day_button {
-  background-color: transparent;
-  border-color: transparent;
+  background-color: transparent !important;
+  border-color: transparent !important;
 }
 
 /* Month navigation and text layout */
