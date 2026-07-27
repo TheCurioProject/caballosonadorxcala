@@ -181,7 +181,7 @@ const PremiumInput = ({
 
 /* ─── Step Progress Indicator ─── */
 const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; totalSteps: number }) => (
-  <div className="flex items-center gap-2 md:gap-3 mb-6 md:mb-8">
+  <div className="flex items-center justify-between w-full gap-1 md:gap-2 mb-6 md:mb-8">
     {Array.from({ length: totalSteps }, (_, i) => i + 1).map((step) => (
       <React.Fragment key={step}>
         <motion.div
@@ -192,7 +192,7 @@ const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; total
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
           <motion.div
-            className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-xs md:text-sm font-bold relative overflow-hidden shrink-0"
+            className="w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] md:text-xs font-bold relative overflow-hidden shrink-0"
             animate={{
               backgroundColor: currentStep >= step ? '#23211F' : '#E5E7EB',
               color: currentStep >= step ? '#F9F7F4' : '#9CA3AF',
@@ -208,7 +208,7 @@ const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; total
                   exit={{ scale: 0 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 >
-                  <Check size={16} strokeWidth={3} />
+                  <Check size={14} strokeWidth={3} />
                 </motion.div>
               ) : (
                 <motion.span
@@ -235,7 +235,7 @@ const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; total
         </motion.div>
         {step < totalSteps && (
           <motion.div
-            className="h-[2px] w-full min-w-[20px] max-w-full rounded-full overflow-hidden bg-gray-200"
+            className="h-[2px] flex-1 min-w-[8px] max-w-full rounded-full overflow-hidden bg-gray-200"
           >
             <motion.div
               className="h-full bg-[#23211F] rounded-full"
