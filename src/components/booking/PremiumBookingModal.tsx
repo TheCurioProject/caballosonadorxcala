@@ -940,46 +940,62 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       <div className="mb-6 shrink-0">
                         <h3 className="text-2xl font-serif text-[#23211F]">{dict.modal?.selectDates}</h3>
                       </div>
-                      <div className="flex-1 flex flex-col items-center justify-start pt-4 md:justify-center bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-sm border border-gray-100 min-h-[400px]">
-                        <DayPicker
-                          mode="range"
-                          selected={range}
-                          onSelect={setRange}
-                          disabled={[{ before: new Date() }, ...disabledRanges]}
-                          modifiers={{
-                            booked: bookedRanges,
-                            buffer: bufferRanges,
-                            blocked: blockedRanges
-                          }}
-                          numberOfMonths={1}
-                          className="premium-calendar !m-0"
-                          modifiersClassNames={{
-                            selected: '!bg-[#9B7E67] !text-[#F9F7F4] !rounded-none ![clip-path:polygon(15%_0%,100%_0%,85%_100%,0%_100%)] !z-20 !font-bold !w-full !max-w-full !m-0',
-                            range_start: '!bg-[#9B7E67] !text-[#F9F7F4] !rounded-none ![clip-path:polygon(15%_0%,100%_0%,100%_100%,0%_100%)] !z-20 !w-full !max-w-full !m-0',
-                            range_end: '!bg-[#9B7E67] !text-[#F9F7F4] !rounded-none ![clip-path:polygon(0%_0%,100%_0%,85%_100%,0%_100%)] !z-20 !w-full !max-w-full !m-0',
-                            range_middle: '!bg-[#D4A574] !text-[#23211F] !rounded-none !shadow-none !z-10 !w-full !max-w-full !m-0',
-                            booked: '!text-red-500 !font-bold line-through !opacity-80',
-                            buffer: '!text-[#D4A574] !font-bold line-through !opacity-80',
-                            blocked: '!text-gray-400 line-through !opacity-60',
-                            disabled: 'text-gray-300 opacity-50', // Fallback for past dates
-                          }}
-                        />
+                      <div className="flex-1 w-full flex flex-col items-center justify-start md:justify-center bg-white rounded-2xl md:rounded-3xl p-5 md:p-10 shadow-sm border border-gray-100 min-h-[400px] md:min-h-[500px]">
+                        <div className="w-full max-w-[320px] md:max-w-[420px] mx-auto
+                          [&_.rdp]:[--rdp-cell-size:40px] md:[&_.rdp]:[--rdp-cell-size:52px]
+                          [&_.rdp]:w-full [&_.rdp-months]:w-full [&_.rdp-month]:w-full
+                          [&_.rdp-table]:w-full [&_.rdp-table]:max-w-full
+                          [&_.rdp-caption]:flex [&_.rdp-caption]:justify-center [&_.rdp-caption]:items-center [&_.rdp-caption]:relative 
+                          [&_.rdp-caption]:mb-6 md:[&_.rdp-caption]:mb-10
+                          [&_.rdp-caption_label]:text-lg md:[&_.rdp-caption_label]:text-2xl [&_.rdp-caption_label]:font-serif [&_.rdp-caption_label]:text-[#23211F] [&_.rdp-caption_label]:capitalize [&_.rdp-caption_label]:font-medium
+                          [&_.rdp-nav]:absolute [&_.rdp-nav]:w-full [&_.rdp-nav]:flex [&_.rdp-nav]:justify-between [&_.rdp-nav]:inset-x-0 [&_.rdp-nav]:top-1/2 [&_.rdp-nav]:-translate-y-1/2
+                          [&_.rdp-nav_button]:w-8 [&_.rdp-nav_button]:h-8 md:[&_.rdp-nav_button]:w-10 md:[&_.rdp-nav_button]:h-10 [&_.rdp-nav_button]:flex [&_.rdp-nav_button]:items-center [&_.rdp-nav_button]:justify-center [&_.rdp-nav_button]:bg-gray-50 hover:[&_.rdp-nav_button]:bg-gray-100 [&_.rdp-nav_button]:text-gray-600 [&_.rdp-nav_button]:rounded-full [&_.rdp-nav_button]:transition-colors
+                          [&_.rdp-head_row]:flex [&_.rdp-head_row]:justify-between [&_.rdp-head_row]:mb-3 md:[&_.rdp-head_row]:mb-5
+                          [&_.rdp-row]:flex [&_.rdp-row]:justify-between [&_.rdp-row]:mb-2 md:[&_.rdp-row]:mb-3
+                          [&_.rdp-cell]:flex-1 [&_.rdp-cell]:flex [&_.rdp-cell]:justify-center
+                          [&_.rdp-head_cell]:flex-1 [&_.rdp-head_cell]:text-center [&_.rdp-head_cell]:text-[10px] md:[&_.rdp-head_cell]:text-xs [&_.rdp-head_cell]:text-gray-400 [&_.rdp-head_cell]:uppercase [&_.rdp-head_cell]:tracking-widest
+                          [&_.rdp-day]:flex [&_.rdp-day]:items-center [&_.rdp-day]:justify-center
+                        ">
+                          <DayPicker
+                            mode="range"
+                            selected={range}
+                            onSelect={setRange}
+                            disabled={[{ before: new Date() }, ...disabledRanges]}
+                            modifiers={{
+                              booked: bookedRanges,
+                              buffer: bufferRanges,
+                              blocked: blockedRanges
+                            }}
+                            numberOfMonths={1}
+                            className="premium-calendar !m-0"
+                            modifiersClassNames={{
+                              selected: '!bg-[#9B7E67] !text-[#F9F7F4] !rounded-none ![clip-path:polygon(15%_0%,100%_0%,85%_100%,0%_100%)] !z-20 !font-bold !w-full !max-w-full !m-0',
+                              range_start: '!bg-[#9B7E67] !text-[#F9F7F4] !rounded-none ![clip-path:polygon(15%_0%,100%_0%,100%_100%,0%_100%)] !z-20 !w-full !max-w-full !m-0',
+                              range_end: '!bg-[#9B7E67] !text-[#F9F7F4] !rounded-none ![clip-path:polygon(0%_0%,100%_0%,85%_100%,0%_100%)] !z-20 !w-full !max-w-full !m-0',
+                              range_middle: '!bg-[#D4A574] !text-[#23211F] !rounded-none !shadow-none !z-10 !w-full !max-w-full !m-0',
+                              booked: '!text-red-500 !font-bold line-through !opacity-80',
+                              buffer: '!text-[#D4A574] !font-bold line-through !opacity-80',
+                              blocked: '!text-gray-400 line-through !opacity-60',
+                              disabled: 'text-gray-300 opacity-50', // Fallback for past dates
+                            }}
+                          />
+                        </div>
                         {range?.from && !range?.to && (
-                          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#9B7E67] text-sm mt-6 font-medium animate-pulse">
+                          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#9B7E67] text-sm mt-6 font-medium animate-pulse text-center w-full">
                             {dict.modal?.minStay}
                           </motion.p>
                         )}
-                        <div className="flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-6 gap-y-3 mt-8 pt-6 border-t border-gray-50 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gray-500 w-full">
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 shrink-0 rounded-full bg-red-500 opacity-80 shadow-sm"></div>
+                        <div className="flex flex-row flex-wrap items-center justify-center gap-x-4 gap-y-4 md:gap-x-8 mt-10 md:mt-14 pt-8 md:pt-10 border-t border-gray-100 text-[9px] md:text-[11px] font-bold uppercase tracking-widest text-gray-500 w-full max-w-[300px] md:max-w-full mx-auto">
+                          <div className="flex items-center gap-2.5 md:gap-3">
+                            <div className="w-2.5 h-2.5 md:w-3 md:h-3 shrink-0 rounded-full bg-red-500 opacity-80 shadow-sm"></div>
                             <span>{isEn ? 'Booked' : 'Reservado'}</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 shrink-0 rounded-full bg-[#D4A574] opacity-80 shadow-sm"></div>
+                          <div className="flex items-center gap-2.5 md:gap-3">
+                            <div className="w-2.5 h-2.5 md:w-3 md:h-3 shrink-0 rounded-full bg-[#D4A574] opacity-80 shadow-sm"></div>
                             <span>{isEn ? 'Cleaning / Buffer' : 'Limpieza / Margen'}</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 shrink-0 rounded-full bg-gray-400 opacity-60 shadow-sm"></div>
+                          <div className="flex items-center gap-2.5 md:gap-3">
+                            <div className="w-2.5 h-2.5 md:w-3 md:h-3 shrink-0 rounded-full bg-gray-400 opacity-60 shadow-sm"></div>
                             <span>{isEn ? 'Blocked' : 'Bloqueado'}</span>
                           </div>
                         </div>
