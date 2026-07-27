@@ -952,7 +952,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       <div className="mb-6 shrink-0">
                         <h3 className="text-2xl font-serif text-[#23211F]">{dict.modal?.selectDates}</h3>
                       </div>
-                      <div className="flex-1 w-full flex flex-col items-center justify-start md:justify-center bg-white rounded-2xl md:rounded-3xl p-5 md:p-10 shadow-sm border border-gray-100 min-h-[400px] md:min-h-[500px]">
+                      <div className="flex-none h-fit w-full flex flex-col items-center justify-start md:justify-center bg-white rounded-2xl md:rounded-3xl p-5 md:p-10 shadow-sm border border-gray-100 min-h-[400px] md:min-h-[500px]">
                         {/* Mobile Calendar */}
                         <div className="block md:hidden w-full max-w-[320px] mx-auto">
                           <DayPicker

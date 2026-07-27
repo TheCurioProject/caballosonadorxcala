@@ -278,7 +278,7 @@ export const TourBookingModal = ({
                 )}
 
                 {step === 2 && (
-                  <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="h-full">
+                  <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="h-auto min-h-full flex flex-col">
                     <h3 className="font-serif text-3xl text-[#23211F] mb-6">{isEn ? "Date & Guests" : "Fecha y Personas"}</h3>
                     
                     <div className="mb-6 p-3 bg-[#9B7E67]/10 border border-[#9B7E67]/20 rounded-xl">
