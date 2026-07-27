@@ -969,18 +969,18 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             {dict.modal?.minStay}
                           </motion.p>
                         )}
-                        <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-center gap-3 sm:gap-6 mt-8 pt-6 border-t border-gray-50 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gray-500 w-full">
+                        <div className="flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-6 gap-y-3 mt-8 pt-6 border-t border-gray-50 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gray-500 w-full">
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 shrink-0 rounded-full bg-red-500 opacity-80 shadow-sm"></div>
-                            <span className="whitespace-nowrap">{isEn ? 'Booked' : 'Reservado'}</span>
+                            <span>{isEn ? 'Booked' : 'Reservado'}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 shrink-0 rounded-full bg-[#D4A574] opacity-80 shadow-sm"></div>
-                            <span className="whitespace-nowrap">{isEn ? 'Cleaning / Buffer' : 'Limpieza / Margen'}</span>
+                            <span>{isEn ? 'Cleaning / Buffer' : 'Limpieza / Margen'}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 shrink-0 rounded-full bg-gray-400 opacity-60 shadow-sm"></div>
-                            <span className="whitespace-nowrap">{isEn ? 'Blocked' : 'Bloqueado'}</span>
+                            <span>{isEn ? 'Blocked' : 'Bloqueado'}</span>
                           </div>
                         </div>
                       </div>
