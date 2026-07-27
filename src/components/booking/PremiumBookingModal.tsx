@@ -632,6 +632,21 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
   const totalCookServices = Object.values(cookSelections).reduce((a, b) => a + b, 0);
 
+  const isDinnerService = (name: string | undefined | null) => name?.toLowerCase().includes('dinner') || name?.toLowerCase().includes('cena');
+  
+  const getFoodServiceMax = (priceOption: any) => {
+    const isDinner = isDinnerService(priceOption.name);
+    const limit = isDinner ? Math.max(1, nights) : Math.max(1, nights + 1);
+    const currentTotal = foodServices
+      .filter(s => s.serviceType === 'FOOD_PRICE' && isDinnerService(s.name) === isDinner)
+      .reduce((sum, s) => sum + (cookSelections[s.id.toString()] || 0), 0);
+    return limit - currentTotal + (cookSelections[priceOption.id.toString()] || 0);
+  };
+
+  const globalMaxDishes = totalCookServices > 0 
+    ? totalCookServices 
+    : (isDinnerService(selectedCookService?.name) ? Math.max(1, nights) : Math.max(1, nights + 1));
+
   const getActiveSteps = useCallback(() => {
     const steps = ['dates', 'food_prompt'];
     if (wantsCook) {
@@ -1089,6 +1104,9 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         <h3 className="text-3xl font-serif text-[#23211F] mb-2">
                           {isEn ? "Select an Assistance Plan" : "Selecciona un Plan de Asistencia"}
                         </h3>
+                        <p className="text-sm text-gray-500 font-light mb-4">
+                          {isEn ? 'Breakfast & Lunch plans are calculated per days of stay. Dinner plans per nights.' : 'Los planes de desayuno/comida se calculan por días de estancia. Las cenas por noches.'}
+                        </p>
                       </div>
 
                       <div className="space-y-6 flex-1 pb-4">
@@ -1100,8 +1118,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                 label={translateDB(priceOption.name, isEn)} 
                                 value={cookSelections[priceOption.id.toString()] || 0} 
                                 onChange={(val) => setCookSelections(prev => ({ ...prev, [priceOption.id.toString()]: val }))} 
-                                max={(cookSelections[priceOption.id.toString()] || 0) + (Math.max(1, nights - 1) - totalCookServices)} 
-                                sublabel={`+${formatPrice(priceOption.price || 0)} / ${isEn ? 'day' : 'día'}`} 
+                                max={getFoodServiceMax(priceOption)} 
+                                sublabel={`+${formatPrice(priceOption.price || 0)} / ${isDinnerService(priceOption.name) ? (isEn ? 'night' : 'noche') : (isEn ? 'day' : 'día')}`} 
                               />
                             );
                           })}
@@ -1110,7 +1128,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         <div className="shrink-0 mt-4">
                           {totalCookServices === 0 && (
                             <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
-                              {isEn ? 'Please select an Assistance Plan for your days' : 'Por favor selecciona un Plan de Asistencia para tus días'}
+                              {isEn ? 'Select Assistance (Breakfasts by days of stay, Dinners by nights)' : 'Selecciona tu Asistencia (Desayunos por días de estancia, Cenas por noches)'}
                             </p>
                           )}
                           <PremiumButton onClick={nextStep} disabled={totalCookServices === 0}>
@@ -1142,13 +1160,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                     {isEn ? 'Available Dishes (Menu)' : 'Platillos Disponibles (Menú)'}
                                   </h4>
                                   <span className="text-sm font-bold text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">
-                                    {selectedDishes.length} / {Math.max(1, nights - 1)} {isEn ? 'selected' : 'seleccionados'}
+                                    {selectedDishes.length} / {globalMaxDishes} {isEn ? 'selected' : 'seleccionados'}
                                   </span>
                                 </div>
                                 <p className="text-sm text-gray-500 mb-4 font-light">
                                   {isEn 
-                                    ? `Based on your stay, you can select up to ${Math.max(1, nights - 1)} dishes (1 per day).` 
-                                    : `Basado en tu estadía, puedes seleccionar hasta ${Math.max(1, nights - 1)} platillos (1 por día).`}
+                                    ? `Based on your selections, please pick ${globalMaxDishes} dish(es).` 
+                                    : `Basado en tus selecciones, elige ${globalMaxDishes} platillo(s).`}
                                   <br/>
                                   <span className="font-medium mt-2 inline-block text-[#9B7E67]">
                                     {isEn 
@@ -1160,7 +1178,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                   {foodServices.filter(s => s.serviceType === 'FOOD_DISH').map(dish => {
                                     const isExpanded = expandedDishId === dish.id;
                                     const isSelected = selectedDishes.includes(dish.id);
-                                    const maxDishes = Math.max(1, nights - 1);
+                                    const maxDishes = globalMaxDishes;
                                     return (
                                       <motion.div 
                                         layout
@@ -1237,12 +1255,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                               </div>
 
                               <div className="shrink-0 mt-4 hidden md:block">
-                                {((totalCookServices > 0 || selectedCookService?.name?.toLowerCase().includes('dinner')) && selectedDishes.length < Math.max(1, nights - 1)) && (
+                                {((totalCookServices > 0 || selectedCookService?.name?.toLowerCase().includes('dinner')) && selectedDishes.length < globalMaxDishes) && (
                                   <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
-                                    {isEn ? `Please select ${Math.max(1, nights - 1) - selectedDishes.length} more dish(es)` : `Por favor selecciona ${Math.max(1, nights - 1) - selectedDishes.length} platillo(s) más`}
+                                    {isEn ? `Please select ${globalMaxDishes - selectedDishes.length} more dish(es)` : `Por favor selecciona ${globalMaxDishes - selectedDishes.length} platillo(s) más`}
                                   </p>
                                 )}
-                                <PremiumButton onClick={nextStep} disabled={selectedDishes.length < Math.max(1, nights - 1)}>
+                                <PremiumButton onClick={nextStep} disabled={selectedDishes.length < globalMaxDishes}>
                                   {dict.addons?.confirmChef} <ArrowRight size={16} />
                                 </PremiumButton>
                               </div>
@@ -1579,8 +1597,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
                   {step === 'menu' && (
                   <div className="flex flex-col items-end">
-                    {selectedDishes.length < Math.max(1, nights - 1) ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select your dishes' : 'Selecciona tus platillos'}</span> : null}
-                    <button onClick={nextStep} disabled={selectedDishes.length < Math.max(1, nights - 1)} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
+                    {selectedDishes.length < globalMaxDishes ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select your dishes' : 'Selecciona tus platillos'}</span> : null}
+                    <button onClick={nextStep} disabled={selectedDishes.length < globalMaxDishes} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {dictContext?.modal?.next || (isEn ? 'Next' : 'Siguiente')}
                     </button>
                   </div>
