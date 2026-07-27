@@ -296,23 +296,7 @@ export const TourBookingModal = ({
                       </div>
                     </div>
 
-                    <div className="mb-8 w-full max-w-[320px] md:max-w-[420px] mx-auto
-                          [&_.rdp-root]:[--rdp-day-width:40px] md:[&_.rdp-root]:[--rdp-day-width:52px]
-                          [&_.rdp-root]:[--rdp-day-height:40px] md:[&_.rdp-root]:[--rdp-day-height:52px]
-                          [&_.rdp-root]:[--rdp-day_button-width:40px] md:[&_.rdp-root]:[--rdp-day_button-width:52px]
-                          [&_.rdp-root]:[--rdp-day_button-height:40px] md:[&_.rdp-root]:[--rdp-day_button-height:52px]
-                          [&_.rdp-root]:mx-auto
-                          [&_.rdp-months]:justify-center
-                          [&_.rdp-month_caption]:flex [&_.rdp-month_caption]:justify-center [&_.rdp-month_caption]:items-center [&_.rdp-month_caption]:relative 
-                          [&_.rdp-month_caption]:mb-6 md:[&_.rdp-month_caption]:mb-10
-                          [&_.rdp-caption_label]:text-lg md:[&_.rdp-caption_label]:text-2xl [&_.rdp-caption_label]:font-serif [&_.rdp-caption_label]:text-[#23211F] [&_.rdp-caption_label]:capitalize [&_.rdp-caption_label]:font-medium
-                          [&_.rdp-nav]:absolute [&_.rdp-nav]:w-full [&_.rdp-nav]:flex [&_.rdp-nav]:justify-between [&_.rdp-nav]:inset-x-0 [&_.rdp-nav]:top-0
-                          [&_.rdp-button_previous]:w-8 [&_.rdp-button_previous]:h-8 md:[&_.rdp-button_previous]:w-10 md:[&_.rdp-button_previous]:h-10 [&_.rdp-button_previous]:flex [&_.rdp-button_previous]:items-center [&_.rdp-button_previous]:justify-center [&_.rdp-button_previous]:bg-gray-50 hover:[&_.rdp-button_previous]:bg-gray-100 [&_.rdp-button_previous]:text-gray-600 [&_.rdp-button_previous]:rounded-full [&_.rdp-button_previous]:transition-colors
-                          [&_.rdp-button_next]:w-8 [&_.rdp-button_next]:h-8 md:[&_.rdp-button_next]:w-10 md:[&_.rdp-button_next]:h-10 [&_.rdp-button_next]:flex [&_.rdp-button_next]:items-center [&_.rdp-button_next]:justify-center [&_.rdp-button_next]:bg-gray-50 hover:[&_.rdp-button_next]:bg-gray-100 [&_.rdp-button_next]:text-gray-600 [&_.rdp-button_next]:rounded-full [&_.rdp-button_next]:transition-colors
-                          [&_.rdp-weekday]:text-[10px] md:[&_.rdp-weekday]:text-xs [&_.rdp-weekday]:font-bold [&_.rdp-weekday]:text-gray-400 [&_.rdp-weekday]:uppercase [&_.rdp-weekday]:tracking-widest
-                          [&_.rdp-day_button]:border [&_.rdp-day_button]:border-gray-100 [&_.rdp-day_button]:rounded-xl [&_.rdp-day_button]:transition-all
-                          [&_.rdp-selected_.rdp-day_button]:!bg-[#9B7E67] [&_.rdp-selected_.rdp-day_button]:!text-[#F9F7F4] [&_.rdp-selected_.rdp-day_button]:!border-[#9B7E67] [&_.rdp-selected_.rdp-day_button]:!font-bold
-                          [&_.rdp-disabled]:!text-gray-300 [&_.rdp-disabled]:!opacity-50">
+                    <div className="mb-8 w-full max-w-[320px] md:max-w-[420px] mx-auto">
                       <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-6 text-center">{isEn ? "Select Date" : "Selecciona la fecha"}</label>
                       <DayPicker
                         mode="single"

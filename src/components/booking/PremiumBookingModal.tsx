@@ -954,30 +954,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       </div>
                       <div className="flex-1 w-full flex flex-col items-center justify-start md:justify-center bg-white rounded-2xl md:rounded-3xl p-5 md:p-10 shadow-sm border border-gray-100 min-h-[400px] md:min-h-[500px]">
                         {/* Mobile Calendar */}
-                        <div className="block md:hidden w-full max-w-[320px] mx-auto
-                          [&_.rdp-root]:[--rdp-day-width:40px]
-                          [&_.rdp-root]:[--rdp-day-height:40px]
-                          [&_.rdp-root]:[--rdp-day_button-width:40px]
-                          [&_.rdp-root]:[--rdp-day_button-height:40px]
-                          [&_.rdp-root]:mx-auto
-                          [&_.rdp-months]:justify-center
-                          [&_.rdp-month_caption]:flex [&_.rdp-month_caption]:justify-center [&_.rdp-month_caption]:items-center [&_.rdp-month_caption]:relative 
-                          [&_.rdp-month_caption]:mb-6
-                          [&_.rdp-caption_label]:text-lg [&_.rdp-caption_label]:font-serif [&_.rdp-caption_label]:text-[#23211F] [&_.rdp-caption_label]:capitalize [&_.rdp-caption_label]:font-medium
-                          [&_.rdp-nav]:absolute [&_.rdp-nav]:w-full [&_.rdp-nav]:flex [&_.rdp-nav]:justify-between [&_.rdp-nav]:inset-x-0 [&_.rdp-nav]:top-0
-                          [&_.rdp-button_previous]:w-8 [&_.rdp-button_previous]:h-8 [&_.rdp-button_previous]:flex [&_.rdp-button_previous]:items-center [&_.rdp-button_previous]:justify-center [&_.rdp-button_previous]:bg-gray-50 hover:[&_.rdp-button_previous]:bg-gray-100 [&_.rdp-button_previous]:text-gray-600 [&_.rdp-button_previous]:rounded-full [&_.rdp-button_previous]:transition-colors
-                          [&_.rdp-button_next]:w-8 [&_.rdp-button_next]:h-8 [&_.rdp-button_next]:flex [&_.rdp-button_next]:items-center [&_.rdp-button_next]:justify-center [&_.rdp-button_next]:bg-gray-50 hover:[&_.rdp-button_next]:bg-gray-100 [&_.rdp-button_next]:text-gray-600 [&_.rdp-button_next]:rounded-full [&_.rdp-button_next]:transition-colors
-                          [&_.rdp-weekday]:text-[10px] [&_.rdp-weekday]:font-bold [&_.rdp-weekday]:text-gray-400 [&_.rdp-weekday]:uppercase [&_.rdp-weekday]:tracking-widest
-                          [&_.rdp-day_button]:border [&_.rdp-day_button]:border-gray-100 [&_.rdp-day_button]:rounded-xl [&_.rdp-day_button]:transition-all
-                          [&_.rdp-selected_.rdp-day_button]:!bg-[#9B7E67] [&_.rdp-selected_.rdp-day_button]:!text-[#F9F7F4] [&_.rdp-selected_.rdp-day_button]:!border-[#9B7E67] [&_.rdp-selected_.rdp-day_button]:!font-bold
-                          [&_.rdp-range_start_.rdp-day_button]:!bg-[#9B7E67] [&_.rdp-range_start_.rdp-day_button]:!text-[#F9F7F4] [&_.rdp-range_start_.rdp-day_button]:!rounded-xl
-                          [&_.rdp-range_end_.rdp-day_button]:!bg-[#9B7E67] [&_.rdp-range_end_.rdp-day_button]:!text-[#F9F7F4] [&_.rdp-range_end_.rdp-day_button]:!rounded-xl
-                          [&_.rdp-range_middle_.rdp-day_button]:!bg-[#E6D5C3] [&_.rdp-range_middle_.rdp-day_button]:!text-[#23211F] [&_.rdp-range_middle_.rdp-day_button]:!border-[#E6D5C3] [&_.rdp-range_middle_.rdp-day_button]:!rounded-xl
-                          [&_.rdp-day_booked]:!text-red-500 [&_.rdp-day_booked]:!font-bold [&_.rdp-day_booked]:line-through [&_.rdp-day_booked]:!opacity-80
-                          [&_.rdp-day_buffer]:!text-[#D4A574] [&_.rdp-day_buffer]:!font-bold [&_.rdp-day_buffer]:line-through [&_.rdp-day_buffer]:!opacity-80
-                          [&_.rdp-day_blocked]:!text-gray-400 [&_.rdp-day_blocked]:line-through [&_.rdp-day_blocked]:!opacity-60
-                          [&_.rdp-disabled]:!text-gray-300 [&_.rdp-disabled]:!opacity-50
-                        ">
+                        <div className="block md:hidden w-full max-w-[320px] mx-auto">
                           <DayPicker
                             mode="range"
                             selected={range}
@@ -991,30 +968,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </div>
 
                         {/* Desktop Calendar */}
-                        <div className="hidden md:block w-full max-w-[420px] mx-auto
-                          [&_.rdp-root]:[--rdp-day-width:52px]
-                          [&_.rdp-root]:[--rdp-day-height:52px]
-                          [&_.rdp-root]:[--rdp-day_button-width:52px]
-                          [&_.rdp-root]:[--rdp-day_button-height:52px]
-                          [&_.rdp-root]:mx-auto
-                          [&_.rdp-months]:justify-center
-                          [&_.rdp-month_caption]:flex [&_.rdp-month_caption]:justify-center [&_.rdp-month_caption]:items-center [&_.rdp-month_caption]:relative 
-                          [&_.rdp-month_caption]:mb-10
-                          [&_.rdp-caption_label]:text-2xl [&_.rdp-caption_label]:font-serif [&_.rdp-caption_label]:text-[#23211F] [&_.rdp-caption_label]:capitalize [&_.rdp-caption_label]:font-medium
-                          [&_.rdp-nav]:absolute [&_.rdp-nav]:w-full [&_.rdp-nav]:flex [&_.rdp-nav]:justify-between [&_.rdp-nav]:inset-x-0 [&_.rdp-nav]:top-0
-                          [&_.rdp-button_previous]:w-10 [&_.rdp-button_previous]:h-10 [&_.rdp-button_previous]:flex [&_.rdp-button_previous]:items-center [&_.rdp-button_previous]:justify-center [&_.rdp-button_previous]:bg-gray-50 hover:[&_.rdp-button_previous]:bg-gray-100 [&_.rdp-button_previous]:text-gray-600 [&_.rdp-button_previous]:rounded-full [&_.rdp-button_previous]:transition-colors
-                          [&_.rdp-button_next]:w-10 [&_.rdp-button_next]:h-10 [&_.rdp-button_next]:flex [&_.rdp-button_next]:items-center [&_.rdp-button_next]:justify-center [&_.rdp-button_next]:bg-gray-50 hover:[&_.rdp-button_next]:bg-gray-100 [&_.rdp-button_next]:text-gray-600 [&_.rdp-button_next]:rounded-full [&_.rdp-button_next]:transition-colors
-                          [&_.rdp-weekday]:text-xs [&_.rdp-weekday]:font-bold [&_.rdp-weekday]:text-gray-400 [&_.rdp-weekday]:uppercase [&_.rdp-weekday]:tracking-widest
-                          [&_.rdp-day_button]:border [&_.rdp-day_button]:border-gray-100 [&_.rdp-day_button]:rounded-xl [&_.rdp-day_button]:transition-all
-                          [&_.rdp-selected_.rdp-day_button]:!bg-[#9B7E67] [&_.rdp-selected_.rdp-day_button]:!text-[#F9F7F4] [&_.rdp-selected_.rdp-day_button]:!border-[#9B7E67] [&_.rdp-selected_.rdp-day_button]:!font-bold
-                          [&_.rdp-range_start_.rdp-day_button]:!bg-[#9B7E67] [&_.rdp-range_start_.rdp-day_button]:!text-[#F9F7F4] [&_.rdp-range_start_.rdp-day_button]:!rounded-xl
-                          [&_.rdp-range_end_.rdp-day_button]:!bg-[#9B7E67] [&_.rdp-range_end_.rdp-day_button]:!text-[#F9F7F4] [&_.rdp-range_end_.rdp-day_button]:!rounded-xl
-                          [&_.rdp-range_middle_.rdp-day_button]:!bg-[#E6D5C3] [&_.rdp-range_middle_.rdp-day_button]:!text-[#23211F] [&_.rdp-range_middle_.rdp-day_button]:!border-[#E6D5C3] [&_.rdp-range_middle_.rdp-day_button]:!rounded-xl
-                          [&_.rdp-day_booked]:!text-red-500 [&_.rdp-day_booked]:!font-bold [&_.rdp-day_booked]:line-through [&_.rdp-day_booked]:!opacity-80
-                          [&_.rdp-day_buffer]:!text-[#D4A574] [&_.rdp-day_buffer]:!font-bold [&_.rdp-day_buffer]:line-through [&_.rdp-day_buffer]:!opacity-80
-                          [&_.rdp-day_blocked]:!text-gray-400 [&_.rdp-day_blocked]:line-through [&_.rdp-day_blocked]:!opacity-60
-                          [&_.rdp-disabled]:!text-gray-300 [&_.rdp-disabled]:!opacity-50
-                        ">
+                        <div className="hidden md:block w-full max-w-[420px] mx-auto">
                           <DayPicker
                             mode="range"
                             selected={range}
