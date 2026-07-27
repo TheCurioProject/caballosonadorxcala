@@ -914,20 +914,42 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       transition={{ duration: 0.4 }}
                       className="min-h-full flex flex-col flex-1 max-md:absolute max-md:inset-0 max-md:overflow-y-auto max-md:p-6 max-md:pb-32"
                     >
-                      <div className="mb-8 shrink-0">
-                        <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] mb-4 shadow-sm border border-[#E8D5B7]">
-                          <Utensils size={24} />
+                      <div className={`shrink-0 ${selectedCookService ? 'mb-6' : 'mb-8'}`}>
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] shadow-sm border border-[#E8D5B7]">
+                            <Utensils size={24} />
+                          </div>
+                          {wantsCook && (
+                            <button 
+                              onClick={() => { 
+                                if (selectedCookService) {
+                                  setSelectedCookService(null); 
+                                  setCookSelections({}); 
+                                  setSelectedDishes([]);
+                                } else {
+                                  setWantsCook(null);
+                                }
+                              }} 
+                              className="text-xs md:text-sm text-[#9B7E67] font-bold tracking-widest uppercase hover:text-[#23211F] transition-colors flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-100 shadow-sm"
+                            >
+                              {isEn ? '← Change option' : '← Cambiar opción'}
+                            </button>
+                          )}
                         </div>
                         <h3 className="text-3xl font-serif text-[#23211F] mb-2">
                           {wantsCook 
-                            ? (isEn ? "Choose Your Service" : "Elige tu Servicio") 
+                            ? (selectedCookService 
+                                ? (isEn ? "Select an Assistance Plan" : "Selecciona un Plan de Asistencia")
+                                : (isEn ? "Choose Your Service" : "Elige tu Servicio")) 
                             : dict.addons?.chefTitle}
                         </h3>
-                        <p className="text-gray-500 font-light">
-                          {wantsCook 
-                            ? (isEn ? "We provide a staff member to assist with prep, cooking, and clean up. You provide the ingredients, and we cook it for you! Select an assistance plan below:" : "Proveemos personal para asistir con la preparación, cocina y limpieza. Usted pone los ingredientes, ¡nosotros lo cocinamos! Seleccione un plan de asistencia a continuación:")
-                            : dict.addons?.chefDesc}
-                        </p>
+                        {!selectedCookService && (
+                          <p className="text-gray-500 font-light">
+                            {wantsCook 
+                              ? (isEn ? "We provide a staff member to assist with prep, cooking, and clean up. You provide the ingredients, and we cook it for you! Select an assistance plan below:" : "Proveemos personal para asistir con la preparación, cocina y limpieza. Usted pone los ingredientes, ¡nosotros lo cocinamos! Seleccione un plan de asistencia a continuación:")
+                              : dict.addons?.chefDesc}
+                          </p>
+                        )}
                       </div>
 
                       {wantsCook === null ? (
@@ -943,20 +965,6 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </div>
                       ) : wantsCook === true ? (
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 flex-1 pb-4">
-                          <button 
-                            onClick={() => { 
-                              if (selectedCookService) {
-                                setSelectedCookService(null); 
-                                setCookSelections({}); 
-                                setSelectedDishes([]);
-                              } else {
-                                setWantsCook(null);
-                              }
-                            }} 
-                            className="text-sm text-[#9B7E67] font-bold tracking-widest uppercase mb-2 block w-full text-left hover:text-[#23211F] transition-colors"
-                          >
-                            {isEn ? '← Change option' : '← Cambiar opción'}
-                          </button>
                           
                           {!selectedCookService ? (
                             <div>
@@ -975,10 +983,6 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             </div>
                           ) : (
                             <div>
-                              
-                              <h4 className="text-lg font-serif text-[#23211F] mb-4">
-                                {isEn ? 'Select an Assistance Plan' : 'Selecciona un Plan de Asistencia'}
-                              </h4>
                               <div className="space-y-3 mb-8">
                                 {foodServices.filter(s => s.serviceType === 'FOOD_PRICE').map(priceOption => {
                                   return (
