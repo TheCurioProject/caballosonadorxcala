@@ -134,9 +134,10 @@ interface InvoiceProps {
   depositCurrency?: string;
   date: string;
   logoBase64: string;
+  addons?: any[];
 }
 
-export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, totalPrice, depositPaid = 0, depositCurrency = 'MXN', date, logoBase64 }: InvoiceProps) => (
+export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, totalPrice, depositPaid = 0, depositCurrency = 'MXN', date, logoBase64, addons = [] }: InvoiceProps) => (
   <Document>
     <Page size="A4" style={styles.page}>
       
@@ -184,6 +185,42 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
           <Text style={styles.value}>{checkOut} hasta las 11:00 hrs</Text>
         </View>
       </View>
+
+      {/* ADDONS */}
+      {addons && addons.filter(a => a.type.startsWith('FOOD')).length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Servicios de Comida / Food Services</Text>
+          {addons.filter(a => a.type.startsWith('FOOD')).map((addon, i) => {
+            let detailsObj: any = {};
+            try { if (addon.details) detailsObj = JSON.parse(addon.details); } catch(e) {}
+            const name = detailsObj.service || detailsObj.plan || detailsObj.name || (addon.type.includes('DISH') ? 'Platillo / Dish' : 'Servicio / Service');
+            return (
+              <View key={i} style={styles.row}>
+                <Text style={styles.label}>{addon.quantity}x {name}</Text>
+                <Text style={styles.value}>${addon.price.toLocaleString('es-MX')} {depositCurrency}</Text>
+              </View>
+            );
+          })}
+        </View>
+      )}
+
+      {addons && addons.filter(a => a.type.startsWith('TOUR')).length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Tours</Text>
+          {addons.filter(a => a.type.startsWith('TOUR')).map((addon, i) => {
+            let detailsObj: any = {};
+            try { if (addon.details) detailsObj = JSON.parse(addon.details); } catch(e) {}
+            const name = detailsObj.destination || detailsObj.name || 'Tour';
+            const pax = detailsObj.people || addon.quantity;
+            return (
+              <View key={i} style={styles.row}>
+                <Text style={styles.label}>{pax} pax - {name}</Text>
+                <Text style={styles.value}>${addon.price.toLocaleString('es-MX')} {depositCurrency}</Text>
+              </View>
+            );
+          })}
+        </View>
+      )}
 
       {/* TOTAL */}
       <View style={{ ...styles.section, marginTop: 20 }}>

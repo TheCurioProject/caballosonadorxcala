@@ -21,7 +21,7 @@ export async function GET(
 
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      include: { property: true }
+      include: { property: true, addons: true }
     });
 
     if (!booking) {
@@ -43,6 +43,7 @@ export async function GET(
         depositCurrency={booking.depositCurrency || 'MXN'}
         date={new Date().toLocaleDateString()}
         logoBase64={logoBase64}
+        addons={booking.addons}
       /> as any
     );
 

@@ -619,13 +619,15 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
   const nextStep = () => setStep(s => {
     let next = s + 1;
-    if (next === 3 && (!wantsCook || totalCookServices === 0)) next = 4;
+    const isDinner = selectedCookService?.name?.toLowerCase().includes('dinner');
+    if (next === 3 && (!wantsCook || (totalCookServices === 0 && !isDinner))) next = 4;
     return Math.min(next, 6);
   });
   const prevStep = () => {
     setStep(s => {
       let prev = s - 1;
-      if (prev === 3 && (!wantsCook || totalCookServices === 0)) prev = 2;
+      const isDinner = selectedCookService?.name?.toLowerCase().includes('dinner');
+      if (prev === 3 && (!wantsCook || (totalCookServices === 0 && !isDinner))) prev = 2;
       const newStep = Math.max(prev, 1);
       // Reset the answer of the step we are going back to so user can choose again
       if (newStep === 2) setWantsCook(null);
@@ -788,15 +790,31 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-4 text-sm font-light text-gray-300">
-                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                      <Utensils size={16} className="text-[#9B7E67]" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-white mb-1 uppercase tracking-widest text-xs">{dict.addons?.optional}</p>
-                      <p>{dict.addons?.optionalDesc}</p>
-                    </div>
-                  </div>
+                  <AnimatePresence>
+                    {wantsCook && (totalCookServices > 0 || selectedCookService?.name?.toLowerCase().includes('dinner')) && (
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex items-start gap-4 text-sm font-light text-gray-300 overflow-hidden">
+                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                          <Utensils size={16} className="text-[#9B7E67]" />
+                        </div>
+                        <div className="pb-2">
+                          <p className="font-bold text-white mb-1 uppercase tracking-widest text-xs">{dict.addons?.foodServicesTitle || (isEn ? 'Food Services' : 'Servicios de Comida')}</p>
+                          <p>{selectedCookService?.name ? translateDB(selectedCookService.name, isEn) : (isEn ? 'Selected' : 'Seleccionado')}</p>
+                        </div>
+                      </motion.div>
+                    )}
+                    
+                    {wantsATV && totalAtvTours > 0 && (
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex items-start gap-4 text-sm font-light text-gray-300 overflow-hidden">
+                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                          <Map size={16} className="text-[#9B7E67]" />
+                        </div>
+                        <div className="pb-2">
+                          <p className="font-bold text-white mb-1 uppercase tracking-widest text-xs">{dict.addons?.atvTitle || (isEn ? 'Tours' : 'Tours')}</p>
+                          <p>{totalAtvTours} {isEn ? 'tour(s) selected' : 'tour(s) seleccionado(s)'}</p>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               </div>
 
@@ -980,7 +998,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                 {foodServices.filter(s => s.serviceType === 'FOOD_SERVICE').map(service => (
                                   <button 
                                     key={service.id}
-                                    onClick={() => setSelectedCookService(service)}
+                                    onClick={() => {
+                                      setSelectedCookService(service);
+                                      if (service.name.toLowerCase().includes('dinner')) {
+                                        setTimeout(() => nextStep(), 100);
+                                      }
+                                    }}
                                     className="p-5 border border-[#E8D5B7] rounded-xl hover:bg-[#F9F7F4] text-left transition-colors flex flex-col group bg-white"
                                   >
                                     <span className="font-bold text-[#23211F] group-hover:text-[#9B7E67] transition-colors">{translateDB(service.name, isEn)}</span>
@@ -1106,7 +1129,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                                       onClick={() => {
                                                         setSelectedDishes(prev => {
                                                           const next = [...prev, dish.id];
-                                                          if (next.length === maxDishes && totalCookServices > 0) {
+                                                          const isDinner = selectedCookService?.name?.toLowerCase().includes('dinner');
+                                                          if (next.length === maxDishes && (totalCookServices > 0 || isDinner)) {
                                                             setTimeout(() => nextStep(), 800);
                                                           }
                                                           return next;
@@ -1139,7 +1163,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                               </div>
 
                               <div className="shrink-0 mt-4 hidden md:block">
-                                {totalCookServices > 0 && selectedDishes.length < Math.max(1, nights - 1) && (
+                                {((totalCookServices > 0 || selectedCookService?.name?.toLowerCase().includes('dinner')) && selectedDishes.length < Math.max(1, nights - 1)) && (
                                   <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
                                     {isEn ? `Please select ${Math.max(1, nights - 1) - selectedDishes.length} more dish(es)` : `Por favor selecciona ${Math.max(1, nights - 1) - selectedDishes.length} platillo(s) más`}
                                   </p>
@@ -1356,9 +1380,14 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             <div className="font-serif text-xl text-[#9B7E67]">${accommodationTotal.toLocaleString('en-US')} {currency}</div>
                           </div>
                           
-                          {wantsCook && totalCookServices > 0 && (
+                          {wantsCook && (totalCookServices > 0 || selectedCookService?.name?.toLowerCase().includes('dinner')) && (
                             <div className="pb-6 border-b border-gray-100">
-                              <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><Utensils size={16}/> {dict.addons?.chefTitle}</h4>
+                              <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><Utensils size={16}/> {dict.addons?.foodServicesTitle || (isEn ? 'Food Services' : 'Servicios de Comida')}</h4>
+                              {selectedCookService?.name?.toLowerCase().includes('dinner') && (
+                                <div className="flex justify-between text-base text-gray-600 mb-1">
+                                  <span className="font-medium text-[#9B7E67]">{translateDB(selectedCookService.name, isEn)}</span>
+                                </div>
+                              )}
                               {Object.entries(cookSelections).map(([id, count]) => {
                                 if (count > 0) {
                                   const service = foodServices.find(s => s.id.toString() === id);
@@ -1395,7 +1424,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
                           {wantsATV && Object.values(atvSelections).some(v => v > 0) && (
                             <div className="pb-6 border-b border-gray-100">
-                              <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><Map size={16}/> {dict.addons?.atvTour}</h4>
+                              <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><Map size={16}/> {dict.addons?.atvTitle || (isEn ? 'Tours' : 'Tours')}</h4>
                               {Object.entries(atvSelections).map(([id, count]) => {
                                 if (count > 0) {
                                   const tour = tours.find(t => t.id.toString() === id);
@@ -1467,8 +1496,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 )}
                 {step === 2 && (
                   <div className="flex flex-col items-end">
-                    {wantsCook === null ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : wantsCook && totalCookServices === 0 ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select your plan' : 'Selecciona tu plan'}</span> : null}
-                    <button onClick={nextStep} disabled={wantsCook === null || (wantsCook && totalCookServices === 0)} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
+                    {wantsCook === null ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : wantsCook && (totalCookServices === 0 && !selectedCookService?.name?.toLowerCase().includes('dinner')) ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select your plan' : 'Selecciona tu plan'}</span> : null}
+                    <button onClick={nextStep} disabled={wantsCook === null || (wantsCook && (totalCookServices === 0 && !selectedCookService?.name?.toLowerCase().includes('dinner')))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {dictContext?.modal?.next || (isEn ? 'Next' : 'Siguiente')}
                     </button>
                   </div>
