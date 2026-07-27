@@ -1584,18 +1584,20 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </motion.div>
                         )}
 
-                        <div className="shrink-0 pb-4 flex justify-between items-end mt-8">
-                          <button onClick={prevStep} className="text-gray-500 font-bold uppercase text-xs tracking-widest mb-4 hover:text-[#23211F] transition-colors">{isEn ? "Back" : "Volver"}</button>
-                          <div className="flex flex-col items-end">
+                        <div className="shrink-0 pb-4 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-6 mt-8 w-full">
+                          <button onClick={prevStep} className="text-gray-500 font-bold uppercase text-xs tracking-widest hover:text-[#23211F] transition-colors self-start sm:self-auto mb-2 sm:mb-4">{isEn ? "Back" : "Volver"}</button>
+                          <div className="flex flex-col sm:items-end w-full sm:w-auto min-w-[260px]">
                             {!isFormValid && (
-                              <p className="text-amber-600 text-[10px] font-bold tracking-widest uppercase text-right mb-2 animate-pulse">
+                              <p className="text-amber-600 text-[10px] font-bold tracking-widest uppercase text-left sm:text-right mb-2 animate-pulse">
                                 {isEn ? 'Please fill in all required fields' : 'Por favor completa todos los campos'}
                               </p>
                             )}
-                            <PremiumButton onClick={handleCheckout} disabled={!isFormValid || isLoading || grandTotal === 0}>
-                              <CreditCard size={18} />
-                              {dict.modal?.proceedPayment}
-                            </PremiumButton>
+                            <div className="w-full">
+                              <PremiumButton onClick={handleCheckout} disabled={!isFormValid || isLoading || grandTotal === 0}>
+                                <CreditCard size={18} />
+                                {dict.modal?.proceedPayment}
+                              </PremiumButton>
+                            </div>
                           </div>
                         </div>
                       </div>
