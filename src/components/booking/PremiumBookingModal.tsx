@@ -682,8 +682,10 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     if (!wants) {
       setCookSelections({});
       setSelectedDishes([]);
+      setStep('tours');
+    } else {
+      setStep('food_service');
     }
-    setTimeout(() => nextStep(), 100);
   };
 
   const handleCookChange = (id: string, val: number) => {
@@ -1038,7 +1040,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                               key={service.id}
                               onClick={() => {
                                 setSelectedCookService(service);
-                                setTimeout(() => nextStep(), 100);
+                                const isDinner = service.name?.toLowerCase().includes('dinner') || service.name?.toLowerCase().includes('cena');
+                                if (isDinner) {
+                                  setStep('menu');
+                                } else {
+                                  setStep('food_plan');
+                                }
                               }}
                               className="p-5 border border-[#E8D5B7] rounded-xl hover:bg-[#F9F7F4] text-left transition-colors flex flex-col group bg-white"
                             >
