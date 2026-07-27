@@ -941,27 +941,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         <h3 className="text-2xl font-serif text-[#23211F]">{dict.modal?.selectDates}</h3>
                       </div>
                       <div className="flex-1 w-full flex flex-col items-center justify-start md:justify-center bg-white rounded-2xl md:rounded-3xl p-5 md:p-10 shadow-sm border border-gray-100 min-h-[400px] md:min-h-[500px]">
-                        <div className="w-full max-w-[320px] md:max-w-[420px] mx-auto
-                          [&_.rdp]:[--rdp-cell-size:40px] md:[&_.rdp]:[--rdp-cell-size:52px]
-                          [&_.rdp]:mx-auto
-                          [&_.rdp-months]:justify-center
-                          [&_.rdp-month_caption]:flex [&_.rdp-month_caption]:justify-center [&_.rdp-month_caption]:items-center [&_.rdp-month_caption]:relative 
-                          [&_.rdp-month_caption]:mb-6 md:[&_.rdp-month_caption]:mb-10
-                          [&_.rdp-caption_label]:text-lg md:[&_.rdp-caption_label]:text-2xl [&_.rdp-caption_label]:font-serif [&_.rdp-caption_label]:text-[#23211F] [&_.rdp-caption_label]:capitalize [&_.rdp-caption_label]:font-medium
-                          [&_.rdp-nav]:absolute [&_.rdp-nav]:w-full [&_.rdp-nav]:flex [&_.rdp-nav]:justify-between [&_.rdp-nav]:inset-x-0 [&_.rdp-nav]:top-1/2 [&_.rdp-nav]:-translate-y-1/2
-                          [&_.rdp-button_previous]:w-8 [&_.rdp-button_previous]:h-8 md:[&_.rdp-button_previous]:w-10 md:[&_.rdp-button_previous]:h-10 [&_.rdp-button_previous]:flex [&_.rdp-button_previous]:items-center [&_.rdp-button_previous]:justify-center [&_.rdp-button_previous]:bg-gray-50 hover:[&_.rdp-button_previous]:bg-gray-100 [&_.rdp-button_previous]:text-gray-600 [&_.rdp-button_previous]:rounded-full [&_.rdp-button_previous]:transition-colors
-                          [&_.rdp-button_next]:w-8 [&_.rdp-button_next]:h-8 md:[&_.rdp-button_next]:w-10 md:[&_.rdp-button_next]:h-10 [&_.rdp-button_next]:flex [&_.rdp-button_next]:items-center [&_.rdp-button_next]:justify-center [&_.rdp-button_next]:bg-gray-50 hover:[&_.rdp-button_next]:bg-gray-100 [&_.rdp-button_next]:text-gray-600 [&_.rdp-button_next]:rounded-full [&_.rdp-button_next]:transition-colors
-                          [&_.rdp-weekday]:text-[10px] md:[&_.rdp-weekday]:text-xs [&_.rdp-weekday]:font-bold [&_.rdp-weekday]:text-gray-400 [&_.rdp-weekday]:uppercase [&_.rdp-weekday]:tracking-widest
-                          [&_.rdp-day]:flex [&_.rdp-day]:items-center [&_.rdp-day]:justify-center [&_.rdp-day]:mx-auto
-                          [&_.rdp-selected]:!bg-[#9B7E67] [&_.rdp-selected]:!text-[#F9F7F4] [&_.rdp-selected]:!rounded-none [&_.rdp-selected]:![clip-path:polygon(15%_0%,100%_0%,85%_100%,0%_100%)] [&_.rdp-selected]:!z-20 [&_.rdp-selected]:!font-bold [&_.rdp-selected]:!w-full [&_.rdp-selected]:!max-w-full [&_.rdp-selected]:!m-0
-                          [&_.rdp-range_start]:!bg-[#9B7E67] [&_.rdp-range_start]:!text-[#F9F7F4] [&_.rdp-range_start]:!rounded-none [&_.rdp-range_start]:![clip-path:polygon(15%_0%,100%_0%,100%_100%,0%_100%)] [&_.rdp-range_start]:!z-20 [&_.rdp-range_start]:!w-full [&_.rdp-range_start]:!max-w-full [&_.rdp-range_start]:!m-0
-                          [&_.rdp-range_end]:!bg-[#9B7E67] [&_.rdp-range_end]:!text-[#F9F7F4] [&_.rdp-range_end]:!rounded-none [&_.rdp-range_end]:![clip-path:polygon(0%_0%,100%_0%,85%_100%,0%_100%)] [&_.rdp-range_end]:!z-20 [&_.rdp-range_end]:!w-full [&_.rdp-range_end]:!max-w-full [&_.rdp-range_end]:!m-0
-                          [&_.rdp-range_middle]:!bg-[#D4A574] [&_.rdp-range_middle]:!text-[#23211F] [&_.rdp-range_middle]:!rounded-none [&_.rdp-range_middle]:!shadow-none [&_.rdp-range_middle]:!z-10 [&_.rdp-range_middle]:!w-full [&_.rdp-range_middle]:!max-w-full [&_.rdp-range_middle]:!m-0
-                          [&_.rdp-day_booked]:!text-red-500 [&_.rdp-day_booked]:!font-bold [&_.rdp-day_booked]:line-through [&_.rdp-day_booked]:!opacity-80
-                          [&_.rdp-day_buffer]:!text-[#D4A574] [&_.rdp-day_buffer]:!font-bold [&_.rdp-day_buffer]:line-through [&_.rdp-day_buffer]:!opacity-80
-                          [&_.rdp-day_blocked]:!text-gray-400 [&_.rdp-day_blocked]:line-through [&_.rdp-day_blocked]:!opacity-60
-                          [&_.rdp-disabled]:!text-gray-300 [&_.rdp-disabled]:!opacity-50
-                        ">
+                        <div className="w-full max-w-[320px] md:max-w-[420px] mx-auto">
                           <DayPicker
                             mode="range"
                             selected={range}

@@ -13,80 +13,243 @@
 }
 
 
-/* Premium react-day-picker styles */
-.rdp {
-  --rdp-cell-size: 45px;
+/* ═══════════════════════════════════════════════════════════════
+   Premium react-day-picker v10 styles
+   ═══════════════════════════════════════════════════════════════ */
+
+/* --- Variable overrides on .rdp-root (v10 root) --- */
+.premium-calendar.rdp-root {
   --rdp-accent-color: #9B7E67;
-  --rdp-background-color: #FAF8F5;
-  --rdp-accent-color-dark: #2C2621;
-  --rdp-background-color-dark: #2C2621;
-  --rdp-outline: 2px solid var(--rdp-accent-color);
-  --rdp-outline-selected: 2px solid var(--rdp-accent-color);
+  --rdp-accent-background-color: #FAF8F5;
+  --rdp-today-color: #9B7E67;
+  --rdp-day-width: 40px;
+  --rdp-day-height: 40px;
+  --rdp-day_button-width: 38px;
+  --rdp-day_button-height: 38px;
+  --rdp-day_button-border-radius: 50%;
+  --rdp-day_button-border: 2px solid transparent;
+  --rdp-selected-border: 2px solid #9B7E67;
+  --rdp-range_start-color: #F9F7F4;
+  --rdp-range_start-date-background-color: #9B7E67;
+  --rdp-range_end-color: #F9F7F4;
+  --rdp-range_end-date-background-color: #9B7E67;
+  --rdp-range_middle-background-color: rgba(212, 165, 116, 0.15);
+  --rdp-range_middle-color: #23211F;
+  --rdp-nav-height: 2.75rem;
+  --rdp-nav_button-width: 2rem;
+  --rdp-nav_button-height: 2rem;
+  --rdp-disabled-opacity: 0.35;
+  --rdp-outside-opacity: 0.4;
   margin: 0 !important;
+  width: 100%;
 }
 
-.rdp-day {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  border-radius: 50%;
+@media (min-width: 768px) {
+  .premium-calendar.rdp-root {
+    --rdp-day-width: 52px;
+    --rdp-day-height: 52px;
+    --rdp-day_button-width: 44px;
+    --rdp-day_button-height: 44px;
+    --rdp-nav_button-width: 2.5rem;
+    --rdp-nav_button-height: 2.5rem;
+  }
+}
+
+/* --- Months container: horizontal, centered --- */
+.premium-calendar .rdp-months {
+  justify-content: center;
+  width: 100%;
+}
+
+.premium-calendar .rdp-month {
+  width: 100%;
+}
+
+/* --- Month caption: centered with nav around --- */
+.premium-calendar .rdp-month_caption {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .premium-calendar .rdp-month_caption {
+    margin-bottom: 2.5rem;
+  }
+}
+
+/* --- Caption label typography --- */
+.premium-calendar .rdp-caption_label {
+  font-family: var(--font-serif, Georgia, 'Times New Roman', serif);
+  font-size: 1.125rem;
   font-weight: 500;
   color: #23211F;
+  text-transform: capitalize;
 }
 
-.rdp-day:hover:not(.rdp-day_disabled) {
-  background-color: var(--rdp-background-color);
-  color: var(--rdp-accent-color);
-  transform: scale(1.15);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  z-index: 10;
-  position: relative;
+@media (min-width: 768px) {
+  .premium-calendar .rdp-caption_label {
+    font-size: 1.5rem;
+  }
 }
 
-.rdp-day_selected, 
-.rdp-day_selected:focus-visible, 
-.rdp-day_selected:hover {
-  background-color: var(--rdp-accent-color) !important;
-  color: white !important;
-  transform: scale(1.1) !important;
-  box-shadow: 0 4px 15px rgba(155, 126, 103, 0.4) !important;
-  font-weight: bold;
-  z-index: 20;
-  position: relative;
+/* --- Nav buttons --- */
+.premium-calendar .rdp-button_previous,
+.premium-calendar .rdp-button_next {
+  background-color: #f9fafb;
+  border-radius: 9999px;
+  color: #4b5563;
+  transition: all 0.2s ease;
 }
 
-.rdp-button:focus-visible:not([disabled]) {
-  background-color: var(--rdp-background-color);
-  border: var(--rdp-outline);
-}
-
-.rdp-nav_button {
-  transition: all 0.3s ease;
-  border-radius: 50%;
-}
-
-.rdp-nav_button:hover {
-  background-color: var(--rdp-background-color);
+.premium-calendar .rdp-button_previous:hover,
+.premium-calendar .rdp-button_next:hover {
+  background-color: #f3f4f6;
+  color: #9B7E67;
   transform: scale(1.1);
-  color: var(--rdp-accent-color);
 }
 
-.rdp-head_cell {
-  font-size: 0.75rem;
+/* --- Month grid: ensure proper table layout --- */
+.premium-calendar .rdp-month_grid {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* --- Weekday headers --- */
+.premium-calendar .rdp-weekday {
+  font-size: 10px;
+  font-weight: 700;
+  color: #9ca3af;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #9CA3AF;
+  padding: 0.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .premium-calendar .rdp-weekday {
+    font-size: 12px;
+  }
+}
+
+/* --- Day cells --- */
+.premium-calendar .rdp-day {
+  text-align: center;
+  vertical-align: middle;
+  padding: 1px;
+}
+
+.premium-calendar .rdp-day_button {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  font-weight: 500;
+  color: #23211F;
+  margin: 0 auto;
+}
+
+.premium-calendar .rdp-day_button:hover:not(:disabled) {
+  background-color: #FAF8F5;
+  color: #9B7E67;
+  transform: scale(1.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* --- Selected day (single selection) --- */
+.premium-calendar .rdp-selected .rdp-day_button {
+  background-color: #9B7E67 !important;
+  color: #F9F7F4 !important;
   font-weight: 700;
-}
-.rdp-day_disabled {
-  opacity: 0.3;
+  box-shadow: 0 4px 15px rgba(155, 126, 103, 0.4);
 }
 
+/* --- Range start --- */
+.premium-calendar .rdp-range_start {
+  background: linear-gradient(90deg, transparent 50%, rgba(212, 165, 116, 0.15) 50%) !important;
+  border-radius: 0;
+}
 
-/* Animations for mounting */
+.premium-calendar .rdp-range_start .rdp-day_button {
+  background-color: #9B7E67 !important;
+  color: #F9F7F4 !important;
+  font-weight: 700;
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(155, 126, 103, 0.35);
+}
+
+/* --- Range end --- */
+.premium-calendar .rdp-range_end {
+  background: linear-gradient(90deg, rgba(212, 165, 116, 0.15) 50%, transparent 50%) !important;
+  border-radius: 0;
+}
+
+.premium-calendar .rdp-range_end .rdp-day_button {
+  background-color: #9B7E67 !important;
+  color: #F9F7F4 !important;
+  font-weight: 700;
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(155, 126, 103, 0.35);
+}
+
+/* When start == end (single day selected for range) */
+.premium-calendar .rdp-range_start.rdp-range_end {
+  background: transparent !important;
+}
+
+/* --- Range middle --- */
+.premium-calendar .rdp-range_middle {
+  background-color: rgba(212, 165, 116, 0.15) !important;
+  border-radius: 0;
+}
+
+.premium-calendar .rdp-range_middle .rdp-day_button {
+  color: #23211F !important;
+  border-radius: 0;
+  background: transparent;
+  font-weight: 500;
+  box-shadow: none;
+  border: none;
+}
+
+/* --- Disabled days --- */
+.premium-calendar .rdp-disabled .rdp-day_button {
+  color: #d1d5db !important;
+  opacity: 0.5;
+}
+
+/* --- Custom modifiers: booked, buffer, blocked --- */
+.premium-calendar .rdp-day_booked .rdp-day_button {
+  color: #ef4444 !important;
+  font-weight: 700;
+  text-decoration: line-through;
+  opacity: 0.8;
+}
+
+.premium-calendar .rdp-day_buffer .rdp-day_button {
+  color: #D4A574 !important;
+  font-weight: 700;
+  text-decoration: line-through;
+  opacity: 0.8;
+}
+
+.premium-calendar .rdp-day_blocked .rdp-day_button {
+  color: #9ca3af !important;
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+/* --- Chevron (nav arrows) color --- */
+.premium-calendar .rdp-chevron {
+  fill: #9B7E67;
+}
+
+/* --- Smooth mount animation --- */
 @keyframes calendarFadeIn {
   from { opacity: 0; transform: translateY(10px) scale(0.98); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.rdp {
+.premium-calendar.rdp-root {
   animation: calendarFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
