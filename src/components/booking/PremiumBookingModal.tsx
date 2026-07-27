@@ -619,14 +619,14 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
   const nextStep = () => setStep(s => {
     let next = s + 1;
-    const isDinner = selectedCookService?.name?.toLowerCase().includes('dinner');
+    const isDinner = selectedCookService?.name?.toLowerCase().includes('dinner') || selectedCookService?.name?.toLowerCase().includes('cena');
     if (next === 3 && (!wantsCook || (totalCookServices === 0 && !isDinner))) next = 4;
     return Math.min(next, 6);
   });
   const prevStep = () => {
     setStep(s => {
       let prev = s - 1;
-      const isDinner = selectedCookService?.name?.toLowerCase().includes('dinner');
+      const isDinner = selectedCookService?.name?.toLowerCase().includes('dinner') || selectedCookService?.name?.toLowerCase().includes('cena');
       if (prev === 3 && (!wantsCook || (totalCookServices === 0 && !isDinner))) prev = 2;
       const newStep = Math.max(prev, 1);
       // Reset the answer of the step we are going back to so user can choose again
@@ -634,6 +634,17 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
       if (newStep === 4) setWantsATV(null);
       return newStep;
     });
+  };
+
+  const getBackButtonText = () => {
+    if (step === 2) return dict.modal?.backToCalendar || (isEn ? 'Back to calendar' : 'Volver al calendario');
+    return isEn ? 'Back' : 'Volver';
+  };
+
+  const showBackButton = () => {
+    if (step === 2 && wantsCook) return false;
+    if (step === 4 && wantsATV) return false;
+    return true;
   };
 
   const handleWantsCook = (wants: boolean) => {
@@ -842,8 +853,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
             <div className="w-full md:w-7/12 flex flex-col h-full bg-[#F9F7F4] text-[#23211F] relative">
               {/* Mobile Fixed Header */}
               <div className="shrink-0 z-20 p-6 pb-2 md:hidden relative bg-[#F9F7F4]">
-                {step > 1 && step <= 5 && (
-                  <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
+                {step > 1 && step <= 5 && showBackButton() && (
+                  <PremiumButton variant="back" onClick={prevStep} backText={getBackButtonText()} />
                 )}
                 <StepIndicator currentStep={step} totalSteps={6} />
               </div>
@@ -851,8 +862,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
               <div className="flex-1 md:overflow-y-auto md:overflow-x-hidden md:p-12 md:pb-12 scroll-smooth flex flex-col relative">
                 {/* Desktop Header */}
                 <div className="shrink-0 z-10 hidden md:block">
-                  {step > 1 && step <= 5 && (
-                    <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
+                  {step > 1 && step <= 5 && showBackButton() && (
+                    <PremiumButton variant="back" onClick={prevStep} backText={getBackButtonText()} />
                   )}
                   <StepIndicator currentStep={step} totalSteps={6} />
                 </div>
@@ -1000,8 +1011,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                     key={service.id}
                                     onClick={() => {
                                       setSelectedCookService(service);
-                                      if (service.name.toLowerCase().includes('dinner')) {
-                                        setTimeout(() => nextStep(), 100);
+                                      if (service.name.toLowerCase().includes('dinner') || service.name.toLowerCase().includes('cena')) {
+                                        setTimeout(() => setStep(3), 100);
                                       }
                                     }}
                                     className="p-5 border border-[#E8D5B7] rounded-xl hover:bg-[#F9F7F4] text-left transition-colors flex flex-col group bg-white"
