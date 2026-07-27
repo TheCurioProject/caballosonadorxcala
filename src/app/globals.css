@@ -48,23 +48,43 @@
   padding: 0.125rem;
 }
 
-/* Day buttons base styles */
+/* Day buttons base styles (Admin match) */
 .rdp-day_button {
-  border: 1px solid #f3f4f6 !important; /* Gray-100 outline */
+  border: 1px solid rgba(212, 195, 171, 0.4) !important; /* border-[#D4C3AB]/40 */
   transition: all 0.2s ease !important;
-  background-color: #ffffff !important;
+  background-color: #F9F7F4 !important; /* bg-[#F9F7F4] */
+  color: #23211F !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important; /* shadow-sm */
 }
 .rdp-day_button:hover:not([disabled]) {
-  border-color: #9B7E67 !important;
-  color: #9B7E67 !important;
+  background-color: #E5D9C5 !important; /* hover:bg-[#E5D9C5] */
+  border-color: rgba(212, 195, 171, 0.8) !important;
 }
+
+/* Selected Start / End explicit overrides */
+.rdp-range_start .rdp-day_button,
+.rdp-range_end .rdp-day_button,
 .rdp-selected .rdp-day_button {
+  background-color: #9B7E67 !important; /* bg-[#9B7E67] */
+  color: #F9F7F4 !important;
   border-color: transparent !important;
   font-weight: bold !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important; /* shadow-md */
 }
+
+/* Selected Middle explicit overrides */
+.rdp-range_middle .rdp-day_button {
+  background-color: #D4A574 !important; /* bg-[#D4A574] */
+  color: #23211F !important;
+  opacity: 0.9 !important;
+  border-color: transparent !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important; /* shadow-sm */
+}
+
 .rdp-disabled .rdp-day_button {
   background-color: transparent !important;
   border-color: transparent !important;
+  box-shadow: none !important;
 }
 
 /* Month navigation and text layout */
