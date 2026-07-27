@@ -37,20 +37,38 @@
 
 /* Ensure the calendar grid expands */
 .rdp-months {
-  width: 100%;
-  max-width: 100%;
-  justify-content: center;
+  width: 100% !important;
+  max-width: 100% !important;
+  justify-content: center !important;
+}
+.rdp-month {
+  width: 100% !important;
 }
 .rdp-month_grid {
-  width: 100%;
+  width: 100% !important;
+  table-layout: fixed !important;
 }
 .rdp-day {
-  padding: 0.125rem;
+  padding: 0.125rem !important;
+}
+
+/* Remove "pill" shapes from range ends and use rounded squares instead */
+.rdp-range_start {
+  border-start-start-radius: 0.5rem !important;
+  border-end-start-radius: 0.5rem !important;
+}
+.rdp-range_end {
+  border-start-end-radius: 0.5rem !important;
+  border-end-end-radius: 0.5rem !important;
+}
+.rdp-range_middle {
+  border-radius: 0 !important;
 }
 
 /* Day buttons base styles (Admin match) */
 .rdp-day_button {
   border: 1px solid rgba(212, 195, 171, 0.4) !important; /* border-[#D4C3AB]/40 */
+  border-radius: 0.5rem !important;
   transition: all 0.2s ease !important;
   background-color: #F9F7F4 !important; /* bg-[#F9F7F4] */
   color: #23211F !important;
