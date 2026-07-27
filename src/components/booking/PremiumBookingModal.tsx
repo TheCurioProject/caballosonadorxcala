@@ -385,7 +385,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const isEn = currentLangCode === 'en';
   const localeObj = currentLangCode === 'en' ? enUS : currentLangCode === 'de' ? de : es;
 
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState<string>('dates');
   const [range, setRange] = useState<DateRange | undefined>(undefined);
   const [disabledRanges, setDisabledRanges] = useState<{from: Date, to: Date}[]>([]);
   const [bookedRanges, setBookedRanges] = useState<{from: Date, to: Date}[]>([]);
@@ -465,7 +465,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         .catch(console.error);
     } else {
       setTimeout(() => {
-        setStep(1);
+        setStep('dates');
         setRange(undefined);
         setGuestName('');
         setGuestEmail('');
@@ -617,33 +617,61 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     }
   };
 
+  const getActiveSteps = useCallback(() => {
+    const steps = ['dates', 'food_prompt'];
+    if (wantsCook) {
+      steps.push('food_service');
+      const isPersonalized = selectedCookService?.name?.toLowerCase().includes('personalized') || selectedCookService?.name?.toLowerCase().includes('personalizado');
+      if (isPersonalized) {
+        steps.push('food_plan');
+      }
+      const isDinner = selectedCookService?.name?.toLowerCase().includes('dinner') || selectedCookService?.name?.toLowerCase().includes('cena');
+      if (isDinner || totalCookServices > 0) {
+        steps.push('menu');
+      }
+    }
+    steps.push('tours', 'checkout', 'success');
+    return steps;
+  }, [wantsCook, selectedCookService, totalCookServices]);
+
+  const activeSteps = getActiveSteps();
+  const currentStepIndex = activeSteps.indexOf(step) + 1;
+  const totalStepsCount = activeSteps.length - 1; // Exclude success
+
   const nextStep = () => setStep(s => {
-    let next = s + 1;
-    const isDinner = selectedCookService?.name?.toLowerCase().includes('dinner') || selectedCookService?.name?.toLowerCase().includes('cena');
-    if (next === 3 && (!wantsCook || (totalCookServices === 0 && !isDinner))) next = 4;
-    return Math.min(next, 6);
+    const steps = getActiveSteps();
+    const idx = steps.indexOf(s);
+    if (idx >= 0 && idx < steps.length - 1) {
+      return steps[idx + 1];
+    }
+    return s;
   });
+
   const prevStep = () => {
     setStep(s => {
-      let prev = s - 1;
-      const isDinner = selectedCookService?.name?.toLowerCase().includes('dinner') || selectedCookService?.name?.toLowerCase().includes('cena');
-      if (prev === 3 && (!wantsCook || (totalCookServices === 0 && !isDinner))) prev = 2;
-      const newStep = Math.max(prev, 1);
-      // Reset the answer of the step we are going back to so user can choose again
-      if (newStep === 2) setWantsCook(null);
-      if (newStep === 4) setWantsATV(null);
-      return newStep;
+      const steps = getActiveSteps();
+      const idx = steps.indexOf(s);
+      
+      let nextStepId = s;
+      if (idx > 0) {
+        nextStepId = steps[idx - 1];
+      }
+      
+      if (nextStepId === 'food_prompt') setWantsCook(null);
+      if (nextStepId === 'tours') setWantsATV(null);
+      
+      return nextStepId;
     });
   };
 
   const getBackButtonText = () => {
-    if (step === 2) return dict.modal?.backToCalendar || (isEn ? 'Back to calendar' : 'Volver al calendario');
+    if (step === 'food_prompt') return dict.modal?.backToCalendar || (isEn ? 'Back to calendar' : 'Volver al calendario');
     return isEn ? 'Back' : 'Volver';
   };
 
   const showBackButton = () => {
-    if (step === 2 && wantsCook) return false;
-    if (step === 4 && wantsATV) return false;
+    if (step === 'food_prompt' && wantsCook !== null) return false;
+    if (step === 'tours' && wantsATV !== null) return false;
     return true;
   };
 
@@ -652,8 +680,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     if (!wants) {
       setCookSelections({});
       setSelectedDishes([]);
-      nextStep();
     }
+    setTimeout(() => nextStep(), 100);
   };
 
   const handleCookChange = (id: string, val: number) => {
@@ -853,22 +881,22 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
             <div className="w-full md:w-7/12 flex flex-col h-full bg-[#F9F7F4] text-[#23211F] relative">
               {/* Mobile Fixed Header */}
               <div className="shrink-0 z-20 p-6 pb-2 md:hidden relative bg-[#F9F7F4]">
-                {step > 1 && step <= 5 && showBackButton() && (
+                {currentStepIndex > 1 && currentStepIndex <= totalStepsCount && showBackButton() && (
                   <PremiumButton variant="back" onClick={prevStep} backText={getBackButtonText()} />
                 )}
-                <StepIndicator currentStep={step} totalSteps={6} />
+                <StepIndicator currentStep={currentStepIndex} totalSteps={totalStepsCount} />
               </div>
 
               <div className="flex-1 md:overflow-y-auto md:overflow-x-hidden md:p-12 md:pb-12 scroll-smooth flex flex-col relative">
                 {/* Desktop Header */}
                 <div className="shrink-0 z-10 hidden md:block">
-                  {step > 1 && step <= 5 && showBackButton() && (
+                  {currentStepIndex > 1 && currentStepIndex <= totalStepsCount && showBackButton() && (
                     <PremiumButton variant="back" onClick={prevStep} backText={getBackButtonText()} />
                   )}
-                  <StepIndicator currentStep={step} totalSteps={6} />
+                  <StepIndicator currentStep={currentStepIndex} totalSteps={totalStepsCount} />
                 </div>
                 <AnimatePresence mode="wait">
-                  {step === 1 && (
+                  {step === 'dates' && (
                     <motion.div
                       key="step1"
                       initial={{ opacity: 0, x: 20 }}
@@ -942,123 +970,136 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     </motion.div>
                   )}
 
-                  {step === 2 && (
+                  {step === 'food_prompt' && (
                     <motion.div
-                      key="step2"
+                      key="step_food_prompt"
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
                       className="min-h-full flex flex-col flex-1 max-md:absolute max-md:inset-0 max-md:overflow-y-auto max-md:p-6 max-md:pb-32"
                     >
-                      <div className={`shrink-0 ${selectedCookService ? 'mb-6' : 'mb-8'}`}>
+                      <div className="shrink-0 mb-8">
                         <div className="flex items-center justify-between mb-4">
                           <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] shadow-sm border border-[#E8D5B7]">
                             <Utensils size={24} />
                           </div>
-                          {wantsCook && (
-                            <button 
-                              onClick={() => { 
-                                if (selectedCookService) {
-                                  setSelectedCookService(null); 
-                                  setCookSelections({}); 
-                                  setSelectedDishes([]);
-                                } else {
-                                  setWantsCook(null);
-                                }
-                              }} 
-                              className="text-xs md:text-sm text-[#9B7E67] font-bold tracking-widest uppercase hover:text-[#23211F] transition-colors flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-100 shadow-sm"
-                            >
-                              {isEn ? '← Change option' : '← Cambiar opción'}
-                            </button>
-                          )}
                         </div>
                         <h3 className="text-3xl font-serif text-[#23211F] mb-2">
-                          {wantsCook 
-                            ? (selectedCookService 
-                                ? (isEn ? "Select an Assistance Plan" : "Selecciona un Plan de Asistencia")
-                                : (isEn ? "Choose Your Service" : "Elige tu Servicio")) 
-                            : dict.addons?.chefTitle}
+                          {dict.addons?.chefTitle}
                         </h3>
-                        {!selectedCookService && (
-                          <p className="text-gray-500 font-light">
-                            {wantsCook 
-                              ? (isEn ? "We provide a staff member to assist with prep, cooking, and clean up. You provide the ingredients, and we cook it for you! Select an assistance plan below:" : "Proveemos personal para asistir con la preparación, cocina y limpieza. Usted pone los ingredientes, ¡nosotros lo cocinamos! Seleccione un plan de asistencia a continuación:")
-                              : dict.addons?.chefDesc}
-                          </p>
-                        )}
+                        <p className="text-gray-500 font-light">
+                          {dict.addons?.chefDesc}
+                        </p>
                       </div>
 
-                      {wantsCook === null ? (
-                        <div className="grid grid-cols-2 gap-4 mt-auto md:mt-0 pb-4">
-                          <button onClick={() => handleWantsCook(true)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
-                            <span className="w-8 h-8 rounded-full border-2 border-gray-300 group-hover:border-[#9B7E67] flex items-center justify-center text-transparent group-hover:bg-[#9B7E67] group-hover:text-white transition-all">✓</span>
-                            {dict.addons?.yesPlease}
-                          </button>
-                          <button onClick={() => handleWantsCook(false)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
-                            <span className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-transparent group-hover:bg-gray-400 group-hover:text-white transition-all">✕</span>
-                            {dict.addons?.noThanks}
-                          </button>
-                        </div>
-                      ) : wantsCook === true ? (
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 flex-1 pb-4">
-                          
-                          {!selectedCookService ? (
-                            <div>
-                              <div className="grid gap-3">
-                                {foodServices.filter(s => s.serviceType === 'FOOD_SERVICE').map(service => (
-                                  <button 
-                                    key={service.id}
-                                    onClick={() => {
-                                      setSelectedCookService(service);
-                                      if (service.name.toLowerCase().includes('dinner') || service.name.toLowerCase().includes('cena')) {
-                                        setTimeout(() => setStep(3), 100);
-                                      }
-                                    }}
-                                    className="p-5 border border-[#E8D5B7] rounded-xl hover:bg-[#F9F7F4] text-left transition-colors flex flex-col group bg-white"
-                                  >
-                                    <span className="font-bold text-[#23211F] group-hover:text-[#9B7E67] transition-colors">{translateDB(service.name, isEn)}</span>
-                                    {service.description && <span className="text-sm text-gray-500 mt-1">{translateDB(service.description, isEn)}</span>}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          ) : (
-                            <div>
-                              <div className="space-y-3 mb-8">
-                                {foodServices.filter(s => s.serviceType === 'FOOD_PRICE').map(priceOption => {
-                                  return (
-                                    <Counter 
-                                      key={priceOption.id}
-                                      label={translateDB(priceOption.name, isEn)} 
-                                      value={cookSelections[priceOption.id.toString()] || 0} 
-                                      onChange={(val) => setCookSelections(prev => ({ ...prev, [priceOption.id.toString()]: val }))} 
-                                      max={(cookSelections[priceOption.id.toString()] || 0) + (Math.max(1, nights - 1) - totalCookServices)} 
-                                      sublabel={`+${formatPrice(priceOption.price || 0)} / ${isEn ? 'day' : 'día'}`} 
-                                    />
-                                  );
-                                })}
-                              </div>
-
-                              
-                              <div className="shrink-0 mt-4 hidden md:block">
-                                {totalCookServices === 0 && (
-                                  <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
-                                    {isEn ? 'Please select an Assistance Plan for your days' : 'Por favor selecciona un Plan de Asistencia para tus días'}
-                                  </p>
-                                )}
-                                <PremiumButton onClick={nextStep} disabled={totalCookServices === 0}>
-                                  {dict.modal?.continue} <ArrowRight size={16} />
-                                </PremiumButton>
-                              </div>
-                            </div>
-                          )}
-                        </motion.div>
-                      ) : null}
+                      <div className="grid grid-cols-2 gap-4 mt-auto md:mt-0 pb-4">
+                        <button onClick={() => handleWantsCook(true)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
+                          <span className="w-8 h-8 rounded-full border-2 border-gray-300 group-hover:border-[#9B7E67] flex items-center justify-center text-transparent group-hover:bg-[#9B7E67] group-hover:text-white transition-all">✓</span>
+                          {dict.addons?.yesPlease}
+                        </button>
+                        <button onClick={() => handleWantsCook(false)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
+                          <span className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-transparent group-hover:bg-gray-400 group-hover:text-white transition-all">✕</span>
+                          {dict.addons?.noThanks}
+                        </button>
+                      </div>
                     </motion.div>
                   )}
 
-                                    {step === 3 && (
+                  {step === 'food_service' && (
+                    <motion.div
+                      key="step_food_service"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.4 }}
+                      className="min-h-full flex flex-col flex-1 max-md:absolute max-md:inset-0 max-md:overflow-y-auto max-md:p-6 max-md:pb-32"
+                    >
+                      <div className="shrink-0 mb-8">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] shadow-sm border border-[#E8D5B7]">
+                            <Utensils size={24} />
+                          </div>
+                        </div>
+                        <h3 className="text-3xl font-serif text-[#23211F] mb-2">
+                          {isEn ? "Choose Your Service" : "Elige tu Servicio"}
+                        </h3>
+                        <p className="text-gray-500 font-light">
+                          {isEn ? "We provide a staff member to assist with prep, cooking, and clean up. You provide the ingredients, and we cook it for you! Select an assistance plan below:" : "Proveemos personal para asistir con la preparación, cocina y limpieza. Usted pone los ingredientes, ¡nosotros lo cocinamos! Seleccione un plan de asistencia a continuación:"}
+                        </p>
+                      </div>
+
+                      <div className="space-y-6 flex-1 pb-4">
+                        <div className="grid gap-3">
+                          {foodServices.filter(s => s.serviceType === 'FOOD_SERVICE').map(service => (
+                            <button 
+                              key={service.id}
+                              onClick={() => {
+                                setSelectedCookService(service);
+                                setTimeout(() => nextStep(), 100);
+                              }}
+                              className="p-5 border border-[#E8D5B7] rounded-xl hover:bg-[#F9F7F4] text-left transition-colors flex flex-col group bg-white"
+                            >
+                              <span className="font-bold text-[#23211F] group-hover:text-[#9B7E67] transition-colors">{translateDB(service.name, isEn)}</span>
+                              {service.description && <span className="text-sm text-gray-500 mt-1">{translateDB(service.description, isEn)}</span>}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {step === 'food_plan' && (
+                    <motion.div
+                      key="step_food_plan"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.4 }}
+                      className="min-h-full flex flex-col flex-1 max-md:absolute max-md:inset-0 max-md:overflow-y-auto max-md:p-6 max-md:pb-32"
+                    >
+                      <div className="shrink-0 mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] shadow-sm border border-[#E8D5B7]">
+                            <Utensils size={24} />
+                          </div>
+                        </div>
+                        <h3 className="text-3xl font-serif text-[#23211F] mb-2">
+                          {isEn ? "Select an Assistance Plan" : "Selecciona un Plan de Asistencia"}
+                        </h3>
+                      </div>
+
+                      <div className="space-y-6 flex-1 pb-4">
+                        <div className="space-y-3 mb-8">
+                          {foodServices.filter(s => s.serviceType === 'FOOD_PRICE').map(priceOption => {
+                            return (
+                              <Counter 
+                                key={priceOption.id}
+                                label={translateDB(priceOption.name, isEn)} 
+                                value={cookSelections[priceOption.id.toString()] || 0} 
+                                onChange={(val) => setCookSelections(prev => ({ ...prev, [priceOption.id.toString()]: val }))} 
+                                max={(cookSelections[priceOption.id.toString()] || 0) + (Math.max(1, nights - 1) - totalCookServices)} 
+                                sublabel={`+${formatPrice(priceOption.price || 0)} / ${isEn ? 'day' : 'día'}`} 
+                              />
+                            );
+                          })}
+                        </div>
+                        
+                        <div className="shrink-0 mt-4">
+                          {totalCookServices === 0 && (
+                            <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
+                              {isEn ? 'Please select an Assistance Plan for your days' : 'Por favor selecciona un Plan de Asistencia para tus días'}
+                            </p>
+                          )}
+                          <PremiumButton onClick={nextStep} disabled={totalCookServices === 0}>
+                            {dict.modal?.continue} <ArrowRight size={16} />
+                          </PremiumButton>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {step === 'menu' && (
                     <motion.div
                       key="stepMenu"
                       initial={{ opacity: 0, x: 20 }}
@@ -1186,7 +1227,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     </motion.div>
                   )}
 
-                  {step === 4 && (
+                  {step === 'tours' && (
                     <motion.div
                       key="step3"
                       initial={{ opacity: 0, x: 20 }}
@@ -1278,7 +1319,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     </motion.div>
                   )}
 
-                  {step === 5 && (
+                  {step === 'checkout' && (
                     <motion.div
                       key="step4"
                       initial={{ opacity: 0, x: 20 }}
@@ -1366,7 +1407,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     </motion.div>
                   )}
 
-                  {step === 6 && (
+                  {step === 'success' && (
                     <motion.div
                       key="step5"
                       initial={{ opacity: 0, x: 20 }}
@@ -1505,15 +1546,136 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     </button>
                   </div>
                 )}
-                {step === 2 && (
-                  <div className="flex flex-col items-end">
-                    {wantsCook === null ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : wantsCook && (totalCookServices === 0 && !selectedCookService?.name?.toLowerCase().includes('dinner')) ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select your plan' : 'Selecciona tu plan'}</span> : null}
-                    <button onClick={nextStep} disabled={wantsCook === null || (wantsCook && (totalCookServices === 0 && !selectedCookService?.name?.toLowerCase().includes('dinner')))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
-                      {dictContext?.modal?.next || (isEn ? 'Next' : 'Siguiente')}
-                    </button>
-                  </div>
-                )}
-                {step === 3 && (
+                {step === 'food_prompt' && (
+                    <motion.div
+                      key="step_food_prompt"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.4 }}
+                      className="min-h-full flex flex-col flex-1 max-md:absolute max-md:inset-0 max-md:overflow-y-auto max-md:p-6 max-md:pb-32"
+                    >
+                      <div className="shrink-0 mb-8">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] shadow-sm border border-[#E8D5B7]">
+                            <Utensils size={24} />
+                          </div>
+                        </div>
+                        <h3 className="text-3xl font-serif text-[#23211F] mb-2">
+                          {dict.addons?.chefTitle}
+                        </h3>
+                        <p className="text-gray-500 font-light">
+                          {dict.addons?.chefDesc}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 mt-auto md:mt-0 pb-4">
+                        <button onClick={() => handleWantsCook(true)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
+                          <span className="w-8 h-8 rounded-full border-2 border-gray-300 group-hover:border-[#9B7E67] flex items-center justify-center text-transparent group-hover:bg-[#9B7E67] group-hover:text-white transition-all">✓</span>
+                          {dict.addons?.yesPlease}
+                        </button>
+                        <button onClick={() => handleWantsCook(false)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
+                          <span className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-transparent group-hover:bg-gray-400 group-hover:text-white transition-all">✕</span>
+                          {dict.addons?.noThanks}
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {step === 'food_service' && (
+                    <motion.div
+                      key="step_food_service"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.4 }}
+                      className="min-h-full flex flex-col flex-1 max-md:absolute max-md:inset-0 max-md:overflow-y-auto max-md:p-6 max-md:pb-32"
+                    >
+                      <div className="shrink-0 mb-8">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] shadow-sm border border-[#E8D5B7]">
+                            <Utensils size={24} />
+                          </div>
+                        </div>
+                        <h3 className="text-3xl font-serif text-[#23211F] mb-2">
+                          {isEn ? "Choose Your Service" : "Elige tu Servicio"}
+                        </h3>
+                        <p className="text-gray-500 font-light">
+                          {isEn ? "We provide a staff member to assist with prep, cooking, and clean up. You provide the ingredients, and we cook it for you! Select an assistance plan below:" : "Proveemos personal para asistir con la preparación, cocina y limpieza. Usted pone los ingredientes, ¡nosotros lo cocinamos! Seleccione un plan de asistencia a continuación:"}
+                        </p>
+                      </div>
+
+                      <div className="space-y-6 flex-1 pb-4">
+                        <div className="grid gap-3">
+                          {foodServices.filter(s => s.serviceType === 'FOOD_SERVICE').map(service => (
+                            <button 
+                              key={service.id}
+                              onClick={() => {
+                                setSelectedCookService(service);
+                                setTimeout(() => nextStep(), 100);
+                              }}
+                              className="p-5 border border-[#E8D5B7] rounded-xl hover:bg-[#F9F7F4] text-left transition-colors flex flex-col group bg-white"
+                            >
+                              <span className="font-bold text-[#23211F] group-hover:text-[#9B7E67] transition-colors">{translateDB(service.name, isEn)}</span>
+                              {service.description && <span className="text-sm text-gray-500 mt-1">{translateDB(service.description, isEn)}</span>}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {step === 'food_plan' && (
+                    <motion.div
+                      key="step_food_plan"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.4 }}
+                      className="min-h-full flex flex-col flex-1 max-md:absolute max-md:inset-0 max-md:overflow-y-auto max-md:p-6 max-md:pb-32"
+                    >
+                      <div className="shrink-0 mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] shadow-sm border border-[#E8D5B7]">
+                            <Utensils size={24} />
+                          </div>
+                        </div>
+                        <h3 className="text-3xl font-serif text-[#23211F] mb-2">
+                          {isEn ? "Select an Assistance Plan" : "Selecciona un Plan de Asistencia"}
+                        </h3>
+                      </div>
+
+                      <div className="space-y-6 flex-1 pb-4">
+                        <div className="space-y-3 mb-8">
+                          {foodServices.filter(s => s.serviceType === 'FOOD_PRICE').map(priceOption => {
+                            return (
+                              <Counter 
+                                key={priceOption.id}
+                                label={translateDB(priceOption.name, isEn)} 
+                                value={cookSelections[priceOption.id.toString()] || 0} 
+                                onChange={(val) => setCookSelections(prev => ({ ...prev, [priceOption.id.toString()]: val }))} 
+                                max={(cookSelections[priceOption.id.toString()] || 0) + (Math.max(1, nights - 1) - totalCookServices)} 
+                                sublabel={`+${formatPrice(priceOption.price || 0)} / ${isEn ? 'day' : 'día'}`} 
+                              />
+                            );
+                          })}
+                        </div>
+                        
+                        <div className="shrink-0 mt-4">
+                          {totalCookServices === 0 && (
+                            <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
+                              {isEn ? 'Please select an Assistance Plan for your days' : 'Por favor selecciona un Plan de Asistencia para tus días'}
+                            </p>
+                          )}
+                          <PremiumButton onClick={nextStep} disabled={totalCookServices === 0}>
+                            {dict.modal?.continue} <ArrowRight size={16} />
+                          </PremiumButton>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {step === 'menu' && (
                   <div className="flex flex-col items-end">
                     {selectedDishes.length < Math.max(1, nights - 1) ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select your dishes' : 'Selecciona tus platillos'}</span> : null}
                     <button onClick={nextStep} disabled={selectedDishes.length < Math.max(1, nights - 1)} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
@@ -1521,7 +1683,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     </button>
                   </div>
                 )}
-                {step === 4 && (
+                {step === 'tours' && (
                   <div className="flex flex-col items-end">
                     {(!isTourBookedOnSelectedDates && wantsATV === null) ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : wantsATV && (totalAtvTours === 0 || atvPeople < minTourPax) ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select destination' : 'Selecciona un destino'}</span> : null}
                     <button onClick={nextStep} disabled={(!isTourBookedOnSelectedDates && wantsATV === null) || (wantsATV && (totalAtvTours === 0 || atvPeople < minTourPax))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
@@ -1529,7 +1691,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     </button>
                   </div>
                 )}
-                {step === 5 && (
+                {step === 'checkout' && (
                   <div className="flex flex-col items-end">
                     {!isFormValid && <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Fill required fields' : 'Llena los campos'}</span>}
                     <button onClick={nextStep} disabled={!isFormValid} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
