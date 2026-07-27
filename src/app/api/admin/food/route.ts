@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getTranslations } from '@/lib/translate';
 
 export async function GET() {
   try {
@@ -11,7 +12,25 @@ export async function GET() {
       },
       orderBy: { id: 'asc' }
     });
-    return NextResponse.json(services);
+
+    const parseTranslation = (str: string | undefined | null) => {
+      if (!str) return '';
+      if (str.startsWith('{') && str.endsWith('}')) {
+        try {
+          const parsed = JSON.parse(str);
+          return parsed.es || parsed.en || str;
+        } catch (e) {}
+      }
+      return str;
+    };
+
+    const formatted = services.map(s => ({
+      ...s,
+      name: parseTranslation(s.name),
+      description: parseTranslation(s.description)
+    }));
+
+    return NextResponse.json(formatted);
   } catch (error) {
     console.error('Error fetching food services:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
@@ -25,10 +44,13 @@ export async function POST(req: Request) {
 
     const type = serviceType || 'FOOD_PRICE';
 
+    const nameJson = JSON.stringify(await getTranslations(name || ''));
+    const descJson = JSON.stringify(await getTranslations(description || ''));
+
     const updated = await prisma.servicePricing.upsert({
       where: { id: id || 0 },
-      update: { name, description, price, isActive },
-      create: { serviceType: type, name, description, price, isActive }
+      update: { name: nameJson, description: descJson, price, isActive },
+      create: { serviceType: type, name: nameJson, description: descJson, price, isActive }
     });
 
     return NextResponse.json(updated);

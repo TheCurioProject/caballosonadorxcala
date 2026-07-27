@@ -22,6 +22,21 @@ export const TourBookingModal = ({
 }) => {
   const isEn = lang === 'en';
   const formatPrice = (amountInMxn: number) => `$${Math.round(amountInMxn).toLocaleString()} MXN`;
+  
+  const translateDB = (text: string | undefined | null, isEn: boolean): string => {
+    if (!text) return text || '';
+    const trimmed = text.trim();
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (parsed.en !== undefined && parsed.es !== undefined) {
+          return isEn ? parsed.en : parsed.es;
+        }
+      } catch (e) {}
+    }
+    return text;
+  };
+
   const [step, setStep] = useState(1);
   const [destinations, setDestinations] = useState<any[]>([]);
   const [selectedDestination, setSelectedDestination] = useState<any | null>(initialTour);
@@ -79,7 +94,7 @@ export const TourBookingModal = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           serviceType: 'TOUR',
-          serviceDetails: { destination: selectedDestination.name, pax },
+          serviceDetails: { destination: translateDB(selectedDestination.name, isEn), pax },
           startDate: date,
           endDate: date, // Single day for now, can be updated later if multi-day is needed
           pax,
@@ -88,7 +103,7 @@ export const TourBookingModal = ({
           guestPhone,
           totalPrice: convertedTotalPrice,
           items: [{
-            name: `Tour: ${selectedDestination.name}`,
+            name: `Tour: ${translateDB(selectedDestination.name, isEn)}`,
             description: `Para ${pax} personas el ${format(date, 'PPP', { locale: isEn ? enUS : es })}`,
             unitPrice: convertedPricePerPax,
             quantity: pax
@@ -153,7 +168,7 @@ export const TourBookingModal = ({
                     <Map className="text-[#9B7E67]" size={20} />
                     <div>
                       <span className="block text-[10px] uppercase text-white/50">{isEn ? "Destination" : "Destino"}</span>
-                      <span className="font-bold">{selectedDestination.name}</span>
+                      <span className="font-bold">{translateDB(selectedDestination.name, isEn)}</span>
                     </div>
                   </div>
                 </div>
@@ -227,7 +242,7 @@ export const TourBookingModal = ({
                           }}
                           className={`p-4 rounded-2xl border-2 text-left transition-all ${selectedDestination?.id === dest.id ? 'border-[#9B7E67] bg-[#9B7E67]/5' : 'border-gray-100 hover:border-gray-200'}`}
                         >
-                            <h4 className="font-bold text-[#23211F] mb-1">{dest.name}</h4>
+                            <h4 className="font-bold text-[#23211F] mb-1">{translateDB(dest.name, isEn)}</h4>
                           <span className="text-sm text-gray-500">{formatPrice(dest.pricePerPax)} {isEn ? "per person" : "por persona"}</span>
                         </button>
                       ))}

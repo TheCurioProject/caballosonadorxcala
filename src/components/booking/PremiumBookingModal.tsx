@@ -360,6 +360,19 @@ const translateDB = (text: string | undefined | null, isEn: boolean): string => 
   if (!text) return text || '';
   const trimmed = text.trim();
   
+  // 1. Dynamic autonomous translations (JSON from DB)
+  if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (parsed.en !== undefined && parsed.es !== undefined) {
+        return isEn ? parsed.en : parsed.es;
+      }
+    } catch (e) {
+      // Not valid JSON, fallback to hardcoded dictionary below
+    }
+  }
+
+  // 2. Legacy fallback: Hardcoded translations
   if (dbTranslations[trimmed]) {
     return isEn ? dbTranslations[trimmed].en : dbTranslations[trimmed].es;
   }

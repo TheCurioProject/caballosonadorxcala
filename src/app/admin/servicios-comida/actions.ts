@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { getTranslations } from '@/lib/translate';
 
 // Initialize default food services if they don't exist
 export async function initFoodServices() {
@@ -37,11 +38,18 @@ export async function getFoodServices() {
   });
 }
 
-export async function updateServicePrice(id: number, price: number) {
+export async function updateServiceDetails(id: number, price: number, name: string, description: string) {
   try {
+    const nameJson = JSON.stringify(await getTranslations(name));
+    const descJson = JSON.stringify(await getTranslations(description));
+
     await prisma.servicePricing.update({
       where: { id },
-      data: { price }
+      data: { 
+        price,
+        name: nameJson,
+        description: descJson
+      }
     });
     revalidatePath('/admin/servicios-comida');
     revalidatePath('/[lang]/servicios-de-comida', 'page');

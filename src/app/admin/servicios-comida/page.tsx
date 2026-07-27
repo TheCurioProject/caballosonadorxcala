@@ -1,4 +1,4 @@
-import { getFoodServices, getFoodBookings, updateServicePrice } from './actions';
+import { getFoodServices, getFoodBookings, updateServiceDetails } from './actions';
 import { revalidatePath } from 'next/cache';
 import { Utensils, Calendar as CalendarIcon } from 'lucide-react';
 
@@ -15,15 +15,30 @@ export default async function ServiciosComidaAdminPage() {
     console.warn("Failed to fetch food services/bookings from Prisma:", error);
   }
 
-  async function handleUpdatePrice(formData: FormData) {
+  async function handleUpdateService(formData: FormData) {
     'use server';
     const id = parseInt(formData.get('id') as string);
     const price = parseFloat(formData.get('price') as string);
-    if (!isNaN(id) && !isNaN(price)) {
-      await updateServicePrice(id, price);
+    const name = formData.get('name') as string;
+    const description = formData.get('description') as string;
+    
+    if (!isNaN(id) && !isNaN(price) && name && description) {
+      await updateServiceDetails(id, price, name, description);
       revalidatePath('/admin/servicios-comida');
     }
   }
+
+  const parseTranslation = (str: string | undefined | null) => {
+    if (!str) return '';
+    if (str.startsWith('{') && str.endsWith('}')) {
+      try {
+        const parsed = JSON.parse(str);
+        // Show Spanish by default in the admin panel if available, else English, else original
+        return parsed.es || parsed.en || str;
+      } catch (e) {}
+    }
+    return str;
+  };
 
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-6xl mx-auto font-sans">
@@ -45,25 +60,52 @@ export default async function ServiciosComidaAdminPage() {
           </h2>
           <div className="space-y-6">
             {services.map(service => (
-              <div key={service.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
-                <div>
-                  <h3 className="font-bold text-gray-800">{service.name}</h3>
-                  <p className="text-xs text-gray-500">{service.description}</p>
-                </div>
-                <form action={handleUpdatePrice} className="mt-4 sm:mt-0 flex items-center gap-2">
+              <div key={service.id} className="flex flex-col p-4 bg-gray-50 rounded-xl border border-gray-100">
+                <form action={handleUpdateService} className="flex flex-col gap-4">
                   <input type="hidden" name="id" value={service.id} />
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
-                    <input 
-                      type="number" 
-                      name="price" 
-                      defaultValue={service.price} 
-                      className="w-24 pl-7 pr-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9B7E67] focus:border-transparent outline-none"
-                    />
+                  
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1 space-y-3">
+                      <div>
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">Service Name</label>
+                        <input 
+                          type="text" 
+                          name="name" 
+                          defaultValue={parseTranslation(service.name)} 
+                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9B7E67] focus:border-transparent outline-none font-bold text-gray-800"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">Description / Details</label>
+                        <textarea 
+                          name="description" 
+                          defaultValue={parseTranslation(service.description)} 
+                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9B7E67] focus:border-transparent outline-none text-sm text-gray-600 resize-none h-20"
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="w-full sm:w-32 flex flex-col justify-end gap-3 shrink-0 border-t sm:border-t-0 sm:border-l border-gray-200 pt-4 sm:pt-0 sm:pl-4">
+                      <div>
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">Base Price</label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                          <input 
+                            type="number" 
+                            name="price" 
+                            defaultValue={service.price} 
+                            className="w-full pl-7 pr-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9B7E67] focus:border-transparent outline-none font-medium"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <button type="submit" className="w-full bg-[#2C2621] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#9B7E67] transition-colors font-medium">
+                        Save
+                      </button>
+                    </div>
                   </div>
-                  <button type="submit" className="bg-[#2C2621] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#9B7E67] transition-colors">
-                    Save
-                  </button>
                 </form>
               </div>
             ))}
