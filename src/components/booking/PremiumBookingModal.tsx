@@ -617,13 +617,19 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     }
   };
 
-  const nextStep = () => setStep(s => Math.min(s + 1, 5));
+  const nextStep = () => setStep(s => {
+    let next = s + 1;
+    if (next === 3 && (!wantsCook || totalCookServices === 0)) next = 4;
+    return Math.min(next, 6);
+  });
   const prevStep = () => {
     setStep(s => {
-      const newStep = Math.max(s - 1, 1);
+      let prev = s - 1;
+      if (prev === 3 && (!wantsCook || totalCookServices === 0)) prev = 2;
+      const newStep = Math.max(prev, 1);
       // Reset the answer of the step we are going back to so user can choose again
       if (newStep === 2) setWantsCook(null);
-      if (newStep === 3) setWantsATV(null);
+      if (newStep === 4) setWantsATV(null);
       return newStep;
     });
   };
@@ -821,7 +827,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 {step > 1 && step <= 5 && (
                   <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
                 )}
-                <StepIndicator currentStep={step} totalSteps={5} />
+                <StepIndicator currentStep={step} totalSteps={6} />
               </div>
 
               <div className="flex-1 md:overflow-y-auto md:overflow-x-hidden md:p-12 md:pb-12 scroll-smooth flex flex-col relative">
@@ -830,7 +836,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   {step > 1 && step <= 5 && (
                     <PremiumButton variant="back" onClick={prevStep} backText={dict.modal?.backToCalendar} />
                   )}
-                  <StepIndicator currentStep={step} totalSteps={5} />
+                  <StepIndicator currentStep={step} totalSteps={6} />
                 </div>
                 <AnimatePresence mode="wait">
                   {step === 1 && (
@@ -998,7 +1004,35 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                 })}
                               </div>
 
-                              <div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-8">
+                              
+                              <div className="shrink-0 mt-4 hidden md:block">
+                                <PremiumButton onClick={nextStep} disabled={totalCookServices === 0}>
+                                  {dict.modal?.continue} <ArrowRight size={16} />
+                                </PremiumButton>
+                              </div>
+                            </div>
+                          )}
+                        </motion.div>
+                      ) : null}
+                    </motion.div>
+                  )}
+
+                                    {step === 3 && (
+                    <motion.div
+                      key="stepMenu"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.4 }}
+                      className="min-h-full flex flex-col flex-1 max-md:absolute max-md:inset-0 max-md:overflow-y-auto max-md:p-6 max-md:pb-32"
+                    >
+                      <div className="mb-6 shrink-0 flex items-center gap-4">
+                        <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] shadow-sm border border-[#E8D5B7]">
+                          <Utensils size={24} />
+                        </div>
+                        <h3 className="text-3xl font-serif text-[#23211F]">{isEn ? 'Menu' : 'Menú'}</h3>
+                      </div>
+<div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-8">
                                 <div className="flex justify-between items-center mb-4">
                                   <h4 className="text-sm font-bold uppercase tracking-widest text-[#9B7E67]">
                                     {isEn ? 'Available Dishes (Menu)' : 'Platillos Disponibles (Menú)'}
@@ -1097,31 +1131,23 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                 </div>
                               </div>
 
-                              {selectedDishes.length < Math.max(1, nights - 1) && (
-                                <div className="shrink-0 mt-4 hidden md:block">
-                                  {totalCookServices === 0 && (
-                                    <p className="text-amber-600 text-sm font-bold mb-3 text-center">
-                                      {isEn ? 'Please select an Assistance Plan for your days' : 'Por favor selecciona un Plan de Asistencia para tus días'}
-                                    </p>
-                                  )}
-                                  {totalCookServices > 0 && selectedDishes.length < Math.max(1, nights - 1) && (
-                                    <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
-                                      {isEn ? `Please select ${Math.max(1, nights - 1) - selectedDishes.length} more dish(es)` : `Por favor selecciona ${Math.max(1, nights - 1) - selectedDishes.length} platillo(s) más`}
-                                    </p>
-                                  )}
-                                  <PremiumButton onClick={nextStep} disabled={totalCookServices === 0 || selectedDishes.length < Math.max(1, nights - 1)}>
-                                    {dict.addons?.confirmChef} <ArrowRight size={16} />
-                                  </PremiumButton>
-                                </div>
-                              )}
+                              <div className="shrink-0 mt-4 hidden md:block">
+                                {totalCookServices > 0 && selectedDishes.length < Math.max(1, nights - 1) && (
+                                  <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
+                                    {isEn ? `Please select ${Math.max(1, nights - 1) - selectedDishes.length} more dish(es)` : `Por favor selecciona ${Math.max(1, nights - 1) - selectedDishes.length} platillo(s) más`}
+                                  </p>
+                                )}
+                                <PremiumButton onClick={nextStep} disabled={selectedDishes.length < Math.max(1, nights - 1)}>
+                                  {dict.addons?.confirmChef} <ArrowRight size={16} />
+                                </PremiumButton>
+                              </div>
                             </div>
                           )}
                         </motion.div>
-                      ) : null}
                     </motion.div>
                   )}
 
-                  {step === 3 && (
+                  {step === 4 && (
                     <motion.div
                       key="step3"
                       initial={{ opacity: 0, x: 20 }}
@@ -1213,7 +1239,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     </motion.div>
                   )}
 
-                  {step === 4 && (
+                  {step === 5 && (
                     <motion.div
                       key="step4"
                       initial={{ opacity: 0, x: 20 }}
@@ -1301,7 +1327,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     </motion.div>
                   )}
 
-                  {step === 5 && (
+                  {step === 6 && (
                     <motion.div
                       key="step5"
                       initial={{ opacity: 0, x: 20 }}
@@ -1412,7 +1438,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
             </div>
 
             {/* Mobile Fixed Bottom Summary */}
-            {isMobile && step < 5 && (
+            {isMobile && step < 6 && (
               <motion.div 
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}
@@ -1432,13 +1458,21 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 )}
                 {step === 2 && (
                   <div className="flex flex-col items-end">
-                    {wantsCook === null ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : wantsCook && (totalCookServices === 0 || selectedDishes.length < Math.max(1, nights - 1)) ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select your dishes' : 'Selecciona tus platillos'}</span> : null}
-                    <button onClick={nextStep} disabled={wantsCook === null || (wantsCook && (totalCookServices === 0 || selectedDishes.length < Math.max(1, nights - 1)))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
+                    {wantsCook === null ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : wantsCook && totalCookServices === 0 ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select your plan' : 'Selecciona tu plan'}</span> : null}
+                    <button onClick={nextStep} disabled={wantsCook === null || (wantsCook && totalCookServices === 0)} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {dictContext?.modal?.next || (isEn ? 'Next' : 'Siguiente')}
                     </button>
                   </div>
                 )}
                 {step === 3 && (
+                  <div className="flex flex-col items-end">
+                    {selectedDishes.length < Math.max(1, nights - 1) ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select your dishes' : 'Selecciona tus platillos'}</span> : null}
+                    <button onClick={nextStep} disabled={selectedDishes.length < Math.max(1, nights - 1)} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
+                      {dictContext?.modal?.next || (isEn ? 'Next' : 'Siguiente')}
+                    </button>
+                  </div>
+                )}
+                {step === 4 && (
                   <div className="flex flex-col items-end">
                     {(!isTourBookedOnSelectedDates && wantsATV === null) ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : wantsATV && (totalAtvTours === 0 || atvPeople < minTourPax) ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select destination' : 'Selecciona un destino'}</span> : null}
                     <button onClick={nextStep} disabled={(!isTourBookedOnSelectedDates && wantsATV === null) || (wantsATV && (totalAtvTours === 0 || atvPeople < minTourPax))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
@@ -1446,7 +1480,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     </button>
                   </div>
                 )}
-                {step === 4 && (
+                {step === 5 && (
                   <div className="flex flex-col items-end">
                     {!isFormValid && <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Fill required fields' : 'Llena los campos'}</span>}
                     <button onClick={nextStep} disabled={!isFormValid} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
