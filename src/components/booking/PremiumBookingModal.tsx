@@ -848,8 +848,10 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       transition={{ duration: 0.4 }}
                       className="min-h-full flex flex-col flex-1 max-md:absolute max-md:inset-0 max-md:overflow-y-auto max-md:p-6 max-md:pb-32"
                     >
-                      <h3 className="text-2xl font-serif text-[#23211F] mb-6">{dict.modal?.selectDates}</h3>
-                      <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-sm border border-gray-100 min-h-[350px]">
+                      <div className="mb-6 shrink-0">
+                        <h3 className="text-2xl font-serif text-[#23211F]">{dict.modal?.selectDates}</h3>
+                      </div>
+                      <div className="flex-1 flex flex-col items-center justify-start pt-4 md:justify-center bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-sm border border-gray-100 min-h-[400px]">
                         <DayPicker
                           mode="range"
                           selected={range}
