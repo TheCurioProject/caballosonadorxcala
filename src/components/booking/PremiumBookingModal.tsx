@@ -1193,7 +1193,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                 <div className="space-y-3">
                                   {foodServices.filter(s => s.serviceType === 'FOOD_DISH').map(dish => {
                                     const isExpanded = expandedDishId === dish.id;
-                                    const isSelected = selectedDishes.includes(dish.id);
+                                    const dishQuantity = selectedDishes.filter(id => id === dish.id).length;
+                                    const isSelected = dishQuantity > 0;
                                     const maxDishes = globalMaxDishes;
                                     return (
                                       <motion.div 
@@ -1207,9 +1208,9 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                         >
                                           <span className="flex items-center gap-3">
                                             {translateDB(dish.name, isEn)}
-                                            {isSelected && (
-                                              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-5 h-5 rounded-full bg-[#9B7E67] text-white flex items-center justify-center">
-                                                <Check size={12} strokeWidth={3} />
+                                            {dishQuantity > 0 && (
+                                              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="min-w-[20px] h-5 px-1.5 rounded-full bg-[#9B7E67] text-white flex items-center justify-center text-[10px] font-bold">
+                                                {dishQuantity}
                                               </motion.div>
                                             )}
                                           </span>
@@ -1230,35 +1231,50 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                                   {translateDB(dish.description, isEn)}
                                                 </p>
                                                 <div className="shrink-0">
-                                                  {!isSelected && selectedDishes.length < maxDishes && (
+                                                  <div className="flex items-center gap-4 bg-white border border-gray-200 rounded-full p-1 shadow-sm">
                                                     <motion.button 
-                                                      whileHover={{ scale: 1.05 }}
-                                                      whileTap={{ scale: 0.95 }}
+                                                      whileTap={{ scale: 0.9 }}
                                                       onClick={() => {
                                                         setSelectedDishes(prev => {
-                                                          const next = [...prev, dish.id];
-                                                          const isDinner = selectedCookService?.name?.toLowerCase().includes('dinner');
-                                                          if (next.length === maxDishes && (totalCookServices > 0 || isDinner)) {
-                                                            setTimeout(() => nextStep(), 800);
+                                                          const idx = prev.lastIndexOf(dish.id);
+                                                          if (idx !== -1) {
+                                                            const next = [...prev];
+                                                            next.splice(idx, 1);
+                                                            return next;
                                                           }
-                                                          return next;
+                                                          return prev;
                                                         });
                                                       }}
-                                                      className="text-sm uppercase tracking-widest font-bold bg-[#23211F] text-white px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all"
+                                                      disabled={dishQuantity === 0}
+                                                      className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-50 transition-colors"
                                                     >
-                                                      {isEn ? 'Select Dish' : 'Seleccionar'}
+                                                      <Minus size={16} />
                                                     </motion.button>
-                                                  )}
-                                                  {isSelected && (
+                                                    
+                                                    <span className="font-serif text-xl w-6 text-center text-[#23211F]">
+                                                      {dishQuantity}
+                                                    </span>
+                                                    
                                                     <motion.button 
-                                                      whileHover={{ scale: 1.05 }}
-                                                      whileTap={{ scale: 0.95 }}
-                                                      onClick={() => setSelectedDishes(prev => prev.filter(id => id !== dish.id))}
-                                                      className="text-sm uppercase tracking-widest font-bold text-red-500 border border-red-200 bg-red-50 px-6 py-3 rounded-full hover:bg-red-100 transition-colors"
+                                                      whileTap={{ scale: 0.9 }}
+                                                      onClick={() => {
+                                                        if (selectedDishes.length < maxDishes) {
+                                                          setSelectedDishes(prev => {
+                                                            const next = [...prev, dish.id];
+                                                            const isDinner = selectedCookService?.name?.toLowerCase().includes('dinner');
+                                                            if (next.length === maxDishes && (totalCookServices > 0 || isDinner)) {
+                                                              setTimeout(() => nextStep(), 800);
+                                                            }
+                                                            return next;
+                                                          });
+                                                        }
+                                                      }}
+                                                      disabled={selectedDishes.length >= maxDishes}
+                                                      className="w-10 h-10 rounded-full flex items-center justify-center text-[#23211F] hover:bg-gray-100 disabled:opacity-50 transition-colors"
                                                     >
-                                                      {isEn ? 'Remove' : 'Quitar'}
+                                                      <Plus size={16} />
                                                     </motion.button>
-                                                  )}
+                                                  </div>
                                                 </div>
                                               </div>
                                             </motion.div>
