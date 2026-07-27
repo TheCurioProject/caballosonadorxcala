@@ -584,16 +584,18 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         }
       });
       // Register selected dishes for database and invoice
-      selectedDishes.forEach(dishId => {
+      const uniqueDishes = Array.from(new Set(selectedDishes));
+      uniqueDishes.forEach(dishId => {
         const dish = foodServices.find(s => s.id === dishId);
+        const count = selectedDishes.filter(id => id === dishId).length;
         if (dish) {
           const unitPrice = getConvertedPrice(dish.price || 0);
           selectedAddons.push({
             type: `FOOD_DISH_${dish.id}`,
             name: dish.name,
-            quantity: 1,
+            quantity: count,
             unitPrice,
-            price: unitPrice,
+            price: unitPrice * count,
             details: JSON.stringify({ plan: selectedCookService?.name || 'Chef', type: 'Dish Selection' })
           });
         }
@@ -1529,13 +1531,14 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                               {selectedDishes.length > 0 && (
                                 <div className="mt-2 pt-2 border-t border-gray-50">
                                   <p className="text-sm uppercase tracking-widest text-gray-400 font-bold mb-1">{isEn ? 'Selected Dishes:' : 'Platillos Seleccionados:'}</p>
-                                  {selectedDishes.map(dishId => {
+                                  {Array.from(new Set(selectedDishes)).map(dishId => {
                                     const dish = foodServices.find(s => s.id === dishId);
+                                    const count = selectedDishes.filter(id => id === dishId).length;
                                     if (dish) {
                                       return (
                                         <div key={dishId} className="flex justify-between text-base text-gray-500 mb-0.5 ml-2">
-                                          <span>• {translateDB(dish.name, isEn)}</span>
-                                          {(dish.price || 0) > 0 && <span>${(dish.price || 0).toLocaleString('en-US')}</span>}
+                                          <span>• {count}x {translateDB(dish.name, isEn)}</span>
+                                          {(dish.price || 0) > 0 && <span>${(count * (dish.price || 0)).toLocaleString('en-US')}</span>}
                                         </div>
                                       );
                                     }
@@ -1581,16 +1584,19 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </motion.div>
                         )}
 
-                        <div className="shrink-0 pb-4">
-                          {!isFormValid && (
-                            <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
-                              {isEn ? 'Please fill in all required fields correctly' : 'Por favor completa todos los campos obligatorios correctamente'}
-                            </p>
-                          )}
-                          <PremiumButton onClick={handleCheckout} disabled={!isFormValid || isLoading || grandTotal === 0}>
-                            <CreditCard size={18} />
-                            {dict.modal?.proceedPayment}
-                          </PremiumButton>
+                        <div className="shrink-0 pb-4 flex justify-between items-end mt-8">
+                          <button onClick={prevStep} className="text-gray-500 font-bold uppercase text-xs tracking-widest mb-4 hover:text-[#23211F] transition-colors">{isEn ? "Back" : "Volver"}</button>
+                          <div className="flex flex-col items-end">
+                            {!isFormValid && (
+                              <p className="text-amber-600 text-[10px] font-bold tracking-widest uppercase text-right mb-2 animate-pulse">
+                                {isEn ? 'Please fill in all required fields' : 'Por favor completa todos los campos'}
+                              </p>
+                            )}
+                            <PremiumButton onClick={handleCheckout} disabled={!isFormValid || isLoading || grandTotal === 0}>
+                              <CreditCard size={18} />
+                              {dict.modal?.proceedPayment}
+                            </PremiumButton>
+                          </div>
                         </div>
                       </div>
                     </motion.div>
