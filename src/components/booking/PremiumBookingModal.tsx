@@ -1141,9 +1141,6 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                   {dict.addons?.confirmChef} <ArrowRight size={16} />
                                 </PremiumButton>
                               </div>
-                            </div>
-                          )}
-                        </motion.div>
                     </motion.div>
                   )}
 
