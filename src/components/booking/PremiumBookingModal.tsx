@@ -1006,6 +1006,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
                               
                               <div className="shrink-0 mt-4 hidden md:block">
+                                {totalCookServices === 0 && (
+                                  <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
+                                    {isEn ? 'Please select an Assistance Plan for your days' : 'Por favor selecciona un Plan de Asistencia para tus días'}
+                                  </p>
+                                )}
                                 <PremiumButton onClick={nextStep} disabled={totalCookServices === 0}>
                                   {dict.modal?.continue} <ArrowRight size={16} />
                                 </PremiumButton>
@@ -1223,7 +1228,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
                           <div className="mt-4 pb-4 shrink-0 hidden md:block">
                             {(totalAtvTours === 0 || atvPeople < minTourPax) && (
-                              <p className="text-amber-600 text-sm font-bold mb-3 text-center">
+                              <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
                                 {isEn ? 'Please select at least one destination and number of people' : 'Por favor selecciona al menos un destino y personas'}
                               </p>
                             )}
@@ -1422,6 +1427,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         )}
 
                         <div className="shrink-0 pb-4">
+                          {!isFormValid && (
+                            <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
+                              {isEn ? 'Please fill in all required fields correctly' : 'Por favor completa todos los campos obligatorios correctamente'}
+                            </p>
+                          )}
                           <PremiumButton onClick={handleCheckout} disabled={!isFormValid || isLoading || grandTotal === 0}>
                             <CreditCard size={18} />
                             {dict.modal?.proceedPayment}
