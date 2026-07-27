@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, CalendarDays, ArrowRight, User, Map, Check, CreditCard, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ActionLoadingScreen } from '../ui/ActionLoadingScreen';
 import { DayPicker } from 'react-day-picker';
-import 'react-day-picker/dist/style.css';
+import 'react-day-picker/style.css';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 

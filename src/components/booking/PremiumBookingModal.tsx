@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform, useDragControls 
 import { X, CalendarDays, ArrowRight, Check, ChefHat, CreditCard, User, Map, Utensils, Minus, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 import { ActionLoadingScreen } from '../ui/ActionLoadingScreen';
 import { DayPicker, DateRange } from 'react-day-picker';
-import 'react-day-picker/dist/style.css';
+import 'react-day-picker/style.css';
 import dynamic from 'next/dynamic';
 
 const FluidHorseAnimation = dynamic(() => import('../FluidHorseAnimation'), {
@@ -945,12 +945,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           [&_.rdp]:[--rdp-cell-size:40px] md:[&_.rdp]:[--rdp-cell-size:52px]
                           [&_.rdp]:mx-auto
                           [&_.rdp-months]:justify-center
-                          [&_.rdp-caption]:flex [&_.rdp-caption]:justify-center [&_.rdp-caption]:items-center [&_.rdp-caption]:relative 
-                          [&_.rdp-caption]:mb-6 md:[&_.rdp-caption]:mb-10
+                          [&_.rdp-month_caption]:flex [&_.rdp-month_caption]:justify-center [&_.rdp-month_caption]:items-center [&_.rdp-month_caption]:relative 
+                          [&_.rdp-month_caption]:mb-6 md:[&_.rdp-month_caption]:mb-10
                           [&_.rdp-caption_label]:text-lg md:[&_.rdp-caption_label]:text-2xl [&_.rdp-caption_label]:font-serif [&_.rdp-caption_label]:text-[#23211F] [&_.rdp-caption_label]:capitalize [&_.rdp-caption_label]:font-medium
                           [&_.rdp-nav]:absolute [&_.rdp-nav]:w-full [&_.rdp-nav]:flex [&_.rdp-nav]:justify-between [&_.rdp-nav]:inset-x-0 [&_.rdp-nav]:top-1/2 [&_.rdp-nav]:-translate-y-1/2
-                          [&_.rdp-nav_button]:w-8 [&_.rdp-nav_button]:h-8 md:[&_.rdp-nav_button]:w-10 md:[&_.rdp-nav_button]:h-10 [&_.rdp-nav_button]:flex [&_.rdp-nav_button]:items-center [&_.rdp-nav_button]:justify-center [&_.rdp-nav_button]:bg-gray-50 hover:[&_.rdp-nav_button]:bg-gray-100 [&_.rdp-nav_button]:text-gray-600 [&_.rdp-nav_button]:rounded-full [&_.rdp-nav_button]:transition-colors
-                          [&_.rdp-head_cell]:text-[10px] md:[&_.rdp-head_cell]:text-xs [&_.rdp-head_cell]:font-bold [&_.rdp-head_cell]:text-gray-400 [&_.rdp-head_cell]:uppercase [&_.rdp-head_cell]:tracking-widest
+                          [&_.rdp-button_previous]:w-8 [&_.rdp-button_previous]:h-8 md:[&_.rdp-button_previous]:w-10 md:[&_.rdp-button_previous]:h-10 [&_.rdp-button_previous]:flex [&_.rdp-button_previous]:items-center [&_.rdp-button_previous]:justify-center [&_.rdp-button_previous]:bg-gray-50 hover:[&_.rdp-button_previous]:bg-gray-100 [&_.rdp-button_previous]:text-gray-600 [&_.rdp-button_previous]:rounded-full [&_.rdp-button_previous]:transition-colors
+                          [&_.rdp-button_next]:w-8 [&_.rdp-button_next]:h-8 md:[&_.rdp-button_next]:w-10 md:[&_.rdp-button_next]:h-10 [&_.rdp-button_next]:flex [&_.rdp-button_next]:items-center [&_.rdp-button_next]:justify-center [&_.rdp-button_next]:bg-gray-50 hover:[&_.rdp-button_next]:bg-gray-100 [&_.rdp-button_next]:text-gray-600 [&_.rdp-button_next]:rounded-full [&_.rdp-button_next]:transition-colors
+                          [&_.rdp-weekday]:text-[10px] md:[&_.rdp-weekday]:text-xs [&_.rdp-weekday]:font-bold [&_.rdp-weekday]:text-gray-400 [&_.rdp-weekday]:uppercase [&_.rdp-weekday]:tracking-widest
                           [&_.rdp-day]:flex [&_.rdp-day]:items-center [&_.rdp-day]:justify-center [&_.rdp-day]:mx-auto
                         ">
                           <DayPicker
