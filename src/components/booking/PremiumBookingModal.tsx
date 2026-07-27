@@ -943,18 +943,15 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       <div className="flex-1 w-full flex flex-col items-center justify-start md:justify-center bg-white rounded-2xl md:rounded-3xl p-5 md:p-10 shadow-sm border border-gray-100 min-h-[400px] md:min-h-[500px]">
                         <div className="w-full max-w-[320px] md:max-w-[420px] mx-auto
                           [&_.rdp]:[--rdp-cell-size:40px] md:[&_.rdp]:[--rdp-cell-size:52px]
-                          [&_.rdp]:w-full [&_.rdp-months]:w-full [&_.rdp-month]:w-full
-                          [&_.rdp-table]:w-full [&_.rdp-table]:max-w-full
+                          [&_.rdp]:mx-auto
+                          [&_.rdp-months]:justify-center
                           [&_.rdp-caption]:flex [&_.rdp-caption]:justify-center [&_.rdp-caption]:items-center [&_.rdp-caption]:relative 
                           [&_.rdp-caption]:mb-6 md:[&_.rdp-caption]:mb-10
                           [&_.rdp-caption_label]:text-lg md:[&_.rdp-caption_label]:text-2xl [&_.rdp-caption_label]:font-serif [&_.rdp-caption_label]:text-[#23211F] [&_.rdp-caption_label]:capitalize [&_.rdp-caption_label]:font-medium
                           [&_.rdp-nav]:absolute [&_.rdp-nav]:w-full [&_.rdp-nav]:flex [&_.rdp-nav]:justify-between [&_.rdp-nav]:inset-x-0 [&_.rdp-nav]:top-1/2 [&_.rdp-nav]:-translate-y-1/2
                           [&_.rdp-nav_button]:w-8 [&_.rdp-nav_button]:h-8 md:[&_.rdp-nav_button]:w-10 md:[&_.rdp-nav_button]:h-10 [&_.rdp-nav_button]:flex [&_.rdp-nav_button]:items-center [&_.rdp-nav_button]:justify-center [&_.rdp-nav_button]:bg-gray-50 hover:[&_.rdp-nav_button]:bg-gray-100 [&_.rdp-nav_button]:text-gray-600 [&_.rdp-nav_button]:rounded-full [&_.rdp-nav_button]:transition-colors
-                          [&_.rdp-head_row]:flex [&_.rdp-head_row]:justify-between [&_.rdp-head_row]:mb-3 md:[&_.rdp-head_row]:mb-5
-                          [&_.rdp-row]:flex [&_.rdp-row]:justify-between [&_.rdp-row]:mb-2 md:[&_.rdp-row]:mb-3
-                          [&_.rdp-cell]:flex-1 [&_.rdp-cell]:flex [&_.rdp-cell]:justify-center
-                          [&_.rdp-head_cell]:flex-1 [&_.rdp-head_cell]:text-center [&_.rdp-head_cell]:text-[10px] md:[&_.rdp-head_cell]:text-xs [&_.rdp-head_cell]:text-gray-400 [&_.rdp-head_cell]:uppercase [&_.rdp-head_cell]:tracking-widest
-                          [&_.rdp-day]:flex [&_.rdp-day]:items-center [&_.rdp-day]:justify-center
+                          [&_.rdp-head_cell]:text-[10px] md:[&_.rdp-head_cell]:text-xs [&_.rdp-head_cell]:font-bold [&_.rdp-head_cell]:text-gray-400 [&_.rdp-head_cell]:uppercase [&_.rdp-head_cell]:tracking-widest
+                          [&_.rdp-day]:flex [&_.rdp-day]:items-center [&_.rdp-day]:justify-center [&_.rdp-day]:mx-auto
                         ">
                           <DayPicker
                             mode="range"
