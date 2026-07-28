@@ -12,14 +12,25 @@ export async function GET() {
 
     // Clean up expired pending bookings (older than 15 minutes)
     const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
-    await prisma.booking.deleteMany({
-      where: {
-        payment_status: 'PENDING',
-        createdAt: {
-          lt: fifteenMinutesAgo
-        }
-      }
-    });
+    
+    try {
+      await Promise.all([
+        prisma.booking.deleteMany({
+          where: {
+            payment_status: 'PENDING',
+            createdAt: { lt: fifteenMinutesAgo }
+          }
+        }),
+        prisma.serviceBooking.deleteMany({
+          where: {
+            paymentStatus: 'PENDING',
+            createdAt: { lt: fifteenMinutesAgo }
+          }
+        })
+      ]);
+    } catch (cleanupError) {
+      console.error('Error during cleanup:', cleanupError);
+    }
 
     // Get all manual blocks for this property that are in the future (or current month)
     const blocks = await prisma.blockedDate.findMany({
@@ -33,10 +44,14 @@ export async function GET() {
     const bookings = await prisma.booking.findMany({
       where: {
         propertyId: property.id,
-        payment_status: {
-          in: ['CONFIRMED', 'PENDING']
-        },
-        checkOut: { gte: new Date() }
+        checkOut: { gte: new Date() },
+        OR: [
+          { payment_status: 'CONFIRMED' },
+          { 
+            payment_status: 'PENDING',
+            createdAt: { gte: fifteenMinutesAgo }
+          }
+        ]
       }
     });
 
@@ -44,10 +59,14 @@ export async function GET() {
     const tourBookings = await prisma.serviceBooking.findMany({
       where: {
         serviceType: 'TOUR',
-        paymentStatus: {
-          in: ['CONFIRMED', 'PENDING']
-        },
-        endDate: { gte: new Date() }
+        endDate: { gte: new Date() },
+        OR: [
+          { paymentStatus: 'CONFIRMED' },
+          { 
+            paymentStatus: 'PENDING',
+            createdAt: { gte: fifteenMinutesAgo }
+          }
+        ]
       }
     });
 

@@ -26,6 +26,21 @@ export async function POST(req: Request) {
 
     let serviceBooking;
     
+    // Clean up expired pending bookings
+    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+    try {
+      await Promise.all([
+        prisma.booking.deleteMany({
+          where: { payment_status: 'PENDING', createdAt: { lt: fifteenMinutesAgo } }
+        }),
+        prisma.serviceBooking.deleteMany({
+          where: { paymentStatus: 'PENDING', createdAt: { lt: fifteenMinutesAgo } }
+        })
+      ]);
+    } catch (cleanupError) {
+      console.error('Error during cleanup in checkout services:', cleanupError);
+    }
+
     // 1. Create a "PENDING" service booking in the database
     try {
       serviceBooking = await prisma.serviceBooking.create({
