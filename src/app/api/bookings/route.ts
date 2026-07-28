@@ -9,34 +9,11 @@ export async function GET(request: Request) {
 
     const query = propertyId ? { propertyId: parseInt(propertyId) } : {};
 
-    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
-
-    // Limpieza silenciosa para no dejar basura
-    try {
-      await Promise.all([
-        prisma.booking.deleteMany({
-          where: { payment_status: 'PENDING', createdAt: { lt: fifteenMinutesAgo } }
-        }),
-        prisma.serviceBooking.deleteMany({
-          where: { paymentStatus: 'PENDING', createdAt: { lt: fifteenMinutesAgo } }
-        })
-      ]);
-    } catch (e) {
-      console.error('Cleanup error in bookings API', e);
-    }
-
     // Obtener reservas futuras
     const bookings = await prisma.booking.findMany({
       where: {
         ...query,
         checkOut: { gte: new Date() }, // Solo traer reservas actuales/futuras
-        OR: [
-          { payment_status: { not: 'PENDING' } },
-          { 
-            payment_status: 'PENDING',
-            createdAt: { gte: fifteenMinutesAgo }
-          }
-        ]
       },
       select: {
         id: true,
@@ -56,21 +33,12 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
     
-    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
-
-    // Validar superposición de fechas antes de crear (ignorando pendientes caducadas)
+    // Validar superposición de fechas antes de crear
     const conflictingBookings = await prisma.booking.findMany({
       where: {
         propertyId: data.propertyId,
-        checkIn: { lte: new Date(data.checkOut) },
-        checkOut: { gte: new Date(data.checkIn) },
-        OR: [
-          { payment_status: { not: 'PENDING' } },
-          { 
-            payment_status: 'PENDING',
-            createdAt: { gte: fifteenMinutesAgo }
-          }
-        ]
+          checkIn: { lte: new Date(data.checkOut) },
+          checkOut: { gte: new Date(data.checkIn) }
       }
     });
 

@@ -58,8 +58,8 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
         time: '5:00 PM - 7:00 PM',
         icon: Sunset,
         desc: isEn 
-          ? 'For groups wanting to maximize daily activities we offer dinner Service between 5:00 and 7:00 PM. Our chef will prepare a meal from our dinner menu and look after the kitchen for you. Treat your family to an evening of Authentic Mexican Cuisine! This Service is perfect for groups of 6-12 people.'
-          : 'Para los grupos que desean maximizar las actividades diarias, ofrecemos servicio de cena entre las 5:00 y las 7:00 PM. Nuestro chef preparará una comida de nuestro menú de cena y se encargará de la cocina por usted. ¡Invite a su familia a una noche de auténtica cocina mexicana! Este servicio es perfecto para grupos de 6 a 12 personas.',
+          ? 'For groups wanting to maximize daily activities we offer dinner Service between 5:00 and 7:00 PM (Pacific Time). Our chef will prepare a meal from our dinner menu and look after the kitchen for you. Treat your family to an evening of Authentic Mexican Cuisine! This Service is perfect for groups of 6-12 people.'
+          : 'Para los grupos que desean maximizar las actividades diarias, ofrecemos servicio de cena entre las 5:00 y las 7:00 PM (hora del Pacífico). Nuestro chef preparará una comida de nuestro menú de cena y se encargará de la cocina por usted. ¡Invite a su familia a una noche de auténtica cocina mexicana! Este servicio es perfecto para grupos de 6 a 12 personas.',
         image: getImageUrl('/food_services/service_2.webp', siteImages)
       }
     ]
@@ -269,66 +269,54 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
           </h3>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-start">
-          {/* Main Image for the section */}
-          <div className="w-full lg:w-1/2 relative group lg:sticky lg:top-32">
-            <div className="relative h-[400px] md:h-[600px] lg:h-[800px] w-full rounded-[2rem] overflow-hidden shadow-2xl">
-              <Image 
-                src={getImageUrl('/food_services/service_1.webp', siteImages)} 
-                alt="Food Services" 
-                fill
-                className="object-cover transition-transform duration-1000 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#2C2621]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            </div>
-          </div>
+        <div className="flex flex-col gap-16 md:gap-32">
+          {texts.services.map((service, index) => {
+            const Icon = service.icon;
+            return (
+              <motion.div 
+                key={service.id}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className={`flex flex-col ${index % 2 !== 0 ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-10 md:gap-16 lg:gap-24`}
+              >
+                {/* Image container */}
+                <div className="w-full md:w-1/2 relative group">
+                  <div className="relative h-[400px] md:h-[600px] w-full rounded-[2rem] overflow-hidden shadow-2xl">
+                    <Image 
+                      src={service.image} 
+                      alt={service.title} 
+                      fill
+                      className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#2C2621]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  </div>
+                </div>
 
-          {/* Options List */}
-          <div className="w-full lg:w-1/2 flex flex-col gap-12 md:gap-16">
-            {texts.services.map((service, index) => {
-              const Icon = service.icon;
-              return (
-                <motion.div 
-                  key={service.id}
-                  initial={{ opacity: 0, x: 50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.8, delay: index * 0.2, ease: "easeOut" }}
-                  className="flex flex-col"
-                >
+                {/* Content */}
+                <div className="w-full md:w-1/2 flex flex-col justify-center px-4 md:px-0">
                   <div className="flex items-center gap-3 mb-6">
                     <span className="w-12 h-[1px] bg-[#D4A373]"></span>
                     <span className="text-[#D4A373] text-[10px] uppercase tracking-[0.2em] font-bold">
-                      {isEn ? 'Option 0' + (index + 1) : 'Opción 0' + (index + 1)}
+                      {isEn ? 'Service 0' + (index + 1) : 'Servicio 0' + (index + 1)}
                     </span>
                   </div>
                   
-                  <h3 className="font-serif text-3xl md:text-4xl lg:text-5xl text-[#2C2621] mb-6 leading-tight flex items-center gap-4">
-                    <Icon className="w-8 h-8 md:w-10 md:h-10 text-[#D4A373]" />
+                  <h3 className="font-serif text-4xl md:text-5xl lg:text-6xl text-[#2C2621] mb-6 leading-tight">
                     {service.title}
                   </h3>
                   
-                  <p className="text-[#4A3B32] text-lg font-light mb-6 leading-relaxed">
+                  <p className="text-[#4A3B32] text-lg md:text-xl font-light mb-10 leading-relaxed">
                     {service.desc}
                   </p>
-                  
-                  {/* Elegant Vector Line Divider (except for the last item) */}
-                  {index < texts.services.length - 1 && (
-                    <div className="mt-8 md:mt-12 mb-4 w-full flex justify-center">
-                      <svg width="250" height="20" viewBox="0 0 250 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-40">
-                        <path d="M0 10H105 M145 10H250 M125 10m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0" stroke="#9B7E67" strokeWidth="1"/>
-                        <circle cx="125" cy="10" r="2" fill="#9B7E67" />
-                      </svg>
-                    </div>
-                  )}
-                </motion.div>
-              );
-            })}
-          </div>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
 
-        {/* Carousel Gallery - Currently disabled, ready for future implementation */}
-        {/*
+        {/* Carousel Gallery */}
         <div className="mt-24 md:mt-32 max-w-[1000px] mx-auto overflow-hidden relative" style={{ touchAction: 'pan-y' }}>
           <div className="relative h-[300px] md:h-[500px] w-full rounded-[2rem] overflow-hidden bg-gray-100 flex items-center justify-center">
             <AnimatePresence initial={false} custom={direction}>
@@ -354,6 +342,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
                 />
               </motion.div>
             </AnimatePresence>
+            {/* Blinking Drag Indicator */}
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-10">
               <motion.div
                 animate={{ opacity: [0.3, 1, 0.3] }} 
@@ -394,7 +383,6 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
             ))}
           </div>
         </div>
-        */}
       </section>
 
       {/* Philosophy Section */}

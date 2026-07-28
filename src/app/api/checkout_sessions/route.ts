@@ -26,32 +26,20 @@ export async function POST(req: Request) {
 
       // Clean up expired pending bookings
       const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
-      try {
-        await Promise.all([
-          prisma.booking.deleteMany({
-            where: { payment_status: 'PENDING', createdAt: { lt: fifteenMinutesAgo } }
-          }),
-          prisma.serviceBooking.deleteMany({
-            where: { paymentStatus: 'PENDING', createdAt: { lt: fifteenMinutesAgo } }
-          })
-        ]);
-      } catch (cleanupError) {
-        console.error('Error during cleanup in checkout:', cleanupError);
-      }
+      await prisma.booking.deleteMany({
+        where: {
+          payment_status: 'PENDING',
+          createdAt: { lt: fifteenMinutesAgo }
+        }
+      });
 
       // Check for overlapping bookings or blocks
       const overlappingBookings = await prisma.booking.findMany({
         where: {
           propertyId: property.id,
+          payment_status: { in: ['CONFIRMED', 'PENDING'] },
           checkIn: { lte: new Date(checkOut) },
-          checkOut: { gte: new Date(checkIn) },
-          OR: [
-            { payment_status: 'CONFIRMED' },
-            { 
-              payment_status: 'PENDING',
-              createdAt: { gte: fifteenMinutesAgo }
-            }
-          ]
+          checkOut: { gte: new Date(checkIn) }
         }
       });
 
