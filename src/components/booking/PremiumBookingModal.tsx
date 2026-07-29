@@ -456,16 +456,33 @@ const translateDB = (text: string | undefined | null, isEn: boolean): string => 
         return isEn ? parsed.en : parsed.es;
       }
     } catch (e) {
-      // Not valid JSON, fallback to dictionary below
+      // Not valid JSON, try to extract values using regex to avoid showing weird format
+      try {
+        const enMatch = trimmed.match(/['"]?en['"]?\s*:\s*['"](.*?)['"]/i);
+        const esMatch = trimmed.match(/['"]?es['"]?\s*:\s*['"](.*?)['"]/i);
+        if (enMatch && esMatch) {
+          return isEn ? enMatch[1] : esMatch[1];
+        }
+      } catch (err) {}
     }
   }
 
-  // 2. Exact match in dictionary
+  // 2. Custom bilingual separator support "English / Español" or "English | Español"
+  if (trimmed.includes(' | ')) {
+    const parts = trimmed.split(' | ');
+    return isEn ? parts[0].trim() : (parts[1] || parts[0]).trim();
+  }
+  if (trimmed.includes(' / ')) {
+    const parts = trimmed.split(' / ');
+    return isEn ? parts[0].trim() : (parts[1] || parts[0]).trim();
+  }
+
+  // 3. Exact match in dictionary
   if (dbTranslations[trimmed]) {
     return isEn ? dbTranslations[trimmed].en : dbTranslations[trimmed].es;
   }
 
-  // 3. Case-insensitive match
+  // 4. Case-insensitive match
   for (const [key, val] of Object.entries(dbTranslations)) {
     if (key.toLowerCase() === trimmed.toLowerCase()) {
       return isEn ? val.en : val.es;
