@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet, Image, Svg, Path } from '@react-pdf/renderer';
 
 const styles = StyleSheet.create({
   page: {
@@ -189,7 +189,14 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
       {/* ADDONS */}
       {addons && addons.filter(a => a.type.startsWith('FOOD')).length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Servicios de Comida / Food Services</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15, borderBottom: '1pt solid #D4C3AB', paddingBottom: 5 }}>
+            <Svg viewBox="0 0 24 24" width={16} height={16} style={{ marginRight: 8, color: '#23211F' }}>
+              <Path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              <Path d="M7 2v20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              <Path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+            <Text style={{ fontSize: 12, color: '#23211F', textTransform: 'uppercase', letterSpacing: 2, fontFamily: 'Helvetica-Bold' }}>Servicios de Comida / Food Services</Text>
+          </View>
           {addons.filter(a => a.type.startsWith('FOOD')).map((addon, i) => {
             let detailsObj: any = {};
             try { if (addon.details) detailsObj = JSON.parse(addon.details); } catch(e) {}
@@ -214,7 +221,14 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
 
       {addons && addons.filter(a => a.type.startsWith('TOUR')).length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Tours</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15, borderBottom: '1pt solid #D4C3AB', paddingBottom: 5 }}>
+            <Svg viewBox="0 0 24 24" width={16} height={16} style={{ marginRight: 8, color: '#23211F' }}>
+              <Path d="M14.106 5.553a2 2 0 0 0 1.111 2.776l6 2.4c.58.232.783.951.392 1.446l-7 8c-.287.327-.759.43-1.163.253L8.694 18.55a2 2 0 0 0-1.111-2.776l-6-2.4c-.58-.232-.783-.951-.392-1.446l7-8c.287-.327.759-.43 1.163-.253l4.752 1.878Z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              <Path d="M14 8v11" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              <Path d="M8 5v11" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            </Svg>
+            <Text style={{ fontSize: 12, color: '#23211F', textTransform: 'uppercase', letterSpacing: 2, fontFamily: 'Helvetica-Bold' }}>Tours</Text>
+          </View>
           {addons.filter(a => a.type.startsWith('TOUR')).map((addon, i) => {
             let detailsObj: any = {};
             try { if (addon.details) detailsObj = JSON.parse(addon.details); } catch(e) {}

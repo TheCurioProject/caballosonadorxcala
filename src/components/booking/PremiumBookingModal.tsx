@@ -1841,9 +1841,17 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             <div className="pb-6 border-b border-gray-100">
                               <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><Utensils size={16}/> {dict.addons?.foodServicesTitle || (isEn ? 'Food Services' : 'Servicios de Comida')}</h4>
                               {selectedCookService?.name?.toLowerCase().includes('dinner') && (
-                                <div className="flex justify-between text-base text-gray-600 mb-1">
-                                  <span className="font-medium text-[#9B7E67]">{translateDB(selectedCookService.name, isEn)}</span>
-                                </div>
+                                (() => {
+                                  const service = foodServices.find(s => s.serviceType === 'FOOD_PRICE' && s.name.toLowerCase().includes('dinner') && s.name.includes(dinnerGroupSize.toString()));
+                                  const selectedDaysCount = Object.keys(dishesByDate).length;
+                                  const price = service ? selectedDaysCount * getConvertedPrice(service.price) : 0;
+                                  return (
+                                    <div className="flex justify-between text-base text-gray-600 mb-1">
+                                      <span className="font-medium text-[#9B7E67]">{selectedDaysCount}x {translateDB(selectedCookService.name, isEn)} ({dinnerGroupSize} pax)</span>
+                                      <span className="font-bold text-[#9B7E67]">{formatPrice(price)}</span>
+                                    </div>
+                                  );
+                                })()
                               )}
                               {Object.entries(cookSelectionsByDate).map(([id, dates]) => {
                                 if (dates.length === 0) return null;
