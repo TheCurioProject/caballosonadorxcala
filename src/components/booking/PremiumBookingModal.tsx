@@ -1020,7 +1020,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   </div>
 
                   <AnimatePresence>
-                    {wantsCook && (totalCookServices > 0 || selectedCookService?.name?.toLowerCase().includes('dinner')) && (
+                    {wantsCook && (totalCookServices > 0 || isDinnerService(selectedCookService?.name)) && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex items-start gap-4 text-sm font-light text-gray-300 overflow-hidden">
                         <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
                           <Utensils size={16} className="text-[#9B7E67]" />
@@ -1837,12 +1837,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             <div className="font-serif text-xl text-[#9B7E67]">${accommodationTotal.toLocaleString('en-US')} {currency}</div>
                           </div>
                           
-                          {wantsCook && (totalCookServices > 0 || selectedCookService?.name?.toLowerCase().includes('dinner')) && (
+                          {wantsCook && (totalCookServices > 0 || isDinnerService(selectedCookService?.name)) && (
                             <div className="pb-6 border-b border-gray-100">
                               <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><Utensils size={16}/> {dict.addons?.foodServicesTitle || (isEn ? 'Food Services' : 'Servicios de Comida')}</h4>
-                              {selectedCookService?.name?.toLowerCase().includes('dinner') && (
+                              {isDinnerService(selectedCookService?.name) && (
                                 (() => {
-                                  const service = foodServices.find(s => s.serviceType === 'FOOD_PRICE' && s.name.toLowerCase().includes('dinner') && s.name.includes(dinnerGroupSize.toString()));
+                                  const service = foodServices.find(s => s.serviceType === 'FOOD_PRICE' && isDinnerService(s.name) && matchesDinnerSize(s.name, dinnerGroupSize));
                                   const selectedDaysCount = Object.keys(dishesByDate).length;
                                   const price = service ? selectedDaysCount * getConvertedPrice(service.price) : 0;
                                   return (
