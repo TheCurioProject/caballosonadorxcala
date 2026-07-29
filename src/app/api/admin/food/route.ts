@@ -62,7 +62,13 @@ export async function POST(req: Request) {
       create: { serviceType: type, name: plainName, description: plainDesc, price, isActive }
     });
 
-    return NextResponse.json(updated);
+    const updatedFormatted = {
+      ...updated,
+      name: extractPlainText(updated.name),
+      description: extractPlainText(updated.description)
+    };
+
+    return NextResponse.json(updatedFormatted);
   } catch (error) {
     console.error('Error saving food service:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

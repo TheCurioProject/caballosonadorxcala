@@ -54,7 +54,13 @@ export async function POST(req: Request) {
       create: { name: plainName, description: plainDesc, pricePerPax, isActive }
     });
 
-    return NextResponse.json(updated);
+    const updatedFormatted = {
+      ...updated,
+      name: extractPlainText(updated.name),
+      description: extractPlainText(updated.description)
+    };
+
+    return NextResponse.json(updatedFormatted);
   } catch (error) {
     console.error('Error saving tour destination:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
