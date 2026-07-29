@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { autoTranslate } from '@/lib/translate';
 
 // Extract plain text from a value that might be stored as JSON {"en":"...","es":"..."}
 const extractPlainText = (str: string | undefined | null): string => {
@@ -8,6 +9,9 @@ const extractPlainText = (str: string | undefined | null): string => {
   if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
     try {
       const parsed = JSON.parse(trimmed);
+      if (parsed.original) {
+        return parsed.original;
+      }
       if (parsed.es || parsed.en) {
         return parsed.es || parsed.en;
       }
@@ -48,9 +52,9 @@ export async function POST(req: Request) {
 
     const type = serviceType || 'FOOD_PRICE';
 
-    // Store plain text directly — no JSON translation wrapping
-    const plainName = name || '';
-    const plainDesc = description || '';
+    // Auto-translate fields before saving
+    const plainName = await autoTranslate(name || '');
+    const plainDesc = await autoTranslate(description || '');
 
     const updated = await prisma.servicePricing.upsert({
       where: { id: id || 0 },
