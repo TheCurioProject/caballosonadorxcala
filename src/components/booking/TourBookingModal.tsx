@@ -36,9 +36,20 @@ export const TourBookingModal = ({
   const isEn = lang === 'en';
   const formatPrice = (amountInMxn: number) => `$${Math.round(amountInMxn).toLocaleString()} MXN`;
   
+  const tourTranslations: Record<string, { en: string, es: string }> = {
+    "Ojo de Agua": { en: "Water Eye", es: "Ojo de Agua" },
+    "Río Molote": { en: "Molote River", es: "Río Molote" },
+    "El Capomo": { en: "El Capomo", es: "El Capomo" },
+    "Las Cuevas": { en: "The Caves", es: "Las Cuevas" },
+    "Jumurrca": { en: "Jumurrca", es: "Jumurrca" },
+    "Alta Vista": { en: "Alta Vista", es: "Alta Vista" },
+    "Volcán": { en: "Volcano", es: "Volcán" },
+  };
+
   const translateDB = (text: string | undefined | null, isEn: boolean): string => {
     if (!text) return text || '';
     const trimmed = text.trim();
+    // Legacy: JSON from DB
     if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
       try {
         const parsed = JSON.parse(trimmed);
@@ -46,6 +57,15 @@ export const TourBookingModal = ({
           return isEn ? parsed.en : parsed.es;
         }
       } catch (e) {}
+    }
+    // Dictionary lookup
+    if (tourTranslations[trimmed]) {
+      return isEn ? tourTranslations[trimmed].en : tourTranslations[trimmed].es;
+    }
+    for (const [key, val] of Object.entries(tourTranslations)) {
+      if (key.toLowerCase() === trimmed.toLowerCase()) {
+        return isEn ? val.en : val.es;
+      }
     }
     return text;
   };

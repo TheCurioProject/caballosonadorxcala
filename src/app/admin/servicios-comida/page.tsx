@@ -28,17 +28,6 @@ export default async function ServiciosComidaAdminPage() {
     }
   }
 
-  const parseTranslation = (str: string | undefined | null) => {
-    if (!str) return '';
-    if (str.startsWith('{') && str.endsWith('}')) {
-      try {
-        const parsed = JSON.parse(str);
-        // Show Spanish by default in the admin panel if available, else English, else original
-        return parsed.es || parsed.en || str;
-      } catch (e) {}
-    }
-    return str;
-  };
 
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-6xl mx-auto font-sans">
@@ -71,7 +60,7 @@ export default async function ServiciosComidaAdminPage() {
                         <input 
                           type="text" 
                           name="name" 
-                          defaultValue={parseTranslation(service.name)} 
+                          defaultValue={service.name} 
                           className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9B7E67] focus:border-transparent outline-none font-bold text-gray-800"
                           required
                         />
@@ -80,7 +69,7 @@ export default async function ServiciosComidaAdminPage() {
                         <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">Description / Details</label>
                         <textarea 
                           name="description" 
-                          defaultValue={parseTranslation(service.description)} 
+                          defaultValue={service.description || ''} 
                           className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9B7E67] focus:border-transparent outline-none text-sm text-gray-600 resize-none h-20"
                           required
                         />

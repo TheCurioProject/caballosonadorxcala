@@ -1,6 +1,20 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { getTranslations } from '@/lib/translate';
+
+// Extract plain text from a value that might be stored as JSON {"en":"...","es":"..."}
+const extractPlainText = (str: string | undefined | null): string => {
+  if (!str) return '';
+  const trimmed = str.trim();
+  if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (parsed.es || parsed.en) {
+        return parsed.es || parsed.en;
+      }
+    } catch (e) {}
+  }
+  return str;
+};
 
 export async function GET() {
   try {
@@ -8,21 +22,10 @@ export async function GET() {
       orderBy: { id: 'asc' }
     });
 
-    const parseTranslation = (str: string | undefined | null) => {
-      if (!str) return '';
-      if (str.startsWith('{') && str.endsWith('}')) {
-        try {
-          const parsed = JSON.parse(str);
-          return parsed.es || parsed.en || str;
-        } catch (e) {}
-      }
-      return str;
-    };
-
     const formatted = destinations.map(d => ({
       ...d,
-      name: parseTranslation(d.name),
-      description: parseTranslation(d.description)
+      name: extractPlainText(d.name),
+      description: extractPlainText(d.description)
     }));
 
     return NextResponse.json(formatted);
@@ -37,16 +40,14 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { id, name, pricePerPax, isActive, description } = body;
 
-    const nameJson = JSON.stringify(await getTranslations(name || ''));
-    let descJson = null;
-    if (description) {
-      descJson = JSON.stringify(await getTranslations(description));
-    }
+    // Store plain text directly — no JSON translation wrapping
+    const plainName = name || '';
+    const plainDesc = description || null;
 
     const updated = await prisma.tourDestination.upsert({
       where: { id: id || 0 },
-      update: { name: nameJson, description: descJson, pricePerPax, isActive },
-      create: { name: nameJson, description: descJson, pricePerPax, isActive }
+      update: { name: plainName, description: plainDesc, pricePerPax, isActive },
+      create: { name: plainName, description: plainDesc, pricePerPax, isActive }
     });
 
     return NextResponse.json(updated);

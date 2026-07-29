@@ -318,6 +318,7 @@ const PremiumButton = ({
 
 /* ─── Dynamic DB Translation Helper ─── */
 const dbTranslations: Record<string, { en: string, es: string }> = {
+  // Food Service Types
   "Personalized Service": {
     en: "Personalized Service",
     es: "Servicio Personalizado"
@@ -334,7 +335,54 @@ const dbTranslations: Record<string, { en: string, es: string }> = {
     en: "Dinner Service",
     es: "Servicio de Cena"
   },
+  // Catering price names (plain text from DB)
+  "Asistencia de desayuno": {
+    en: "Breakfast Assistance",
+    es: "Asistencia de desayuno"
+  },
+  "Asistencia para la cena": {
+    en: "Dinner Assistance",
+    es: "Asistencia para la cena"
+  },
+  "Asistencia para desayuno y cena": {
+    en: "Breakfast & Dinner Assistance",
+    es: "Asistencia para desayuno y cena"
+  },
+  "Servicio de Cena (6 a 8 personas)": {
+    en: "Dinner Service (6 to 8 people)",
+    es: "Servicio de Cena (6 a 8 personas)"
+  },
+  "Servicio de Cena (10 a 12 personas)": {
+    en: "Dinner Service (10 to 12 people)",
+    es: "Servicio de Cena (10 a 12 personas)"
+  },
+  // English variants (in case admin writes in English)
+  "Breakfast Assistance": {
+    en: "Breakfast Assistance",
+    es: "Asistencia de desayuno"
+  },
+  "Dinner Assistance": {
+    en: "Dinner Assistance",
+    es: "Asistencia para la cena"
+  },
+  "Breakfast & Dinner Assistance": {
+    en: "Breakfast & Dinner Assistance",
+    es: "Asistencia para desayuno y cena"
+  },
+  "Dinner Service (6 to 8 people)": {
+    en: "Dinner Service (6 to 8 people)",
+    es: "Servicio de Cena (6 a 8 personas)"
+  },
+  "Dinner Service (10 to 12 people)": {
+    en: "Dinner Service (10 to 12 people)",
+    es: "Servicio de Cena (10 a 12 personas)"
+  },
+  // Descriptions
   "Large groups and families often purchase ingredients and prepare their own meals. Select from our Personalized Service options to request extra help in the kitchen. Our staff will assist you with preparations, service and clean up allowing more for more time with family and less stress in the kitchen.": {
+    en: "Large groups and families often purchase ingredients and prepare their own meals. Select from our Personalized Service options to request extra help in the kitchen. Our staff will assist you with preparations, service and clean up allowing more for more time with family and less stress in the kitchen.",
+    es: "Los grupos grandes y las familias a menudo compran ingredientes y preparan sus propias comidas. Elija entre nuestras opciones de Servicio Personalizado para solicitar ayuda adicional en la cocina. Nuestro personal lo asistirá con las preparaciones, el servicio y la limpieza, permitiendo más tiempo con la familia y menos estrés en la cocina."
+  },
+  "Los grupos grandes y las familias a menudo compran ingredientes y preparan sus propias comidas. Elija entre nuestras opciones de Servicio Personalizado para solicitar ayuda adicional en la cocina. Nuestro personal lo asistirá con las preparaciones, el servicio y la limpieza, permitiendo más tiempo con la familia y menos estrés en la cocina.": {
     en: "Large groups and families often purchase ingredients and prepare their own meals. Select from our Personalized Service options to request extra help in the kitchen. Our staff will assist you with preparations, service and clean up allowing more for more time with family and less stress in the kitchen.",
     es: "Los grupos grandes y las familias a menudo compran ingredientes y preparan sus propias comidas. Elija entre nuestras opciones de Servicio Personalizado para solicitar ayuda adicional en la cocina. Nuestro personal lo asistirá con las preparaciones, el servicio y la limpieza, permitiendo más tiempo con la familia y menos estrés en la cocina."
   },
@@ -342,17 +390,49 @@ const dbTranslations: Record<string, { en: string, es: string }> = {
     en: "For groups wanting to maximize daily activities we offer dinner Service between 5:00 and 7:00 PM (Pacific Time). Our chef will prepare a meal from our dinner menu and look after the kitchen for you. Treat your family to an evening of Authentic Mexican Cuisine! This Service is perfect for groups of 6-12 people.",
     es: "Para los grupos que desean maximizar las actividades diarias, ofrecemos servicio de cena entre las 5:00 y las 7:00 PM (hora del Pacífico). Nuestro chef preparará una comida de nuestro menú de cena y se encargará de la cocina por usted. ¡Invite a su familia a una noche de auténtica cocina mexicana! Este servicio es perfecto para grupos de 6 a 12 personas."
   },
-  "Breakfast Assistance": {
-    en: "Breakfast Assistance",
-    es: "Asistencia para Desayuno"
+  "Para los grupos que desean maximizar las actividades diarias, ofrecemos servicio de cena entre las 5:00 y las 7:00 PM (hora del Pacífico). Nuestro chef preparará una comida de nuestro menú de cena y se encargará de la cocina por usted. ¡Invite a su familia a una noche de auténtica cocina mexicana! Este servicio es perfecto para grupos de 6 a 12 personas.": {
+    en: "For groups wanting to maximize daily activities we offer dinner Service between 5:00 and 7:00 PM (Pacific Time). Our chef will prepare a meal from our dinner menu and look after the kitchen for you. Treat your family to an evening of Authentic Mexican Cuisine! This Service is perfect for groups of 6-12 people.",
+    es: "Para los grupos que desean maximizar las actividades diarias, ofrecemos servicio de cena entre las 5:00 y las 7:00 PM (hora del Pacífico). Nuestro chef preparará una comida de nuestro menú de cena y se encargará de la cocina por usted. ¡Invite a su familia a una noche de auténtica cocina mexicana! Este servicio es perfecto para grupos de 6 a 12 personas."
   },
-  "Dinner Assistance": {
-    en: "Dinner Assistance",
-    es: "Asistencia para Cena"
+  // Tour destinations (plain text from DB)
+  "Ojo de Agua": { en: "Water Eye", es: "Ojo de Agua" },
+  "Río Molote": { en: "Molote River", es: "Río Molote" },
+  "El Capomo": { en: "El Capomo", es: "El Capomo" },
+  "Las Cuevas": { en: "The Caves", es: "Las Cuevas" },
+  "Jumurrca": { en: "Jumurrca", es: "Jumurrca" },
+  "Alta Vista": { en: "Alta Vista", es: "Alta Vista" },
+  "Volcán": { en: "Volcano", es: "Volcán" },
+  // Dish names (plain text from DB)
+  "Enchiladas rojas": { en: "Red Enchiladas", es: "Enchiladas rojas" },
+  "Chiles rellenos": { en: "Stuffed Chiles", es: "Chiles rellenos" },
+  "Filete en alcaparras": { en: "Fillet in Capers", es: "Filete en alcaparras" },
+  "Tacos de asada y adobada": { en: "Asada and Adobada Tacos", es: "Tacos de asada y adobada" },
+  "Spaguetti con camarones": { en: "Shrimp Spaghetti", es: "Spaguetti con camarones" },
+  "Filete empapelado": { en: "Paper-Wrapped Fillet", es: "Filete empapelado" },
+  // Dish descriptions
+  "Tortilla enrollada, rellena de pollo, bañadas de salsa roja sin picante, acompañadas de lechuga, crema, queso y cebolla.": {
+    en: "Rolled tortilla stuffed with chicken, bathed in non-spicy red sauce, accompanied by lettuce, cream, cheese, and onion.",
+    es: "Tortilla enrollada, rellena de pollo, bañadas de salsa roja sin picante, acompañadas de lechuga, crema, queso y cebolla."
   },
-  "Breakfast & Dinner Assistance": {
-    en: "Breakfast & Dinner Assistance",
-    es: "Asistencia para Desayuno y Cena"
+  "Chile poblano relleno de un guiso de camarón y queso gratinado, bañados de una salsa cremosa roja, acompañado con arroz rojo.": {
+    en: "Poblano chile stuffed with shrimp stew and gratin cheese, bathed in creamy red sauce, accompanied with red rice.",
+    es: "Chile poblano relleno de un guiso de camarón y queso gratinado, bañados de una salsa cremosa roja, acompañado con arroz rojo."
+  },
+  "Filete a la plancha sobre una cama de puré de papa, bañado de una salsa con mantequilla y alcaparras.": {
+    en: "Grilled steak on a bed of mashed potatoes, bathed in a sauce with butter and capers.",
+    es: "Filete a la plancha sobre una cama de puré de papa, bañado de una salsa con mantequilla y alcaparras."
+  },
+  "Tortilla de maíz con carne, cilantro y cebolla. Se acompaña con variedad de salsas.": {
+    en: "Corn tortilla with meat, cilantro, and onion. Accompanied with a variety of sauces.",
+    es: "Tortilla de maíz con carne, cilantro y cebolla. Se acompaña con variedad de salsas."
+  },
+  "Spaguetti con camarones en salsa Alfredo.": {
+    en: "Spaghetti with shrimp in Alfredo sauce.",
+    es: "Spaguetti con camarones en salsa Alfredo."
+  },
+  "Filete sazonado con finas hierbas, envuelto en papel y acompañado de verduras salteadas y arroz.": {
+    en: "Steak seasoned with fine herbs, wrapped in paper, accompanied by sautéed vegetables and rice.",
+    es: "Filete sazonado con finas hierbas, envuelto en papel y acompañado de verduras salteadas y arroz."
   }
 };
 
@@ -360,7 +440,7 @@ const translateDB = (text: string | undefined | null, isEn: boolean): string => 
   if (!text) return text || '';
   const trimmed = text.trim();
   
-  // 1. Dynamic autonomous translations (JSON from DB)
+  // 1. Legacy support: JSON from DB ({"en":"...","es":"..."})
   if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
     try {
       const parsed = JSON.parse(trimmed);
@@ -368,15 +448,16 @@ const translateDB = (text: string | undefined | null, isEn: boolean): string => 
         return isEn ? parsed.en : parsed.es;
       }
     } catch (e) {
-      // Not valid JSON, fallback to hardcoded dictionary below
+      // Not valid JSON, fallback to dictionary below
     }
   }
 
-  // 2. Legacy fallback: Hardcoded translations
+  // 2. Exact match in dictionary
   if (dbTranslations[trimmed]) {
     return isEn ? dbTranslations[trimmed].en : dbTranslations[trimmed].es;
   }
 
+  // 3. Case-insensitive match
   for (const [key, val] of Object.entries(dbTranslations)) {
     if (key.toLowerCase() === trimmed.toLowerCase()) {
       return isEn ? val.en : val.es;
@@ -542,12 +623,32 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const nights = (range?.from && range?.to) ? differenceInDays(range.to, range.from) : 0;
   const isDinnerService = (name: string | undefined | null) => name?.toLowerCase().includes('dinner') || name?.toLowerCase().includes('cena');
 
+  // Helper to match dinner group size patterns regardless of language
+  // dinnerGroupSize is '6-8' or '10-12', DB name could contain '6 to 8', '6 a 8', '6-8', etc.
+  const matchesDinnerSize = (name: string | undefined | null, size: string): boolean => {
+    if (!name || !size) return false;
+    const n = name.toLowerCase();
+    if (n.includes(size)) return true; // Direct match: '6-8' in name
+    const [min, max] = size.split('-');
+    if (min && max) {
+      // Match patterns: '6 to 8', '6 a 8', '6-8', '(6 a 8', '10 to 12', etc.
+      if (n.includes(`${min} to ${max}`) || n.includes(`${min} a ${max}`)) return true;
+    }
+    return false;
+  };
+
+  // Helper to check if a food price is a specific dinner size option (not the generic catering prices)
+  const isDinnerSizeOption = (name: string | undefined | null): boolean => {
+    if (!name) return false;
+    return matchesDinnerSize(name, '6-8') || matchesDinnerSize(name, '10-12');
+  };
+
   const accommodationTotal = nights > 0 ? nights * basePrice : 0;
 
   let cookTotal = 0;
   if (wantsCook) {
     if (isDinnerService(selectedCookService?.name) && dinnerGroupSize) {
-      const service = foodServices.find(s => s.serviceType === 'FOOD_PRICE' && isDinnerService(s.name) && s.name.includes(dinnerGroupSize));
+      const service = foodServices.find(s => s.serviceType === 'FOOD_PRICE' && isDinnerService(s.name) && matchesDinnerSize(s.name, dinnerGroupSize));
       if (service) {
         const selectedDaysCount = Object.keys(dishesByDate).length;
         cookTotal += selectedDaysCount * getConvertedPrice(service.price);
@@ -590,7 +691,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     const selectedAddons: any[] = [];
     if (wantsCook) {
       if (isDinnerService(selectedCookService?.name) && dinnerGroupSize) {
-        const service = foodServices.find(s => s.serviceType === 'FOOD_PRICE' && isDinnerService(s.name) && s.name.includes(dinnerGroupSize));
+        const service = foodServices.find(s => s.serviceType === 'FOOD_PRICE' && isDinnerService(s.name) && matchesDinnerSize(s.name, dinnerGroupSize));
         if (service) {
           const unitPrice = getConvertedPrice(service.price);
           const selectedDaysCount = Object.keys(dishesByDate).length;
@@ -701,7 +802,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     const isDinner = isDinnerService(priceOption.name);
     const limit = isDinner ? stayDates.length : Math.max(1, nights + 1);
     const currentTotal = foodServices
-      .filter(s => s.serviceType === 'FOOD_PRICE' && isDinnerService(s.name) === isDinner && !s.name.includes('6 to 8') && !s.name.includes('10 to 12') && !s.name.includes('6 a 8') && !s.name.includes('10 a 12'))
+      .filter(s => s.serviceType === 'FOOD_PRICE' && isDinnerService(s.name) === isDinner && !isDinnerSizeOption(s.name))
       .reduce((sum, s) => sum + (cookSelectionsByDate[s.id.toString()]?.length || 0), 0);
     return limit - currentTotal + (cookSelectionsByDate[priceOption.id.toString()]?.length || 0);
   };
@@ -1169,7 +1270,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
                       <div className="space-y-6 flex-1 pb-4">
                         <div className="space-y-3 mb-8">
-                          {foodServices.filter(s => s.serviceType === 'FOOD_PRICE' && !s.name.includes('6 to 8') && !s.name.includes('10 to 12') && !s.name.includes('6 a 8') && !s.name.includes('10 a 12')).map(priceOption => {
+                          {foodServices.filter(s => s.serviceType === 'FOOD_PRICE' && !isDinnerSizeOption(s.name)).map(priceOption => {
                             const optionId = priceOption.id.toString();
                             const selectedDates = cookSelectionsByDate[optionId] || [];
                             const isExpanded = selectedDates.length > 0 || Object.keys(cookSelectionsByDate).length === 0 || (cookSelectionsByDate[optionId] !== undefined);
@@ -1274,7 +1375,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </h4>
                           <div className="flex gap-4 mt-4">
                             {['6-8', '10-12'].map((size) => {
-                              const servicePrice = foodServices.find(s => s.serviceType === 'FOOD_PRICE' && isDinnerService(s.name) && s.name.includes(size))?.price || 0;
+                              const servicePrice = foodServices.find(s => s.serviceType === 'FOOD_PRICE' && isDinnerService(s.name) && matchesDinnerSize(s.name, size))?.price || 0;
                               return (
                                 <button
                                   key={size}

@@ -2,7 +2,6 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
-import { getTranslations } from '@/lib/translate';
 
 // Initialize default food services if they don't exist
 export async function initFoodServices() {
@@ -10,8 +9,8 @@ export async function initFoodServices() {
     { name: 'Desayuno', description: '8:00 AM - 10:00 AM', price: 25, type: 'FOOD' },
     { name: 'Desayuno y Comida', description: '8:00 AM - 2:00 PM', price: 45, type: 'FOOD' },
     { name: 'Cena', description: '5:00 PM - 7:00 PM', price: 35, type: 'FOOD' },
-    { name: 'Dinner Service (6 to 8 people)', description: 'Servicio de cena para grupos de 6 a 8 personas', price: 3200, type: 'FOOD_PRICE' },
-    { name: 'Dinner Service (10 to 12 people)', description: 'Servicio de cena para grupos de 10 a 12 personas', price: 4200, type: 'FOOD_PRICE' }
+    { name: 'Servicio de Cena (6 a 8 personas)', description: 'Servicio de cena para grupos de 6 a 8 personas', price: 3200, type: 'FOOD_PRICE' },
+    { name: 'Servicio de Cena (10 a 12 personas)', description: 'Servicio de cena para grupos de 10 a 12 personas', price: 4200, type: 'FOOD_PRICE' }
   ];
 
   for (const s of defaultServices) {
@@ -42,15 +41,13 @@ export async function getFoodServices() {
 
 export async function updateServiceDetails(id: number, price: number, name: string, description: string) {
   try {
-    const nameJson = JSON.stringify(await getTranslations(name));
-    const descJson = JSON.stringify(await getTranslations(description));
-
+    // Store plain text directly — no JSON translation wrapping
     await prisma.servicePricing.update({
       where: { id },
       data: { 
         price,
-        name: nameJson,
-        description: descJson
+        name,
+        description
       }
     });
     revalidatePath('/admin/servicios-comida');
@@ -61,6 +58,7 @@ export async function updateServiceDetails(id: number, price: number, name: stri
     return { success: false, error: 'Failed to update price' };
   }
 }
+
 
 export async function getFoodBookings() {
   return await prisma.serviceBooking.findMany({

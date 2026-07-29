@@ -1,6 +1,20 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { getTranslations } from '@/lib/translate';
+
+// Extract plain text from a value that might be stored as JSON {"en":"...","es":"..."}
+const extractPlainText = (str: string | undefined | null): string => {
+  if (!str) return '';
+  const trimmed = str.trim();
+  if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (parsed.es || parsed.en) {
+        return parsed.es || parsed.en;
+      }
+    } catch (e) {}
+  }
+  return str;
+};
 
 export async function GET() {
   try {
@@ -13,21 +27,11 @@ export async function GET() {
       orderBy: { id: 'asc' }
     });
 
-    const parseTranslation = (str: string | undefined | null) => {
-      if (!str) return '';
-      if (str.startsWith('{') && str.endsWith('}')) {
-        try {
-          const parsed = JSON.parse(str);
-          return parsed.es || parsed.en || str;
-        } catch (e) {}
-      }
-      return str;
-    };
-
+    // Clean any legacy JSON-formatted names to plain text for admin display
     const formatted = services.map(s => ({
       ...s,
-      name: parseTranslation(s.name),
-      description: parseTranslation(s.description)
+      name: extractPlainText(s.name),
+      description: extractPlainText(s.description)
     }));
 
     return NextResponse.json(formatted);
@@ -44,13 +48,14 @@ export async function POST(req: Request) {
 
     const type = serviceType || 'FOOD_PRICE';
 
-    const nameJson = JSON.stringify(await getTranslations(name || ''));
-    const descJson = JSON.stringify(await getTranslations(description || ''));
+    // Store plain text directly — no JSON translation wrapping
+    const plainName = name || '';
+    const plainDesc = description || '';
 
     const updated = await prisma.servicePricing.upsert({
       where: { id: id || 0 },
-      update: { name: nameJson, description: descJson, price, isActive },
-      create: { serviceType: type, name: nameJson, description: descJson, price, isActive }
+      update: { name: plainName, description: plainDesc, price, isActive },
+      create: { serviceType: type, name: plainName, description: plainDesc, price, isActive }
     });
 
     return NextResponse.json(updated);
