@@ -432,8 +432,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [wantsCook, setWantsCook] = useState<boolean | null>(null);
   const [selectedCookService, setSelectedCookService] = useState<any | null>(null);
   const [expandedDishId, setExpandedDishId] = useState<number | null>(null);
-  const [cookSelections, setCookSelections] = useState<Record<string, number>>({});
+  const [cookSelectionsByDate, setCookSelectionsByDate] = useState<Record<string, string[]>>({});
   const [selectedDishes, setSelectedDishes] = useState<number[]>([]);
+  const [dinnerGroupSize, setDinnerGroupSize] = useState<string>(''); // '6-8' or '10-12'
+  const [dishesByDate, setDishesByDate] = useState<Record<string, number>>({});
+  const [selectedDateForMenu, setSelectedDateForMenu] = useState<string>('');
 
   const [wantsATV, setWantsATV] = useState<boolean | null>(null);
   const [minTourPax, setMinTourPax] = useState(3);
@@ -498,7 +501,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         setWantsCook(null);
         setSelectedCookService(null);
         setExpandedDishId(null);
-        setCookSelections({});
+        setCookSelectionsByDate({});
         setSelectedDishes([]);
         setWantsATV(null);
         setAtvPeople(1);
@@ -537,16 +540,28 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   }, [getConvertedPrice, propertySettings]);
 
   const nights = (range?.from && range?.to) ? differenceInDays(range.to, range.from) : 0;
+  const isDinnerService = (name: string | undefined | null) => name?.toLowerCase().includes('dinner') || name?.toLowerCase().includes('cena');
+
   const accommodationTotal = nights > 0 ? nights * basePrice : 0;
 
   let cookTotal = 0;
   if (wantsCook) {
-    Object.entries(cookSelections).forEach(([id, count]) => {
-      if (count > 0) {
-        const service = foodServices.find(s => s.id.toString() === id);
-        if (service) cookTotal += count * getConvertedPrice(service.price);
+    if (isDinnerService(selectedCookService?.name) && dinnerGroupSize) {
+      const service = foodServices.find(s => s.serviceType === 'FOOD_PRICE' && isDinnerService(s.name) && s.name.includes(dinnerGroupSize));
+      if (service) {
+        const selectedDaysCount = Object.keys(dishesByDate).length;
+        cookTotal += selectedDaysCount * getConvertedPrice(service.price);
       }
-    });
+    } else {
+      Object.entries(cookSelectionsByDate).forEach(([id, dates]) => {
+        if (dates.length > 0) {
+          const service = foodServices.find(s => s.id.toString() === id);
+          if (service) {
+            cookTotal += (getConvertedPrice(service.price) * dates.length);
+          }
+        }
+      });
+    }
   }
   
   let atvTotal = 0;
@@ -574,32 +589,55 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
     const selectedAddons: any[] = [];
     if (wantsCook) {
-      Object.entries(cookSelections).forEach(([id, count]) => {
-        if (count > 0) {
-          const service = foodServices.find(s => s.id.toString() === id);
-          if (service) {
-            const unitPrice = getConvertedPrice(service.price);
-            selectedAddons.push({ type: `FOOD_${service.id}`, name: service.name, quantity: count, unitPrice, price: count * unitPrice, details: selectedCookService ? JSON.stringify({ service: selectedCookService.name }) : null });
-          }
-        }
-      });
-      // Register selected dishes for database and invoice
-      const uniqueDishes = Array.from(new Set(selectedDishes));
-      uniqueDishes.forEach(dishId => {
-        const dish = foodServices.find(s => s.id === dishId);
-        const count = selectedDishes.filter(id => id === dishId).length;
-        if (dish) {
-          const unitPrice = getConvertedPrice(dish.price || 0);
-          selectedAddons.push({
-            type: `FOOD_DISH_${dish.id}`,
-            name: dish.name,
-            quantity: count,
-            unitPrice,
-            price: unitPrice * count,
-            details: JSON.stringify({ plan: selectedCookService?.name || 'Chef', type: 'Dish Selection' })
+      if (isDinnerService(selectedCookService?.name) && dinnerGroupSize) {
+        const service = foodServices.find(s => s.serviceType === 'FOOD_PRICE' && isDinnerService(s.name) && s.name.includes(dinnerGroupSize));
+        if (service) {
+          const unitPrice = getConvertedPrice(service.price);
+          const selectedDaysCount = Object.keys(dishesByDate).length;
+          selectedAddons.push({ 
+            type: `FOOD_${service.id}`, 
+            name: service.name, 
+            quantity: selectedDaysCount, 
+            unitPrice, 
+            price: selectedDaysCount * unitPrice, 
+            details: JSON.stringify({ service: selectedCookService.name, groupSize: dinnerGroupSize }) 
           });
         }
-      });
+        // Register dishes for each date
+        Object.entries(dishesByDate).forEach(([dateStr, dishId]) => {
+          const dish = foodServices.find(s => s.id === dishId);
+          if (dish) {
+            const unitPrice = getConvertedPrice(dish.price || 0);
+            selectedAddons.push({
+              type: `FOOD_DISH_${dish.id}`,
+              name: dish.name,
+              quantity: 1,
+              unitPrice,
+              price: unitPrice, // dishes might be 0 cost depending on how price is handled, assuming base is in service
+              details: JSON.stringify({ plan: selectedCookService?.name || 'Chef', type: 'Dish Selection', date: dateStr })
+            });
+          }
+        });
+      } else {
+        Object.entries(cookSelectionsByDate).forEach(([id, dates]) => {
+          if (dates.length > 0) {
+            const service = foodServices.find(s => s.id.toString() === id);
+            if (service) {
+              const unitPrice = getConvertedPrice(service.price);
+              dates.forEach(date => {
+                selectedAddons.push({ 
+                  type: `FOOD_${service.id}_${date}`, 
+                  name: service.name, 
+                  quantity: 1, 
+                  unitPrice, 
+                  price: unitPrice, 
+                  details: JSON.stringify({ service: service.name, date }) 
+                });
+              });
+            }
+          }
+        });
+      }
     }
     if (wantsATV) {
       Object.entries(atvSelections).forEach(([id, count]) => {
@@ -644,25 +682,36 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     }
   };
 
-  const totalCookServices = Object.values(cookSelections).reduce((a, b) => a + b, 0);
+  const totalCookServices = Object.values(cookSelectionsByDate).reduce((sum, dates) => sum + dates.length, 0);
 
-  const isDinnerService = (name: string | undefined | null) => name?.toLowerCase().includes('dinner') || name?.toLowerCase().includes('cena');
-  
+
+  const stayDates = useMemo(() => {
+    if (!range?.from || !range?.to) return [];
+    const dates = [];
+    let currentDate = new Date(range.from);
+    while (currentDate <= range.to) {
+      dates.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    if (dates.length > 0) dates.pop();
+    return dates;
+  }, [range]);
+
   const getFoodServiceMax = (priceOption: any) => {
     const isDinner = isDinnerService(priceOption.name);
-    const limit = isDinner ? Math.max(1, nights) : Math.max(1, nights + 1);
+    const limit = isDinner ? stayDates.length : Math.max(1, nights + 1);
     const currentTotal = foodServices
-      .filter(s => s.serviceType === 'FOOD_PRICE' && isDinnerService(s.name) === isDinner)
-      .reduce((sum, s) => sum + (cookSelections[s.id.toString()] || 0), 0);
-    return limit - currentTotal + (cookSelections[priceOption.id.toString()] || 0);
+      .filter(s => s.serviceType === 'FOOD_PRICE' && isDinnerService(s.name) === isDinner && !s.name.includes('6 to 8') && !s.name.includes('10 to 12') && !s.name.includes('6 a 8') && !s.name.includes('10 a 12'))
+      .reduce((sum, s) => sum + (cookSelectionsByDate[s.id.toString()]?.length || 0), 0);
+    return limit - currentTotal + (cookSelectionsByDate[priceOption.id.toString()]?.length || 0);
   };
 
-  const globalMaxDishes = totalCookServices > 0 
-    ? totalCookServices 
-    : (isDinnerService(selectedCookService?.name) ? Math.max(1, nights) : Math.max(1, nights + 1));
+  const globalMaxDishes = (totalCookServices === 0 && !isDinnerService(selectedCookService?.name)) 
+    ? 0 
+    : (isDinnerService(selectedCookService?.name) ? stayDates.length : Math.max(1, nights + 1));
 
   const getActiveSteps = useCallback(() => {
-    const steps = ['dates', 'food_prompt'];
+    const steps = ['dates', 'guest_data', 'food_prompt'];
     if (wantsCook) {
       steps.push('food_service');
       const isPersonalized = selectedCookService?.name?.toLowerCase().includes('personalized') || selectedCookService?.name?.toLowerCase().includes('personalizado');
@@ -670,11 +719,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         steps.push('food_plan');
       }
       const isDinner = selectedCookService?.name?.toLowerCase().includes('dinner') || selectedCookService?.name?.toLowerCase().includes('cena');
-      if (isDinner || totalCookServices > 0) {
+      if (isDinner) {
         steps.push('menu');
       }
     }
-    steps.push('tours', 'checkout', 'success');
+    steps.push('tours', 'summary');
     return steps;
   }, [wantsCook, selectedCookService, totalCookServices]);
 
@@ -722,19 +771,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const handleWantsCook = (wants: boolean) => {
     setWantsCook(wants);
     if (!wants) {
-      setCookSelections({});
+      setCookSelectionsByDate({});
       setSelectedDishes([]);
       setStep('tours');
     } else {
       setStep('food_service');
     }
   };
-
-  const handleCookChange = (id: string, val: number) => {
-    setCookSelections(prev => ({ ...prev, [id]: val }));
-  };
-
-
 
   const handleWantsATV = (wants: boolean) => {
     setWantsATV(wants);
@@ -1014,7 +1057,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </p>
                         )}
                         <PremiumButton onClick={nextStep} disabled={!range?.from || !range?.to || nights < 2}>
-                          {dict.modal?.continue} <ArrowRight size={16} />
+                          {isEn ? 'Your Data' : 'Tus Datos'} <ArrowRight size={16} />
                         </PremiumButton>
                       </div>
                     </motion.div>
@@ -1074,9 +1117,6 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         <h3 className="text-3xl font-serif text-[#23211F] mb-2">
                           {isEn ? "Choose Your Service" : "Elige tu Servicio"}
                         </h3>
-                        <p className="text-gray-500 font-light">
-                          {isEn ? "We provide a staff member to assist with prep, cooking, and clean up. You provide the ingredients, and we cook it for you! Select an assistance plan below:" : "Proveemos personal para asistir con la preparación, cocina y limpieza. Usted pone los ingredientes, ¡nosotros lo cocinamos! Seleccione un plan de asistencia a continuación:"}
-                        </p>
                       </div>
 
                       <div className="space-y-6 flex-1 pb-4">
@@ -1123,34 +1163,88 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           {isEn ? "Select an Assistance Plan" : "Selecciona un Plan de Asistencia"}
                         </h3>
                         <p className="text-sm text-gray-500 font-light mb-4">
-                          {isEn ? 'Breakfast & Lunch plans are calculated per days of stay. Dinner plans per nights.' : 'Los planes de desayuno/comida se calculan por días de estancia. Las cenas por noches.'}
+                          {isEn ? 'Breakfast and Dinner Assistance, is calculated per Day' : 'La asistencia para desayuno y cena se calcula por día'}
                         </p>
                       </div>
 
                       <div className="space-y-6 flex-1 pb-4">
                         <div className="space-y-3 mb-8">
-                          {foodServices.filter(s => s.serviceType === 'FOOD_PRICE').map(priceOption => {
+                          {foodServices.filter(s => s.serviceType === 'FOOD_PRICE' && !s.name.includes('6 to 8') && !s.name.includes('10 to 12') && !s.name.includes('6 a 8') && !s.name.includes('10 a 12')).map(priceOption => {
+                            const optionId = priceOption.id.toString();
+                            const selectedDates = cookSelectionsByDate[optionId] || [];
+                            const isExpanded = selectedDates.length > 0 || Object.keys(cookSelectionsByDate).length === 0 || (cookSelectionsByDate[optionId] !== undefined);
+                            
                             return (
-                              <Counter 
-                                key={priceOption.id}
-                                label={translateDB(priceOption.name, isEn)} 
-                                value={cookSelections[priceOption.id.toString()] || 0} 
-                                onChange={(val) => setCookSelections(prev => ({ ...prev, [priceOption.id.toString()]: val }))} 
-                                max={getFoodServiceMax(priceOption)} 
-                                sublabel={`+${formatPrice(priceOption.price || 0)} / ${isDinnerService(priceOption.name) ? (isEn ? 'night' : 'noche') : (isEn ? 'day' : 'día')}`} 
-                              />
+                              <div key={optionId} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm transition-all hover:border-[#E8D5B7] group">
+                                <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={() => {
+                                  setCookSelectionsByDate(prev => {
+                                    if (prev[optionId] === undefined) return { ...prev, [optionId]: [] };
+                                    if (prev[optionId]?.length === 0) {
+                                      const next = { ...prev };
+                                      delete next[optionId];
+                                      return next;
+                                    }
+                                    return prev;
+                                  });
+                                }}>
+                                  <div>
+                                    <p className="font-bold text-[#23211F] group-hover:text-[#9B7E67] transition-colors">{translateDB(priceOption.name, isEn)}</p>
+                                    <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest font-bold">
+                                      +{formatPrice(priceOption.price || 0)} / {isDinnerService(priceOption.name) ? (isEn ? 'night' : 'noche') : (isEn ? 'day' : 'día')}
+                                    </p>
+                                  </div>
+                                  <div className="text-xs font-bold bg-[#FAF8F5] text-[#9B7E67] px-3 py-1 rounded-full border border-[#E8D5B7]">
+                                    {selectedDates.length} {isEn ? 'days' : 'días'}
+                                  </div>
+                                </div>
+
+                                {isExpanded && (
+                                  <div className="mt-4 pt-4 border-t border-gray-100">
+                                    <p className="text-xs text-gray-500 mb-3">{isEn ? 'Select the days for this service:' : 'Selecciona los días para este servicio:'}</p>
+                                    <div className="grid grid-cols-2 gap-2">
+                                      {stayDates.map(date => {
+                                        const dateStr = format(date, 'yyyy-MM-dd');
+                                        const isSelected = selectedDates.includes(dateStr);
+                                        // check if max reached, unless already selected
+                                        const maxReached = !isSelected && selectedDates.length >= getFoodServiceMax(priceOption);
+                                        return (
+                                          <button
+                                            key={dateStr}
+                                            disabled={maxReached}
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setCookSelectionsByDate(prev => {
+                                                const current = prev[optionId] || [];
+                                                if (current.includes(dateStr)) {
+                                                  return { ...prev, [optionId]: current.filter(d => d !== dateStr) };
+                                                }
+                                                return { ...prev, [optionId]: [...current, dateStr] };
+                                              });
+                                            }}
+                                            className={`p-2 rounded-lg text-xs font-bold transition-all flex items-center justify-between ${
+                                              isSelected
+                                                ? 'bg-[#9B7E67] text-white shadow-sm'
+                                                : maxReached
+                                                  ? 'bg-gray-50 text-gray-300 cursor-not-allowed'
+                                                  : 'bg-[#F9F7F4] text-gray-500 hover:bg-[#E8D5B7] hover:text-[#23211F]'
+                                            }`}
+                                          >
+                                            <span>{format(date, 'MMM d')}</span>
+                                            {isSelected && <Check size={12} />}
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
                             );
                           })}
                         </div>
                         
                         <div className="shrink-0 mt-4">
-                          {totalCookServices === 0 && (
-                            <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
-                              {isEn ? 'Select Assistance (Breakfasts by days of stay, Dinners by nights)' : 'Selecciona tu Asistencia (Desayunos por días de estancia, Cenas por noches)'}
-                            </p>
-                          )}
                           <PremiumButton onClick={nextStep} disabled={totalCookServices === 0}>
-                            {dict.modal?.continue} <ArrowRight size={16} />
+                            {isEn ? 'Confirm Plan' : 'Confirmar Plan'} <ArrowRight size={16} />
                           </PremiumButton>
                         </div>
                       </div>
@@ -1170,134 +1264,270 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] shadow-sm border border-[#E8D5B7]">
                           <Utensils size={24} />
                         </div>
-                        <h3 className="text-3xl font-serif text-[#23211F]">{isEn ? 'Menu' : 'Menú'}</h3>
+                        <h3 className="text-3xl font-serif text-[#23211F]">{isEn ? 'Dinner Service Menu' : 'Menú del Servicio de Cena'}</h3>
                       </div>
-<div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-8">
-                                <div className="flex justify-between items-center mb-4">
-                                  <h4 className="text-sm font-bold uppercase tracking-widest text-[#9B7E67]">
-                                    {isEn ? 'Available Dishes (Menu)' : 'Platillos Disponibles (Menú)'}
-                                  </h4>
-                                  <span className="text-sm font-bold text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">
-                                    {selectedDishes.length} / {globalMaxDishes} {isEn ? 'selected' : 'seleccionados'}
+                      
+                      {isDinnerService(selectedCookService?.name) && (
+                        <div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-8">
+                          <h4 className="text-lg font-serif text-[#2C2621] mb-2">
+                            {isEn ? 'We have 2 options, for the following groups:' : 'Tenemos 2 opciones, para los siguientes grupos:'}
+                          </h4>
+                          <div className="flex gap-4 mt-4">
+                            {['6-8', '10-12'].map((size) => {
+                              const servicePrice = foodServices.find(s => s.serviceType === 'FOOD_PRICE' && isDinnerService(s.name) && s.name.includes(size))?.price || 0;
+                              return (
+                                <button
+                                  key={size}
+                                  onClick={() => setDinnerGroupSize(prev => prev === size ? '' : size)}
+                                  className={`flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-xl border-2 transition-all font-bold tracking-widest text-sm uppercase ${
+                                    dinnerGroupSize === size 
+                                      ? 'border-[#9B7E67] bg-[#9B7E67] text-white shadow-md' 
+                                      : 'border-gray-200 bg-white text-gray-500 hover:border-[#9B7E67] hover:text-[#9B7E67]'
+                                  }`}
+                                >
+                                  <span>{size} {isEn ? 'People' : 'Personas'}</span>
+                                  <span className={`text-[10px] mt-1 normal-case ${dinnerGroupSize === size ? 'text-white/80' : 'text-gray-400'}`}>
+                                    +{formatPrice(servicePrice)} / {isEn ? 'day' : 'día'}
                                   </span>
-                                </div>
-                                <p className="text-sm text-gray-500 mb-4 font-light">
-                                  {isEn 
-                                    ? `Based on your selections, please pick ${globalMaxDishes} dish(es).` 
-                                    : `Basado en tus selecciones, elige ${globalMaxDishes} platillo(s).`}
-                                  <br/>
-                                  <span className="font-medium mt-2 inline-block text-[#9B7E67]">
-                                    {isEn 
-                                      ? "Dinner includes an afternoon appetizer, fresh salad, your choice of main course, and dessert."
-                                      : "La cena incluye un aperitivo por la tarde, ensalada fresca, su elección de plato principal y postre."}
-                                  </span>
-                                </p>
-                                <div className="space-y-3">
-                                  {foodServices.filter(s => s.serviceType === 'FOOD_DISH').map(dish => {
-                                    const isExpanded = expandedDishId === dish.id;
-                                    const dishQuantity = selectedDishes.filter(id => id === dish.id).length;
-                                    const isSelected = dishQuantity > 0;
-                                    const maxDishes = globalMaxDishes;
-                                    return (
-                                      <motion.div 
-                                        layout
-                                        key={dish.id} 
-                                        className={`bg-white border rounded-[2rem] overflow-hidden shadow-sm transition-colors ${isSelected ? 'border-[#9B7E67] ring-1 ring-[#9B7E67]' : 'border-gray-100 hover:border-gray-200'}`}
-                                      >
-                                        <button 
-                                          onClick={() => setExpandedDishId(isExpanded ? null : dish.id)}
-                                          className="w-full px-6 py-4 text-left font-medium text-[#23211F] flex justify-between items-center"
-                                        >
-                                          <span className="flex items-center gap-3">
-                                            {translateDB(dish.name, isEn)}
-                                            {dishQuantity > 0 && (
-                                              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="min-w-[20px] h-5 px-1.5 rounded-full bg-[#9B7E67] text-white flex items-center justify-center text-[10px] font-bold">
-                                                {dishQuantity}
-                                              </motion.div>
-                                            )}
-                                          </span>
-                                          <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
-                                            <ChevronDown size={16} className="text-gray-400" />
-                                          </motion.div>
-                                        </button>
-                                        <AnimatePresence>
-                                          {isExpanded && (
-                                            <motion.div 
-                                              initial={{ height: 0, opacity: 0 }}
-                                              animate={{ height: 'auto', opacity: 1 }}
-                                              exit={{ height: 0, opacity: 0 }}
-                                              className="overflow-hidden bg-gray-50 rounded-b-[2rem]"
-                                            >
-                                              <div className="p-6 border-t border-gray-100 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-                                                <p className="text-base text-gray-600 font-light leading-relaxed flex-1 whitespace-pre-wrap">
-                                                  {translateDB(dish.description, isEn)}
-                                                </p>
-                                                <div className="shrink-0">
-                                                  <div className="flex items-center gap-4 bg-white border border-gray-200 rounded-full p-1 shadow-sm">
-                                                    <motion.button 
-                                                      whileTap={{ scale: 0.9 }}
-                                                      onClick={() => {
-                                                        setSelectedDishes(prev => {
-                                                          const idx = prev.lastIndexOf(dish.id);
-                                                          if (idx !== -1) {
-                                                            const next = [...prev];
-                                                            next.splice(idx, 1);
-                                                            return next;
-                                                          }
-                                                          return prev;
-                                                        });
-                                                      }}
-                                                      disabled={dishQuantity === 0}
-                                                      className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-50 transition-colors"
-                                                    >
-                                                      <Minus size={16} />
-                                                    </motion.button>
-                                                    
-                                                    <span className="font-serif text-xl w-6 text-center text-[#23211F]">
-                                                      {dishQuantity}
-                                                    </span>
-                                                    
-                                                    <motion.button 
-                                                      whileTap={{ scale: 0.9 }}
-                                                      onClick={() => {
-                                                        if (selectedDishes.length < maxDishes) {
-                                                          setSelectedDishes(prev => {
-                                                            const next = [...prev, dish.id];
-                                                            const isDinner = selectedCookService?.name?.toLowerCase().includes('dinner');
-                                                            if (next.length === maxDishes && (totalCookServices > 0 || isDinner)) {
-                                                              setTimeout(() => nextStep(), 800);
-                                                            }
-                                                            return next;
-                                                          });
-                                                        }
-                                                      }}
-                                                      disabled={selectedDishes.length >= maxDishes}
-                                                      className="w-10 h-10 rounded-full flex items-center justify-center text-[#23211F] hover:bg-gray-100 disabled:opacity-50 transition-colors"
-                                                    >
-                                                      <Plus size={16} />
-                                                    </motion.button>
-                                                  </div>
-                                                </div>
-                                              </div>
-                                            </motion.div>
-                                          )}
-                                        </AnimatePresence>
-                                      </motion.div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
 
-                              <div className="shrink-0 mt-4 hidden md:block">
-                                {((totalCookServices > 0 || selectedCookService?.name?.toLowerCase().includes('dinner')) && selectedDishes.length < globalMaxDishes) && (
-                                  <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
-                                    {isEn ? `Please select ${globalMaxDishes - selectedDishes.length} more dish(es)` : `Por favor selecciona ${globalMaxDishes - selectedDishes.length} platillo(s) más`}
-                                  </p>
-                                )}
-                                <PremiumButton onClick={nextStep} disabled={selectedDishes.length < globalMaxDishes}>
-                                  {dict.addons?.confirmChef} <ArrowRight size={16} />
-                                </PremiumButton>
-                              </div>
+                      {(!isDinnerService(selectedCookService?.name) || dinnerGroupSize) && (
+                        <div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-8">
+                          <div className="flex justify-between items-center mb-4">
+                            <h4 className="text-sm font-bold uppercase tracking-widest text-[#9B7E67]">
+                              {isEn ? 'Available Dishes (Menu)' : 'Platillos Disponibles (Menú)'}
+                            </h4>
+                            <span className="text-sm font-bold text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">
+                              {isDinnerService(selectedCookService?.name) 
+                                ? `${Object.keys(dishesByDate).length} / ${stayDates.length} ${isEn ? 'days planned' : 'días planeados'}`
+                                : `${selectedDishes.length} / ${globalMaxDishes} ${isEn ? 'selected' : 'seleccionados'}`
+                              }
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-500 mb-4 font-light">
+                            {isDinnerService(selectedCookService?.name)
+                              ? (isEn ? "Select a day from your stay, then pick the dish you want for that day." : "Selecciona un día de tu estancia, luego elige el platillo que deseas para ese día.")
+                              : (isEn ? `Based on your selections, please pick ${globalMaxDishes} dish(es).` : `Basado en tus selecciones, elige ${globalMaxDishes} platillo(s).`)
+                            }
+                            <br/>
+                            {isDinnerService(selectedCookService?.name) && (
+                              <span className="font-medium mt-2 inline-block text-[#9B7E67]">
+                                {isEn 
+                                  ? "Dinner includes an afternoon appetizer, fresh salad, your choice of main course, and dessert."
+                                  : "La cena incluye un aperitivo por la tarde, ensalada fresca, su elección de plato principal y postre."}
+                              </span>
+                            )}
+                          </p>
+
+                          {isDinnerService(selectedCookService?.name) && (
+                            <div className="mb-6 flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+                              {stayDates.map((date, idx) => {
+                                const dateStr = date.toISOString().split('T')[0];
+                                const isSelected = selectedDateForMenu === dateStr;
+                                const hasDish = !!dishesByDate[dateStr];
+                                return (
+                                  <button
+                                    key={dateStr}
+                                    onClick={() => setSelectedDateForMenu(dateStr)}
+                                    className={`shrink-0 flex flex-col items-center justify-center min-w-[80px] p-3 rounded-2xl border transition-all ${
+                                      isSelected 
+                                        ? 'border-[#9B7E67] bg-[#9B7E67] text-white shadow-md' 
+                                        : hasDish
+                                          ? 'border-[#9B7E67] bg-white text-[#9B7E67]'
+                                          : 'border-gray-200 bg-white text-gray-400 hover:border-gray-300'
+                                    }`}
+                                  >
+                                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-1">
+                                      {isEn ? `Day ${idx + 1}` : `Día ${idx + 1}`}
+                                    </span>
+                                    <span className="text-xl font-serif">
+                                      {date.getDate()}
+                                    </span>
+                                    <span className="text-[10px] font-bold uppercase">
+                                      {date.toLocaleDateString(isEn ? 'en-US' : 'es-MX', { month: 'short' })}
+                                    </span>
+                                    {hasDish && (
+                                      <div className={`mt-2 w-2 h-2 rounded-full ${isSelected ? 'bg-white' : 'bg-[#9B7E67]'}`} />
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+
+                          {(!isDinnerService(selectedCookService?.name) || selectedDateForMenu) && (
+                            <div className="space-y-3">
+                              {foodServices.filter(s => s.serviceType === 'FOOD_DISH').map(dish => {
+                                const isExpanded = expandedDishId === dish.id;
+                                const isDinner = isDinnerService(selectedCookService?.name);
+                                
+                                const dishQuantity = isDinner ? 0 : selectedDishes.filter(id => id === dish.id).length;
+                                const isSelectedForDay = isDinner && dishesByDate[selectedDateForMenu] === dish.id;
+                                const isSelectedGen = !isDinner && dishQuantity > 0;
+                                
+                                const isSelected = isDinner ? isSelectedForDay : isSelectedGen;
+
+                                return (
+                                  <motion.div 
+                                    layout
+                                    key={dish.id} 
+                                    className={`bg-white border rounded-[2rem] overflow-hidden shadow-sm transition-colors ${isSelected ? 'border-[#9B7E67] ring-1 ring-[#9B7E67]' : 'border-gray-100 hover:border-gray-200'}`}
+                                  >
+                                    <button 
+                                      onClick={() => setExpandedDishId(isExpanded ? null : dish.id)}
+                                      className="w-full px-6 py-4 text-left font-medium text-[#23211F] flex justify-between items-center"
+                                    >
+                                      <span className="flex items-center gap-3">
+                                        {translateDB(dish.name, isEn)}
+                                        {dishQuantity > 0 && (
+                                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="min-w-[20px] h-5 px-1.5 rounded-full bg-[#9B7E67] text-white flex items-center justify-center text-[10px] font-bold">
+                                            {dishQuantity}
+                                          </motion.div>
+                                        )}
+                                        {isSelectedForDay && (
+                                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="min-w-[20px] h-5 px-2 rounded-full bg-[#9B7E67] text-white flex items-center justify-center text-[10px] font-bold uppercase tracking-widest">
+                                            {isEn ? 'Selected' : 'Elegido'}
+                                          </motion.div>
+                                        )}
+                                      </span>
+                                      <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
+                                        <ChevronDown size={16} className="text-gray-400" />
+                                      </motion.div>
+                                    </button>
+                                    <AnimatePresence>
+                                      {isExpanded && (
+                                        <motion.div 
+                                          initial={{ height: 0, opacity: 0 }}
+                                          animate={{ height: 'auto', opacity: 1 }}
+                                          exit={{ height: 0, opacity: 0 }}
+                                          className="overflow-hidden bg-gray-50 rounded-b-[2rem]"
+                                        >
+                                          <div className="p-6 border-t border-gray-100 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                                            <p className="text-base text-gray-600 font-light leading-relaxed flex-1 whitespace-pre-wrap">
+                                              {translateDB(dish.description, isEn)}
+                                            </p>
+                                            <div className="shrink-0">
+                                              {isDinner ? (
+                                                <button
+                                                  onClick={() => {
+                                                    setDishesByDate(prev => {
+                                                      const next = { ...prev };
+                                                      if (next[selectedDateForMenu] === dish.id) {
+                                                        delete next[selectedDateForMenu];
+                                                      } else {
+                                                        next[selectedDateForMenu] = dish.id;
+                                                      }
+                                                      
+                                                      // Auto-advance to next empty day if not fully planned
+                                                      if (Object.keys(next).length < stayDates.length) {
+                                                        const dates = stayDates.map(d => d.toISOString().split('T')[0]);
+                                                        const nextEmpty = dates.find(d => !next[d]);
+                                                        if (nextEmpty) {
+                                                          setTimeout(() => setSelectedDateForMenu(nextEmpty), 400);
+                                                        }
+                                                      }
+
+                                                      return next;
+                                                    });
+                                                  }}
+                                                  className={`px-6 py-2 rounded-full text-sm font-bold uppercase tracking-widest transition-all ${
+                                                    isSelectedForDay 
+                                                      ? 'bg-[#23211F] text-white' 
+                                                      : 'bg-white border border-[#23211F] text-[#23211F] hover:bg-[#F9F7F4]'
+                                                  }`}
+                                                >
+                                                  {isSelectedForDay 
+                                                    ? (isEn ? 'Deselect' : 'Quitar') 
+                                                    : (isEn ? 'Select' : 'Seleccionar')}
+                                                </button>
+                                              ) : (
+                                                <div className="flex items-center gap-4 bg-white border border-gray-200 rounded-full p-1 shadow-sm">
+                                                  <motion.button 
+                                                    whileTap={{ scale: 0.9 }}
+                                                    onClick={() => {
+                                                      setSelectedDishes(prev => {
+                                                        const idx = prev.lastIndexOf(dish.id);
+                                                        if (idx !== -1) {
+                                                          const next = [...prev];
+                                                          next.splice(idx, 1);
+                                                          return next;
+                                                        }
+                                                        return prev;
+                                                      });
+                                                    }}
+                                                    disabled={dishQuantity === 0}
+                                                    className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-50 transition-colors"
+                                                  >
+                                                    <Minus size={16} />
+                                                  </motion.button>
+                                                  
+                                                  <span className="font-serif text-xl w-6 text-center text-[#23211F]">
+                                                    {dishQuantity}
+                                                  </span>
+                                                  
+                                                  <motion.button 
+                                                    whileTap={{ scale: 0.9 }}
+                                                    onClick={() => {
+                                                      if (selectedDishes.length < globalMaxDishes) {
+                                                        setSelectedDishes(prev => {
+                                                          const next = [...prev, dish.id];
+                                                          if (next.length === globalMaxDishes) {
+                                                            setTimeout(() => nextStep(), 800);
+                                                          }
+                                                          return next;
+                                                        });
+                                                      }
+                                                    }}
+                                                    disabled={selectedDishes.length >= globalMaxDishes}
+                                                    className="w-10 h-10 rounded-full flex items-center justify-center text-[#23211F] hover:bg-gray-100 disabled:opacity-50 transition-colors"
+                                                  >
+                                                    <Plus size={16} />
+                                                  </motion.button>
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </motion.div>
+                                      )}
+                                    </AnimatePresence>
+                                  </motion.div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="shrink-0 mt-4 hidden md:block">
+                        {isDinnerService(selectedCookService?.name) ? (
+                          Object.keys(dishesByDate).length < stayDates.length && dinnerGroupSize && (
+                            <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
+                              {isEn ? `Please select a dish for ${stayDates.length - Object.keys(dishesByDate).length} more day(s)` : `Por favor selecciona un platillo para ${stayDates.length - Object.keys(dishesByDate).length} día(s) más`}
+                            </p>
+                          )
+                        ) : (
+                          selectedDishes.length < globalMaxDishes && (
+                            <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
+                              {isEn ? `Please select ${globalMaxDishes - selectedDishes.length} more dish(es)` : `Por favor selecciona ${globalMaxDishes - selectedDishes.length} platillo(s) más`}
+                            </p>
+                          )
+                        )}
+                        <PremiumButton 
+                          onClick={nextStep} 
+                          disabled={
+                            isDinnerService(selectedCookService?.name)
+                              ? (!dinnerGroupSize || Object.keys(dishesByDate).length < stayDates.length)
+                              : selectedDishes.length < globalMaxDishes
+                          }
+                        >
+                          {isEn ? 'Confirm Menu' : 'Confirmar Menú'} <ArrowRight size={16} />
+                        </PremiumButton>
+                      </div>
                     </motion.div>
                   )}
 
@@ -1385,7 +1615,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                               </p>
                             )}
                             <PremiumButton onClick={nextStep} disabled={totalAtvTours === 0 || atvPeople < minTourPax}>
-                              {dict.modal?.continue} <ArrowRight size={16} />
+                              {isEn ? 'View Summary' : 'Ver Resumen'} <ArrowRight size={16} />
                             </PremiumButton>
                           </div>
                         </motion.div>
@@ -1393,16 +1623,16 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     </motion.div>
                   )}
 
-                  {step === 'checkout' && (
+                  {step === 'guest_data' && (
                     <motion.div
-                      key="step4"
+                      key="step_guest_data"
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
                       className="min-h-full flex flex-col flex-1 max-md:absolute max-md:inset-0 max-md:overflow-y-auto max-md:p-6 max-md:pb-32"
                     >
-                      <h3 className="text-3xl font-serif text-[#23211F] mb-8 shrink-0">{dict.modal?.yourData}</h3>
+                      <h3 className="text-3xl font-serif text-[#23211F] mb-8 shrink-0">{dict.modal?.yourData || (isEn ? 'Your Data' : 'Tus Datos')}</h3>
                       
                       <form 
                         onSubmit={(e) => { 
@@ -1465,25 +1695,17 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                               {isEn ? 'Please fill in all required fields correctly' : 'Por favor completa todos los campos requeridos correctamente'}
                             </p>
                           )}
-                          <button 
-                            type="submit"
-                            disabled={!isFormValid}
-                            className={`flex items-center justify-center gap-4 text-sm uppercase tracking-[0.2em] font-bold px-10 py-5 rounded-full transition-all duration-300 transform w-full ${
-                              !isFormValid 
-                                ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
-                                : 'bg-[#9B7E67] text-[#0A0908] hover:bg-[#F9F7F4] hover:-translate-y-1 shadow-md hover:shadow-xl hover:shadow-black/10'
-                            }`}
-                          >
-                            {dict.modal?.summary || (isEn ? 'View Summary' : 'Ver Resumen')} <ArrowRight size={16} />
-                          </button>
+                          <PremiumButton onClick={nextStep} disabled={!isFormValid}>
+                            {isEn ? 'Food Services' : 'Servicios de Comida'} <ArrowRight size={16} />
+                          </PremiumButton>
                         </div>
                       </form>
                     </motion.div>
                   )}
 
-                  {step === 'success' && (
+                  {step === 'summary' && (
                     <motion.div
-                      key="step5"
+                      key="step_summary"
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
@@ -1498,6 +1720,14 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         <h3 className="text-3xl font-serif text-[#23211F] mb-6 shrink-0">{dict.modal?.summary || (isEn ? 'Summary' : 'Resumen')}</h3>
                         
                         <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex-1 overflow-y-auto space-y-6 mb-8">
+                          
+                          {/* Guest Data Review */}
+                          <div className="pb-6 border-b border-gray-100">
+                            <h4 className="font-bold text-[#23211F] mb-2">{isEn ? 'Guest Details' : 'Tus Datos'}</h4>
+                            <p className="text-base text-gray-500 font-medium">{guestName}</p>
+                            <p className="text-base text-gray-500">{guestEmail}</p>
+                            <p className="text-base text-gray-500">{countryCode} {guestPhone}</p>
+                          </div>
                           <div className="flex justify-between items-center pb-6 border-b border-gray-100">
                             <div>
                               <h4 className="font-bold text-[#23211F]">{dict.addons?.accommodation}</h4>
@@ -1514,19 +1744,16 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                   <span className="font-medium text-[#9B7E67]">{translateDB(selectedCookService.name, isEn)}</span>
                                 </div>
                               )}
-                              {Object.entries(cookSelections).map(([id, count]) => {
-                                if (count > 0) {
-                                  const service = foodServices.find(s => s.id.toString() === id);
-                                  if (service) {
-                                    return (
-                                      <div key={id} className="flex justify-between text-base text-gray-600 mb-1">
-                                        <span>{count}x {translateDB(service.name, isEn)}</span>
-                                        <span>${(count * (service.price || 0)).toLocaleString('en-US')}</span>
-                                      </div>
-                                    );
-                                  }
-                                }
-                                return null;
+                              {Object.entries(cookSelectionsByDate).map(([id, dates]) => {
+                                if (dates.length === 0) return null;
+                                const service = foodServices.find(s => s.id.toString() === id);
+                                if (!service) return null;
+                                return (
+                                  <div key={id} className="flex justify-between items-center text-sm py-1">
+                                    <span className="text-[#23211F]">{dates.length}x {translateDB(service.name, isEn)}</span>
+                                    <span className="font-bold text-[#9B7E67]">{formatPrice(service.price * dates.length)}</span>
+                                  </div>
+                                );
                               })}
                               {selectedDishes.length > 0 && (
                                 <div className="mt-2 pt-2 border-t border-gray-50">
@@ -1595,7 +1822,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             <div className="w-full">
                               <PremiumButton onClick={handleCheckout} disabled={!isFormValid || isLoading || grandTotal === 0}>
                                 <CreditCard size={18} />
-                                {dict.modal?.proceedPayment}
+                                {isEn ? 'Checkout' : 'Pagar'}
                               </PremiumButton>
                             </div>
                           </div>
@@ -1651,11 +1878,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     </button>
                   </div>
                 )}
-                {step === 'checkout' && (
+                {step === 'guest_data' && (
                   <div className="flex flex-col items-end">
                     {!isFormValid && <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Fill required fields' : 'Llena los campos'}</span>}
                     <button onClick={nextStep} disabled={!isFormValid} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
-                      {dictContext?.modal?.summary || (isEn ? 'Summary' : 'Resumen')}
+                      {isEn ? 'Food Services' : 'Servicios de Comida'}
                     </button>
                   </div>
                 )}

@@ -233,12 +233,16 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
                   const isExternal = info.bookingOrigin === 'EXTERNAL' || (info.bookingOrigin === 'ICAL_SYNC' && !isAirbnb);
                   
                   let color = 'bg-red-500';
-                  if (info.bookingOrigin === 'MANUAL') color = 'bg-[#c1121f]';
-                  else if (isAirbnb) color = 'bg-[#FF5A5F]';
+                  let textColor = 'text-white';
+                  if (info.bookingOrigin === 'MANUAL') {
+                    color = 'bg-[#a8dadc]';
+                    textColor = 'text-[#1d3557]';
+                  } else if (isAirbnb) color = 'bg-[#FF5A5F]';
                   else if (isExternal) color = 'bg-[#003B95]';
+                  else color = 'bg-[#c1121f]';
 
-                  bgClass = `${color} text-white shadow-inner`;
-                  textClass = "text-white font-bold";
+                  bgClass = `${color} shadow-inner`;
+                  textClass = `${textColor} font-bold`;
                 } else if (info.isCheckoutBuffer) {
                   bgClass = "bg-[#D4A574] text-white shadow-inner";
                   textClass = "text-white font-bold";
@@ -277,8 +281,8 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
 
           {/* Legend for Mobile */}
           <div className="flex flex-wrap items-center justify-center gap-3 mt-4 pt-3 border-t border-gray-100 text-[9px] font-bold uppercase tracking-widest text-gray-500">
-            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><span>Stripe</span></div>
-            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#c1121f]" /><span>Manual</span></div>
+            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#c1121f]" /><span>Web</span></div>
+            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#a8dadc]" /><span>Manual</span></div>
             <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#FF5A5F]" /><span>Airbnb</span></div>
             <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#003B95]" /><span>Externo</span></div>
             <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#D4A574]" /><span>Buffer</span></div>
@@ -330,12 +334,16 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
                   const isExternal = info.bookingOrigin === 'EXTERNAL' || (info.bookingOrigin === 'ICAL_SYNC' && !isAirbnb);
 
                   let color = 'bg-red-500';
-                  if (info.bookingOrigin === 'MANUAL') color = 'bg-[#c1121f]';
-                  else if (isAirbnb) color = 'bg-[#FF5A5F]';
+                  let textColor = 'text-white';
+                  if (info.bookingOrigin === 'MANUAL') {
+                    color = 'bg-[#a8dadc]';
+                    textColor = 'text-[#1d3557]';
+                  } else if (isAirbnb) color = 'bg-[#FF5A5F]';
                   else if (isExternal) color = 'bg-[#003B95]';
+                  else color = 'bg-[#c1121f]';
 
                   bgClass = `${color} shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3)]`; 
-                  textClass = "text-white";
+                  textClass = textColor;
                   
                   if (info.bookingOrigin === 'MANUAL') label = 'Manual';
                   else if (isAirbnb) label = 'Airbnb';
@@ -393,12 +401,12 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
             {/* Admin Legend */}
             <div className="flex flex-wrap items-center justify-center gap-6 mt-8 pt-6 border-t border-gray-200 text-[10px] font-bold uppercase tracking-widest text-gray-500 w-full">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500 shadow-inner"></div>
-                <span>Booked (Stripe)</span>
+                <div className="w-3 h-3 rounded-full bg-[#c1121f] shadow-inner"></div>
+                <span>Reserva Web</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#c1121f] shadow-inner"></div>
-                <span>Booked (Manual)</span>
+                <div className="w-3 h-3 rounded-full bg-[#a8dadc] shadow-inner"></div>
+                <span>Reserva Manual</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#FF5A5F] shadow-inner"></div>

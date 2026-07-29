@@ -7,19 +7,21 @@ import { getTranslations } from '@/lib/translate';
 // Initialize default food services if they don't exist
 export async function initFoodServices() {
   const defaultServices = [
-    { name: 'Desayuno', description: '8:00 AM - 10:00 AM', price: 25 },
-    { name: 'Desayuno y Comida', description: '8:00 AM - 2:00 PM', price: 45 },
-    { name: 'Cena', description: '5:00 PM - 7:00 PM', price: 35 }
+    { name: 'Desayuno', description: '8:00 AM - 10:00 AM', price: 25, type: 'FOOD' },
+    { name: 'Desayuno y Comida', description: '8:00 AM - 2:00 PM', price: 45, type: 'FOOD' },
+    { name: 'Cena', description: '5:00 PM - 7:00 PM', price: 35, type: 'FOOD' },
+    { name: 'Dinner Service (6 to 8 people)', description: 'Servicio de cena para grupos de 6 a 8 personas', price: 3200, type: 'FOOD_PRICE' },
+    { name: 'Dinner Service (10 to 12 people)', description: 'Servicio de cena para grupos de 10 a 12 personas', price: 4200, type: 'FOOD_PRICE' }
   ];
 
   for (const s of defaultServices) {
     const exists = await prisma.servicePricing.findFirst({
-      where: { name: s.name, serviceType: 'FOOD' }
+      where: { name: s.name, serviceType: s.type }
     });
     if (!exists) {
       await prisma.servicePricing.create({
         data: {
-          serviceType: 'FOOD',
+          serviceType: s.type,
           name: s.name,
           description: s.description,
           price: s.price,
@@ -33,7 +35,7 @@ export async function initFoodServices() {
 export async function getFoodServices() {
   await initFoodServices(); // Ensure defaults exist
   return await prisma.servicePricing.findMany({
-    where: { serviceType: 'FOOD' },
+    where: { serviceType: { in: ['FOOD_SERVICE', 'FOOD_PRICE', 'FOOD_DISH', 'FOOD'] } },
     orderBy: { id: 'asc' }
   });
 }

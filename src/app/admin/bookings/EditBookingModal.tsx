@@ -198,6 +198,36 @@ export default function EditBookingModal({
                 <input type="number" required value={totalPrice} onChange={e => setTotalPrice(parseFloat(e.target.value))} className="w-full border border-[#D4C3AB] bg-[#F9F7F4] rounded-xl px-4 py-3 text-[#23211F] text-lg font-serif focus:outline-none focus:border-[#9B7E67]" />
               </div>
             </form>
+            
+            {booking.addons && booking.addons.length > 0 && (
+              <div className="mt-8 border-t border-gray-100 pt-6">
+                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Adicionales / Addons</h4>
+                <div className="space-y-3">
+                  {booking.addons.map((addon: any) => {
+                    let detailsObj: any = {};
+                    try { if (addon.details) detailsObj = JSON.parse(addon.details); } catch(e) {}
+                    
+                    let name = detailsObj.service || detailsObj.plan || detailsObj.name || (addon.type.includes('DISH') ? 'Platillo / Dish' : 'Servicio / Service');
+                    if (detailsObj.groupSize) {
+                      name += ` (${detailsObj.groupSize} pax)`;
+                    }
+                    if (detailsObj.date) {
+                      name += ` - ${detailsObj.date}`;
+                    }
+
+                    return (
+                      <div key={addon.id} className="bg-gray-50 rounded-xl p-4 flex justify-between items-center">
+                        <div>
+                          <p className="font-bold text-sm text-[#23211F]">{addon.quantity}x {addon.name}</p>
+                          <p className="text-xs text-gray-500 mt-1">{name}</p>
+                        </div>
+                        <p className="font-serif text-[#9B7E67] text-sm">${addon.price.toLocaleString()} MXN</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="p-4 sm:p-6 border-t border-gray-100 bg-gray-50 flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">

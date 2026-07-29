@@ -17,7 +17,8 @@ export default async function AdminBookingsPage() {
       include: {
         bookings: {
           where: { checkOut: { gte: new Date() } },
-          orderBy: { checkIn: 'asc' }
+          orderBy: { checkIn: 'asc' },
+          include: { addons: true }
         },
         blockedDates: {
           where: { endDate: { gte: new Date() } }
@@ -197,7 +198,8 @@ export default async function AdminBookingsPage() {
     const isExternal = b.origin === 'EXTERNAL' || (b.origin === 'ICAL_SYNC' && !isAirbnb);
     if (isAirbnb) return { label: 'AIRBNB', color: 'bg-[#FF5A5F]/10 text-[#FF5A5F]' };
     if (isExternal) return { label: 'EXTERNAL', color: 'bg-[#003B95]/10 text-[#003B95]' };
-    if (b.origin === 'MANUAL') return { label: 'MANUAL', color: 'bg-orange-50 text-orange-600' };
+    if (b.origin === 'MANUAL') return { label: 'MANUAL', color: 'bg-[#a8dadc]/30 text-[#1d3557]' };
+    if (b.origin === 'WEBSITE') return { label: 'WEB', color: 'bg-[#c1121f]/10 text-[#c1121f]' };
     return { label: b.origin, color: 'bg-green-50 text-green-600' };
   };
 

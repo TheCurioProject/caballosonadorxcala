@@ -193,7 +193,15 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
           {addons.filter(a => a.type.startsWith('FOOD')).map((addon, i) => {
             let detailsObj: any = {};
             try { if (addon.details) detailsObj = JSON.parse(addon.details); } catch(e) {}
-            const name = detailsObj.service || detailsObj.plan || detailsObj.name || (addon.type.includes('DISH') ? 'Platillo / Dish' : 'Servicio / Service');
+            
+            let name = detailsObj.service || detailsObj.plan || detailsObj.name || (addon.type.includes('DISH') ? 'Platillo / Dish' : 'Servicio / Service');
+            if (detailsObj.groupSize) {
+              name += ` (${detailsObj.groupSize} pax)`;
+            }
+            if (detailsObj.date) {
+              name += ` - ${detailsObj.date}`;
+            }
+
             return (
               <View key={i} style={styles.row}>
                 <Text style={styles.label}>{addon.quantity}x {name}</Text>

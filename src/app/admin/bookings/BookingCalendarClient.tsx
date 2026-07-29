@@ -7,7 +7,11 @@ import { ChevronLeft, ChevronRight, Calculator, CalendarDays, User, Mail, Phone,
 import { motion, AnimatePresence } from 'framer-motion';
 import { AdminToast } from '@/components/admin/AdminToast';
 
-type Booking = { checkIn: Date; checkOut: Date; };
+type Booking = {
+  checkIn: Date;
+  checkOut: Date;
+  origin?: string;
+};
 type PricingRule = { date: Date; priceOverride: number; };
 type BlockedDate = { startDate: Date; endDate: Date; };
 
@@ -319,7 +323,9 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
               {days.map((day) => {
                 const isCurrentMonth = isSameMonth(day, currentDate);
                 const isPast = day < new Date(new Date().setHours(0,0,0,0));
-                const isBooked = bookings.some(b => day >= new Date(b.checkIn) && day < new Date(b.checkOut));
+                const isBookedManual = bookings.some(b => b.origin === 'MANUAL' && day >= new Date(b.checkIn) && day < new Date(b.checkOut));
+                const isBookedClient = bookings.some(b => b.origin !== 'MANUAL' && day >= new Date(b.checkIn) && day < new Date(b.checkOut));
+                const isBooked = isBookedManual || isBookedClient;
                 const isCleaning = bookings.some(b => isSameDay(day, new Date(b.checkOut)));
                 const isBlocked = blocks.some(b => day >= new Date(b.startDate) && day <= new Date(b.endDate));
                 const isTour = tourBookings.some(t => {
@@ -351,9 +357,12 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                 } else if (isPast) {
                   bgClass = "bg-gray-50 border border-gray-200 cursor-not-allowed";
                   textClass = "text-gray-400 font-medium";
-                } else if (isBooked || (isBlocked && activeTab === 'booking')) {
+                } else if (isBookedClient || (isBlocked && activeTab === 'booking')) {
                   bgClass = "bg-[#c1121f] cursor-not-allowed shadow-inner";
                   textClass = "text-white font-bold";
+                } else if (isBookedManual) {
+                  bgClass = "bg-[#a8dadc] cursor-not-allowed shadow-inner";
+                  textClass = "text-[#1d3557] font-bold";
                 } else if (isBlocked && activeTab !== 'booking') {
                   bgClass = "bg-gray-300 shadow-inner";
                   textClass = "text-gray-600 font-bold";
@@ -397,6 +406,22 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                 );
               })}
             </div>
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div className="mt-4 flex flex-wrap gap-4 items-center justify-center text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-[#c1121f]"></div>
+            <span>Reserva Web</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-[#a8dadc]"></div>
+            <span>Reserva Manual</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-[#D4A574] border border-[#c9955c]"></div>
+            <span>Limpieza</span>
           </div>
         </div>
         
