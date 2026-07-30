@@ -1310,7 +1310,9 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                       delete next[optionId];
                                       return next;
                                     }
-                                    return prev;
+                                    const next = { ...prev };
+                                    delete next[optionId];
+                                    return next;
                                   });
                                 }}>
                                   <div>
@@ -1369,6 +1371,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </div>
                         
                         <div className="shrink-0 mt-4">
+                          {totalCookServices === 0 && (
+                            <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
+                              {isEn ? `Select at least 1 day to advance` : `Selecciona al menos 1 dia para avanzar`}
+                            </p>
+                          )}
                           <PremiumButton onClick={nextStep} disabled={totalCookServices === 0}>
                             {isEn ? 'Confirm Plan' : 'Confirmar Plan'} <ArrowRight size={16} />
                           </PremiumButton>
@@ -1459,7 +1466,17 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                 return (
                                   <button
                                     key={dateStr}
-                                    onClick={() => setSelectedDateForMenu(dateStr)}
+                                    onClick={() => {
+                                      if (isSelected && hasDish) {
+                                        setDishesByDate(prev => {
+                                          const next = { ...prev };
+                                          delete next[dateStr];
+                                          return next;
+                                        });
+                                      } else {
+                                        setSelectedDateForMenu(dateStr);
+                                      }
+                                    }}
                                     className={`shrink-0 flex flex-col items-center justify-center min-w-[80px] p-3 rounded-2xl border transition-all ${
                                       isSelected 
                                         ? 'border-[#9B7E67] bg-[#9B7E67] text-white shadow-md' 
@@ -1631,9 +1648,9 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
                       <div className="shrink-0 mt-4 hidden md:block">
                         {isDinnerService(selectedCookService?.name) ? (
-                          Object.keys(dishesByDate).length < stayDates.length && dinnerGroupSize && (
+                          Object.keys(dishesByDate).length === 0 && dinnerGroupSize && (
                             <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
-                              {isEn ? `Please select a dish for ${stayDates.length - Object.keys(dishesByDate).length} more day(s)` : `Por favor selecciona un platillo para ${stayDates.length - Object.keys(dishesByDate).length} día(s) más`}
+                              {isEn ? `Select at least 1 day to advance` : `Selecciona al menos 1 dia para avanzar`}
                             </p>
                           )
                         ) : (
@@ -1647,7 +1664,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           onClick={nextStep} 
                           disabled={
                             isDinnerService(selectedCookService?.name)
-                              ? (!dinnerGroupSize || Object.keys(dishesByDate).length < stayDates.length)
+                              ? (!dinnerGroupSize || Object.keys(dishesByDate).length === 0)
                               : selectedDishes.length < globalMaxDishes
                           }
                         >
