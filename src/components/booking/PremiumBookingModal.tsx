@@ -7,6 +7,7 @@ import { ActionLoadingScreen } from '../ui/ActionLoadingScreen';
 import { DayPicker, DateRange } from 'react-day-picker';
 import 'react-day-picker/style.css';
 import dynamic from 'next/dynamic';
+import { CountryCodeDropdown } from './CountryCodeDropdown';
 
 const FluidHorseAnimation = dynamic(() => import('../FluidHorseAnimation'), {
   ssr: false,
@@ -119,7 +120,7 @@ const PremiumInput = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="relative group"
+      className="relative group pt-6"
     >
       <div className="relative">
         <input
@@ -169,7 +170,7 @@ const PremiumInput = ({
         </AnimatePresence>
         <div className={`grid transition-[grid-template-rows,opacity,margin] duration-300 ease-in-out ${!isValid && value.length > 0 && errorMessage ? 'grid-rows-[1fr] opacity-100 mt-2' : 'grid-rows-[0fr] opacity-0 mt-0'}`}>
           <div className="overflow-hidden">
-            <p className="text-red-500 text-[10px] font-bold tracking-widest uppercase">
+            <p className="text-red-500 text-xs font-bold tracking-widest uppercase">
               {errorMessage}
             </p>
           </div>
@@ -192,7 +193,7 @@ const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; total
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
           <motion.div
-            className="w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] md:text-xs font-bold relative overflow-hidden shrink-0"
+            className="w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs md:text-xs font-bold relative overflow-hidden shrink-0"
             animate={{
               backgroundColor: currentStep >= step ? '#23211F' : '#E5E7EB',
               color: currentStep >= step ? '#F9F7F4' : '#9CA3AF',
@@ -272,7 +273,7 @@ const PremiumButton = ({
         onClick={onClick}
         type={type}
         whileHover={{ x: -4 }}
-        className="text-[10px] md:text-xs font-bold text-gray-400 hover:text-[#23211F] uppercase tracking-widest mb-6 md:mb-8 text-left transition-colors flex items-center gap-2"
+        className="text-xs md:text-xs font-bold text-gray-400 hover:text-[#23211F] uppercase tracking-widest mb-6 md:mb-8 text-left transition-colors flex items-center gap-2"
       >
         <motion.span
           animate={{ x: [0, -3, 0] }}
@@ -546,7 +547,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [wantsCook, setWantsCook] = useState<boolean | null>(null);
   const [selectedCookService, setSelectedCookService] = useState<any | null>(null);
   const [expandedDishId, setExpandedDishId] = useState<number | null>(null);
-  const [cookSelectionsByDate, setCookSelectionsByDate] = useState<Record<string, string[]>>({});
+  const [planByDate, setPlanByDate] = useState<Record<string, string>>({});
+  const [selectedDateForPlan, setSelectedDateForPlan] = useState<string>('');
   const [selectedDishes, setSelectedDishes] = useState<number[]>([]);
   const [dinnerGroupSize, setDinnerGroupSize] = useState<string>(''); // '6-8' or '10-12'
   const [dishesByDate, setDishesByDate] = useState<Record<string, number>>({});
@@ -615,7 +617,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         setWantsCook(null);
         setSelectedCookService(null);
         setExpandedDishId(null);
-        setCookSelectionsByDate({});
+        setPlanByDate({});
+        setSelectedDateForPlan('');
         setSelectedDishes([]);
         setWantsATV(null);
         setAtvPeople(1);
@@ -687,12 +690,10 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         cookTotal += selectedDaysCount * getConvertedPrice(service.price);
       }
     } else {
-      Object.entries(cookSelectionsByDate).forEach(([id, dates]) => {
-        if (dates.length > 0) {
-          const service = foodServices.find(s => s.id.toString() === id);
-          if (service) {
-            cookTotal += (getConvertedPrice(service.price) * dates.length);
-          }
+      Object.entries(planByDate).forEach(([dateStr, id]) => {
+        const service = foodServices.find(s => s.id.toString() === id);
+        if (service) {
+          cookTotal += getConvertedPrice(service.price);
         }
       });
     }
@@ -753,22 +754,18 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
           }
         });
       } else {
-        Object.entries(cookSelectionsByDate).forEach(([id, dates]) => {
-          if (dates.length > 0) {
-            const service = foodServices.find(s => s.id.toString() === id);
-            if (service) {
-              const unitPrice = getConvertedPrice(service.price);
-              dates.forEach(date => {
-                selectedAddons.push({ 
-                  type: `FOOD_${service.id}_${date}`, 
-                  name: service.name, 
-                  quantity: 1, 
-                  unitPrice, 
-                  price: unitPrice, 
-                  details: JSON.stringify({ service: service.name, date }) 
-                });
-              });
-            }
+        Object.entries(planByDate).forEach(([dateStr, id]) => {
+          const service = foodServices.find(s => s.id.toString() === id);
+          if (service) {
+            const unitPrice = getConvertedPrice(service.price);
+            selectedAddons.push({ 
+              type: `FOOD_${service.id}_${dateStr}`, 
+              name: service.name, 
+              quantity: 1, 
+              unitPrice, 
+              price: unitPrice, 
+              details: JSON.stringify({ service: service.name, date: dateStr }) 
+            });
           }
         });
       }
@@ -816,8 +813,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     }
   };
 
-  const totalCookServices = Object.values(cookSelectionsByDate).reduce((sum, dates) => sum + dates.length, 0);
-
+  const totalCookServices = Object.keys(planByDate).length;
 
   const stayDates = useMemo(() => {
     if (!range?.from || !range?.to) return [];
@@ -830,15 +826,6 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     if (dates.length > 0) dates.pop();
     return dates;
   }, [range]);
-
-  const getFoodServiceMax = (priceOption: any) => {
-    const isDinner = isDinnerService(priceOption.name);
-    const limit = isDinner ? stayDates.length : Math.max(1, nights + 1);
-    const currentTotal = foodServices
-      .filter(s => s.serviceType === 'FOOD_PRICE' && isDinnerService(s.name) === isDinner && !isDinnerSizeOption(s.name))
-      .reduce((sum, s) => sum + (cookSelectionsByDate[s.id.toString()]?.length || 0), 0);
-    return limit - currentTotal + (cookSelectionsByDate[priceOption.id.toString()]?.length || 0);
-  };
 
   const globalMaxDishes = (totalCookServices === 0 && !isDinnerService(selectedCookService?.name)) 
     ? 0 
@@ -1085,7 +1072,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   <div className="flex flex-col gap-1">
                     <p className="text-xs uppercase tracking-widest font-bold text-gray-400">{dict.modal?.total} {nights > 0 && `(${nights} ${dict.modal?.nights})`}</p>
                     <div className="flex gap-2 items-center mt-2">
-                      <span className="text-[8px] uppercase text-[#9B7E67] font-bold tracking-widest max-w-[200px]">
+                      <span className="text-xs uppercase text-[#9B7E67] font-bold tracking-widest max-w-[200px]">
                         {isEn ? '* Stripe will handle the currency conversion at checkout' : '* Stripe aplicará el tipo de cambio correspondiente al momento del pago'}
                       </span>
                     </div>
@@ -1094,7 +1081,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     <span className="font-serif text-3xl text-[#9B7E67] flex items-baseline gap-1">
                       <AnimatedCounter value={grandTotal} prefix={'$'} />
                     </span>
-                    <span className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">{dict.modal?.taxesIncluded}</span>
+                    <span className="text-xs text-gray-500 uppercase tracking-widest mt-1">{dict.modal?.taxesIncluded}</span>
                   </div>
                 </div>
               </div>
@@ -1164,7 +1151,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             {dict.modal?.minStay}
                           </motion.p>
                         )}
-                        <div className="flex flex-row flex-wrap items-center justify-center gap-x-4 gap-y-4 md:gap-x-8 mt-10 md:mt-14 pt-8 md:pt-10 border-t border-gray-100 text-[9px] md:text-[11px] font-bold uppercase tracking-widest text-gray-500 w-full max-w-[300px] md:max-w-full mx-auto">
+                        <div className="flex flex-row flex-wrap items-center justify-center gap-x-4 gap-y-4 md:gap-x-8 mt-10 md:mt-14 pt-8 md:pt-10 border-t border-gray-100 text-xs md:text-[11px] font-bold uppercase tracking-widest text-gray-500 w-full max-w-[300px] md:max-w-full mx-auto">
                           <div className="flex items-center gap-2.5 md:gap-3">
                             <div className="w-2.5 h-2.5 md:w-3 md:h-3 shrink-0 rounded-full bg-red-500 opacity-80 shadow-sm"></div>
                             <span>{isEn ? 'Booked' : 'Reservado'}</span>
@@ -1179,7 +1166,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </div>
                         </div>
                       </div>
-                      <div className="mt-8 shrink-0 hidden md:block">
+                      <div className="mt-8 shrink-0 pb-8">
                         {(!range?.from || !range?.to) && (
                           <p className="text-amber-600 text-sm font-bold mb-3 text-center">
                             {isEn ? 'Please select your check-in and check-out dates' : 'Por favor selecciona tus fechas de entrada y salida'}
@@ -1191,7 +1178,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </p>
                         )}
                         <PremiumButton onClick={nextStep} disabled={!range?.from || !range?.to || nights < 2}>
-                          {isEn ? 'Your Data' : 'Tus Datos'} <ArrowRight size={16} />
+                          {isEn ? 'Proceed' : 'Proceder'} <ArrowRight size={16} />
                         </PremiumButton>
                       </div>
                     </motion.div>
@@ -1294,98 +1281,141 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </div>
                         </div>
                         <h3 className="text-3xl font-serif text-[#23211F] mb-2">
-                          {isEn ? "Select an Assistance Plan" : "Selecciona un Plan de Asistencia"}
+                          {isEn ? "Select Assistant" : "Seleccionar Asistente"}
                         </h3>
                         <p className="text-sm text-gray-500 font-light mb-4">
-                          {isEn ? 'Breakfast and Dinner Assistance, is calculated per Day' : 'La asistencia para desayuno y cena se calcula por día'}
+                          {isEn ? "Request Assistant to help in the kitchen" : "Solicitar asistente para ayudar en la cocina"}
                         </p>
                       </div>
 
-                      <div className="space-y-6 flex-1 pb-4">
-                        <div className="space-y-3 mb-8">
-                          {foodServices.filter(s => s.serviceType === 'FOOD_PRICE' && !isDinnerSizeOption(s.name)).map(priceOption => {
-                            const optionId = priceOption.id.toString();
-                            const selectedDates = cookSelectionsByDate[optionId] || [];
-                            const isExpanded = selectedDates.length > 0 || Object.keys(cookSelectionsByDate).length === 0 || (cookSelectionsByDate[optionId] !== undefined);
-                            
+                      <div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-8">
+                        <div className="flex justify-between items-center mb-4">
+                          <h4 className="text-sm font-bold uppercase tracking-widest text-[#9B7E67]">
+                            {isEn ? 'Your Stay Dates' : 'Fechas de Estancia'}
+                          </h4>
+                          <span className="text-sm font-bold text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">
+                            {Object.keys(planByDate).length} / {stayDates.length} {isEn ? 'days planned' : 'días planeados'}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-500 font-light mb-4 italic">
+                          {isEn ? (
+                            <>
+                              By selecting a personal assistant you are purchasing help in the kitchen, not a meal plan.
+                              <br />
+                              The assistant will help you prepare the food you have purchased. In addition the assistant will help you clean up afterward.
+                            </>
+                          ) : (
+                            <>
+                              Al seleccionar un asistente personal está contratando ayuda en la cocina, no un plan de comidas.
+                              <br />
+                              El asistente le ayudará a preparar la comida que usted haya comprado. Además el asistente le ayudará a limpiar después.
+                            </>
+                          )}
+                        </p>
+                        <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+                          {stayDates.map((date, idx) => {
+                            const dateStr = date.toISOString().split('T')[0];
+                            const isSelected = selectedDateForPlan === dateStr;
+                            const hasPlan = !!planByDate[dateStr];
                             return (
-                              <div key={optionId} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm transition-all hover:border-[#E8D5B7] group">
-                                <div className="flex justify-between items-center mb-4 cursor-pointer" onClick={() => {
-                                  setCookSelectionsByDate(prev => {
-                                    if (prev[optionId] === undefined) return { ...prev, [optionId]: [] };
-                                    if (prev[optionId]?.length === 0) {
+                              <button
+                                key={dateStr}
+                                onClick={() => {
+                                  if (isSelected && hasPlan) {
+                                    setPlanByDate(prev => {
                                       const next = { ...prev };
-                                      delete next[optionId];
+                                      delete next[dateStr];
                                       return next;
-                                    }
-                                    const next = { ...prev };
-                                    delete next[optionId];
-                                    return next;
-                                  });
-                                }}>
-                                  <div>
-                                    <p className="font-bold text-[#23211F] group-hover:text-[#9B7E67] transition-colors">{translateDB(priceOption.name, isEn)}</p>
-                                    <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest font-bold">
-                                      +{formatPrice(priceOption.price || 0)} / {isDinnerService(priceOption.name) ? (isEn ? 'night' : 'noche') : (isEn ? 'day' : 'día')}
-                                    </p>
-                                  </div>
-                                  <div className="text-xs font-bold bg-[#FAF8F5] text-[#9B7E67] px-3 py-1 rounded-full border border-[#E8D5B7]">
-                                    {selectedDates.length} {isEn ? 'days' : 'días'}
-                                  </div>
-                                </div>
-
-                                {isExpanded && (
-                                  <div className="mt-4 pt-4 border-t border-gray-100">
-                                    <p className="text-xs text-gray-500 mb-3">{isEn ? 'Select the days for this service:' : 'Selecciona los días para este servicio:'}</p>
-                                    <div className="grid grid-cols-2 gap-2">
-                                      {stayDates.map(date => {
-                                        const dateStr = format(date, 'yyyy-MM-dd');
-                                        const isSelected = selectedDates.includes(dateStr);
-                                        // check if max reached, unless already selected
-                                        const maxReached = !isSelected && selectedDates.length >= getFoodServiceMax(priceOption);
-                                        return (
-                                          <button
-                                            key={dateStr}
-                                            disabled={maxReached}
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setCookSelectionsByDate(prev => {
-                                                const current = prev[optionId] || [];
-                                                if (current.includes(dateStr)) {
-                                                  return { ...prev, [optionId]: current.filter(d => d !== dateStr) };
-                                                }
-                                                return { ...prev, [optionId]: [...current, dateStr] };
-                                              });
-                                            }}
-                                            className={`p-2 rounded-lg text-xs font-bold transition-all flex items-center justify-between ${
-                                              isSelected
-                                                ? 'bg-[#9B7E67] text-white shadow-sm'
-                                                : maxReached
-                                                  ? 'bg-gray-50 text-gray-300 cursor-not-allowed'
-                                                  : 'bg-[#F9F7F4] text-gray-500 hover:bg-[#E8D5B7] hover:text-[#23211F]'
-                                            }`}
-                                          >
-                                            <span>{format(date, 'MMM d')}</span>
-                                            {isSelected && <Check size={12} />}
-                                          </button>
-                                        );
-                                      })}
-                                    </div>
-                                  </div>
+                                    });
+                                  } else {
+                                    setSelectedDateForPlan(dateStr);
+                                  }
+                                }}
+                                className={`shrink-0 flex flex-col items-center justify-center min-w-[80px] p-3 rounded-2xl border transition-all ${
+                                  isSelected 
+                                    ? 'border-[#9B7E67] bg-[#9B7E67] text-white shadow-md' 
+                                    : hasPlan
+                                      ? 'border-[#9B7E67] bg-white text-[#9B7E67]'
+                                      : 'border-gray-200 bg-white text-gray-400 hover:border-gray-300'
+                                }`}
+                              >
+                                <span className="text-xs font-bold uppercase tracking-widest opacity-80 mb-1">
+                                  {isEn ? `Day ${idx + 1}` : `Día ${idx + 1}`}
+                                </span>
+                                <span className="text-xl font-serif">
+                                  {date.getDate()}
+                                </span>
+                                <span className="text-xs font-bold uppercase">
+                                  {date.toLocaleDateString(isEn ? 'en-US' : 'es-MX', { month: 'short' })}
+                                </span>
+                                {hasPlan && (
+                                  <div className={`mt-2 w-2 h-2 rounded-full ${isSelected ? 'bg-white' : 'bg-[#9B7E67]'}`} />
                                 )}
-                              </div>
+                              </button>
                             );
                           })}
                         </div>
+                      </div>
+
+                      <div className="space-y-6 flex-1 pb-8">
+                        {selectedDateForPlan && (
+                          <div className="space-y-3 mb-8">
+                            {foodServices.filter(s => s.serviceType === 'FOOD_PRICE' && !isDinnerSizeOption(s.name)).map(priceOption => {
+                              const optionId = priceOption.id.toString();
+                              const isSelectedForDay = planByDate[selectedDateForPlan] === optionId;
+                              
+                              return (
+                                <button
+                                  key={optionId}
+                                  onClick={() => {
+                                    setPlanByDate(prev => {
+                                      const next = { ...prev };
+                                      if (next[selectedDateForPlan] === optionId) {
+                                        delete next[selectedDateForPlan];
+                                      } else {
+                                        next[selectedDateForPlan] = optionId;
+                                      }
+                                      
+                                      if (Object.keys(next).length < stayDates.length) {
+                                        const dates = stayDates.map(d => d.toISOString().split('T')[0]);
+                                        const nextEmpty = dates.find(d => !next[d]);
+                                        if (nextEmpty) {
+                                          setTimeout(() => setSelectedDateForPlan(nextEmpty), 400);
+                                        }
+                                      }
+                                      return next;
+                                    });
+                                  }}
+                                  className={`w-full p-5 rounded-2xl border transition-all flex justify-between items-center ${
+                                    isSelectedForDay
+                                      ? 'bg-[#9B7E67] border-[#9B7E67] text-white shadow-md'
+                                      : 'bg-white border-gray-100 hover:border-[#E8D5B7] text-[#23211F]'
+                                  }`}
+                                >
+                                  <div className="text-left">
+                                    <p className="font-bold">{translateDB(priceOption.name, isEn)}</p>
+                                  </div>
+                                  <div className={`text-xs font-bold px-3 py-1 rounded-full border ${
+                                    isSelectedForDay
+                                      ? 'bg-white/20 border-transparent text-white'
+                                      : 'bg-[#FAF8F5] border-[#E8D5B7] text-[#9B7E67]'
+                                  }`}>
+                                    +{formatPrice(priceOption.price || 0)}
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
                         
-                        <div className="shrink-0 mt-4">
-                          {totalCookServices === 0 && (
+                        <div className="shrink-0 mt-4 pb-8 hidden md:block">
+                          {Object.keys(planByDate).length === 0 && (
                             <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
                               {isEn ? `Select at least 1 day to advance` : `Selecciona al menos 1 dia para avanzar`}
                             </p>
                           )}
-                          <PremiumButton onClick={nextStep} disabled={totalCookServices === 0}>
-                            {isEn ? 'Confirm Plan' : 'Confirmar Plan'} <ArrowRight size={16} />
+                          <PremiumButton onClick={nextStep} disabled={Object.keys(planByDate).length === 0}>
+                            {isEn ? 'Proceed' : 'Proceder'} <ArrowRight size={16} />
                           </PremiumButton>
                         </div>
                       </div>
@@ -1411,7 +1441,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       {isDinnerService(selectedCookService?.name) && (
                         <div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-8">
                           <h4 className="text-lg font-serif text-[#2C2621] mb-2">
-                            {isEn ? 'We have 2 options, for the following groups:' : 'Tenemos 2 opciones, para los siguientes grupos:'}
+                            {isEn ? 'Select group size, date of service and entree from each day' : 'Seleccione el tamaño del grupo, la fecha del servicio y el plato principal de cada día'}
                           </h4>
                           <div className="flex gap-4 mt-4">
                             {['6-8', '10-12'].map((size) => {
@@ -1427,7 +1457,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                   }`}
                                 >
                                   <span>{size} {isEn ? 'People' : 'Personas'}</span>
-                                  <span className={`text-[10px] mt-1 normal-case ${dinnerGroupSize === size ? 'text-white/80' : 'text-gray-400'}`}>
+                                  <span className={`text-xs mt-1 normal-case ${dinnerGroupSize === size ? 'text-white/80' : 'text-gray-400'}`}>
                                     +{formatPrice(servicePrice)} / {isEn ? 'day' : 'día'}
                                   </span>
                                 </button>
@@ -1493,13 +1523,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                           : 'border-gray-200 bg-white text-gray-400 hover:border-gray-300'
                                     }`}
                                   >
-                                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-1">
+                                    <span className="text-xs font-bold uppercase tracking-widest opacity-80 mb-1">
                                       {isEn ? `Day ${idx + 1}` : `Día ${idx + 1}`}
                                     </span>
                                     <span className="text-xl font-serif">
                                       {date.getDate()}
                                     </span>
-                                    <span className="text-[10px] font-bold uppercase">
+                                    <span className="text-xs font-bold uppercase">
                                       {date.toLocaleDateString(isEn ? 'en-US' : 'es-MX', { month: 'short' })}
                                     </span>
                                     {hasDish && (
@@ -1536,12 +1566,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                       <span className="flex items-center gap-3">
                                         {translateDB(dish.name, isEn)}
                                         {dishQuantity > 0 && (
-                                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="min-w-[20px] h-5 px-1.5 rounded-full bg-[#9B7E67] text-white flex items-center justify-center text-[10px] font-bold">
+                                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="min-w-[20px] h-5 px-1.5 rounded-full bg-[#9B7E67] text-white flex items-center justify-center text-xs font-bold">
                                             {dishQuantity}
                                           </motion.div>
                                         )}
                                         {isSelectedForDay && (
-                                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="min-w-[20px] h-5 px-2 rounded-full bg-[#9B7E67] text-white flex items-center justify-center text-[10px] font-bold uppercase tracking-widest">
+                                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="min-w-[20px] h-5 px-2 rounded-full bg-[#9B7E67] text-white flex items-center justify-center text-xs font-bold uppercase tracking-widest">
                                             {isEn ? 'Selected' : 'Elegido'}
                                           </motion.div>
                                         )}
@@ -1654,7 +1684,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </div>
                       )}
 
-                      <div className="shrink-0 mt-4 hidden md:block">
+                      <div className="shrink-0 mt-4 pb-8 hidden md:block">
                         {isDinnerService(selectedCookService?.name) ? (
                           Object.keys(dishesByDate).length === 0 && dinnerGroupSize && (
                             <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
@@ -1676,7 +1706,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                               : selectedDishes.length < globalMaxDishes
                           }
                         >
-                          {isEn ? 'Confirm Menu' : 'Confirmar Menú'} <ArrowRight size={16} />
+                          {isEn ? 'Proceed' : 'Proceder'} <ArrowRight size={16} />
                         </PremiumButton>
                       </div>
                     </motion.div>
@@ -1759,14 +1789,14 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             ))}
                           </div>
 
-                          <div className="mt-4 pb-4 shrink-0 hidden md:block">
+                          <div className="mt-4 pb-8 shrink-0 hidden md:block">
                             {(totalAtvTours === 0 || atvPeople < minTourPax) && (
                               <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
                                 {isEn ? 'Please select at least one destination and number of people' : 'Por favor selecciona al menos un destino y personas'}
                               </p>
                             )}
                             <PremiumButton onClick={nextStep} disabled={totalAtvTours === 0 || atvPeople < minTourPax}>
-                              {isEn ? 'View Summary' : 'Ver Resumen'} <ArrowRight size={16} />
+                              {isEn ? 'Proceed' : 'Proceder'} <ArrowRight size={16} />
                             </PremiumButton>
                           </div>
                         </motion.div>
@@ -1813,41 +1843,41 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           delay={0.2}
                           errorMessage={isEn ? "Invalid email format" : "Formato de correo inválido"}
                         />
-                        <div className="flex gap-4">
+                        <div className="flex gap-4 items-end">
                           <div className="w-1/3">
-                            <PremiumInput
-                              id="countryCode"
-                              type="text"
-                              label={isEn ? 'Code' : 'Lada'}
-                              placeholder="+52"
-                              value={countryCode}
-                              onChange={setCountryCode}
-                              isValid={countryCode.length >= 2}
-                              delay={0.3}
+                            <CountryCodeDropdown 
+                              label={isEn ? 'Country Code' : 'Prefijo'} 
+                              value={countryCode} 
+                              onChange={setCountryCode} 
                             />
                           </div>
                           <div className="w-2/3">
                             <PremiumInput
                               id="phone"
                               type="tel"
-                              label={dict.modal?.phone}
+                              label={isEn ? 'Phone (10 digits)' : 'Teléfono (10 dígitos)'}
                               placeholder="55 1234 5678"
                               value={guestPhone}
-                              onChange={setGuestPhone}
-                              isValid={isPhoneValid}
+                              onChange={(val) => {
+                                const onlyNums = val.replace(/\D/g, '');
+                                if (onlyNums.length <= 10) {
+                                  setGuestPhone(onlyNums);
+                                }
+                              }}
+                              isValid={guestPhone.length === 10}
                               delay={0.3}
                             />
                           </div>
                         </div>
 
-                        <div className="mt-8 pb-4 shrink-0 hidden md:block">
+                        <div className="mt-8 pb-8 shrink-0 hidden md:block">
                           {!isFormValid && (
                             <p className="text-amber-600 text-sm font-bold mb-3 text-center">
                               {isEn ? 'Please fill in all required fields correctly' : 'Por favor completa todos los campos requeridos correctamente'}
                             </p>
                           )}
                           <PremiumButton onClick={nextStep} disabled={!isFormValid}>
-                            {isEn ? 'Food Services' : 'Servicios de Comida'} <ArrowRight size={16} />
+                            {isEn ? 'Proceed' : 'Proceder'} <ArrowRight size={16} />
                           </PremiumButton>
                         </div>
                       </form>
@@ -1903,17 +1933,22 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                   );
                                 })()
                               )}
-                              {Object.entries(cookSelectionsByDate).map(([id, dates]) => {
-                                if (dates.length === 0) return null;
-                                const service = foodServices.find(s => s.id.toString() === id);
-                                if (!service) return null;
-                                return (
-                                  <div key={id} className="flex justify-between items-center text-sm py-1">
-                                    <span className="text-[#23211F]">{dates.length}x {translateDB(service.name, isEn)}</span>
-                                    <span className="font-bold text-[#9B7E67]">{formatPrice(service.price * dates.length)}</span>
-                                  </div>
-                                );
-                              })}
+                              {(() => {
+                                const counts: Record<string, number> = {};
+                                Object.values(planByDate).forEach(id => {
+                                  counts[id] = (counts[id] || 0) + 1;
+                                });
+                                return Object.entries(counts).map(([id, count]) => {
+                                  const service = foodServices.find(s => s.id.toString() === id);
+                                  if (!service) return null;
+                                  return (
+                                    <div key={id} className="flex justify-between items-center text-sm py-1">
+                                      <span className="text-[#23211F]">{count}x {translateDB(service.name, isEn)}</span>
+                                      <span className="font-bold text-[#9B7E67]">{formatPrice(service.price * count)}</span>
+                                    </div>
+                                  );
+                                });
+                              })()}
                               {selectedDishes.length > 0 && (
                                 <div className="mt-2 pt-2 border-t border-gray-50">
                                   <p className="text-sm uppercase tracking-widest text-gray-400 font-bold mb-1">{isEn ? 'Selected Dishes:' : 'Platillos Seleccionados:'}</p>
@@ -1974,14 +2009,14 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           <button onClick={prevStep} className="text-gray-500 font-bold uppercase text-xs tracking-widest hover:text-[#23211F] transition-colors self-start sm:self-auto mb-2 sm:mb-4">{isEn ? "Back" : "Volver"}</button>
                           <div className="flex flex-col sm:items-end w-full sm:w-auto min-w-[260px]">
                             {!isFormValid && (
-                              <p className="text-amber-600 text-[10px] font-bold tracking-widest uppercase text-left sm:text-right mb-2 animate-pulse">
+                              <p className="text-amber-600 text-xs font-bold tracking-widest uppercase text-left sm:text-right mb-2 animate-pulse">
                                 {isEn ? 'Please fill in all required fields' : 'Por favor completa todos los campos'}
                               </p>
                             )}
                             <div className="w-full">
                               <PremiumButton onClick={handleCheckout} disabled={!isFormValid || isLoading || grandTotal === 0}>
                                 <CreditCard size={18} />
-                                {isEn ? 'Checkout' : 'Pagar'}
+                                {isEn ? 'Checkout' : 'Checkout'}
                               </PremiumButton>
                             </div>
                           </div>
@@ -2008,7 +2043,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   <div className="flex flex-col items-end">
                     {range?.from && range?.to && nights < 2 && <span className="text-red-500 text-xs font-bold mb-1 mr-2">{isEn ? 'Min 2 nights' : 'Mínimo 2 noches'}</span>}
                     <button onClick={nextStep} disabled={!range?.from || !range?.to || nights < 2} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
-                      {dictContext?.modal?.next || (isEn ? 'Next' : 'Siguiente')}
+                      {isEn ? 'Proceed' : 'Proceder'}
                     </button>
                   </div>
                 )}
@@ -2016,7 +2051,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   <div className="flex flex-col items-end">
                     {totalCookServices === 0 ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select service' : 'Selecciona servicio'}</span> : null}
                     <button onClick={nextStep} disabled={totalCookServices === 0} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
-                      {dictContext?.modal?.next || (isEn ? 'Next' : 'Siguiente')}
+                      {isEn ? 'Proceed' : 'Proceder'}
                     </button>
                   </div>
                 )}
@@ -2025,7 +2060,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   <div className="flex flex-col items-end">
                     {selectedDishes.length < globalMaxDishes ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select your dishes' : 'Selecciona tus platillos'}</span> : null}
                     <button onClick={nextStep} disabled={selectedDishes.length < globalMaxDishes} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
-                      {dictContext?.modal?.next || (isEn ? 'Next' : 'Siguiente')}
+                      {isEn ? 'Proceed' : 'Proceder'}
                     </button>
                   </div>
                 )}
@@ -2033,7 +2068,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   <div className="flex flex-col items-end">
                     {(!isTourBookedOnSelectedDates && wantsATV === null) ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : (wantsATV === true && (totalAtvTours === 0 || atvPeople < minTourPax)) ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select destination' : 'Selecciona un destino'}</span> : null}
                     <button onClick={nextStep} disabled={(!isTourBookedOnSelectedDates && wantsATV === null) || (wantsATV === true && (totalAtvTours === 0 || atvPeople < minTourPax))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
-                      {dictContext?.modal?.next || (isEn ? 'Next' : 'Siguiente')}
+                      {isEn ? 'Proceed' : 'Proceder'}
                     </button>
                   </div>
                 )}
@@ -2041,7 +2076,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   <div className="flex flex-col items-end">
                     {!isFormValid && <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Fill required fields' : 'Llena los campos'}</span>}
                     <button onClick={nextStep} disabled={!isFormValid} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
-                      {isEn ? 'Food Services' : 'Servicios de Comida'}
+                      {isEn ? 'Proceed' : 'Proceder'}
                     </button>
                   </div>
                 )}

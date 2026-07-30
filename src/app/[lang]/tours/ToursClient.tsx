@@ -9,7 +9,7 @@ import dynamic from 'next/dynamic';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { ActionLoadingScreen } from '@/components/ui/ActionLoadingScreen';
-import { TourBookingModal } from '@/components/booking/TourBookingModal';
+import { useBooking } from '@/context/BookingContext';
 
 const Footer = dynamic(() => import('@/components/home/Footer').then(mod => mod.Footer));
 
@@ -108,9 +108,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
-  
-  const [isTourModalOpen, setIsTourModalOpen] = useState(false);
-  const [modalInitialTour, setModalInitialTour] = useState<any>(null);
+  const { openBookingModal } = useBooking();
 
   const t = dict?.toursPage;
   const { scrollY } = useScroll();
@@ -296,10 +294,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
             <div className="flex flex-col justify-end items-end pointer-events-auto gap-2 relative">
               <div className="flex items-center gap-4">
                 <button 
-                  onClick={() => {
-                    setModalInitialTour(null);
-                    setIsTourModalOpen(true);
-                  }}
+                  onClick={() => openBookingModal()}
                   className="whitespace-nowrap uppercase tracking-widest text-[10px] md:text-xs font-bold border rounded-full px-4 py-1.5 hover:opacity-70 transition-all border-[#F9F7F4] text-[#F9F7F4]"
                 >
                   <span className="hidden md:inline">{t.bookTour}</span>
@@ -725,16 +720,9 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                   ))}
                 </ul>
 
-                <button 
-                  onClick={() => {
-                    setModalInitialTour(selectedTour);
-                    setIsTourModalOpen(true);
-                    closeModal(); // Close the info modal to open the booking modal
-                  }}
-                  className="w-full inline-flex justify-center items-center gap-4 text-xs uppercase tracking-[0.2em] text-[#0A0908] font-bold bg-[#9B7E67] px-8 py-6 rounded-2xl hover:bg-[#F9F7F4] transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-white/10 hover:-translate-y-1"
-                >
-                  {lang === 'en' ? 'Book Tour Now' : 'Reservar Tour Ahora'}
-                </button>
+                <div className="w-full inline-flex justify-center items-center gap-4 text-xs uppercase tracking-[0.2em] text-[#9B7E67] font-bold bg-[#9B7E67]/10 border border-[#9B7E67]/30 px-8 py-6 rounded-2xl">
+                  {lang === 'en' ? 'Available During Your Stay' : 'Disponible Durante tu Estancia'}
+                </div>
 
               </div>
 
@@ -833,12 +821,6 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
         )}
       </AnimatePresence>
 
-      <TourBookingModal 
-        isOpen={isTourModalOpen}
-        onClose={() => setIsTourModalOpen(false)}
-        initialTour={modalInitialTour}
-        lang={lang}
-      />
     </div>
   );
 }

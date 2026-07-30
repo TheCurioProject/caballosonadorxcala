@@ -28,8 +28,8 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
     heroSubtitle: isEn ? 'Traditional flavors by our private cook' : 'Sabores tradicionales por nuestro cocinero privado',
     introTitle: isEn ? 'Taste the Paradise' : 'Saborea el Paraíso',
     intro: isEn 
-      ? 'Delight your senses with personalized service. Select our 2 options when booking your stay. Treat yourself to a culinary experience and request a chef to prepare your meals.'
-      : 'Deleita tus sentidos con un servicio personalizado. Selecciona nuestras 2 opciones al reservar tu estancia. Consiéntete con una experiencia culinaria y solicita a un chef que prepare tus comidas.',
+      ? 'Delight your senses with personalized service. Treat yourself to a culinary experience and have dinners prepared for you or request assistance in the kitchen.'
+      : 'Deleita tus sentidos con un servicio personalizado. Consiéntete con una experiencia culinaria y haz que te preparen la cena o solicita asistencia en la cocina.',
     servicesTitle: isEn ? 'Choose Yours' : 'Elige el Tuyo',
     bookBtn: isEn ? 'Book Now' : 'Reservar Ahora',
     bookTour: isEn ? 'BOOK NOW' : 'RESERVAR AHORA',
@@ -44,12 +44,32 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
     services: [
       {
         id: 'personalized',
-        title: isEn ? 'Personalized Service' : 'Servicio Personalizado',
+        title: isEn ? 'Personal Assistant' : 'Asistente Personal',
         time: 'Upon Request',
         icon: Utensils,
         desc: isEn 
-          ? 'Large groups and families often purchase ingredients and prepare their own meals. Select from our Personalized Service options to request extra help in the kitchen. Our staff will assist you with preparations, service and clean up allowing more for more time with family and less stress in the kitchen.'
-          : 'Los grupos grandes y las familias a menudo compran ingredientes y preparan sus propias comidas. Elija entre nuestras opciones de Servicio Personalizado para solicitar ayuda adicional en la cocina. Nuestro personal lo asistirá con las preparaciones, el servicio y la limpieza, permitiendo más tiempo con la familia y menos estrés en la cocina.',
+          ? (
+            <>
+              Large groups and families often purchase ingredients and prepare their own meals. Request help in the kitchen by asking for a personal assistant. Our staff member will help with food preparation and service as well as clean-up. All you have to do is supply the ingredients.
+              <br /><br />
+              <span className="italic text-[#D4A373] text-sm">
+                By selecting a personal assistant you are purchasing help in the kitchen, not a meal plan.
+                <br />
+                The assistant will help you prepare the food you have purchased. In addition the assistant will help you clean up afterward.
+              </span>
+            </>
+          )
+          : (
+            <>
+              Los grupos grandes y las familias a menudo compran ingredientes y preparan sus propias comidas. Solicite ayuda en la cocina pidiendo un asistente personal. Nuestro personal lo ayudará con la preparación de los alimentos, el servicio y la limpieza. Todo lo que tiene que hacer es proporcionar los ingredientes.
+              <br /><br />
+              <span className="italic text-[#D4A373] text-sm">
+                Al seleccionar un asistente personal está contratando ayuda en la cocina, no un plan de comidas.
+                <br />
+                El asistente le ayudará a preparar la comida que usted haya comprado. Además el asistente le ayudará a limpiar después.
+              </span>
+            </>
+          ),
         image: getImageUrl('/food_services/service_1.webp', siteImages)
       },
       {
@@ -267,6 +287,9 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
           <h3 className="font-serif text-4xl md:text-5xl lg:text-6xl text-[#2C2621]">
             {isEn ? 'Food Services Options' : 'Opciones de Servicios de Comida'}
           </h3>
+          <div className="mt-6 w-full inline-flex justify-center items-center gap-4 text-xs uppercase tracking-[0.2em] text-[#D4A373] font-bold bg-[#D4A373]/10 border border-[#D4A373]/30 px-8 py-4 rounded-2xl mx-auto max-w-fit">
+            {isEn ? 'Select these options when booking your stay' : 'Selecciona estas opciones al reservar tu estancia'}
+          </div>
         </div>
 
         <div className="flex flex-col md:flex-row gap-10 md:gap-16 lg:gap-24 items-start">
