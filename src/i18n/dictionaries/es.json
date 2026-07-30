@@ -1,7 +1,7 @@
 {
   "nav": {
     "rooms": "Habitaciones",
-    "tours": "Experiencias",
+    "tours": "ATV Tours",
     "gallery": "Galería",
     "book": "Reservar Ahora",
     "reserveBtn": "Reservar Ahora",
@@ -44,7 +44,7 @@
     "subtitle": "Aventuras en Chacala",
     "title": "Explora lo Inexplorado",
     "scroll": "Sigue bajando para descubrir",
-    "button": "Descubrir Experiencias"
+    "button": "ATV Tours"
   },
   "homeReviews": {
     "subtitle": "Experiencias de Huéspedes",
@@ -276,7 +276,7 @@
           "Entradas incluidas",
           "Guía/Conductor"
         ],
-        "learnMoreBtn": "Saber más"
+        "learnMoreBtn": "Reservar Ahora"
       },
       {
         "id": 2,
@@ -291,7 +291,7 @@
           "Entradas incluidas",
           "Guía/Conductor"
         ],
-        "learnMoreBtn": "Saber más"
+        "learnMoreBtn": "Reservar Ahora"
       },
       {
         "id": 3,
@@ -306,7 +306,7 @@
           "Entradas incluidas",
           "Guía/Conductor"
         ],
-        "learnMoreBtn": "Saber más"
+        "learnMoreBtn": "Reservar Ahora"
       },
       {
         "id": 4,
@@ -322,7 +322,7 @@
           "Entradas incluidas",
           "Guía/Conductor"
         ],
-        "learnMoreBtn": "Saber más"
+        "learnMoreBtn": "Reservar Ahora"
       },
       {
         "id": 5,
@@ -337,7 +337,7 @@
           "Entradas incluidas",
           "Guía/Conductor"
         ],
-        "learnMoreBtn": "Saber más"
+        "learnMoreBtn": "Reservar Ahora"
       },
       {
         "id": 6,
@@ -352,7 +352,7 @@
           "Entradas incluidas",
           "Guía/Conductor"
         ],
-        "learnMoreBtn": "Saber más"
+        "learnMoreBtn": "Reservar Ahora"
       },
       {
         "id": 7,
@@ -366,7 +366,7 @@
           "Hielera con agua y hielo",
           "Guía/Conductor"
         ],
-        "learnMoreBtn": "Saber más"
+        "learnMoreBtn": "Reservar Ahora"
       }
     ],
     "socialProofTitle": "Testimonios",
@@ -422,7 +422,7 @@
       },
       {
         "q": "¿Cuál es la capacidad de la Casa?",
-        "a": "Podemos acomodar hasta 14 personas."
+        "a": "Podemos acomodar hasta 12 personas."
       },
       {
         "q": "¿Cómo llego desde el aeropuerto?",

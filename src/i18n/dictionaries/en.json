@@ -1,7 +1,7 @@
 {
   "nav": {
     "rooms": "Rooms",
-    "tours": "Experiences",
+    "tours": "ATV Tours",
     "gallery": "Gallery",
     "book": "Book Now",
     "reserveBtn": "Book Now",
@@ -44,7 +44,7 @@
     "subtitle": "Adventures in Chacala",
     "title": "Explore the Unexplored",
     "scroll": "Scroll down to discover",
-    "button": "Discover Experiences"
+    "button": "ATV Tours"
   },
   "homeReviews": {
     "subtitle": "Guest Experiences",
@@ -276,7 +276,7 @@
           "Entry Fees Included",
           "Guide/Driver"
         ],
-        "learnMoreBtn": "Learn More"
+        "learnMoreBtn": "Book Now"
       },
       {
         "id": 2,
@@ -291,7 +291,7 @@
           "Entry Fees Included",
           "Guide/Driver"
         ],
-        "learnMoreBtn": "Learn More"
+        "learnMoreBtn": "Book Now"
       },
       {
         "id": 3,
@@ -306,7 +306,7 @@
           "Entry Fees Included",
           "Guide/Driver"
         ],
-        "learnMoreBtn": "Learn More"
+        "learnMoreBtn": "Book Now"
       },
       {
         "id": 4,
@@ -322,7 +322,7 @@
           "Entry Fees Included",
           "Guide/Driver"
         ],
-        "learnMoreBtn": "Learn More"
+        "learnMoreBtn": "Book Now"
       },
       {
         "id": 5,
@@ -337,7 +337,7 @@
           "Entry Fees Included",
           "Guide/Driver"
         ],
-        "learnMoreBtn": "Learn More"
+        "learnMoreBtn": "Book Now"
       },
       {
         "id": 6,
@@ -352,7 +352,7 @@
           "Entry Fees Included",
           "Guide/Driver"
         ],
-        "learnMoreBtn": "Learn More"
+        "learnMoreBtn": "Book Now"
       },
       {
         "id": 7,
@@ -366,7 +366,7 @@
           "Cooler with ice & water",
           "Guide/Driver"
         ],
-        "learnMoreBtn": "Learn More"
+        "learnMoreBtn": "Book Now"
       }
     ],
     "socialProofTitle": "Social Proof",
@@ -422,7 +422,7 @@
       },
       {
         "q": "What is the capacity of your Casa?",
-        "a": "We can accommodate up to 14 people."
+        "a": "We can accommodate up to 12 people."
       },
       {
         "q": "How do I get there from the airport?",
