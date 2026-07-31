@@ -144,7 +144,7 @@ const PremiumInput = ({
         />
         <motion.label
           htmlFor={id}
-          className="absolute left-0 text-gray-400 pointer-events-none origin-left"
+          className="absolute left-0 text-gray-400 pointer-events-none origin-left whitespace-nowrap truncate max-w-[90%]"
           animate={{
             y: isFocused || value ? -28 : 0,
             scale: isFocused || value ? 0.7 : 1,
@@ -548,7 +548,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     if (isMobile && scrollContainerRef.current) {
       scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [step, isMobile]);
+  }, [step, isMobile, wantsCook, wantsATV]);
 
   // Extras state
   const [foodServices, setFoodServices] = useState<any[]>([]);
@@ -895,7 +895,6 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   };
 
   const getBackButtonText = () => {
-    if (step === 'food_prompt') return dict.modal?.backToCalendar || (isEn ? 'Back to calendar' : 'Volver al calendario');
     return isEn ? 'Back' : 'Volver';
   };
 
@@ -914,7 +913,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     if (!wants) {
       setCookSelectionsByDate({});
       setSelectedDishes([]);
-      setStep('tours');
+      nextStep();
     } else {
       setStep('food_service');
     }
@@ -1215,7 +1214,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       transition={{ duration: 0.4 }}
                       className="min-h-full flex flex-col flex-grow shrink-0 w-full"
                     >
-                      <div className="shrink-0 mb-8">
+                      <div className="shrink-0 mb-4 md:mb-8">
                         <div className="flex items-center justify-between mb-4">
                           <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] shadow-sm border border-[#E8D5B7]">
                             <Utensils size={24} />
@@ -1230,11 +1229,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       </div>
 
                       <div className="grid grid-cols-2 gap-4 mt-auto md:mt-0 pb-4">
-                        <button onClick={() => handleWantsCook(true)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-base md:text-lg md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
+                        <button type="button" onClick={() => handleWantsCook(true)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-base md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
                           <span className="w-8 h-8 rounded-full border-2 border-gray-300 group-hover:border-[#9B7E67] flex items-center justify-center text-transparent group-hover:bg-[#9B7E67] group-hover:text-white transition-all">✓</span>
                           {dict.addons?.yesPlease}
                         </button>
-                        <button onClick={() => handleWantsCook(false)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-base md:text-lg md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
+                        <button type="button" onClick={() => handleWantsCook(false)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-base md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
                           <span className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-transparent group-hover:bg-gray-400 group-hover:text-white transition-all">✕</span>
                           {dict.addons?.noThanks}
                         </button>
@@ -1251,7 +1250,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       transition={{ duration: 0.4 }}
                       className="min-h-full flex flex-col flex-grow shrink-0 w-full"
                     >
-                      <div className="shrink-0 mb-8">
+                      <div className="shrink-0 mb-4 md:mb-8">
                         <div className="flex items-center justify-between mb-4">
                           <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] shadow-sm border border-[#E8D5B7]">
                             <Utensils size={24} />
@@ -1262,7 +1261,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </h3>
                       </div>
 
-                      <div className="space-y-6 flex-grow shrink-0 pb-4 w-full">
+                      <div className="space-y-4 md:space-y-6 flex-grow shrink-0 pb-4 w-full">
                         <div className="grid gap-3">
                           {foodServices.filter(s => s.serviceType === 'FOOD_SERVICE').map(service => (
                             <button 
@@ -1310,7 +1309,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </p>
                       </div>
 
-                      <div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-8">
+                      <div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-4 md:mb-8">
                         <div className="flex justify-between items-center mb-4">
                           <h4 className="text-base md:text-lg font-bold uppercase tracking-widest text-[#9B7E67]">
                             {isEn ? 'Your Stay Dates' : 'Fechas de Estancia'}
@@ -1379,9 +1378,9 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </div>
                       </div>
 
-                      <div className="space-y-6 flex-grow shrink-0 pb-8 w-full">
+                      <div className="space-y-4 md:space-y-6 flex-grow shrink-0 pb-8 w-full">
                         {selectedDateForPlan && (
-                          <div className="space-y-3 mb-8">
+                          <div className="space-y-3 mb-4 md:mb-8">
                             {foodServices.filter(s => s.serviceType === 'FOOD_PRICE' && !isDinnerSizeOption(s.name)).map(priceOption => {
                               const optionId = priceOption.id.toString();
                               const isSelectedForDay = planByDate[selectedDateForPlan] === optionId;
@@ -1461,7 +1460,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       </div>
                       
                       {isDinnerService(selectedCookService?.name) && (
-                        <div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-8">
+                        <div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-4 md:mb-8">
                           <h4 className="text-xl md:text-2xl font-serif text-[#2C2621] mb-2">
                             {isEn ? 'Select group size, date of service and entree from each day' : 'Seleccione el tamaño del grupo, la fecha del servicio y el plato principal de cada día'}
                           </h4>
@@ -1490,7 +1489,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       )}
 
                       {(!isDinnerService(selectedCookService?.name) || dinnerGroupSize) && (
-                        <div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-8">
+                        <div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-4 md:mb-8">
                           <div className="flex justify-between items-center mb-4">
                             <h4 className="text-base md:text-lg font-bold uppercase tracking-widest text-[#9B7E67]">
                               {isEn ? 'Available Dishes (Menu)' : 'Platillos Disponibles (Menú)'}
@@ -1775,11 +1774,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </div>
                       ) : wantsATV === null ? (
                         <div className="grid grid-cols-2 gap-4 mt-auto md:mt-0 pb-4">
-                          <button onClick={() => handleWantsATV(true)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-base md:text-lg md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
+                          <button type="button" onClick={() => handleWantsATV(true)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-base md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
                             <span className="w-8 h-8 rounded-full border-2 border-gray-300 group-hover:border-[#9B7E67] flex items-center justify-center text-transparent group-hover:bg-[#9B7E67] group-hover:text-white transition-all">✓</span>
                             {dict.addons?.yesExplore}
                           </button>
-                          <button onClick={() => handleWantsATV(false)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-base md:text-lg md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
+                          <button type="button" onClick={() => handleWantsATV(false)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-base md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
                             <span className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-transparent group-hover:bg-gray-400 group-hover:text-white transition-all">✕</span>
                             {dict.addons?.noThanks}
                           </button>
@@ -1788,7 +1787,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 flex-1 flex flex-col">
                           
                           <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm shrink-0">
-                            <div className="font-bold text-lg md:text-xl text-[#23211F] mb-2">{dict.addons?.howManyPeople} (Min {minTourPax}, Max {maxTourPax})</div>
+                            <div className="font-bold text-lg md:text-xl text-[#23211F] mb-2 flex items-baseline gap-2 flex-wrap">
+                              {dict.addons?.howManyPeople} 
+                              <span className="text-[10px] md:text-[11px] uppercase tracking-widest font-bold text-gray-400">
+                                (Min {minTourPax}, Max {maxTourPax})
+                              </span>
+                            </div>
                             <div className="flex items-center gap-3">
                               <button 
                                 onClick={() => setAtvPeople(Math.max(minTourPax, atvPeople - 1))}
@@ -1867,7 +1871,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
                           <div className="flex-grow shrink-0 space-y-3 pb-4 w-full">
                             {selectedDateForAtv && (
-                              <div className="space-y-3 mb-8">
+                              <div className="space-y-3 mb-4 md:mb-8">
                                 <p className="font-bold text-lg md:text-xl text-[#23211F] mb-2">{dict.addons?.selectDestination}</p>
                                 {tours.map(tour => {
                                   const optionId = tour.id.toString();
@@ -1942,14 +1946,14 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       transition={{ duration: 0.4 }}
                       className="min-h-full flex flex-col flex-grow shrink-0 w-full"
                     >
-                      <h3 className="text-3xl font-serif text-[#23211F] mb-8 shrink-0">{dict.modal?.yourData || (isEn ? 'Your Data' : 'Tus Datos')}</h3>
+                      <h3 className="text-3xl font-serif text-[#23211F] mb-4 md:mb-8 shrink-0">{dict.modal?.yourData || (isEn ? 'Your Data' : 'Tus Datos')}</h3>
                       
                       <form 
                         onSubmit={(e) => { 
                           e.preventDefault(); 
                           if (isFormValid) nextStep(); 
                         }} 
-                        className="space-y-6 flex-grow shrink-0 pb-12 md:pb-4 w-full"
+                        className="space-y-4 md:space-y-6 flex-grow shrink-0 pb-12 md:pb-4 w-full"
                       >
                         <PremiumInput
                           id="name"
@@ -2029,8 +2033,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       <div className="flex flex-col h-full">
                         <h3 className="text-3xl font-serif text-[#23211F] mb-6 shrink-0">{dict.modal?.summary || (isEn ? 'Summary' : 'Resumen')}</h3>
                         
-                        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex-1 flex flex-col mb-8 overflow-hidden">
-  <div className="overflow-y-auto custom-scrollbar flex-1 space-y-6 pr-2 max-h-[300px]">
+                        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex-1 flex flex-col mb-4 md:mb-8 overflow-hidden">
+                          <div className="overflow-y-auto custom-scrollbar flex-1 space-y-4 md:space-y-6 pr-2 max-h-[300px]">
                           
                           {/* Guest Data Review */}
                           <div className="pb-6 border-b border-gray-100">
