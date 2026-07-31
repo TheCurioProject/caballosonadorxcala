@@ -1915,7 +1915,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                           ? 'bg-white/20 border-transparent text-white'
                                           : 'bg-[#FAF8F5] border-[#E8D5B7] text-[#9B7E67]'
                                       }`}>
-                                        +{formatPrice(tour.pricePerPax || 0)} / {isEn ? 'Guest' : 'Persona'}
+                                        +{formatPrice(tour.pricePerPax || 0)} / {isEn ? 'Person' : 'Persona'}
                                       </div>
                                     </button>
                                   );
