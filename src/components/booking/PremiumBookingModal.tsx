@@ -1102,7 +1102,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 {currentStepIndex <= totalStepsCount && <StepIndicator currentStep={currentStepIndex} totalSteps={totalStepsCount} />}
               </div>
 
-              <div className="flex-1 md:overflow-y-auto md:overflow-x-hidden md:p-12 md:pb-12 scroll-smooth flex flex-col relative">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 pb-32 md:p-12 md:pb-12 scroll-smooth flex flex-col relative custom-scrollbar">
                 {/* Desktop Header */}
                 <div className="shrink-0 z-10 hidden md:block">
                   {currentStepIndex > 1 && showBackButton() && (
