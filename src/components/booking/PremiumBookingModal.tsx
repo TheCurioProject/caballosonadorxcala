@@ -544,12 +544,6 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (isMobile && scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }, [step, isMobile, wantsCook, wantsATV]);
-
   // Extras state
   const [foodServices, setFoodServices] = useState<any[]>([]);
   const [tours, setTours] = useState<any[]>([]);
@@ -570,6 +564,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [atvPeople, setAtvPeople] = useState(3);
   const [atvByDate, setAtvByDate] = useState<Record<string, string>>({});
   const [selectedDateForAtv, setSelectedDateForAtv] = useState<string>('');
+
+  useEffect(() => {
+    if (isMobile && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [step, isMobile, wantsCook, wantsATV]);
 
   const currency = 'MXN';
   const formatPrice = (amountInMxn: number) => `$${Math.round(amountInMxn).toLocaleString()} MXN`;
