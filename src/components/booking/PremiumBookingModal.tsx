@@ -1102,7 +1102,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 {currentStepIndex <= totalStepsCount && <StepIndicator currentStep={currentStepIndex} totalSteps={totalStepsCount} />}
               </div>
 
-              <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 pb-32 md:p-12 md:pb-12 scroll-smooth flex flex-col relative custom-scrollbar">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 pb-6 md:p-12 md:pb-12 scroll-smooth flex flex-col relative custom-scrollbar">
                 {/* Desktop Header */}
                 <div className="shrink-0 z-10 hidden md:block">
                   {currentStepIndex > 1 && showBackButton() && (
@@ -1829,7 +1829,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="h-full flex flex-col flex-1"
+                      className="min-h-full flex flex-col flex-1"
                     >
                       <h3 className="text-3xl font-serif text-[#23211F] mb-8 shrink-0">{dict.modal?.yourData || (isEn ? 'Your Data' : 'Tus Datos')}</h3>
                       
@@ -1838,7 +1838,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           e.preventDefault(); 
                           if (isFormValid) nextStep(); 
                         }} 
-                        className="space-y-6 flex-1 overflow-y-auto pb-40 md:pb-4 custom-scrollbar px-1 -mx-1"
+                        className="space-y-6 flex-1 pb-4"
                       >
                         <PremiumInput
                           id="name"
@@ -2045,6 +2045,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     </motion.div>
                   )}
                 </AnimatePresence>
+                {/* Spacer to ensure mobile bottom bar doesn't cover content */}
+                <div className="h-32 md:h-0 w-full shrink-0 block md:hidden pointer-events-none" />
               </div>
             </div>
 
