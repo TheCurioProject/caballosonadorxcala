@@ -170,7 +170,7 @@ const PremiumInput = ({
         </AnimatePresence>
         <div className={`grid transition-[grid-template-rows,opacity,margin] duration-300 ease-in-out ${!isValid && value.length > 0 && errorMessage ? 'grid-rows-[1fr] opacity-100 mt-2' : 'grid-rows-[0fr] opacity-0 mt-0'}`}>
           <div className="overflow-hidden">
-            <p className="text-red-500 text-base font-bold tracking-widest uppercase">
+            <p className="text-red-500 text-[10px] md:text-[11px] font-bold tracking-widest uppercase">
               {errorMessage}
             </p>
           </div>
@@ -193,7 +193,7 @@ const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; total
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
           <motion.div
-            className="w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-base md:text-base font-bold relative overflow-hidden shrink-0"
+            className="w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] md:text-[11px] font-bold relative overflow-hidden shrink-0"
             animate={{
               backgroundColor: currentStep >= step ? '#23211F' : '#E5E7EB',
               color: currentStep >= step ? '#F9F7F4' : '#9CA3AF',
@@ -273,7 +273,7 @@ const PremiumButton = ({
         onClick={onClick}
         type={type}
         whileHover={{ x: -4 }}
-        className="text-base md:text-base font-bold text-gray-400 hover:text-[#23211F] uppercase tracking-widest mb-6 md:mb-8 text-left transition-colors flex items-center gap-2"
+        className="text-[10px] md:text-[11px] font-bold text-gray-400 hover:text-[#23211F] uppercase tracking-widest mb-6 md:mb-8 text-left transition-colors flex items-center gap-2"
       >
         <motion.span
           animate={{ x: [0, -3, 0] }}
@@ -1012,7 +1012,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
                 >
-                  <h3 className="text-base uppercase tracking-[0.3em] font-bold text-[#9B7E67] mb-2">{dict.modal?.hotelName}</h3>
+                  <h3 className="text-[10px] md:text-[11px] uppercase tracking-[0.3em] font-bold text-[#9B7E67] mb-2">{dict.modal?.hotelName}</h3>
                   <h2 className="text-4xl font-serif leading-tight">
                     {isEn ? <>Your Private<br/>Refuge in<br/>Chacala</> : <>Tu Refugio<br/>Privado en<br/>Chacala</>}
                   </h2>
@@ -1029,7 +1029,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       <CalendarDays size={16} className="text-[#9B7E67]" />
                     </div>
                     <div>
-                      <p className="font-bold text-white mb-1 uppercase tracking-widest text-base">{dict.modal?.dates}</p>
+                      <p className="font-bold text-white mb-1 uppercase tracking-widest text-[10px] md:text-[11px]">{dict.modal?.dates}</p>
                       <p>{range?.from ? format(range.from, "d MMM yyyy", { locale: localeObj }) : '-'} — {range?.to ? format(range.to, "d MMM yyyy", { locale: localeObj }) : '-'}</p>
                     </div>
                   </div>
@@ -1039,7 +1039,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       <User size={16} className="text-[#9B7E67]" />
                     </div>
                     <div>
-                      <p className="font-bold text-white mb-1 uppercase tracking-widest text-base">{dict.modal?.guests}</p>
+                      <p className="font-bold text-white mb-1 uppercase tracking-widest text-[10px] md:text-[11px]">{dict.modal?.guests}</p>
                       <p>{dict.modal?.guestsCount}</p>
                     </div>
                   </div>
@@ -1051,7 +1051,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           <Utensils size={16} className="text-[#9B7E67]" />
                         </div>
                         <div className="pb-2">
-                          <p className="font-bold text-white mb-1 uppercase tracking-widest text-base">{dict.addons?.foodServicesTitle || (isEn ? 'Food Services' : 'Servicios de Comida')}</p>
+                          <p className="font-bold text-white mb-1 uppercase tracking-widest text-[10px] md:text-[11px]">{dict.addons?.foodServicesTitle || (isEn ? 'Food Services' : 'Servicios de Comida')}</p>
                           <p>{selectedCookService?.name ? translateDB(selectedCookService.name, isEn) : (isEn ? 'Selected' : 'Seleccionado')}</p>
                         </div>
                       </motion.div>
@@ -1063,7 +1063,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           <Map size={16} className="text-[#9B7E67]" />
                         </div>
                         <div className="pb-2">
-                          <p className="font-bold text-white mb-1 uppercase tracking-widest text-base">{dict.addons?.atvTitle || (isEn ? 'Tours' : 'Tours')}</p>
+                          <p className="font-bold text-white mb-1 uppercase tracking-widest text-[10px] md:text-[11px]">{dict.addons?.atvTitle || (isEn ? 'Tours' : 'Tours')}</p>
                           <p>{totalAtvTours} {isEn ? 'tour(s) selected' : 'tour(s) seleccionado(s)'}</p>
                         </div>
                       </motion.div>
@@ -1075,7 +1075,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
               <div className="relative z-10 pt-8 mt-auto border-t border-white/10 shrink-0">
                 <div className="flex justify-between items-end mb-2">
                   <div className="flex flex-col gap-1">
-                    <p className="text-base uppercase tracking-widest font-bold text-gray-400">{dict.modal?.total} {nights > 0 && `(${nights} ${dict.modal?.nights})`}</p>
+                    <p className="text-[10px] md:text-[11px] uppercase tracking-widest font-bold text-gray-400">{dict.modal?.total} {nights > 0 && `(${nights} ${dict.modal?.nights})`}</p>
                     <div className="flex gap-2 items-center mt-2">
                       <span className="text-[10px] md:text-[11px] uppercase text-[#9B7E67] font-bold tracking-widest max-w-[200px]">
                         {isEn ? '* Stripe will handle the currency conversion at checkout' : '* Stripe aplicará el tipo de cambio correspondiente al momento del pago'}
@@ -1086,7 +1086,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     <span className="font-serif text-3xl text-[#9B7E67] flex items-baseline gap-1">
                       <AnimatedCounter value={grandTotal} prefix={'$'} />
                     </span>
-                    <span className="text-base text-gray-500 uppercase tracking-widest mt-1">{dict.modal?.taxesIncluded}</span>
+                    <span className="text-[10px] md:text-[11px] text-gray-500 uppercase tracking-widest mt-1">{dict.modal?.taxesIncluded}</span>
                   </div>
                 </div>
               </div>
@@ -1152,7 +1152,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           />
                         </div>
                         {range?.from && !range?.to && (
-                          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#9B7E67] text-base mt-6 font-medium animate-pulse text-center w-full">
+                          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#9B7E67] text-[10px] md:text-[11px] mt-6 font-medium animate-pulse text-center w-full">
                             {dict.modal?.minStay}
                           </motion.p>
                         )}
@@ -1173,12 +1173,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       </div>
                       <div className="mt-8 shrink-0 pb-8">
                         {(!range?.from || !range?.to) && (
-                          <p className="text-amber-600 text-base font-bold mb-3 text-center">
+                          <p className="text-amber-600 text-[10px] md:text-[11px] font-bold mb-3 text-center">
                             {isEn ? 'Please select your check-in and check-out dates' : 'Por favor selecciona tus fechas de entrada y salida'}
                           </p>
                         )}
                         {range?.from && range?.to && nights < 2 && (
-                          <p className="text-red-500 text-base font-bold mb-3 text-center">
+                          <p className="text-red-500 text-[10px] md:text-[11px] font-bold mb-3 text-center">
                             {dict.modal?.minStay || (isEn ? 'Minimum 2 nights required' : 'Mínimo 2 noches requeridas')}
                           </p>
                         )}
@@ -1344,13 +1344,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                       : 'border-gray-200 bg-white text-gray-400 hover:border-gray-300'
                                 }`}
                               >
-                                <span className="text-base font-bold uppercase tracking-widest opacity-80 mb-1">
+                                <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest opacity-80 mb-1">
                                   {isEn ? `Day ${idx + 1}` : `Día ${idx + 1}`}
                                 </span>
                                 <span className="text-xl font-serif">
                                   {date.getDate()}
                                 </span>
-                                <span className="text-base font-bold uppercase">
+                                <span className="text-[10px] md:text-[11px] font-bold uppercase">
                                   {date.toLocaleDateString(isEn ? 'en-US' : 'es-MX', { month: 'short' })}
                                 </span>
                                 {hasPlan && (
@@ -1400,7 +1400,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                   <div className="text-left">
                                     <p className="font-bold">{translateDB(priceOption.name, isEn)}</p>
                                   </div>
-                                  <div className={`text-base font-bold px-3 py-1 rounded-full border ${
+                                  <div className={`text-[10px] md:text-[11px] font-bold px-3 py-1 rounded-full border ${
                                     isSelectedForDay
                                       ? 'bg-white/20 border-transparent text-white'
                                       : 'bg-[#FAF8F5] border-[#E8D5B7] text-[#9B7E67]'
@@ -1415,7 +1415,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         
                         <div className="shrink-0 mt-4 pb-8 hidden md:block">
                           {Object.keys(planByDate).length === 0 && (
-                            <p className="text-amber-600 text-base font-bold mb-3 text-center animate-pulse">
+                            <p className="text-amber-600 text-[10px] md:text-[11px] font-bold mb-3 text-center animate-pulse">
                               {isEn ? `Select at least 1 day to advance` : `Selecciona al menos 1 dia para avanzar`}
                             </p>
                           )}
@@ -1462,7 +1462,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                   }`}
                                 >
                                   <span>{size} {isEn ? 'People' : 'Personas'}</span>
-                                  <span className={`text-base mt-1 normal-case ${dinnerGroupSize === size ? 'text-white/80' : 'text-gray-400'}`}>
+                                  <span className={`text-[10px] md:text-[11px] mt-1 normal-case ${dinnerGroupSize === size ? 'text-white/80' : 'text-gray-400'}`}>
                                     +{formatPrice(servicePrice)} / {isEn ? 'day' : 'día'}
                                   </span>
                                 </button>
@@ -1528,13 +1528,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                           : 'border-gray-200 bg-white text-gray-400 hover:border-gray-300'
                                     }`}
                                   >
-                                    <span className="text-base font-bold uppercase tracking-widest opacity-80 mb-1">
+                                    <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest opacity-80 mb-1">
                                       {isEn ? `Day ${idx + 1}` : `Día ${idx + 1}`}
                                     </span>
                                     <span className="text-xl font-serif">
                                       {date.getDate()}
                                     </span>
-                                    <span className="text-base font-bold uppercase">
+                                    <span className="text-[10px] md:text-[11px] font-bold uppercase">
                                       {date.toLocaleDateString(isEn ? 'en-US' : 'es-MX', { month: 'short' })}
                                     </span>
                                     {hasDish && (
@@ -1571,12 +1571,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                       <span className="flex items-center gap-3">
                                         {translateDB(dish.name, isEn)}
                                         {dishQuantity > 0 && (
-                                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="min-w-[20px] h-5 px-1.5 rounded-full bg-[#9B7E67] text-white flex items-center justify-center text-base font-bold">
+                                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="min-w-[20px] h-5 px-1.5 rounded-full bg-[#9B7E67] text-white flex items-center justify-center text-[10px] md:text-[11px] font-bold">
                                             {dishQuantity}
                                           </motion.div>
                                         )}
                                         {isSelectedForDay && (
-                                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="min-w-[20px] h-5 px-2 rounded-full bg-[#9B7E67] text-white flex items-center justify-center text-base font-bold uppercase tracking-widest">
+                                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="min-w-[20px] h-5 px-2 rounded-full bg-[#9B7E67] text-white flex items-center justify-center text-[10px] md:text-[11px] font-bold uppercase tracking-widest">
                                             {isEn ? 'Selected' : 'Elegido'}
                                           </motion.div>
                                         )}
@@ -1692,13 +1692,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       <div className="shrink-0 mt-4 pb-8 hidden md:block">
                         {isDinnerService(selectedCookService?.name) ? (
                           Object.keys(dishesByDate).length === 0 && dinnerGroupSize && (
-                            <p className="text-amber-600 text-base font-bold mb-3 text-center animate-pulse">
+                            <p className="text-amber-600 text-[10px] md:text-[11px] font-bold mb-3 text-center animate-pulse">
                               {isEn ? `Select at least 1 day to advance` : `Selecciona al menos 1 dia para avanzar`}
                             </p>
                           )
                         ) : (
                           selectedDishes.length < globalMaxDishes && (
-                            <p className="text-amber-600 text-base font-bold mb-3 text-center animate-pulse">
+                            <p className="text-amber-600 text-[10px] md:text-[11px] font-bold mb-3 text-center animate-pulse">
                               {isEn ? `Please select ${globalMaxDishes - selectedDishes.length} more dish(es)` : `Por favor selecciona ${globalMaxDishes - selectedDishes.length} platillo(s) más`}
                             </p>
                           )
@@ -1756,7 +1756,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </div>
                       ) : wantsATV === true ? (
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 flex-1 flex flex-col">
-                          <div className="mb-6"><PremiumButton variant="back" onClick={() => setWantsATV(null)} backText={isEn ? "Back" : "Volver"} /></div>
+                          
                           <div className="bg-amber-50 text-amber-800 text-base md:text-lg px-4 py-2 rounded-lg font-medium shrink-0">
                             {isEn ? `Maximum 1 tour per day (${nights - totalAtvTours} available)` : `Máximo 1 recorrido por día (${nights - totalAtvTours} disponibles)`}
                           </div>
@@ -1796,7 +1796,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
                           <div className="mt-4 pb-8 shrink-0 hidden md:block">
                             {(totalAtvTours === 0 || atvPeople < minTourPax) && (
-                              <p className="text-amber-600 text-base font-bold mb-3 text-center animate-pulse">
+                              <p className="text-amber-600 text-[10px] md:text-[11px] font-bold mb-3 text-center animate-pulse">
                                 {isEn ? 'Please select at least one destination and number of people' : 'Por favor selecciona al menos un destino y personas'}
                               </p>
                             )}
@@ -1877,7 +1877,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
                         <div className="mt-8 pb-8 shrink-0 hidden md:block">
                           {!isFormValid && (
-                            <p className="text-amber-600 text-base font-bold mb-3 text-center">
+                            <p className="text-amber-600 text-[10px] md:text-[11px] font-bold mb-3 text-center">
                               {isEn ? 'Please fill in all required fields correctly' : 'Por favor completa todos los campos requeridos correctamente'}
                             </p>
                           )}
@@ -2016,7 +2016,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           
                           <div className="flex flex-col sm:items-end w-full sm:w-auto min-w-[260px]">
                             {!isFormValid && (
-                              <p className="text-amber-600 text-base font-bold tracking-widest uppercase text-left sm:text-right mb-2 animate-pulse">
+                              <p className="text-amber-600 text-[10px] md:text-[11px] font-bold tracking-widest uppercase text-left sm:text-right mb-2 animate-pulse">
                                 {isEn ? 'Please fill in all required fields' : 'Por favor completa todos los campos'}
                               </p>
                             )}
@@ -2043,12 +2043,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-8 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-20"
               >
                 <div>
-                  <p className="text-base uppercase tracking-widest font-bold text-gray-400 mb-1">{isEn ? 'Subtotal' : 'Total Parcial'}</p>
+                  <p className="text-[10px] md:text-[11px] uppercase tracking-widest font-bold text-gray-400 mb-1">{isEn ? 'Subtotal' : 'Total Parcial'}</p>
                   <div className="font-serif text-xl text-[#23211F] leading-none">${grandTotal.toLocaleString('en-US')}</div>
                 </div>
                 {step === 'dates' && (
                   <div className="flex flex-col items-end">
-                    {range?.from && range?.to && nights < 2 && <span className="text-red-500 text-base font-bold mb-1 mr-2">{isEn ? 'Min 2 nights' : 'Mínimo 2 noches'}</span>}
+                    {range?.from && range?.to && nights < 2 && <span className="text-red-500 text-[10px] md:text-[11px] font-bold mb-1 mr-2">{isEn ? 'Min 2 nights' : 'Mínimo 2 noches'}</span>}
                     <button onClick={nextStep} disabled={!range?.from || !range?.to || nights < 2} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-base md:text-lg font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {isEn ? 'Proceed' : 'Proceder'}
                     </button>
@@ -2056,7 +2056,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 )}
                 {step === 'food_plan' && (
                   <div className="flex flex-col items-end">
-                    {totalCookServices === 0 ? <span className="text-amber-600 text-base font-bold mb-1 mr-2">{isEn ? 'Select service' : 'Selecciona servicio'}</span> : null}
+                    {totalCookServices === 0 ? <span className="text-amber-600 text-[10px] md:text-[11px] font-bold mb-1 mr-2">{isEn ? 'Select service' : 'Selecciona servicio'}</span> : null}
                     <button onClick={nextStep} disabled={totalCookServices === 0} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-base md:text-lg font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {isEn ? 'Proceed' : 'Proceder'}
                     </button>
@@ -2065,7 +2065,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
                   {step === 'menu' && (
                   <div className="flex flex-col items-end">
-                    {selectedDishes.length < globalMaxDishes ? <span className="text-amber-600 text-base font-bold mb-1 mr-2">{isEn ? 'Select your dishes' : 'Selecciona tus platillos'}</span> : null}
+                    {selectedDishes.length < globalMaxDishes ? <span className="text-amber-600 text-[10px] md:text-[11px] font-bold mb-1 mr-2">{isEn ? 'Select your dishes' : 'Selecciona tus platillos'}</span> : null}
                     <button onClick={nextStep} disabled={selectedDishes.length < globalMaxDishes} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-base md:text-lg font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {isEn ? 'Proceed' : 'Proceder'}
                     </button>
@@ -2073,7 +2073,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 )}
                 {step === 'tours' && (
                   <div className="flex flex-col items-end">
-                    {(!isTourBookedOnSelectedDates && wantsATV === null) ? <span className="text-amber-600 text-base font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : (wantsATV === true && (totalAtvTours === 0 || atvPeople < minTourPax)) ? <span className="text-amber-600 text-base font-bold mb-1 mr-2">{isEn ? 'Select destination' : 'Selecciona un destino'}</span> : null}
+                    {(!isTourBookedOnSelectedDates && wantsATV === null) ? <span className="text-amber-600 text-[10px] md:text-[11px] font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : (wantsATV === true && (totalAtvTours === 0 || atvPeople < minTourPax)) ? <span className="text-amber-600 text-[10px] md:text-[11px] font-bold mb-1 mr-2">{isEn ? 'Select destination' : 'Selecciona un destino'}</span> : null}
                     <button onClick={nextStep} disabled={(!isTourBookedOnSelectedDates && wantsATV === null) || (wantsATV === true && (totalAtvTours === 0 || atvPeople < minTourPax))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-base md:text-lg font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {isEn ? 'Proceed' : 'Proceder'}
                     </button>
@@ -2081,7 +2081,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 )}
                 {step === 'guest_data' && (
                   <div className="flex flex-col items-end">
-                    {!isFormValid && <span className="text-amber-600 text-base font-bold mb-1 mr-2">{isEn ? 'Fill required fields' : 'Llena los campos'}</span>}
+                    {!isFormValid && <span className="text-amber-600 text-[10px] md:text-[11px] font-bold mb-1 mr-2">{isEn ? 'Fill required fields' : 'Llena los campos'}</span>}
                     <button onClick={nextStep} disabled={!isFormValid} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-base md:text-lg font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {isEn ? 'Proceed' : 'Proceder'}
                     </button>
