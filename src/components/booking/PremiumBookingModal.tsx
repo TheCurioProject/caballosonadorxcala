@@ -122,7 +122,7 @@ const PremiumInput = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className={`relative group pt-4 md:pt-6 ${className}`}
+      className={`relative group pt-6 ${className}`}
     >
       <div className="relative">
         <input
@@ -133,7 +133,7 @@ const PremiumInput = ({
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          className="w-full bg-transparent border-b-2 border-gray-200 py-2 md:py-4 pr-10 text-[#23211F] text-xl md:text-2xl focus:outline-none transition-colors peer font-light placeholder:text-transparent"
+          className="w-full bg-transparent border-b-2 border-gray-200 py-4 pr-10 text-[#23211F] text-xl md:text-2xl focus:outline-none transition-colors peer font-light placeholder:text-transparent"
           placeholder={placeholder}
         />
         <motion.div
@@ -1104,7 +1104,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 {currentStepIndex <= totalStepsCount && <StepIndicator currentStep={currentStepIndex} totalSteps={totalStepsCount} />}
               </div>
 
-              <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 pb-48 md:p-12 md:pb-12 scroll-smooth flex flex-col relative custom-scrollbar">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 pb-6 md:p-12 md:pb-12 scroll-smooth flex flex-col relative custom-scrollbar overscroll-contain [-webkit-overflow-scrolling:touch]">
                 {/* Desktop Header */}
                 <div className="shrink-0 z-10 hidden md:block">
                   {currentStepIndex > 1 && showBackButton() && (
@@ -1833,14 +1833,14 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       transition={{ duration: 0.4 }}
                       className="min-h-full flex flex-col flex-grow shrink-0 w-full"
                     >
-                      <h3 className="text-2xl md:text-3xl font-serif text-[#23211F] mb-4 md:mb-8 shrink-0">{dict.modal?.yourData || (isEn ? 'Your Data' : 'Tus Datos')}</h3>
+                      <h3 className="text-3xl font-serif text-[#23211F] mb-8 shrink-0">{dict.modal?.yourData || (isEn ? 'Your Data' : 'Tus Datos')}</h3>
                       
                       <form 
                         onSubmit={(e) => { 
                           e.preventDefault(); 
                           if (isFormValid) nextStep(); 
                         }} 
-                        className="space-y-4 md:space-y-6 flex-grow shrink-0 pb-12 md:pb-4 w-full"
+                        className="space-y-6 flex-grow shrink-0 pb-12 md:pb-4 w-full"
                       >
                         <PremiumInput
                           id="name"
@@ -2047,6 +2047,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     </motion.div>
                   )}
                 </AnimatePresence>
+                {/* Safari Mobile scroll spacer to clear bottom bar */}
+                <div className="h-40 shrink-0 w-full md:hidden" />
               </div>
             </div>
 
