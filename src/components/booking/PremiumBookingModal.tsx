@@ -913,7 +913,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     if (!wants) {
       setCookSelectionsByDate({});
       setSelectedDishes([]);
-      nextStep();
+      setStep('tours');
     } else {
       setStep('food_service');
     }
@@ -2193,8 +2193,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
                   {step === 'menu' && (
                   <div className="flex flex-col items-end">
-                    {selectedDishes.length < globalMaxDishes ? <span className="text-amber-600 text-[10px] md:text-[11px] font-bold mb-1 mr-2">{isEn ? 'Select your dishes' : 'Selecciona tus platillos'}</span> : null}
-                    <button onClick={nextStep} disabled={selectedDishes.length < globalMaxDishes} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-base md:text-lg font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
+                    {(isDinnerService(selectedCookService?.name) ? (!dinnerGroupSize || Object.keys(dishesByDate).length === 0) : selectedDishes.length < globalMaxDishes) ? <span className="text-amber-600 text-[10px] md:text-[11px] font-bold mb-1 mr-2">{isEn ? 'Select your dishes' : 'Selecciona tus platillos'}</span> : null}
+                    <button onClick={nextStep} disabled={isDinnerService(selectedCookService?.name) ? (!dinnerGroupSize || Object.keys(dishesByDate).length === 0) : selectedDishes.length < globalMaxDishes} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-base md:text-lg font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {isEn ? 'Proceed' : 'Proceder'}
                     </button>
                   </div>
