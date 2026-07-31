@@ -61,7 +61,7 @@ export default function TourBookingActions({ booking }: { booking: any }) {
             
             <button 
               onClick={handleDownloadInvoice}
-              className="w-full px-4 py-3 text-left text-sm md:text-base font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-3 transition-colors"
+              className="w-full px-4 py-3 text-left text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-3 transition-colors"
             >
               <Download size={14} className="text-gray-400" />
               Download Invoice
@@ -70,7 +70,7 @@ export default function TourBookingActions({ booking }: { booking: any }) {
             <button 
               onClick={handleSendInvoice}
               disabled={isSending || sendSuccess}
-              className="w-full px-4 py-3 text-left text-sm md:text-base font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-3 transition-colors border-t border-gray-50 disabled:opacity-50"
+              className="w-full px-4 py-3 text-left text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-3 transition-colors border-t border-gray-50 disabled:opacity-50"
             >
               {isSending ? (
                 <Loader2 size={14} className="text-gray-400 animate-spin" />

@@ -92,7 +92,7 @@ export function AdminConfirmModal({
                 <h3 className="text-xl font-serif font-bold text-white mb-2">
                   {title}
                 </h3>
-                <p className="text-base md:text-lg text-gray-300 leading-relaxed font-light">
+                <p className="text-sm text-gray-300 leading-relaxed font-light">
                   {description}
                 </p>
               </div>
@@ -104,7 +104,7 @@ export function AdminConfirmModal({
                 type="button"
                 disabled={isLoading}
                 onClick={onCancel}
-                className="px-5 py-2.5 rounded-xl font-bold text-sm md:text-base uppercase tracking-wider text-gray-400 hover:text-white hover:bg-white/5 transition-colors disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider text-gray-400 hover:text-white hover:bg-white/5 transition-colors disabled:opacity-50"
               >
                 {cancelText}
               </button>
@@ -112,7 +112,7 @@ export function AdminConfirmModal({
                 type="button"
                 disabled={isLoading}
                 onClick={onConfirm}
-                className={`px-6 py-2.5 rounded-xl font-bold text-sm md:text-base uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg disabled:opacity-50 ${getConfirmButtonStyle()}`}
+                className={`px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg disabled:opacity-50 ${getConfirmButtonStyle()}`}
               >
                 {isLoading ? (
                   <>

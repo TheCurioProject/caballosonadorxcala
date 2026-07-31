@@ -46,7 +46,7 @@ export default async function AdminDashboard() {
       <div className="flex justify-between items-center mb-4 sm:mb-8">
         <div>
           <h2 className="text-2xl sm:text-4xl font-serif text-[#23211F]">Dashboard</h2>
-          <p className="text-gray-500 font-light mt-1 sm:mt-2 text-base md:text-lg sm:text-base">Overview of operations and bookings.</p>
+          <p className="text-gray-500 font-light mt-1 sm:mt-2 text-sm sm:text-base">Overview of operations and bookings.</p>
         </div>
       </div>
 
@@ -69,23 +69,23 @@ export default async function AdminDashboard() {
 
       <div className="bg-white p-5 sm:p-10 rounded-2xl shadow-xl border border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
         <div>
-          <h3 className="text-xl md:text-2xl sm:text-2xl font-bold font-serif text-[#23211F]">Availability Management</h3>
-          <p className="text-gray-500 font-light mt-1 sm:mt-2 text-base md:text-lg sm:text-base">Manually block dates and set dynamic rates from the interactive calendar.</p>
+          <h3 className="text-lg sm:text-2xl font-bold font-serif text-[#23211F]">Availability Management</h3>
+          <p className="text-gray-500 font-light mt-1 sm:mt-2 text-sm sm:text-base">Manually block dates and set dynamic rates from the interactive calendar.</p>
         </div>
-        <Link href="/admin/calendar" className="bg-[#23211F] text-white px-6 sm:px-10 py-3 sm:py-4 rounded-full hover:bg-[#9B7E67] transition-colors text-sm md:text-base font-bold uppercase tracking-widest whitespace-nowrap w-full sm:w-auto text-center">
+        <Link href="/admin/calendar" className="bg-[#23211F] text-white px-6 sm:px-10 py-3 sm:py-4 rounded-full hover:bg-[#9B7E67] transition-colors text-xs font-bold uppercase tracking-widest whitespace-nowrap w-full sm:w-auto text-center">
           Go to Calendar
         </Link>
       </div>
 
       <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-5 sm:p-10">
-        <h3 className="text-xl md:text-2xl sm:text-2xl font-bold mb-4 sm:mb-6 font-serif text-[#23211F]">Upcoming Bookings</h3>
+        <h3 className="text-lg sm:text-2xl font-bold mb-4 sm:mb-6 font-serif text-[#23211F]">Upcoming Bookings</h3>
         
         {/* Mobile: Card list */}
         <div className="space-y-3 sm:hidden">
           {properties.flatMap(p => p.bookings.map(b => ({ ...b, propertyName: p.name }))).sort((a, b) => a.checkIn.getTime() - b.checkIn.getTime()).map((booking: any) => (
             <div key={booking.id} className="bg-[#F9F7F4] rounded-xl p-4 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-base md:text-lg text-[#23211F]">{booking.guestName}</span>
+                <span className="font-bold text-sm text-[#23211F]">{booking.guestName}</span>
                 {booking.origin === 'MANUAL_BLOCK' ? (
                   <span className="bg-red-50 text-red-600 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest">Block</span>
                 ) : (
@@ -93,13 +93,13 @@ export default async function AdminDashboard() {
                 )}
               </div>
               <p className="text-[11px] text-gray-400 font-light">{booking.guestEmail}</p>
-              <div className="text-sm md:text-base text-gray-500 pt-1 border-t border-gray-200/60">
+              <div className="text-xs text-gray-500 pt-1 border-t border-gray-200/60">
                 {booking.checkIn.toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan', day: '2-digit', month: 'short' })} — {booking.checkOut.toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan', day: '2-digit', month: 'short', year: 'numeric' })}
               </div>
             </div>
           ))}
           {properties.every(p => p.bookings.length === 0) && (
-            <div className="py-8 text-center text-gray-400 italic text-base md:text-lg">No upcoming bookings.</div>
+            <div className="py-8 text-center text-gray-400 italic text-sm">No upcoming bookings.</div>
           )}
         </div>
 
@@ -108,10 +108,10 @@ export default async function AdminDashboard() {
           <table className="w-full text-left border-collapse min-w-max">
             <thead>
               <tr>
-                <th className="border-b border-gray-200 pb-4 text-sm md:text-base uppercase tracking-widest font-bold text-gray-400">Guest</th>
-                <th className="border-b border-gray-200 pb-4 text-sm md:text-base uppercase tracking-widest font-bold text-gray-400">Property</th>
-                <th className="border-b border-gray-200 pb-4 text-sm md:text-base uppercase tracking-widest font-bold text-gray-400">Dates</th>
-                <th className="border-b border-gray-200 pb-4 text-sm md:text-base uppercase tracking-widest font-bold text-gray-400">Status</th>
+                <th className="border-b border-gray-200 pb-4 text-xs uppercase tracking-widest font-bold text-gray-400">Guest</th>
+                <th className="border-b border-gray-200 pb-4 text-xs uppercase tracking-widest font-bold text-gray-400">Property</th>
+                <th className="border-b border-gray-200 pb-4 text-xs uppercase tracking-widest font-bold text-gray-400">Dates</th>
+                <th className="border-b border-gray-200 pb-4 text-xs uppercase tracking-widest font-bold text-gray-400">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -119,7 +119,7 @@ export default async function AdminDashboard() {
                 <tr key={booking.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                   <td className="py-6 font-medium text-[#23211F]">
                     {booking.guestName}
-                    <div className="text-sm md:text-base text-gray-400 font-light mt-1">{booking.guestEmail}</div>
+                    <div className="text-xs text-gray-400 font-light mt-1">{booking.guestEmail}</div>
                   </td>
                   <td className="py-6 text-gray-600">{booking.propertyName}</td>
                   <td className="py-6 text-gray-600">
@@ -127,9 +127,9 @@ export default async function AdminDashboard() {
                   </td>
                   <td className="py-6">
                     {booking.origin === 'MANUAL_BLOCK' ? (
-                      <span className="bg-red-50 text-red-600 px-3 py-1 rounded-full text-sm md:text-base font-bold uppercase tracking-widest">Manual Block</span>
+                      <span className="bg-red-50 text-red-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Manual Block</span>
                     ) : (
-                      <span className="bg-green-50 text-green-600 px-3 py-1 rounded-full text-sm md:text-base font-bold uppercase tracking-widest">{booking.payment_status}</span>
+                      <span className="bg-green-50 text-green-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">{booking.payment_status}</span>
                     )}
                   </td>
                 </tr>

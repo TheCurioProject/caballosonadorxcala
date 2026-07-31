@@ -56,7 +56,7 @@ export default function AdminEmailsEditor({ initialEmails }: Props) {
             {emails.map(email => (
               <div 
                 key={email} 
-                className="flex items-center gap-1 bg-[#F5F5F5] border border-gray-200 px-3 py-1.5 rounded-full text-base md:text-lg text-[#23211F]"
+                className="flex items-center gap-1 bg-[#F5F5F5] border border-gray-200 px-3 py-1.5 rounded-full text-sm text-[#23211F]"
               >
                 <span>{email}</span>
                 <button 
@@ -79,7 +79,7 @@ export default function AdminEmailsEditor({ initialEmails }: Props) {
             onChange={(e) => setNewEmail(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="new.admin@example.com" 
-            className="flex-1 border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-lg md:text-xl sm:text-sm focus:outline-none focus:border-[#9B7E67]"
+            className="flex-1 border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]"
           />
           <button 
             type="button"

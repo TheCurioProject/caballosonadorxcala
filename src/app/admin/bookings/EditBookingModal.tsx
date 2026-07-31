@@ -152,29 +152,29 @@ export default function EditBookingModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Guest Name</label>
-                  <input type="text" required value={guestName} onChange={e => setGuestName(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-base md:text-lg focus:outline-none focus:border-[#9B7E67]" />
+                  <input type="text" required value={guestName} onChange={e => setGuestName(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67]" />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Email</label>
-                  <input type="email" value={guestEmail} onChange={e => setGuestEmail(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-base md:text-lg focus:outline-none focus:border-[#9B7E67]" />
+                  <input type="email" value={guestEmail} onChange={e => setGuestEmail(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67]" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-5">
                 <div>
                   <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Check In</label>
-                  <input type="date" required value={checkIn} onChange={e => setCheckIn(e.target.value)} className="w-full border border-gray-200 rounded-xl px-2 py-3 text-[#23211F] text-sm md:text-base focus:outline-none focus:border-[#9B7E67]" />
+                  <input type="date" required value={checkIn} onChange={e => setCheckIn(e.target.value)} className="w-full border border-gray-200 rounded-xl px-2 py-3 text-[#23211F] text-xs focus:outline-none focus:border-[#9B7E67]" />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Check Out</label>
-                  <input type="date" required value={checkOut} onChange={e => setCheckOut(e.target.value)} className="w-full border border-gray-200 rounded-xl px-2 py-3 text-[#23211F] text-sm md:text-base focus:outline-none focus:border-[#9B7E67]" />
+                  <input type="date" required value={checkOut} onChange={e => setCheckOut(e.target.value)} className="w-full border border-gray-200 rounded-xl px-2 py-3 text-[#23211F] text-xs focus:outline-none focus:border-[#9B7E67]" />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div className="md:col-span-1">
                   <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Deposit Currency</label>
-                  <select value={depositCurrency} onChange={e => setDepositCurrency(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-base md:text-lg focus:outline-none focus:border-[#9B7E67] bg-white">
+                  <select value={depositCurrency} onChange={e => setDepositCurrency(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67] bg-white">
                     <option value="MXN">MXN</option>
                     <option value="USD">USD</option>
                     <option value="CAD">CAD</option>
@@ -182,20 +182,20 @@ export default function EditBookingModal({
                 </div>
                 <div className="md:col-span-1">
                   <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Deposit Type</label>
-                  <select value={depositType} onChange={e => setDepositType(e.target.value as 'percentage'|'fixed')} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-base md:text-lg focus:outline-none focus:border-[#9B7E67] bg-white">
+                  <select value={depositType} onChange={e => setDepositType(e.target.value as 'percentage'|'fixed')} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67] bg-white">
                     <option value="percentage">Percentage (%)</option>
                     <option value="fixed">Fixed</option>
                   </select>
                 </div>
                 <div className="md:col-span-1">
                   <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Amount</label>
-                  <input type="number" required value={depositValue} onChange={e => setDepositValue(parseFloat(e.target.value))} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-base md:text-lg focus:outline-none focus:border-[#9B7E67]" />
+                  <input type="number" required value={depositValue} onChange={e => setDepositValue(parseFloat(e.target.value))} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67]" />
                 </div>
               </div>
 
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Total Price (MXN)</label>
-                <input type="number" required value={totalPrice} onChange={e => setTotalPrice(parseFloat(e.target.value))} className="w-full border border-[#D4C3AB] bg-[#F9F7F4] rounded-xl px-4 py-3 text-[#23211F] text-xl md:text-2xl font-serif focus:outline-none focus:border-[#9B7E67]" />
+                <input type="number" required value={totalPrice} onChange={e => setTotalPrice(parseFloat(e.target.value))} className="w-full border border-[#D4C3AB] bg-[#F9F7F4] rounded-xl px-4 py-3 text-[#23211F] text-lg font-serif focus:outline-none focus:border-[#9B7E67]" />
               </div>
             </form>
             
@@ -218,10 +218,10 @@ export default function EditBookingModal({
                     return (
                       <div key={addon.id} className="bg-gray-50 rounded-xl p-4 flex justify-between items-center">
                         <div>
-                          <p className="font-bold text-base md:text-lg text-[#23211F]">{addon.quantity}x {addon.name}</p>
-                          <p className="text-sm md:text-base text-gray-500 mt-1">{name}</p>
+                          <p className="font-bold text-sm text-[#23211F]">{addon.quantity}x {addon.name}</p>
+                          <p className="text-xs text-gray-500 mt-1">{name}</p>
                         </div>
-                        <p className="font-serif text-[#9B7E67] text-base md:text-lg">${addon.price.toLocaleString()} MXN</p>
+                        <p className="font-serif text-[#9B7E67] text-sm">${addon.price.toLocaleString()} MXN</p>
                       </div>
                     );
                   })}
@@ -233,12 +233,12 @@ export default function EditBookingModal({
           <div className="p-4 sm:p-6 border-t border-gray-100 bg-gray-50 flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
             
             <div className="flex flex-col gap-2 w-full sm:w-auto">
-              {invoiceSent && <span className="text-sm md:text-base text-green-600 font-bold uppercase tracking-widest text-center sm:text-left">Invoice Downloaded & Sent!</span>}
+              {invoiceSent && <span className="text-xs text-green-600 font-bold uppercase tracking-widest text-center sm:text-left">Invoice Downloaded & Sent!</span>}
               <div className="flex flex-col sm:flex-row gap-2">
                 <button 
                   onClick={() => handlePrintInvoice(false)}
                   disabled={isSendingInvoice}
-                  className="px-4 py-2.5 border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 rounded-xl text-sm md:text-base font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+                  className="px-4 py-2.5 border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
                 >
                   {isSendingInvoice ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
                   Save & Print
@@ -246,7 +246,7 @@ export default function EditBookingModal({
                 <button 
                   onClick={() => handlePrintInvoice(true)}
                   disabled={isSendingInvoice || !guestEmail}
-                  className="px-4 py-2.5 bg-[#F9F7F4] border border-[#E5D9C5] text-[#9B7E67] hover:bg-[#E5D9C5] rounded-xl text-sm md:text-base font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="px-4 py-2.5 bg-[#F9F7F4] border border-[#E5D9C5] text-[#9B7E67] hover:bg-[#E5D9C5] rounded-xl text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                   title={!guestEmail ? "Guest email required" : ""}
                 >
                   {isSendingInvoice ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
@@ -258,7 +258,7 @@ export default function EditBookingModal({
             <div className="flex gap-3 w-full sm:w-auto justify-end">
               <button 
                 onClick={onClose}
-                className="flex-1 sm:flex-none px-5 py-3 rounded-xl font-bold text-sm md:text-base uppercase tracking-widest text-gray-500 hover:bg-gray-200 transition-colors"
+                className="flex-1 sm:flex-none px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-widest text-gray-500 hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>
@@ -266,7 +266,7 @@ export default function EditBookingModal({
                 form="edit-booking-form"
                 type="submit"
                 disabled={isPending}
-                className="flex-1 sm:flex-none px-6 py-3 rounded-xl font-bold text-sm md:text-base uppercase tracking-widest text-white bg-[#9B7E67] hover:bg-[#23211F] transition-colors flex items-center justify-center gap-2"
+                className="flex-1 sm:flex-none px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest text-white bg-[#9B7E67] hover:bg-[#23211F] transition-colors flex items-center justify-center gap-2"
               >
                 {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 Save Changes

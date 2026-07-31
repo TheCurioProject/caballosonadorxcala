@@ -27,7 +27,7 @@ export default function DeleteBookingButton({ bookingId }: { bookingId: number }
       <button 
         onClick={() => setIsConfirmOpen(true)} 
         disabled={isPending}
-        className="text-sm md:text-base font-bold uppercase tracking-widest text-red-400 hover:text-red-600 transition-colors"
+        className="text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-600 transition-colors"
       >
         Delete
       </button>
@@ -55,7 +55,7 @@ export default function DeleteBookingButton({ bookingId }: { bookingId: number }
               <FluidHorseAnimation className="w-24 h-24 text-[#9B7E67] drop-shadow-lg mb-4" />
               <Loader2 className="w-8 h-8 text-[#9B7E67] animate-spin mb-4" />
               <p className="text-[#23211F] font-serif text-xl">Deleting booking...</p>
-              <p className="text-gray-500 text-base md:text-lg uppercase tracking-widest font-bold mt-2">Please wait</p>
+              <p className="text-gray-500 text-sm uppercase tracking-widest font-bold mt-2">Please wait</p>
             </div>
           </motion.div>
         )}

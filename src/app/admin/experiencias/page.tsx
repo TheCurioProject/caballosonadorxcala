@@ -152,7 +152,7 @@ export default function AdminExperiencias() {
           </div>
           <button 
             onClick={() => setFoodItems([{ id: Math.random(), name: 'New Item', description: '', price: 0, isActive: true, serviceType: type }, ...foodItems])}
-            className="text-base md:text-lg font-bold text-[#9B7E67] hover:text-[#23211F] transition-colors"
+            className="text-sm font-bold text-[#9B7E67] hover:text-[#23211F] transition-colors"
           >
             + Add {title}
           </button>
@@ -162,11 +162,11 @@ export default function AdminExperiencias() {
           <table className="w-full text-left border-collapse min-w-[600px]">
             <thead>
               <tr>
-                <th className="border-b border-gray-100 p-6 text-sm md:text-base uppercase tracking-widest font-bold text-gray-400">Name</th>
-                {showDesc && <th className="border-b border-gray-100 p-6 text-sm md:text-base uppercase tracking-widest font-bold text-gray-400">Description</th>}
-                {showPrice && <th className="border-b border-gray-100 p-6 text-sm md:text-base uppercase tracking-widest font-bold text-gray-400">Price (MXN)</th>}
-                <th className="border-b border-gray-100 p-6 text-sm md:text-base uppercase tracking-widest font-bold text-gray-400 text-center">Active</th>
-                <th className="border-b border-gray-100 p-6 text-sm md:text-base uppercase tracking-widest font-bold text-gray-400 text-right">Action</th>
+                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Name</th>
+                {showDesc && <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Description</th>}
+                {showPrice && <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Price (MXN)</th>}
+                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-center">Active</th>
+                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-right">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -188,7 +188,7 @@ export default function AdminExperiencias() {
                         <textarea 
                           value={item.description || ''}
                           onChange={(e) => handleFoodChange(item.id, 'description', e.target.value)}
-                          className="w-full bg-[#F9F7F4] border-none p-2 rounded focus:ring-2 focus:ring-[#9B7E67] text-[#23211F] text-base md:text-lg"
+                          className="w-full bg-[#F9F7F4] border-none p-2 rounded focus:ring-2 focus:ring-[#9B7E67] text-[#23211F] text-sm"
                           rows={2}
                         />
                       </td>
@@ -219,7 +219,7 @@ export default function AdminExperiencias() {
                         <button 
                           onClick={() => handleSaveFood(item)}
                           disabled={saving}
-                          className="inline-flex items-center gap-2 bg-[#23211F] text-white px-4 py-2 rounded-xl hover:bg-[#9B7E67] transition-colors text-base md:text-lg font-medium disabled:opacity-50 shadow-sm"
+                          className="inline-flex items-center gap-2 bg-[#23211F] text-white px-4 py-2 rounded-xl hover:bg-[#9B7E67] transition-colors text-sm font-medium disabled:opacity-50 shadow-sm"
                         >
                           <Save size={14} /> Save
                         </button>
@@ -254,7 +254,7 @@ export default function AdminExperiencias() {
                     type="text" 
                     value={item.name}
                     onChange={(e) => handleFoodChange(item.id, 'name', e.target.value)}
-                    className="w-full bg-[#F9F7F4] border-none rounded-xl px-4 py-2.5 text-[#23211F] font-medium text-base md:text-lg focus:ring-2 focus:ring-[#9B7E67]"
+                    className="w-full bg-[#F9F7F4] border-none rounded-xl px-4 py-2.5 text-[#23211F] font-medium text-sm focus:ring-2 focus:ring-[#9B7E67]"
                   />
                 </div>
                 {showDesc && (
@@ -263,7 +263,7 @@ export default function AdminExperiencias() {
                     <textarea 
                       value={item.description || ''}
                       onChange={(e) => handleFoodChange(item.id, 'description', e.target.value)}
-                      className="w-full bg-[#F9F7F4] border-none rounded-xl px-4 py-2.5 text-[#23211F] text-base md:text-lg focus:ring-2 focus:ring-[#9B7E67]"
+                      className="w-full bg-[#F9F7F4] border-none rounded-xl px-4 py-2.5 text-[#23211F] text-sm focus:ring-2 focus:ring-[#9B7E67]"
                       rows={3}
                     />
                   </div>
@@ -277,7 +277,7 @@ export default function AdminExperiencias() {
                         type="number" 
                         value={item.price}
                         onChange={(e) => handleFoodChange(item.id, 'price', e.target.value)}
-                        className="w-full pl-8 pr-3 py-2.5 bg-[#F9F7F4] border-none rounded-xl text-[#23211F] font-medium text-base md:text-lg focus:ring-2 focus:ring-[#9B7E67]"
+                        className="w-full pl-8 pr-3 py-2.5 bg-[#F9F7F4] border-none rounded-xl text-[#23211F] font-medium text-sm focus:ring-2 focus:ring-[#9B7E67]"
                       />
                     </div>
                   </div>
@@ -289,13 +289,13 @@ export default function AdminExperiencias() {
                     onChange={(e) => handleFoodChange(item.id, 'isActive', e.target.checked)}
                     className="w-5 h-5 rounded text-[#9B7E67] focus:ring-[#9B7E67] border-gray-300"
                   />
-                  <span className="text-base md:text-lg font-medium text-gray-600">Active</span>
+                  <span className="text-sm font-medium text-gray-600">Active</span>
                 </div>
                 <div className="flex gap-2">
                   <button 
                     onClick={() => handleSaveFood(item)}
                     disabled={saving}
-                    className="flex-1 py-3 bg-[#23211F] text-white rounded-xl font-bold text-sm md:text-base uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#9B7E67] transition-colors shadow-sm disabled:opacity-50"
+                    className="flex-1 py-3 bg-[#23211F] text-white rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#9B7E67] transition-colors shadow-sm disabled:opacity-50"
                   >
                     <Save size={16} /> Save
                   </button>
@@ -319,7 +319,7 @@ export default function AdminExperiencias() {
     <div className="max-w-5xl mx-auto space-y-8 pb-12">
       <div>
         <h2 className="text-2xl sm:text-3xl font-serif text-[#23211F]">Services & Tours</h2>
-        <p className="text-gray-500 font-light mt-1 sm:mt-2 text-base md:text-lg sm:text-base">
+        <p className="text-gray-500 font-light mt-1 sm:mt-2 text-sm sm:text-base">
           Configure prices and menus for food services and tour destinations.
         </p>
       </div>
@@ -346,7 +346,7 @@ export default function AdminExperiencias() {
           </div>
           <button 
             onClick={() => setTours([{ id: 0, name: 'New Destination', pricePerPax: 0, isActive: true }, ...tours])}
-            className="text-base md:text-lg font-bold text-[#9B7E67] hover:text-[#23211F] transition-colors"
+            className="text-sm font-bold text-[#9B7E67] hover:text-[#23211F] transition-colors"
           >
             + Add Destination
           </button>
@@ -367,7 +367,7 @@ export default function AdminExperiencias() {
                     type="text" 
                     value={tour.name}
                     onChange={(e) => handleTourChange(tour.id, 'name', e.target.value)}
-                    className="w-full bg-[#F9F7F4] border-none rounded-xl px-4 py-2.5 text-[#23211F] font-medium text-base md:text-lg focus:ring-2 focus:ring-[#9B7E67]"
+                    className="w-full bg-[#F9F7F4] border-none rounded-xl px-4 py-2.5 text-[#23211F] font-medium text-sm focus:ring-2 focus:ring-[#9B7E67]"
                   />
                 </div>
                 <div className="flex items-center justify-between gap-4">
@@ -379,7 +379,7 @@ export default function AdminExperiencias() {
                         type="number" 
                         value={tour.pricePerPax}
                         onChange={(e) => handleTourChange(tour.id, 'pricePerPax', e.target.value)}
-                        className="w-full pl-8 pr-3 py-2.5 bg-[#F9F7F4] border-none rounded-xl text-[#23211F] font-medium text-base md:text-lg focus:ring-2 focus:ring-[#9B7E67]"
+                        className="w-full pl-8 pr-3 py-2.5 bg-[#F9F7F4] border-none rounded-xl text-[#23211F] font-medium text-sm focus:ring-2 focus:ring-[#9B7E67]"
                       />
                     </div>
                   </div>
@@ -396,7 +396,7 @@ export default function AdminExperiencias() {
                 <button 
                   onClick={() => handleSaveTour(tour)}
                   disabled={saving}
-                  className="w-full py-3 bg-[#23211F] text-white rounded-xl font-bold text-sm md:text-base uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#9B7E67] transition-colors shadow-sm disabled:opacity-50"
+                  className="w-full py-3 bg-[#23211F] text-white rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#9B7E67] transition-colors shadow-sm disabled:opacity-50"
                 >
                   <Save size={16} />
                   Save Destination
@@ -411,10 +411,10 @@ export default function AdminExperiencias() {
           <table className="w-full text-left border-collapse min-w-[600px]">
             <thead>
               <tr>
-                <th className="border-b border-gray-100 p-6 text-sm md:text-base uppercase tracking-widest font-bold text-gray-400">Destination</th>
-                <th className="border-b border-gray-100 p-6 text-sm md:text-base uppercase tracking-widest font-bold text-gray-400">Price (MXN/Pax)</th>
-                <th className="border-b border-gray-100 p-6 text-sm md:text-base uppercase tracking-widest font-bold text-gray-400 text-center">Active</th>
-                <th className="border-b border-gray-100 p-6 text-sm md:text-base uppercase tracking-widest font-bold text-gray-400 text-right">Action</th>
+                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Destination</th>
+                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Price (MXN/Pax)</th>
+                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-center">Active</th>
+                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-right">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -454,7 +454,7 @@ export default function AdminExperiencias() {
                       <button 
                         onClick={() => handleSaveTour(tour)}
                         disabled={saving}
-                        className="inline-flex items-center gap-2 bg-[#23211F] text-white px-5 py-2.5 rounded-xl hover:bg-[#9B7E67] transition-colors text-base md:text-lg font-medium disabled:opacity-50 shadow-sm"
+                        className="inline-flex items-center gap-2 bg-[#23211F] text-white px-5 py-2.5 rounded-xl hover:bg-[#9B7E67] transition-colors text-sm font-medium disabled:opacity-50 shadow-sm"
                       >
                         <Save size={16} />
                         Save
@@ -478,7 +478,7 @@ export default function AdminExperiencias() {
         </div>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-8 flex flex-col md:flex-row gap-6 md:items-end">
           <div className="flex-1">
-            <label className="block text-sm md:text-base uppercase tracking-widest font-bold text-gray-500 mb-3">Minimum Guests</label>
+            <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">Minimum Guests</label>
             <input
               type="number"
               min="1"
@@ -488,7 +488,7 @@ export default function AdminExperiencias() {
             />
           </div>
           <div className="flex-1">
-            <label className="block text-sm md:text-base uppercase tracking-widest font-bold text-gray-500 mb-3">Maximum Guests</label>
+            <label className="block text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">Maximum Guests</label>
             <input
               type="number"
               min="1"
@@ -500,7 +500,7 @@ export default function AdminExperiencias() {
           <button 
             onClick={handleSaveSettings}
             disabled={saving}
-            className="inline-flex items-center justify-center gap-2 bg-[#23211F] text-white px-8 py-3 rounded-xl hover:bg-[#9B7E67] transition-colors text-base md:text-lg font-medium disabled:opacity-50 shadow-sm w-full md:w-auto h-[48px]"
+            className="inline-flex items-center justify-center gap-2 bg-[#23211F] text-white px-8 py-3 rounded-xl hover:bg-[#9B7E67] transition-colors text-sm font-medium disabled:opacity-50 shadow-sm w-full md:w-auto h-[48px]"
           >
             <Save size={16} />
             Save Settings

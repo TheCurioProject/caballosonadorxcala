@@ -207,7 +207,7 @@ export default async function AdminBookingsPage() {
     <div className="max-w-7xl mx-auto space-y-8 pb-12">
       <div className="mb-4 sm:mb-8">
         <h2 className="text-2xl sm:text-4xl font-serif text-[#23211F]">Manual Bookings</h2>
-        <p className="text-gray-500 font-light mt-1 sm:mt-2 text-base md:text-lg sm:text-base">
+        <p className="text-gray-500 font-light mt-1 sm:mt-2 text-sm sm:text-base">
           Manage and create new bookings manually.
         </p>
       </div>
@@ -233,7 +233,7 @@ export default async function AdminBookingsPage() {
           {property.bookings.filter(b => b.payment_status === 'PENDING').length > 0 && (
             <div className="bg-white rounded-2xl shadow-sm border border-orange-200 overflow-hidden">
               <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-orange-100 flex flex-col sm:flex-row justify-between sm:items-center gap-2 bg-orange-50/30">
-                <h2 className="font-serif text-orange-900 text-xl md:text-2xl sm:text-xl">Temporary Locks</h2>
+                <h2 className="font-serif text-orange-900 text-lg sm:text-xl">Temporary Locks</h2>
                 <div className="flex gap-2">
                   <ClearPendingButton />
                   <ClearPendingButton all={true} label="Clear All" />
@@ -245,7 +245,7 @@ export default async function AdminBookingsPage() {
                 {property.bookings.filter(b => b.payment_status === 'PENDING').map((b: any) => (
                   <div key={b.id} className="p-4 flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="font-bold text-base md:text-lg text-orange-900 truncate">{b.guestName}</p>
+                      <p className="font-bold text-sm text-orange-900 truncate">{b.guestName}</p>
                       <p className="text-[11px] text-orange-600 mt-0.5">{formatDate(b.createdAt)}</p>
                     </div>
                     <DeleteBookingButton bookingId={b.id} />
@@ -263,7 +263,7 @@ export default async function AdminBookingsPage() {
                       <th className="py-4 px-6 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-orange-50 text-base md:text-lg">
+                  <tbody className="divide-y divide-orange-50 text-sm">
                     {property.bookings.filter(b => b.payment_status === 'PENDING').map((b: any) => (
                       <tr key={b.id} className="hover:bg-orange-50/30 transition-colors">
                         <td className="py-4 px-6 font-medium text-orange-900">
@@ -286,7 +286,7 @@ export default async function AdminBookingsPage() {
           {/* Active Bookings */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-50 flex justify-between items-center">
-              <h2 className="font-serif text-[#23211F] text-xl md:text-2xl sm:text-xl">Upcoming Bookings</h2>
+              <h2 className="font-serif text-[#23211F] text-lg sm:text-xl">Upcoming Bookings</h2>
               <span className="text-[9px] sm:text-xs text-gray-400 uppercase tracking-widest font-bold">Total: {property.bookings.filter(b => b.payment_status !== 'PENDING').length}</span>
             </div>
             
@@ -296,7 +296,7 @@ export default async function AdminBookingsPage() {
                 <div key={b.id} className="p-4 space-y-2.5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <p className="font-bold text-base md:text-lg text-[#23211F] truncate">{b.guestName}</p>
+                      <p className="font-bold text-sm text-[#23211F] truncate">{b.guestName}</p>
                       {b.idCardUrl && (
                         <a href={b.idCardUrl} target="_blank" rel="noopener noreferrer" className="text-[10px] text-blue-500 hover:underline font-bold uppercase tracking-widest">View ID</a>
                       )}
@@ -308,13 +308,13 @@ export default async function AdminBookingsPage() {
                       {getOriginDisplay(b).label}
                     </span>
                   </div>
-                  <p className="text-sm md:text-base text-gray-500 pt-1 border-t border-gray-100">
+                  <p className="text-xs text-gray-500 pt-1 border-t border-gray-100">
                     {formatDate(b.checkIn)} — {formatDate(b.checkOut)}
                   </p>
                 </div>
               ))}
               {property.bookings.filter(b => b.payment_status !== 'PENDING').length === 0 && (
-                <div className="py-8 text-center text-base md:text-lg text-gray-400 italic">No upcoming bookings.</div>
+                <div className="py-8 text-center text-sm text-gray-400 italic">No upcoming bookings.</div>
               )}
             </div>
             
@@ -329,7 +329,7 @@ export default async function AdminBookingsPage() {
                     <th className="py-4 px-6 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50 text-base md:text-lg">
+                <tbody className="divide-y divide-gray-50 text-sm">
                   {property.bookings.filter(b => b.payment_status !== 'PENDING').map((b: any) => (
                     <tr key={b.id} className="hover:bg-gray-50 transition-colors">
                       <td className="py-4 px-6 font-medium text-[#23211F]">
@@ -353,7 +353,7 @@ export default async function AdminBookingsPage() {
                       </td>
                     </tr>
                   ))}
-                  {property.bookings.filter(b => b.payment_status !== 'PENDING').length === 0 && <tr><td colSpan={4} className="py-8 text-center text-base md:text-lg text-gray-400 italic">No upcoming bookings.</td></tr>}
+                  {property.bookings.filter(b => b.payment_status !== 'PENDING').length === 0 && <tr><td colSpan={4} className="py-8 text-center text-sm text-gray-400 italic">No upcoming bookings.</td></tr>}
                 </tbody>
               </table>
             </div>

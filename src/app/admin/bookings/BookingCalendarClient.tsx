@@ -284,7 +284,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
           >
             <Loader2 className="w-10 h-10 text-[#9B7E67] animate-spin mb-4" />
             <p className="text-[#23211F] font-serif text-xl">Processing booking...</p>
-            <p className="text-gray-500 text-base md:text-lg uppercase tracking-widest font-bold mt-2">Please wait</p>
+            <p className="text-gray-500 text-sm uppercase tracking-widest font-bold mt-2">Please wait</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -382,7 +382,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                   >
                     {isCurrentMonth && (
                       <div className="relative flex items-center justify-center w-full h-full">
-                        <span className={`text-sm md:text-base sm:text-sm ${textClass}`}>
+                        <span className={`text-xs sm:text-sm ${textClass}`}>
                           {format(day, 'd')}
                         </span>
                         {hasPriceRule && (
@@ -441,19 +441,19 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
       <div className="flex bg-gray-100 p-1 rounded-xl mx-auto w-full max-w-lg mb-2">
         <button
           onClick={() => setActiveTab('booking')}
-          className={`flex-1 py-2 text-sm md:text-base font-bold rounded-lg transition-colors uppercase tracking-widest ${activeTab === 'booking' ? 'bg-white shadow-sm text-[#23211F]' : 'text-gray-500 hover:text-gray-700'}`}
+          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors uppercase tracking-widest ${activeTab === 'booking' ? 'bg-white shadow-sm text-[#23211F]' : 'text-gray-500 hover:text-gray-700'}`}
         >
           New Booking
         </button>
         <button
           onClick={() => setActiveTab('block')}
-          className={`flex-1 py-2 text-sm md:text-base font-bold rounded-lg transition-colors uppercase tracking-widest ${activeTab === 'block' ? 'bg-white shadow-sm text-[#23211F]' : 'text-gray-500 hover:text-gray-700'}`}
+          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors uppercase tracking-widest ${activeTab === 'block' ? 'bg-white shadow-sm text-[#23211F]' : 'text-gray-500 hover:text-gray-700'}`}
         >
           Block Dates
         </button>
         <button
           onClick={() => setActiveTab('price')}
-          className={`flex-1 py-2 text-sm md:text-base font-bold rounded-lg transition-colors uppercase tracking-widest ${activeTab === 'price' ? 'bg-white shadow-sm text-[#23211F]' : 'text-gray-500 hover:text-gray-700'}`}
+          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors uppercase tracking-widest ${activeTab === 'price' ? 'bg-white shadow-sm text-[#23211F]' : 'text-gray-500 hover:text-gray-700'}`}
         >
           Manual Price
         </button>
@@ -483,7 +483,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                 <button
                   type="button"
                   onClick={() => handleManualDownload(createdBooking.id)}
-                  className="w-full py-3.5 px-4 rounded-xl border border-[#9B7E67] text-[#9B7E67] hover:bg-[#9B7E67] hover:text-white transition-all font-bold text-sm md:text-base tracking-widest uppercase flex items-center justify-center gap-2 shadow-sm"
+                  className="w-full py-3.5 px-4 rounded-xl border border-[#9B7E67] text-[#9B7E67] hover:bg-[#9B7E67] hover:text-white transition-all font-bold text-xs tracking-widest uppercase flex items-center justify-center gap-2 shadow-sm"
                 >
                   <Download className="w-4 h-4" />
                   Download PDF Invoice
@@ -516,14 +516,14 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                         setCheckIn(null);
                         setCheckOut(null);
                       }}
-                      className="flex-1 py-4 rounded-xl font-bold text-sm md:text-base tracking-widest uppercase text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors"
+                      className="flex-1 py-4 rounded-xl font-bold text-xs tracking-widest uppercase text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors"
                     >
                       Skip
                     </button>
                     <button 
                       onClick={handleSendInvoice}
                       disabled={isSendingInvoice || !invoiceEmail}
-                      className="flex-1 py-4 rounded-xl font-bold text-sm md:text-base tracking-widest uppercase text-white bg-[#9B7E67] hover:bg-[#23211F] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                      className="flex-1 py-4 rounded-xl font-bold text-xs tracking-widest uppercase text-white bg-[#9B7E67] hover:bg-[#23211F] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                       {isSendingInvoice ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                       {isSendingInvoice ? 'Sending...' : 'Send PDF'}
@@ -557,7 +557,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <User className="h-4 w-4 text-gray-400" />
                       </div>
-                      <input type="text" name="guestName" required placeholder="e.g., John Doe" className="w-full border border-gray-200 rounded-xl pl-10 px-3 py-3 text-[#23211F] text-base md:text-lg focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all" />
+                      <input type="text" name="guestName" required placeholder="e.g., John Doe" className="w-full border border-gray-200 rounded-xl pl-10 px-3 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all" />
                     </div>
                   </div>
 
@@ -567,7 +567,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <Mail className="h-4 w-4 text-gray-400" />
                       </div>
-                      <input type="email" name="guestEmail" placeholder="john@example.com" className="w-full border border-gray-200 rounded-xl pl-10 px-3 py-3 text-[#23211F] text-base md:text-lg focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all" />
+                      <input type="email" name="guestEmail" placeholder="john@example.com" className="w-full border border-gray-200 rounded-xl pl-10 px-3 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all" />
                     </div>
                   </div>
                 </div>
@@ -579,7 +579,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <Phone className="h-4 w-4 text-gray-400" />
                       </div>
-                      <input type="tel" name="guestPhone" placeholder="+1 234 567 8900" className="w-full border border-gray-200 rounded-xl pl-10 px-3 py-3 text-[#23211F] text-base md:text-lg focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all" />
+                      <input type="tel" name="guestPhone" placeholder="+1 234 567 8900" className="w-full border border-gray-200 rounded-xl pl-10 px-3 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all" />
                     </div>
                   </div>
 
@@ -589,7 +589,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <ImageIcon className="h-4 w-4 text-gray-400" />
                       </div>
-                      <input type="file" name="idCard" accept="image/*" className="w-full border border-gray-200 rounded-xl pl-10 px-3 py-2 text-gray-500 text-base md:text-lg focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] bg-white transition-all file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100" />
+                      <input type="file" name="idCard" accept="image/*" className="w-full border border-gray-200 rounded-xl pl-10 px-3 py-2 text-gray-500 text-sm focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] bg-white transition-all file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100" />
                     </div>
                   </div>
                 </div>
@@ -603,7 +603,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                           key={c}
                           type="button"
                           onClick={() => setDepositCurrency(c)}
-                          className={`flex-1 py-2 text-sm md:text-base font-bold rounded-lg transition-colors ${depositCurrency === c ? 'bg-white shadow-sm text-[#23211F]' : 'text-gray-500 hover:text-gray-700'}`}
+                          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${depositCurrency === c ? 'bg-white shadow-sm text-[#23211F]' : 'text-gray-500 hover:text-gray-700'}`}
                         >
                           {c}
                         </button>
@@ -618,14 +618,14 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                       <button
                         type="button"
                         onClick={() => setDepositType('percentage')}
-                        className={`flex-1 py-2 text-sm md:text-base font-bold rounded-lg transition-colors ${depositType === 'percentage' ? 'bg-white shadow-sm text-[#23211F]' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${depositType === 'percentage' ? 'bg-white shadow-sm text-[#23211F]' : 'text-gray-500 hover:text-gray-700'}`}
                       >
                         Percentage (%)
                       </button>
                       <button
                         type="button"
                         onClick={() => setDepositType('fixed')}
-                        className={`flex-1 py-2 text-sm md:text-base font-bold rounded-lg transition-colors ${depositType === 'fixed' ? 'bg-white shadow-sm text-[#23211F]' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${depositType === 'fixed' ? 'bg-white shadow-sm text-[#23211F]' : 'text-gray-500 hover:text-gray-700'}`}
                       >
                         Fixed ({depositCurrency})
                       </button>
@@ -640,7 +640,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                       value={depositValue === 0 && depositType === 'percentage' ? '' : depositValue}
                       onChange={(e) => setDepositValue(parseFloat(e.target.value) || 0)}
                       placeholder={depositType === 'percentage' ? '50' : '0'} 
-                      className="w-full border border-gray-200 rounded-xl px-3 py-3 text-[#23211F] text-base md:text-lg focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all" 
+                      className="w-full border border-gray-200 rounded-xl px-3 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all" 
                     />
                   </div>
                 </div>
@@ -653,7 +653,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                       </div>
                       <div>
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Estimated Cost ({checkIn && checkOut ? differenceInDays(checkOut, checkIn) : 0} nights)</p>
-                        <p className="text-sm md:text-base text-gray-500">At ${basePrice.toLocaleString('es-MX')} MXN per night</p>
+                        <p className="text-xs text-gray-500">At ${basePrice.toLocaleString('es-MX')} MXN per night</p>
                       </div>
                     </div>
                     <div className="relative w-full sm:w-1/3">
@@ -664,7 +664,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                         value={calculatedPrice || ''} 
                         onChange={(e) => setCalculatedPrice(parseFloat(e.target.value))}
                         placeholder="0" 
-                        className="w-full border border-[#D4C3AB] bg-white rounded-xl pl-7 pr-3 py-2 text-right text-[#23211F] text-xl md:text-2xl font-serif focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all" 
+                        className="w-full border border-[#D4C3AB] bg-white rounded-xl pl-7 pr-3 py-2 text-right text-[#23211F] text-lg font-serif focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all" 
                       />
                     </div>
                   </div>
@@ -673,7 +673,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                 <button 
                   type="submit" 
                   disabled={!checkIn || !checkOut || isPending}
-                  className={`w-full py-4 rounded-xl font-bold text-sm md:text-base tracking-widest uppercase transition-all duration-300 mt-4 flex justify-center items-center gap-2 ${
+                  className={`w-full py-4 rounded-xl font-bold text-xs tracking-widest uppercase transition-all duration-300 mt-4 flex justify-center items-center gap-2 ${
                     !checkIn || !checkOut || isPending
                       ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
                       : 'bg-[#9B7E67] hover:bg-[#23211F] text-white shadow-md hover:shadow-lg'
@@ -692,7 +692,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                     <Lock className="w-5 h-5 text-red-500" />
                     Block Dates
                   </h3>
-                  <p className="text-base md:text-lg text-gray-500">Select a date or range in the calendar to block or unblock it.</p>
+                  <p className="text-sm text-gray-500">Select a date or range in the calendar to block or unblock it.</p>
                   
                   <div className="flex gap-4">
                     <button 
@@ -700,7 +700,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                       name="action"
                       value="BLOCK"
                       disabled={!checkIn || !checkOut || isPending}
-                      className="flex-1 py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-sm md:text-base tracking-widest uppercase transition-colors disabled:opacity-50"
+                      className="flex-1 py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-xs tracking-widest uppercase transition-colors disabled:opacity-50"
                     >
                       {isPending ? <Loader2 className="w-4 h-4 animate-spin inline mr-2" /> : null}
                       Block Selected
@@ -710,7 +710,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                       name="action"
                       value="UNBLOCK"
                       disabled={!checkIn || !checkOut || isPending}
-                      className="flex-1 py-4 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-bold text-sm md:text-base tracking-widest uppercase transition-colors disabled:opacity-50"
+                      className="flex-1 py-4 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-bold text-xs tracking-widest uppercase transition-colors disabled:opacity-50"
                     >
                       {isPending ? <Loader2 className="w-4 h-4 animate-spin inline mr-2" /> : null}
                       Unblock
@@ -725,7 +725,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                     <DollarSign className="w-5 h-5 text-green-600" />
                     Manual Price Override
                   </h3>
-                  <p className="text-base md:text-lg text-gray-500">Set a custom price per night for the selected dates. Base price is ${basePrice}.</p>
+                  <p className="text-sm text-gray-500">Set a custom price per night for the selected dates. Base price is ${basePrice}.</p>
                   
                   <div>
                     <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">New Price per Night</label>
@@ -739,7 +739,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                         value={manualPrice}
                         onChange={e => setManualPrice(parseFloat(e.target.value) || 0)}
                         required 
-                        className="w-full border border-gray-200 rounded-xl pl-8 px-3 py-3 text-[#23211F] font-bold text-base md:text-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all" 
+                        className="w-full border border-gray-200 rounded-xl pl-8 px-3 py-3 text-[#23211F] font-bold text-sm focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all" 
                       />
                     </div>
                   </div>
@@ -750,7 +750,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                       name="action"
                       value="SET_PRICE"
                       disabled={!checkIn || !checkOut || isPending}
-                      className="flex-1 py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold text-sm md:text-base tracking-widest uppercase transition-colors disabled:opacity-50"
+                      className="flex-1 py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold text-xs tracking-widest uppercase transition-colors disabled:opacity-50"
                     >
                       {isPending ? <Loader2 className="w-4 h-4 animate-spin inline mr-2" /> : null}
                       Save Price
@@ -760,7 +760,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                       name="action"
                       value="CLEAR_PRICE"
                       disabled={!checkIn || !checkOut || isPending}
-                      className="flex-1 py-4 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-bold text-sm md:text-base tracking-widest uppercase transition-colors disabled:opacity-50"
+                      className="flex-1 py-4 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-bold text-xs tracking-widest uppercase transition-colors disabled:opacity-50"
                     >
                       {isPending ? <Loader2 className="w-4 h-4 animate-spin inline mr-2" /> : null}
                       Clear Override

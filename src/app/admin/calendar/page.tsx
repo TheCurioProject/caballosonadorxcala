@@ -53,7 +53,7 @@ export default async function AdminCalendarPage() {
     <div className="max-w-[1400px] mx-auto px-6 py-12">
       <div className="mb-12">
         <h1 className="text-4xl font-serif text-[#23211F] mb-4">Calendar & Pricing</h1>
-        <p className="text-gray-500 font-light text-xl md:text-2xl">
+        <p className="text-gray-500 font-light text-lg">
           Manage bookings, block dates, and adjust daily rates for your property.
         </p>
       </div>

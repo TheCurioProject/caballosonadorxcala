@@ -51,7 +51,7 @@ export function AdminToast({
             className={`flex items-center gap-3 px-5 py-4 rounded-xl border shadow-xl backdrop-blur-xl max-w-md ${getBorderColor()}`}
           >
             <div className="flex-shrink-0">{getIcon()}</div>
-            <p className="text-base md:text-lg font-medium leading-snug flex-1">{message}</p>
+            <p className="text-sm font-medium leading-snug flex-1">{message}</p>
             <button
               onClick={onClose}
               className="p-1 rounded-lg hover:bg-white/10 transition-colors"
