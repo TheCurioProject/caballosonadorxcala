@@ -884,9 +884,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   };
 
   const showBackButton = () => {
-    if (step === 'food_prompt' && wantsCook !== null) return false;
-    if (step === 'tours' && wantsATV !== null) return false;
     return true;
+  };
+
+  const getBackButtonAction = () => {
+    if (step === 'food_prompt' && wantsCook !== null) return () => setWantsCook(null);
+    if (step === 'tours' && wantsATV !== null) return () => setWantsATV(null);
+    return prevStep;
   };
 
   const handleWantsCook = (wants: boolean) => {
@@ -1001,8 +1005,9 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 </svg>
                 <div className="absolute inset-0 bg-gradient-to-br from-[#23211F]/50 via-transparent to-[#23211F]" />
               </div>
-              <div className="relative z-10">
+              <div className="relative z-10 flex-1 flex flex-col min-h-0">
                 <motion.div
+                  className="shrink-0"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
@@ -1017,7 +1022,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.5 }}
-                  className="mt-12 space-y-6"
+                  className="mt-8 space-y-6 flex-1 overflow-y-auto custom-scrollbar pr-4 pb-4"
                 >
                   <div className="flex items-start gap-4 text-base md:text-lg font-light text-gray-300">
                     <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
@@ -1067,7 +1072,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 </motion.div>
               </div>
 
-              <div className="relative z-10 pt-12 mt-auto border-t border-white/10">
+              <div className="relative z-10 pt-8 mt-auto border-t border-white/10 shrink-0">
                 <div className="flex justify-between items-end mb-2">
                   <div className="flex flex-col gap-1">
                     <p className="text-base uppercase tracking-widest font-bold text-gray-400">{dict.modal?.total} {nights > 0 && `(${nights} ${dict.modal?.nights})`}</p>
@@ -1092,7 +1097,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
               {/* Mobile Fixed Header */}
               <div className="shrink-0 z-20 p-6 pb-2 md:hidden relative bg-[#F9F7F4]">
                 {currentStepIndex > 1 && showBackButton() && (
-                  <PremiumButton variant="back" onClick={prevStep} backText={getBackButtonText()} />
+                  <PremiumButton variant="back" onClick={getBackButtonAction()} backText={getBackButtonText()} />
                 )}
                 {currentStepIndex <= totalStepsCount && <StepIndicator currentStep={currentStepIndex} totalSteps={totalStepsCount} />}
               </div>
@@ -1101,7 +1106,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 {/* Desktop Header */}
                 <div className="shrink-0 z-10 hidden md:block">
                   {currentStepIndex > 1 && showBackButton() && (
-                    <PremiumButton variant="back" onClick={prevStep} backText={getBackButtonText()} />
+                    <PremiumButton variant="back" onClick={getBackButtonAction()} backText={getBackButtonText()} />
                   )}
                   {currentStepIndex <= totalStepsCount && <StepIndicator currentStep={currentStepIndex} totalSteps={totalStepsCount} />}
                 </div>
