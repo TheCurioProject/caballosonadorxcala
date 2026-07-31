@@ -1518,6 +1518,15 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                         });
                                       } else {
                                         setSelectedDateForMenu(dateStr);
+                                        const preSelectedDish = dishesByDate[dateStr];
+                                        if (preSelectedDish) {
+                                          setExpandedDishId(preSelectedDish);
+                                          setTimeout(() => {
+                                            document.getElementById(`dish-${preSelectedDish}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                          }, 150);
+                                        } else {
+                                          setExpandedDishId(null);
+                                        }
                                       }
                                     }}
                                     className={`shrink-0 flex flex-col items-center justify-center min-w-[80px] p-3 rounded-2xl border transition-all ${
@@ -1561,6 +1570,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                 return (
                                   <motion.div 
                                     layout
+                                    id={`dish-${dish.id}`}
                                     key={dish.id} 
                                     className={`bg-white border rounded-[2rem] overflow-hidden shadow-sm transition-colors ${isSelected ? 'border-[#9B7E67] ring-1 ring-[#9B7E67]' : 'border-gray-100 hover:border-gray-200'}`}
                                   >
@@ -1614,7 +1624,10 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                                         const dates = stayDates.map(d => d.toISOString().split('T')[0]);
                                                         const nextEmpty = dates.find(d => !next[d]);
                                                         if (nextEmpty) {
-                                                          setTimeout(() => setSelectedDateForMenu(nextEmpty), 400);
+                                                          setTimeout(() => {
+                                                            setSelectedDateForMenu(nextEmpty);
+                                                            setExpandedDishId(null);
+                                                          }, 400);
                                                         }
                                                       }
 
