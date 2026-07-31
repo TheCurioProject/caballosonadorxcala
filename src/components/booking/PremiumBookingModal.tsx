@@ -542,6 +542,14 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [countryCode, setCountryCode] = useState('+52');
   const [guestPhone, setGuestPhone] = useState('');
   
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isMobile && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [step, isMobile]);
+
   // Extras state
   const [foodServices, setFoodServices] = useState<any[]>([]);
   const [tours, setTours] = useState<any[]>([]);
@@ -1104,7 +1112,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 {currentStepIndex <= totalStepsCount && <StepIndicator currentStep={currentStepIndex} totalSteps={totalStepsCount} />}
               </div>
 
-              <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 pb-6 md:p-12 md:pb-12 scroll-smooth flex flex-col relative custom-scrollbar overscroll-contain [-webkit-overflow-scrolling:touch]">
+              <div ref={scrollContainerRef} id="scroll-container" className="flex-1 overflow-y-auto overflow-x-hidden p-6 pb-6 md:p-12 md:pb-12 scroll-smooth flex flex-col relative custom-scrollbar overscroll-contain [-webkit-overflow-scrolling:touch]">
                 {/* Desktop Header */}
                 <div className="shrink-0 z-10 hidden md:block">
                   {currentStepIndex > 1 && showBackButton() && (
@@ -1804,7 +1812,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                 value={atvSelections[tour.id.toString()] || 0} 
                                 onChange={(val) => handleAtvChange(tour.id.toString(), val)} 
                                 max={(atvSelections[tour.id.toString()] || 0) + (nights - totalAtvTours)} 
-                                sublabel={`+${formatPrice(tour.pricePerPax)} / pax`} 
+                                sublabel={`+${formatPrice(tour.pricePerPax)} / ${isEn ? 'Guest' : 'Persona'}`} 
                               />
                             ))}
                           </div>
@@ -1948,7 +1956,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                   const price = service ? selectedDaysCount * getConvertedPrice(service.price) : 0;
                                   return (
                                     <div className="flex justify-between text-lg md:text-xl text-gray-600 mb-1">
-                                      <span className="font-medium text-[#9B7E67]">{selectedDaysCount}x {translateDB(selectedCookService.name, isEn)} ({dinnerGroupSize} pax)</span>
+                                      <span className="font-medium text-[#9B7E67]">{selectedDaysCount}x {translateDB(selectedCookService.name, isEn)} ({dinnerGroupSize} {isEn ? 'Guests' : 'Personas'})</span>
                                       <span className="font-bold text-[#9B7E67]">{formatPrice(price)}</span>
                                     </div>
                                   );
@@ -2000,7 +2008,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                   if (tour) {
                                     return (
                                       <div key={id} className="flex justify-between text-lg md:text-xl text-gray-600 mb-1">
-                                        <span>{count}x {atvPeople} pax - {translateDB(tour.name, isEn)}</span>
+                                        <span>{count}x {atvPeople} {isEn ? 'Guests' : 'Personas'} - {translateDB(tour.name, isEn)}</span>
                                         <span>${(count * atvPeople * (tour.pricePerPax || 0)).toLocaleString('en-US')}</span>
                                       </div>
                                     );

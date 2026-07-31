@@ -203,7 +203,7 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
             
             let name = detailsObj.service || detailsObj.plan || detailsObj.name || (addon.type.includes('DISH') ? 'Platillo / Dish' : 'Servicio / Service');
             if (detailsObj.groupSize) {
-              name += ` (${detailsObj.groupSize} pax)`;
+              name += ` (${detailsObj.groupSize} Personas / Guests)`;
             }
             if (detailsObj.date) {
               name += ` - ${detailsObj.date}`;
@@ -236,7 +236,7 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
             const pax = detailsObj.people || addon.quantity;
             return (
               <View key={i} style={styles.row}>
-                <Text style={styles.label}>{pax} pax - {name}</Text>
+                <Text style={styles.label}>{pax} Personas / Guests - {name}</Text>
                 <Text style={styles.value}>${addon.price.toLocaleString('es-MX')} {depositCurrency}</Text>
               </View>
             );

@@ -372,7 +372,7 @@ export default function AdminExperiencias() {
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex-1">
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Price (MXN/Pax)</label>
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Price (MXN/Person)</label>
                     <div className="relative">
                       <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
                       <input 
@@ -412,7 +412,7 @@ export default function AdminExperiencias() {
             <thead>
               <tr>
                 <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Destination</th>
-                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Price (MXN/Pax)</th>
+                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Price (MXN/Person)</th>
                 <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-center">Active</th>
                 <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-right">Action</th>
               </tr>

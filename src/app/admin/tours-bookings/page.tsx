@@ -120,7 +120,7 @@ export default async function AdminToursBookingsPage() {
                 </div>
                 <p className="text-xs text-gray-500 pt-1 border-t border-gray-100 flex justify-between">
                   <span>{formatDate(b.startDate)}</span>
-                  <span className="font-medium">Guests: {b.pax}</span>
+                  <span className="font-medium">Personas / Guests: {b.pax}</span>
                 </p>
               </div>
             )
@@ -138,7 +138,7 @@ export default async function AdminToursBookingsPage() {
                 <th className="py-4 px-6">Guest</th>
                 <th className="py-4 px-6">Tour Date</th>
                 <th className="py-4 px-6">Destination</th>
-                <th className="py-4 px-6 text-center">Pax</th>
+                <th className="py-4 px-6 text-center">Personas / Guests</th>
                 <th className="py-4 px-6 text-right">Action</th>
               </tr>
             </thead>
