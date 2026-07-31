@@ -945,7 +945,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[200] flex items-end justify-center md:items-center p-0 md:p-4 touch-none perspective-[1000px]">
+        <div className="fixed inset-0 z-[200] flex items-end justify-center md:items-center p-0 md:p-2 lg:p-6 touch-none perspective-[1000px]">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
@@ -972,7 +972,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 onClose();
               }
             }}
-            className="relative w-full max-w-5xl bg-[#F9F7F4] rounded-t-[2rem] md:rounded-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.2)] md:shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[100dvh] h-[100dvh] md:h-[650px] mt-auto md:mt-0 z-10"
+            className="relative w-full lg:max-w-6xl bg-[#F9F7F4] rounded-t-[2rem] md:rounded-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.2)] md:shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[100dvh] h-[100dvh] md:h-auto md:min-h-[600px] lg:min-h-[650px] md:max-h-[96dvh] lg:max-h-[90dvh] mt-auto md:mt-0 z-10"
           >
             {isMobile && (
               <div
@@ -1816,7 +1816,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-full flex flex-col flex-1"
+                      className="h-full flex flex-col flex-1"
                     >
                       <h3 className="text-3xl font-serif text-[#23211F] mb-8 shrink-0">{dict.modal?.yourData || (isEn ? 'Your Data' : 'Tus Datos')}</h3>
                       
@@ -1825,7 +1825,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           e.preventDefault(); 
                           if (isFormValid) nextStep(); 
                         }} 
-                        className="space-y-6 flex-1 pb-4"
+                        className="space-y-6 flex-1 overflow-y-auto pb-40 md:pb-4 custom-scrollbar px-1 -mx-1"
                       >
                         <PremiumInput
                           id="name"
