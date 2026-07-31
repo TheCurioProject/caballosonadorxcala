@@ -1473,14 +1473,14 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                 <button
                                   key={size}
                                   onClick={() => setDinnerGroupSize(prev => prev === size ? '' : size)}
-                                  className={`flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-xl border-2 transition-all font-bold tracking-widest text-base md:text-lg uppercase ${
+                                  className={`flex-1 flex flex-col items-center justify-center py-4 px-4 rounded-xl border-2 transition-all font-bold tracking-widest text-base md:text-lg uppercase ${
                                     dinnerGroupSize === size 
                                       ? 'border-[#9B7E67] bg-[#9B7E67] text-white shadow-md' 
                                       : 'border-gray-200 bg-white text-gray-500 hover:border-[#9B7E67] hover:text-[#9B7E67]'
                                   }`}
                                 >
                                   <span>{size} {isEn ? 'People' : 'Personas'}</span>
-                                  <span className={`text-[10px] md:text-[11px] mt-1 normal-case ${dinnerGroupSize === size ? 'text-white/80' : 'text-gray-400'}`}>
+                                  <span className={`text-sm md:text-base mt-2 normal-case font-bold ${dinnerGroupSize === size ? 'text-white' : 'text-[#9B7E67]'}`}>
                                     +{formatPrice(servicePrice)} / {isEn ? 'day' : 'día'}
                                   </span>
                                 </button>
