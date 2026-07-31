@@ -492,7 +492,11 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
               </div>
               <h4 className="font-serif text-2xl text-[#F9F7F4] mb-4">{lang === 'en' ? 'Private Tours' : 'Tour Privado'}</h4>
               <p className="font-light text-[#F9F7F4]/60 leading-relaxed text-base md:text-lg">
-                {lang === 'en' ? 'Looking for a private tour? Contact us on WhatsApp to arrange a personalized experience tailored to your needs.' : '¿Buscas un Tour Privado? Escríbenos por WhatsApp para organizar un recorrido personalizado a tu medida.'}
+                {lang === 'en' ? (
+                  <>Staying in Chacala but not with us?<br />Contact us directly via WhatsApp for availability to reserve your tour.</>
+                ) : (
+                  <>¿Te hospedas en Chacala pero no con nosotros?<br />Contáctanos directamente vía WhatsApp para consultar disponibilidad y reservar tu tour.</>
+                )}
               </p>
               <div className="mt-8">
                 <span className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full border border-[#25D366] text-[#25D366] font-bold uppercase tracking-widest text-sm transition-all duration-300 group-hover:bg-[#25D366] group-hover:text-[#131110]">
