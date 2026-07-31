@@ -972,7 +972,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 onClose();
               }
             }}
-            className="relative w-full lg:max-w-6xl bg-[#F9F7F4] rounded-t-[2rem] md:rounded-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.2)] md:shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[100dvh] h-[100dvh] md:h-auto md:min-h-[600px] lg:min-h-[650px] md:max-h-[96dvh] lg:max-h-[90dvh] mt-auto md:mt-0 z-10"
+            className="relative w-full lg:max-w-6xl bg-[#F9F7F4] rounded-t-[2rem] md:rounded-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.2)] md:shadow-2xl overflow-hidden flex flex-col md:flex-row h-[100dvh] max-h-[100dvh] md:h-[650px] lg:h-[750px] md:max-h-[90vh] mt-auto md:mt-0 z-10"
           >
             {isMobile && (
               <div
@@ -991,7 +991,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
             </button>
 
             {/* Left Panel */}
-            <div className="hidden md:flex w-5/12 bg-[#23211F] text-[#F9F7F4] flex-col justify-between p-12 relative overflow-hidden shrink-0">
+            <div className="hidden md:flex w-5/12 bg-[#23211F] text-[#F9F7F4] flex-col justify-between p-12 relative overflow-hidden shrink-0 min-h-0">
               <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 <svg viewBox="0 0 800 1200" preserveAspectRatio="xMidYMid slice" className="w-full h-full opacity-10">
                   <path d="M-100,200 C200,0 600,400 900,200" fill="none" stroke="#F9F7F4" strokeWidth="2" />
@@ -1093,7 +1093,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
             </div>
 
             {/* Right Panel */}
-            <div className="w-full md:w-7/12 flex flex-col h-full bg-[#F9F7F4] text-[#23211F] relative">
+            <div className="w-full md:w-7/12 flex flex-col h-full bg-[#F9F7F4] text-[#23211F] relative min-h-0">
               {/* Mobile Fixed Header */}
               <div className="shrink-0 z-20 p-6 pb-2 md:hidden relative bg-[#F9F7F4]">
                 {currentStepIndex > 1 && showBackButton() && (
