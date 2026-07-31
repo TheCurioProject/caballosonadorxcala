@@ -1118,7 +1118,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-full flex flex-col flex-1"
+                      className="min-h-full flex flex-col flex-grow shrink-0 w-full"
                     >
                       <div className="mb-6 shrink-0">
                         <h3 className="text-2xl font-serif text-[#23211F]">{dict.modal?.selectDates}</h3>
@@ -1196,7 +1196,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-full flex flex-col flex-1"
+                      className="min-h-full flex flex-col flex-grow shrink-0 w-full"
                     >
                       <div className="shrink-0 mb-8">
                         <div className="flex items-center justify-between mb-4">
@@ -1232,7 +1232,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-full flex flex-col flex-1"
+                      className="min-h-full flex flex-col flex-grow shrink-0 w-full"
                     >
                       <div className="shrink-0 mb-8">
                         <div className="flex items-center justify-between mb-4">
@@ -1245,7 +1245,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </h3>
                       </div>
 
-                      <div className="space-y-6 flex-1 pb-4">
+                      <div className="space-y-6 flex-grow shrink-0 pb-4 w-full">
                         <div className="grid gap-3">
                           {foodServices.filter(s => s.serviceType === 'FOOD_SERVICE').map(service => (
                             <button 
@@ -1277,7 +1277,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-full flex flex-col flex-1"
+                      className="min-h-full flex flex-col flex-grow shrink-0 w-full"
                     >
                       <div className="shrink-0 mb-6">
                         <div className="flex items-center justify-between mb-4">
@@ -1362,7 +1362,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </div>
                       </div>
 
-                      <div className="space-y-6 flex-1 pb-8">
+                      <div className="space-y-6 flex-grow shrink-0 pb-8 w-full">
                         {selectedDateForPlan && (
                           <div className="space-y-3 mb-8">
                             {foodServices.filter(s => s.serviceType === 'FOOD_PRICE' && !isDinnerSizeOption(s.name)).map(priceOption => {
@@ -1434,7 +1434,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-full flex flex-col flex-1"
+                      className="min-h-full flex flex-col flex-grow shrink-0 w-full"
                     >
                       <div className="mb-6 shrink-0 flex items-center gap-4">
                         <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] shadow-sm border border-[#E8D5B7]">
@@ -1737,7 +1737,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-full flex flex-col flex-1"
+                      className="min-h-full flex flex-col flex-grow shrink-0 w-full"
                     >
                       <div className="mb-6 shrink-0">
                         <div className="w-12 h-12 bg-[#F9F7F4] rounded-full flex items-center justify-center text-[#9B7E67] mb-4 shadow-sm border border-[#E8D5B7]">
@@ -1793,7 +1793,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             </div>
                           </div>
                           
-                          <div className="flex-1 space-y-3 pb-4">
+                          <div className="flex-grow shrink-0 space-y-3 pb-4 w-full">
                             <p className="font-bold text-lg md:text-xl text-[#23211F] mb-2">{dict.addons?.selectDestination}</p>
                             {tours.map(tour => (
                               <Counter 
@@ -1829,7 +1829,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="h-full flex flex-col flex-1"
+                      className="min-h-full flex flex-col flex-grow shrink-0 w-full"
                     >
                       <h3 className="text-3xl font-serif text-[#23211F] mb-8 shrink-0">{dict.modal?.yourData || (isEn ? 'Your Data' : 'Tus Datos')}</h3>
                       
@@ -1838,7 +1838,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           e.preventDefault(); 
                           if (isFormValid) nextStep(); 
                         }} 
-                        className="space-y-6 flex-1 pb-12 md:pb-4"
+                        className="space-y-6 flex-grow shrink-0 pb-12 md:pb-4 w-full"
                       >
                         <PremiumInput
                           id="name"
@@ -1909,7 +1909,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-full flex flex-col flex-1"
+                      className="min-h-full flex flex-col flex-grow shrink-0 w-full"
                     >
                       {showConfetti && Array.from({ length: 40 }).map((_, i) => (
                         <ConfettiParticle key={i} index={i} delay={Math.random() * 0.5} />
