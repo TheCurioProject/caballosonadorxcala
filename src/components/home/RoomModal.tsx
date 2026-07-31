@@ -130,7 +130,7 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
       ) : (
         <div className="flex flex-col items-center justify-center text-white/50 p-8 text-center gap-4">
           <Bed size={48} className="opacity-40" />
-          <p className="text-sm uppercase tracking-widest font-medium">Fotos de la habitación próximamente</p>
+          <p className="text-base md:text-lg uppercase tracking-widest font-medium">Fotos de la habitación próximamente</p>
         </div>
       )}
     </div>
@@ -178,7 +178,7 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
                   <div className="flex flex-col flex-grow">
                     {/* Description */}
                     <div className="w-full mb-8">
-                      <p className="text-[#524D48] font-light text-base md:text-lg leading-relaxed">
+                      <p className="text-[#524D48] font-light text-lg md:text-xl leading-relaxed">
                         {getDescription()}
                       </p>
                     </div>
@@ -186,7 +186,7 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
                     {/* Details & Action */}
                     <div className="w-full mt-auto flex flex-col shrink-0">
                       {!isCocina && room.details && (
-                        <div className="grid grid-cols-2 gap-4 text-sm text-[#524D48] mb-8 border-t border-[#E5E0D8] pt-8">
+                        <div className="grid grid-cols-2 gap-4 text-base md:text-lg text-[#524D48] mb-8 border-t border-[#E5E0D8] pt-8">
                           <div className="flex items-center gap-3"><Users size={16} className="text-[#9B7E67]" /> {room.details.guests} {dict.modal.guests}</div>
                           <div className="flex items-center gap-3"><Bed size={16} className="text-[#9B7E67]" /> {room.details.beds}</div>
                           <div className="flex items-center gap-3"><Bath size={16} className="text-[#9B7E67]" /> {room.details.bath}</div>

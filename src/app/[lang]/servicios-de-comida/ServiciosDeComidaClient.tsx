@@ -52,7 +52,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
             <>
               Large groups and families often purchase ingredients and prepare their own meals. Request help in the kitchen by asking for a personal assistant. Our staff member will help with food preparation and service as well as clean-up. All you have to do is supply the ingredients.
               <br /><br />
-              <span className="italic text-[#D4A373] text-sm">
+              <span className="italic text-[#D4A373] text-base md:text-lg">
                 By selecting a personal assistant you are purchasing help in the kitchen, not a meal plan.
                 <br />
                 The assistant will help you prepare the food you have purchased. In addition the assistant will help you clean up afterward.
@@ -63,7 +63,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
             <>
               Los grupos grandes y las familias a menudo compran ingredientes y preparan sus propias comidas. Solicite ayuda en la cocina pidiendo un asistente personal. Nuestro personal lo ayudará con la preparación de los alimentos, el servicio y la limpieza. Todo lo que tiene que hacer es proporcionar los ingredientes.
               <br /><br />
-              <span className="italic text-[#D4A373] text-sm">
+              <span className="italic text-[#D4A373] text-base md:text-lg">
                 Al seleccionar un asistente personal está contratando ayuda en la cocina, no un plan de comidas.
                 <br />
                 El asistente le ayudará a preparar la comida que usted haya comprado. Además el asistente le ayudará a limpiar después.
@@ -128,7 +128,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
                 aria-label={isEn ? 'BACK TO HOME' : 'VOLVER AL INICIO'}
               >
                 <ArrowLeft strokeWidth={1.5} className="w-5 h-5 md:w-6 md:h-6 transform group-hover:-translate-x-1 transition-transform" />
-                <span className="hidden md:block uppercase tracking-[0.2em] text-xs font-bold text-[#F9F7F4]">
+                <span className="hidden md:block uppercase tracking-[0.2em] text-sm md:text-base font-bold text-[#F9F7F4]">
                   {isEn ? 'HOME' : 'INICIO'}
                 </span>
               </Link>
@@ -158,7 +158,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
                           isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
                         }`}
                       >
-                        <span className="text-sm md:text-base leading-none block tracking-widest">{l.toUpperCase()}</span>
+                        <span className="text-base md:text-lg md:text-base leading-none block tracking-widest">{l.toUpperCase()}</span>
                         <div className="h-1.5 mt-1 w-full flex justify-center items-center">
                           {isActive && (
                             <motion.div 
@@ -272,7 +272,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
           <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl text-[#F9F7F4] mb-6 drop-shadow-2xl leading-tight">
             {texts.heroTitle}
           </h1>
-          <p className="text-[#F9F7F4]/90 text-lg md:text-xl font-light max-w-2xl mx-auto drop-shadow-md">
+          <p className="text-[#F9F7F4]/90 text-xl md:text-2xl font-light max-w-2xl mx-auto drop-shadow-md">
             {texts.intro}
           </p>
         </motion.div>
@@ -281,13 +281,13 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
       {/* Services Section */}
       <section className="py-20 md:py-32 px-4 md:px-12 lg:px-20 max-w-[1400px] mx-auto bg-[#FAF8F5]">
         <div className="text-center mb-16 md:mb-24">
-          <h2 className="text-[#9B7E67] uppercase tracking-[0.3em] text-xs font-bold mb-4">
+          <h2 className="text-[#9B7E67] uppercase tracking-[0.3em] text-sm md:text-base font-bold mb-4">
             {texts.servicesTitle}
           </h2>
           <h3 className="font-serif text-4xl md:text-5xl lg:text-6xl text-[#2C2621]">
             {isEn ? 'Food Services Options' : 'Opciones de Servicios de Comida'}
           </h3>
-          <div className="mt-6 w-full inline-flex justify-center items-center gap-4 text-xs uppercase tracking-[0.2em] text-[#D4A373] font-bold bg-[#D4A373]/10 border border-[#D4A373]/30 px-8 py-4 rounded-2xl mx-auto max-w-fit">
+          <div className="mt-6 w-full inline-flex justify-center items-center gap-4 text-sm md:text-base uppercase tracking-[0.2em] text-[#D4A373] font-bold bg-[#D4A373]/10 border border-[#D4A373]/30 px-8 py-4 rounded-2xl mx-auto max-w-fit">
             {isEn ? 'Select these options when booking your stay' : 'Selecciona estas opciones al reservar tu estancia'}
           </div>
         </div>
@@ -338,7 +338,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
                       {service.title}
                     </h3>
                     
-                    <p className="text-[#4A3B32] text-base md:text-lg font-light leading-relaxed">
+                    <p className="text-[#4A3B32] text-lg md:text-xl font-light leading-relaxed">
                       {service.desc}
                     </p>
                   </div>
@@ -371,7 +371,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
                 <div className="bg-[#D4A373]/20 p-2 rounded-full text-[#D4A373]">
                   <CheckCircle2 size={20} />
                 </div>
-                <span className="text-[#4A3B32] font-medium text-sm md:text-base">{feature}</span>
+                <span className="text-[#4A3B32] font-medium text-base md:text-lg md:text-base">{feature}</span>
               </motion.div>
             ))}
           </div>

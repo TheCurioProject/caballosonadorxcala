@@ -27,7 +27,7 @@ export const FAQ = () => {
           transition={{ duration: 1 }}
           className="text-center mb-16"
         >
-          <span className="uppercase tracking-[0.3em] text-[#9b6e2f] text-sm font-bold block mb-4">
+          <span className="uppercase tracking-[0.3em] text-[#9b6e2f] text-base md:text-lg font-bold block mb-4">
             {faqData.subtitle}
           </span>
           <h2 className="font-serif text-5xl md:text-6xl">

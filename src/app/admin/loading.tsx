@@ -14,7 +14,7 @@ export default function AdminLoading() {
         className="inline-flex items-center gap-2.5 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full shadow-sm border border-gray-200 text-[#23211F]"
       >
         <Loader2 className="w-4 h-4 animate-spin text-[#9B7E67]" />
-        <span className="text-xs font-medium text-gray-600">Loading section...</span>
+        <span className="text-sm md:text-base font-medium text-gray-600">Loading section...</span>
       </motion.div>
     </div>
   );

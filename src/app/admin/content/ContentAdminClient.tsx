@@ -216,7 +216,7 @@ export default function ContentAdminClient() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 shrink-0 ${
+                className={`whitespace-nowrap px-4 py-2 rounded-xl text-sm md:text-base font-bold transition-all duration-200 shrink-0 ${
                   isActive 
                     ? 'bg-[#2C2927] text-white shadow-sm' 
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -235,7 +235,7 @@ export default function ContentAdminClient() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`
-                whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                whitespace-nowrap py-4 px-1 border-b-2 font-medium text-base md:text-lg transition-colors
                 ${activeTab === tab.id
                   ? 'border-[#23211F] text-[#23211F] font-bold'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -279,7 +279,7 @@ export default function ContentAdminClient() {
                 
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-base font-bold text-[#23211F] line-clamp-1">{img.name}</h3>
+                    <h3 className="text-lg md:text-xl font-bold text-[#23211F] line-clamp-1">{img.name}</h3>
                     <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0 ${img.url ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
                       {img.url ? 'Uploaded' : 'Empty'}
                     </span>
@@ -298,7 +298,7 @@ export default function ContentAdminClient() {
                     disabled={uploadingKey !== null || restoringKey !== null}
                     ref={(el) => { fileInputRefs.current[`mob-${img.key}`] = el; }}
                   />
-                  <div className={`w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-xs uppercase tracking-wider transition-colors ${img.url ? 'bg-[#F9F7F4] text-[#9B7E67] border border-[#E5D9C5]' : 'bg-[#9B7E67] text-white'}`}>
+                  <div className={`w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm md:text-base uppercase tracking-wider transition-colors ${img.url ? 'bg-[#F9F7F4] text-[#9B7E67] border border-[#E5D9C5]' : 'bg-[#9B7E67] text-white'}`}>
                     <Upload className="w-4 h-4" />
                     <span>{img.url ? 'Replace Image' : 'Upload Image'}</span>
                   </div>
@@ -332,7 +332,7 @@ export default function ContentAdminClient() {
                     <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
                       <ImageIcon className="w-6 h-6" />
                     </div>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Empty Slot</span>
+                    <span className="text-sm md:text-base font-semibold uppercase tracking-wider text-gray-400">Empty Slot</span>
                   </div>
                 )}
                 
@@ -344,7 +344,7 @@ export default function ContentAdminClient() {
                       className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white backdrop-blur-sm z-10"
                     >
                       <Loader2 className="w-8 h-8 animate-spin mb-2" />
-                      <span className="text-sm font-medium">Uploading...</span>
+                      <span className="text-base md:text-lg font-medium">Uploading...</span>
                     </motion.div>
                   )}
                   {restoringKey === img.key && (
@@ -353,7 +353,7 @@ export default function ContentAdminClient() {
                       className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white backdrop-blur-sm z-10"
                     >
                       <Loader2 className="w-8 h-8 animate-spin mb-2" />
-                      <span className="text-sm font-medium">Restoring...</span>
+                      <span className="text-base md:text-lg font-medium">Restoring...</span>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -363,12 +363,12 @@ export default function ContentAdminClient() {
               <div className="p-5 flex-1 flex flex-col justify-between">
                 <div className="mb-4">
                   <div className="flex items-center justify-between gap-2">
-                    <h3 className="text-base font-semibold text-gray-900 line-clamp-1">{img.name}</h3>
+                    <h3 className="text-lg md:text-xl font-semibold text-gray-900 line-clamp-1">{img.name}</h3>
                     <span className={`text-[10px] px-2 py-0.5 rounded font-medium uppercase tracking-wide shrink-0 ${img.url ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
                       {img.url ? 'Uploaded' : 'Empty'}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-400 font-mono mt-1 truncate">{img.key}</p>
+                  <p className="text-sm md:text-base text-gray-400 font-mono mt-1 truncate">{img.key}</p>
                 </div>
 
                 <div className="flex items-center gap-3 mt-auto">

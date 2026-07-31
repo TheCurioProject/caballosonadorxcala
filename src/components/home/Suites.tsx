@@ -52,9 +52,9 @@ export const Suites = ({ rooms }: { rooms: any[] }) => {
   return (
     <section id="suites" className="relative bg-[#2C2621] text-[#E5E0D8] py-20 md:py-32 overflow-hidden">
       <div className="max-w-[1400px] mx-auto px-6 md:px-16 mb-12">
-        <h2 className="text-[#9B7E67] uppercase tracking-[0.3em] text-xs font-bold mb-1 mt-3">{(dict as any).suites.subtitle}</h2>
+        <h2 className="text-[#9B7E67] uppercase tracking-[0.3em] text-sm md:text-base font-bold mb-1 mt-3">{(dict as any).suites.subtitle}</h2>
         <h3 className="font-serif text-5xl md:text-7xl leading-none text-white">{(dict as any).suites.title}</h3>
-        <div className="mt-4 flex items-center gap-2 text-[#9B7E67]/70 text-xs font-bold tracking-[0.2em] uppercase">
+        <div className="mt-4 flex items-center gap-2 text-[#9B7E67]/70 text-sm md:text-base font-bold tracking-[0.2em] uppercase">
           <span className="block md:hidden opacity-80 animate-pulse">{(dict as any).suites.mobileInstruction}</span>
           <span className="hidden md:block opacity-80 animate-pulse">{(dict as any).services.desktopInstruction}</span>
         </div>
@@ -95,13 +95,13 @@ export const Suites = ({ rooms }: { rooms: any[] }) => {
                 key={`room-${room.id}`}
                 className="w-[85vw] sm:w-[400px] md:w-[480px] shrink-0 group flex flex-col relative p-10 md:p-14 bg-[#2C2621] border-r border-white/10 min-h-[450px] snap-center md:snap-start hover:bg-[#23211F] transition-colors duration-500"
               >
-                <div className="text-[#9B7E67] uppercase tracking-widest text-xs font-bold mb-3">
+                <div className="text-[#9B7E67] uppercase tracking-widest text-sm md:text-base font-bold mb-3">
                   {(dict as any).suites?.roomPrefix || 'Room'} {index + 1}
                 </div>
                 <h4 className="font-serif text-4xl md:text-5xl text-white mb-6 leading-tight">
                   {room.name.split(' (')[0]}
                 </h4>
-                <p className="text-white/70 font-light text-base md:text-lg mb-8 leading-relaxed flex-grow line-clamp-4 group-hover:text-white/90 transition-colors">
+                <p className="text-white/70 font-light text-lg md:text-xl mb-8 leading-relaxed flex-grow line-clamp-4 group-hover:text-white/90 transition-colors">
                   {room.shortDescription || room.desc || room.description}
                 </p>
                 <button 
@@ -111,7 +111,7 @@ export const Suites = ({ rooms }: { rooms: any[] }) => {
                   <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover/btn:bg-white group-hover/btn:text-[#2C2621] transition-all duration-300">
                     <Plus size={18} />
                   </div>
-                  <span className="text-xs uppercase tracking-widest font-bold text-white/70 group-hover/btn:text-white transition-colors">
+                  <span className="text-sm md:text-base uppercase tracking-widest font-bold text-white/70 group-hover/btn:text-white transition-colors">
                     {(dict as any).services?.explore || 'Ver Detalles'}
                   </span>
                 </button>

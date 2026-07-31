@@ -53,19 +53,19 @@ export default function IcalWorkspace({ roomId, initialFeeds }: { roomId: number
           <div className="flex-1 space-y-4 w-full">
             <div>
               <h3 className="font-serif text-2xl text-[#23211F]">Export Calendar</h3>
-              <p className="text-gray-500 text-sm mt-1">Copy this URL and paste it into Airbnb, Booking.com, or other channels so they can block their dates when you receive a booking here.</p>
+              <p className="text-gray-500 text-base md:text-lg mt-1">Copy this URL and paste it into Airbnb, Booking.com, or other channels so they can block their dates when you receive a booking here.</p>
             </div>
             
             <div className="flex flex-col sm:flex-row gap-2">
               <input 
                 type="url" 
                 value={exportUrl} 
-                className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-500 font-mono overflow-x-auto" 
+                className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm md:text-base sm:text-sm text-gray-500 font-mono overflow-x-auto" 
                 readOnly
               />
               <button 
                 onClick={copyToClipboard}
-                className="bg-[#2C2927] text-white px-6 py-3 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-widest hover:bg-[#1A1817] transition-colors flex items-center justify-center gap-2 shrink-0"
+                className="bg-[#2C2927] text-white px-6 py-3 rounded-xl text-sm md:text-base sm:text-sm font-bold uppercase tracking-widest hover:bg-[#1A1817] transition-colors flex items-center justify-center gap-2 shrink-0"
               >
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 {copied ? 'Copied' : 'Copy'}
@@ -80,7 +80,7 @@ export default function IcalWorkspace({ roomId, initialFeeds }: { roomId: number
         <div className="flex justify-between items-center mb-6">
           <div>
             <h3 className="font-serif text-2xl text-[#23211F]">Import Calendars</h3>
-            <p className="text-gray-500 text-sm mt-1">Add iCal links provided by external channels (e.g. Airbnb) to block dates in your system.</p>
+            <p className="text-gray-500 text-base md:text-lg mt-1">Add iCal links provided by external channels (e.g. Airbnb) to block dates in your system.</p>
           </div>
           <button 
             onClick={handleAdd}
@@ -93,7 +93,7 @@ export default function IcalWorkspace({ roomId, initialFeeds }: { roomId: number
         <div className="space-y-4">
           <AnimatePresence>
             {feeds.length === 0 && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-8 text-gray-400 text-sm border-2 border-dashed border-gray-100 rounded-2xl">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-8 text-gray-400 text-base md:text-lg border-2 border-dashed border-gray-100 rounded-2xl">
                 You haven't added any links to import yet.
               </motion.div>
             )}
@@ -112,7 +112,7 @@ export default function IcalWorkspace({ roomId, initialFeeds }: { roomId: number
                     placeholder="Name (e.g. Airbnb)"
                     value={feed.name}
                     onChange={(e) => handleChange(index, 'name', e.target.value)}
-                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#9B7E67]"
+                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-base md:text-lg focus:outline-none focus:border-[#9B7E67]"
                   />
                 </div>
                 <div className="w-full sm:flex-1">
@@ -121,13 +121,13 @@ export default function IcalWorkspace({ roomId, initialFeeds }: { roomId: number
                     placeholder="iCal Format URL (https://...)"
                     value={feed.url}
                     onChange={(e) => handleChange(index, 'url', e.target.value)}
-                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#9B7E67]"
+                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-base md:text-lg focus:outline-none focus:border-[#9B7E67]"
                   />
                 </div>
                 <div className="flex justify-end sm:block">
                   <button 
                     onClick={() => handleRemove(index)} 
-                    className="p-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition-colors flex items-center gap-2 text-xs font-bold uppercase sm:normal-case"
+                    className="p-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition-colors flex items-center gap-2 text-sm md:text-base font-bold uppercase sm:normal-case"
                   >
                     <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span className="sm:hidden">Remove Feed</span>
@@ -135,7 +135,7 @@ export default function IcalWorkspace({ roomId, initialFeeds }: { roomId: number
                 </div>
                 </div>
                 {feed.id && (
-                  <div className="flex items-center gap-2 text-xs">
+                  <div className="flex items-center gap-2 text-sm md:text-base">
                     {feed.syncStatus === 'success' ? (
                       <span className="flex items-center gap-1 text-green-600 bg-green-100 px-2 py-1 rounded-md">
                         <Check className="w-3 h-3" /> Online

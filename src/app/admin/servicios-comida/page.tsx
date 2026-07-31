@@ -37,7 +37,7 @@ export default async function ServiciosComidaAdminPage() {
         </div>
         <div>
           <h1 className="text-3xl sm:text-4xl font-serif text-[#2C2621]">Food Services</h1>
-          <p className="text-gray-500 mt-1 text-sm sm:text-base">Manage prices and private chef food bookings.</p>
+          <p className="text-gray-500 mt-1 text-base md:text-lg sm:text-base">Manage prices and private chef food bookings.</p>
         </div>
       </div>
 
@@ -56,7 +56,7 @@ export default async function ServiciosComidaAdminPage() {
                   <div className="flex flex-col sm:flex-row gap-4">
                     <div className="flex-1 space-y-3">
                       <div>
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">Service Name</label>
+                        <label className="text-sm md:text-base font-bold text-gray-500 uppercase tracking-wider mb-1 block">Service Name</label>
                         <input 
                           type="text" 
                           name="name" 
@@ -66,11 +66,11 @@ export default async function ServiciosComidaAdminPage() {
                         />
                       </div>
                       <div>
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">Description / Details</label>
+                        <label className="text-sm md:text-base font-bold text-gray-500 uppercase tracking-wider mb-1 block">Description / Details</label>
                         <textarea 
                           name="description" 
                           defaultValue={service.description || ''} 
-                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9B7E67] focus:border-transparent outline-none text-sm text-gray-600 resize-none h-20"
+                          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#9B7E67] focus:border-transparent outline-none text-base md:text-lg text-gray-600 resize-none h-20"
                           required
                         />
                       </div>
@@ -78,7 +78,7 @@ export default async function ServiciosComidaAdminPage() {
                     
                     <div className="w-full sm:w-32 flex flex-col justify-end gap-3 shrink-0 border-t sm:border-t-0 sm:border-l border-gray-200 pt-4 sm:pt-0 sm:pl-4">
                       <div>
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">Base Price</label>
+                        <label className="text-sm md:text-base font-bold text-gray-500 uppercase tracking-wider mb-1 block">Base Price</label>
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
                           <input 
@@ -90,7 +90,7 @@ export default async function ServiciosComidaAdminPage() {
                           />
                         </div>
                       </div>
-                      <button type="submit" className="w-full bg-[#2C2621] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#9B7E67] transition-colors font-medium">
+                      <button type="submit" className="w-full bg-[#2C2621] text-white px-4 py-2 rounded-lg text-base md:text-lg hover:bg-[#9B7E67] transition-colors font-medium">
                         Save
                       </button>
                     </div>
@@ -118,13 +118,13 @@ export default async function ServiciosComidaAdminPage() {
                 <div key={booking.id} className="p-4 bg-gray-50 rounded-xl border border-gray-100 flex justify-between items-start">
                   <div>
                     <h3 className="font-bold text-gray-800">{booking.guestName}</h3>
-                    <p className="text-sm text-gray-600">{booking.guestEmail}</p>
-                    <p className="text-xs text-[#9B7E67] mt-1 font-bold">
+                    <p className="text-base md:text-lg text-gray-600">{booking.guestEmail}</p>
+                    <p className="text-sm md:text-base text-[#9B7E67] mt-1 font-bold">
                       {new Date(booking.startDate).toLocaleDateString()} - {JSON.parse(booking.serviceDetails || '{}').serviceName || 'Service'}
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="block font-serif text-lg">${booking.totalPrice}</span>
+                    <span className="block font-serif text-xl md:text-2xl">${booking.totalPrice}</span>
                     <span className={`text-[10px] px-2 py-1 rounded-full uppercase tracking-wider font-bold ${
                       booking.paymentStatus === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
                     }`}>

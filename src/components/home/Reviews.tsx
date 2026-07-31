@@ -85,7 +85,7 @@ export const Reviews = () => {
             initial={{ opacity: 0, letterSpacing: "0em" }}
             whileInView={{ opacity: 1, letterSpacing: "0.3em" }}
             transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }}
-            className="uppercase text-[#9b6e2f] text-sm font-bold block mb-4"
+            className="uppercase text-[#9b6e2f] text-base md:text-lg font-bold block mb-4"
           >
             {homeReviews.subtitle}
           </motion.span>
@@ -159,8 +159,8 @@ export const Reviews = () => {
                   "{review.text}"
                 </p>
                 <div>
-                  <h4 className="font-bold tracking-widest uppercase text-sm">{review.author}</h4>
-                  {review.location && <span className="text-gray-500 text-xs tracking-widest uppercase block mt-1">{review.location}</span>}
+                  <h4 className="font-bold tracking-widest uppercase text-base md:text-lg">{review.author}</h4>
+                  {review.location && <span className="text-gray-500 text-sm md:text-base tracking-widest uppercase block mt-1">{review.location}</span>}
                 </div>
               </motion.div>
             ))}

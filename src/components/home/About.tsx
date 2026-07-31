@@ -15,13 +15,13 @@ export const About = ({ imageSrc }: { imageSrc?: string }) => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
         <div className="space-y-8">
           <RevealText>
-            <h2 className="text-[#9B7E67] uppercase tracking-[0.3em] text-xs font-bold">{dict.about.subtitle}</h2>
+            <h2 className="text-[#9B7E67] uppercase tracking-[0.3em] text-sm md:text-base font-bold">{dict.about.subtitle}</h2>
           </RevealText>
           <RevealText delay={0.1}>
             <h3 className="font-serif text-4xl md:text-6xl leading-tight">{dict.about.title}</h3>
           </RevealText>
           <RevealText delay={0.2}>
-            <p className="text-lg font-light leading-relaxed opacity-80 text-[#524D48]">
+            <p className="text-xl md:text-2xl font-light leading-relaxed opacity-80 text-[#524D48]">
               {dict.about.p1}
             </p>
           </RevealText>

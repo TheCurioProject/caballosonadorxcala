@@ -127,17 +127,17 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center text-[#9B7E67] gap-3">
                     <Bed className="w-12 h-12 opacity-40" />
-                    <span className="text-xs uppercase tracking-widest font-semibold opacity-60">Imágenes próximamente</span>
+                    <span className="text-sm md:text-base uppercase tracking-widest font-semibold opacity-60">Imágenes próximamente</span>
                   </div>
                 )}
               </div>
               <div className="w-full lg:w-1/2 space-y-6">
                 <h2 className="text-3xl md:text-4xl font-serif text-brand-dark">{room.name}</h2>
                 <div className="w-16 h-[2px] bg-brand-dark/20"></div>
-                <p className="text-gray-600 font-light leading-relaxed text-lg">
+                <p className="text-gray-600 font-light leading-relaxed text-xl md:text-2xl">
                   {room.desc}
                 </p>
-                <div className="grid grid-cols-2 gap-4 text-sm text-gray-500 bg-white p-6 shadow-sm">
+                <div className="grid grid-cols-2 gap-4 text-base md:text-lg text-gray-500 bg-white p-6 shadow-sm">
                   <div className="flex items-center gap-2"><Users size={16} /> {room.details.guests} Huéspedes</div>
                   <div className="flex items-center gap-2"><Bed size={16} /> {room.details.beds}</div>
                   <div className="flex items-center gap-2"><Bath size={16} /> {room.details.bath}</div>
@@ -147,8 +147,8 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
                   {room.id === 7 && <div className="flex items-center gap-2"><Tv size={16} /> TV</div>}
                 </div>
                 <div className="pt-4 flex items-center justify-between">
-                  <span className="text-xl font-serif italic text-brand-dark">{room.price} <span className="text-sm font-sans not-italic text-gray-500">/ noche</span></span>
-                  <button onClick={openBookingModal} className="bg-brand-dark text-white px-8 py-3 uppercase tracking-widest text-xs font-semibold hover:bg-black transition-colors">
+                  <span className="text-xl font-serif italic text-brand-dark">{room.price} <span className="text-base md:text-lg font-sans not-italic text-gray-500">/ noche</span></span>
+                  <button onClick={openBookingModal} className="bg-brand-dark text-white px-8 py-3 uppercase tracking-widest text-sm md:text-base font-semibold hover:bg-black transition-colors">
                     Reserva
                   </button>
                 </div>
@@ -177,21 +177,21 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
                 <Image src={rooftopImg} alt="Rooftop" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
               </div>
               <h3 className="text-2xl font-serif mb-4">La Palapa / Rooftop</h3>
-              <p className="text-gray-600 font-light text-sm leading-relaxed">Impresionante palapa al aire libre, perfecta para yoga, meditación, masajes o una siesta. Disfruta de vistas al Océano Pacífico.</p>
+              <p className="text-gray-600 font-light text-base md:text-lg leading-relaxed">Impresionante palapa al aire libre, perfecta para yoga, meditación, masajes o una siesta. Disfruta de vistas al Océano Pacífico.</p>
             </motion.div>
             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="bg-white p-8 shadow-sm hover:shadow-xl transition-shadow text-center">
               <div className="relative w-full h-64 mb-6">
                 <Image src={poolImg} alt="Pool" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
               </div>
               <h3 className="text-2xl font-serif mb-4">La Piscina</h3>
-              <p className="text-gray-600 font-light text-sm leading-relaxed">Un oasis tropical inmerso en la selva. Sumérgete, toma el sol y experimenta la energía vibrante de México en total privacidad.</p>
+              <p className="text-gray-600 font-light text-base md:text-lg leading-relaxed">Un oasis tropical inmerso en la selva. Sumérgete, toma el sol y experimenta la energía vibrante de México en total privacidad.</p>
             </motion.div>
             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="bg-white p-8 shadow-sm hover:shadow-xl transition-shadow text-center">
               <div className="relative w-full h-64 mb-6">
                 <Image src={kitchenImg} alt="Cocina" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
               </div>
               <h3 className="text-2xl font-serif mb-4">Cocina para Huéspedes</h3>
-              <p className="text-gray-600 font-light text-sm leading-relaxed">Espacio comunal totalmente equipado donde puedes preparar tus platillos y compartir experiencias culinarias, sintiéndote como en casa.</p>
+              <p className="text-gray-600 font-light text-base md:text-lg leading-relaxed">Espacio comunal totalmente equipado donde puedes preparar tus platillos y compartir experiencias culinarias, sintiéndote como en casa.</p>
             </motion.div>
           </div>
         </div>

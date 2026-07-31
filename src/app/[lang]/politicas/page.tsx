@@ -11,13 +11,13 @@ export default function PoliticasPage() {
   return (
     <main className="min-h-screen bg-[#F9F7F4] text-[#23211F] pt-32 pb-24 px-6 md:px-16">
       <div className="max-w-4xl mx-auto">
-        <Link href="/" className="inline-flex items-center gap-2 text-[#9B7E67] hover:text-[#23211F] transition-colors mb-12 uppercase tracking-widest text-xs font-bold">
+        <Link href="/" className="inline-flex items-center gap-2 text-[#9B7E67] hover:text-[#23211F] transition-colors mb-12 uppercase tracking-widest text-sm md:text-base font-bold">
           <ArrowLeft size={16} /> Volver al inicio
         </Link>
         
         <h1 className="font-serif text-5xl md:text-6xl mb-16 text-[#23211F] leading-tight">Políticas y Condiciones</h1>
         
-        <div className="space-y-12 text-[#524D48] font-light leading-relaxed text-lg">
+        <div className="space-y-12 text-[#524D48] font-light leading-relaxed text-xl md:text-2xl">
           
           <section>
             <h2 className="font-serif text-3xl text-[#23211F] mb-6">Política de Reservación</h2>
@@ -58,7 +58,7 @@ export default function PoliticasPage() {
 
           <hr className="border-[#E5E0D8] my-12" />
 
-          <p className="text-sm">
+          <p className="text-base md:text-lg">
             Para cualquier consulta sobre estas políticas, por favor contáctanos directamente a <strong>kelli9@telus.net</strong>.
           </p>
         </div>

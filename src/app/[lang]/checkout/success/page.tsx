@@ -43,12 +43,12 @@ export default async function CheckoutSuccessPage({
               <CheckCircle size={48} className="text-[#9B7E67]" />
             </div>
             <h1 className="font-serif text-4xl text-[#23211F] mb-4">¡Reserva Confirmada!</h1>
-            <p className="text-[#524D48] text-lg font-light mb-8 leading-relaxed">
+            <p className="text-[#524D48] text-xl md:text-2xl font-light mb-8 leading-relaxed">
               Gracias, {guestName}. Tu pago se ha procesado con éxito y tu reserva en Casa Caballo Soñador está asegurada. Te hemos enviado un correo con todos los detalles.
             </p>
             <Link 
               href="/"
-              className="bg-[#23211F] text-[#F9F7F4] hover:bg-[#9B7E67] font-bold text-xs uppercase tracking-widest py-4 px-8 rounded-full transition-all flex items-center gap-2"
+              className="bg-[#23211F] text-[#F9F7F4] hover:bg-[#9B7E67] font-bold text-sm md:text-base uppercase tracking-widest py-4 px-8 rounded-full transition-all flex items-center gap-2"
             >
               Volver al Inicio <ArrowRight size={16} />
             </Link>
@@ -59,12 +59,12 @@ export default async function CheckoutSuccessPage({
               <X size={48} className="text-red-500" />
             </div>
             <h1 className="font-serif text-4xl text-[#23211F] mb-4">Error en la Reserva</h1>
-            <p className="text-[#524D48] text-lg font-light mb-8 leading-relaxed">
+            <p className="text-[#524D48] text-xl md:text-2xl font-light mb-8 leading-relaxed">
               No pudimos verificar tu pago o la sesión ha expirado. Si crees que esto es un error, por favor contáctanos.
             </p>
             <Link 
               href="/"
-              className="bg-gray-200 text-[#23211F] hover:bg-gray-300 font-bold text-xs uppercase tracking-widest py-4 px-8 rounded-full transition-all"
+              className="bg-gray-200 text-[#23211F] hover:bg-gray-300 font-bold text-sm md:text-base uppercase tracking-widest py-4 px-8 rounded-full transition-all"
             >
               Volver al Inicio
             </Link>

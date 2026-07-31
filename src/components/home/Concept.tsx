@@ -81,7 +81,7 @@ export const Concept = ({ imageSrc }: { imageSrc?: string }) => {
             >
               <Wind size={32} strokeWidth={1.5} />
             </motion.div>
-            <p className="text-[#524D48] font-light text-lg leading-relaxed group-hover:text-[#23211F] transition-colors duration-300">
+            <p className="text-[#524D48] font-light text-xl md:text-2xl leading-relaxed group-hover:text-[#23211F] transition-colors duration-300">
               {(dict as any).concept.p1}
             </p>
           </motion.div>
@@ -96,7 +96,7 @@ export const Concept = ({ imageSrc }: { imageSrc?: string }) => {
             >
               <Leaf size={32} strokeWidth={1.5} />
             </motion.div>
-            <p className="text-[#524D48] font-light text-lg leading-relaxed group-hover:text-[#23211F] transition-colors duration-300">
+            <p className="text-[#524D48] font-light text-xl md:text-2xl leading-relaxed group-hover:text-[#23211F] transition-colors duration-300">
               {(dict as any).concept.p2}
             </p>
           </motion.div>
@@ -111,7 +111,7 @@ export const Concept = ({ imageSrc }: { imageSrc?: string }) => {
             >
               <Droplets size={32} strokeWidth={1.5} />
             </motion.div>
-            <p className="text-[#524D48] font-light text-lg leading-relaxed group-hover:text-[#23211F] transition-colors duration-300">
+            <p className="text-[#524D48] font-light text-xl md:text-2xl leading-relaxed group-hover:text-[#23211F] transition-colors duration-300">
               {(dict as any).concept.p3}
             </p>
           </motion.div>

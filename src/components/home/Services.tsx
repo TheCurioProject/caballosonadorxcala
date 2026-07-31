@@ -63,7 +63,7 @@ export const Services = ({ imageSrc, siteImages }: { imageSrc?: string, siteImag
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.7 }}
           >
-            <h2 className="text-[#9B7E67] uppercase tracking-[0.3em] text-xs font-bold mb-3">
+            <h2 className="text-[#9B7E67] uppercase tracking-[0.3em] text-sm md:text-base font-bold mb-3">
               {(dict as any).services.subtitle}
             </h2>
             <h3 className="font-serif text-4xl md:text-5xl lg:text-6xl leading-tight">
@@ -117,10 +117,10 @@ export const Services = ({ imageSrc, siteImages }: { imageSrc?: string, siteImag
                       
                       {/* Content */}
                       <div className="flex-1 min-w-0 pr-6 sm:pr-8">
-                        <h4 className="font-serif text-lg sm:text-xl md:text-2xl text-[#F9F7F4] group-hover:text-[#9B7E67] transition-colors duration-300 mb-1">
+                        <h4 className="font-serif text-xl md:text-2xl sm:text-xl md:text-2xl text-[#F9F7F4] group-hover:text-[#9B7E67] transition-colors duration-300 mb-1">
                           {service.title}
                         </h4>
-                        <p className="text-[#F9F7F4]/70 text-xs sm:text-sm md:text-base line-clamp-2 group-hover:text-[#F9F7F4]/90 transition-colors duration-300 leading-relaxed">
+                        <p className="text-[#F9F7F4]/70 text-sm md:text-base sm:text-sm md:text-base line-clamp-2 group-hover:text-[#F9F7F4]/90 transition-colors duration-300 leading-relaxed">
                           {service.short}
                         </p>
                       </div>

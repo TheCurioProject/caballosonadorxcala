@@ -265,7 +265,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
                     onClick={() => isCurrentMonth && handleDayClick(day)}
                     className={`h-12 flex flex-col items-center justify-between p-1 rounded-xl transition-all ${bgClass} ${isCurrentMonth ? '' : 'pointer-events-none'}`}
                   >
-                    <span className={`text-xs ${textClass} ${isToday && !info.isBlocked && !info.isBooked && !isSelected ? 'underline font-extrabold text-[#9B7E67]' : ''}`}>
+                    <span className={`text-sm md:text-base ${textClass} ${isToday && !info.isBlocked && !info.isBooked && !isSelected ? 'underline font-extrabold text-[#9B7E67]' : ''}`}>
                       {format(day, 'd')}
                     </span>
                     {isCurrentMonth && (
@@ -376,7 +376,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
                     onClick={() => isCurrentMonth && handleDayClick(day)}
                     className={`relative h-28 rounded-2xl p-3 flex flex-col justify-between cursor-pointer transition-all ${bgClass} ${isCurrentMonth ? '' : 'pointer-events-none'}`}
                   >
-                    <div className={`text-lg font-bold ${textClass} ${isToday && !info.isBlocked && !info.isBooked && !isSelected ? 'text-[#9B7E67]' : ''}`}>
+                    <div className={`text-xl md:text-2xl font-bold ${textClass} ${isToday && !info.isBlocked && !info.isBooked && !isSelected ? 'text-[#9B7E67]' : ''}`}>
                       {format(day, 'd')}
                     </div>
                     
@@ -387,7 +387,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
                             {label}
                           </span>
                         )}
-                        <span className={`text-xs font-serif ${textClass} mt-1 ${info.isBlocked || info.isBooked || info.isCheckoutBuffer ? 'opacity-50' : 'opacity-100'}`}>
+                        <span className={`text-sm md:text-base font-serif ${textClass} mt-1 ${info.isBlocked || info.isBooked || info.isCheckoutBuffer ? 'opacity-50' : 'opacity-100'}`}>
                           ${info.price}
                         </span>
                       </div>
@@ -464,20 +464,20 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
             {/* Warning if any selected days are booked */}
             {selectedDates.some(d => getDayInfo(d).isBooked) && (
               <div className="bg-[#FAF8F5] border border-[#D4A574] text-[#9B7E67] p-4 rounded-xl mb-6">
-                <p className="font-bold mb-1 text-sm">Booking Conflict</p>
-                <p className="text-xs opacity-80">One or more selected days have active bookings. Prices and blocks will not apply to booked days.</p>
+                <p className="font-bold mb-1 text-base md:text-lg">Booking Conflict</p>
+                <p className="text-sm md:text-base opacity-80">One or more selected days have active bookings. Prices and blocks will not apply to booked days.</p>
               </div>
             )}
 
             <div className="space-y-6">
               {/* Block / Unblock */}
               <div>
-                <h4 className="text-xs font-bold text-gray-800 uppercase tracking-widest mb-2">Availability</h4>
-                <p className="text-xs text-gray-500 mb-4">Manage blocking for selected days.</p>
+                <h4 className="text-sm md:text-base font-bold text-gray-800 uppercase tracking-widest mb-2">Availability</h4>
+                <p className="text-sm md:text-base text-gray-500 mb-4">Manage blocking for selected days.</p>
                 <button 
                   onClick={handleToggleBlock}
                   disabled={isLoading}
-                  className={`w-full py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex justify-center items-center ${allSelectedBlocked ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' : 'bg-red-500 text-white hover:bg-red-600'}`}
+                  className={`w-full py-3 rounded-xl font-bold text-sm md:text-base uppercase tracking-widest transition-all flex justify-center items-center ${allSelectedBlocked ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' : 'bg-red-500 text-white hover:bg-red-600'}`}
                 >
                   {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : allSelectedBlocked ? 'Unblock Days' : 'Block Days'}
                 </button>
@@ -485,8 +485,8 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
 
               {/* Modify Price */}
               <div className="pt-6 border-t border-gray-100">
-                <h4 className="text-xs font-bold text-gray-800 uppercase tracking-widest mb-2">Modify Rate</h4>
-                <p className="text-xs text-gray-500 mb-4">Set a custom price for the selected range.</p>
+                <h4 className="text-sm md:text-base font-bold text-gray-800 uppercase tracking-widest mb-2">Modify Rate</h4>
+                <p className="text-sm md:text-base text-gray-500 mb-4">Set a custom price for the selected range.</p>
                 
                 <form onSubmit={handleSavePrice} className="space-y-3">
                   <div>
@@ -496,13 +496,13 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
                       value={customPriceInput}
                       onChange={(e) => setCustomPriceInput(e.target.value)}
                       required 
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67] font-serif text-lg" 
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-base md:text-lg focus:outline-none focus:border-[#9B7E67] font-serif text-xl md:text-2xl" 
                     />
                   </div>
                   <button 
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-[#23211F] text-white hover:bg-[#9B7E67] py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex justify-center items-center"
+                    className="w-full bg-[#23211F] text-white hover:bg-[#9B7E67] py-3 rounded-xl font-bold text-sm md:text-base uppercase tracking-widest transition-all flex justify-center items-center"
                   >
                     {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Price'}
                   </button>

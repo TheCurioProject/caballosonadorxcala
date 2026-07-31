@@ -22,7 +22,7 @@ export const Location = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <span className="uppercase tracking-[0.4em] text-[#9B7E67] text-xs font-bold block mb-6 flex items-center justify-center gap-3">
+            <span className="uppercase tracking-[0.4em] text-[#9B7E67] text-sm md:text-base font-bold block mb-6 flex items-center justify-center gap-3">
               <MapPin size={16} /> {loc?.subtitle || 'Ubicación'}
             </span>
             <h2 className="font-serif text-5xl md:text-7xl lg:text-8xl mb-8 leading-none text-[#2C2927]">
@@ -52,14 +52,14 @@ export const Location = () => {
             <p className="font-light text-xl md:text-2xl text-[#2C2927]/80 leading-relaxed mb-10 italic font-serif">
               {loc?.intro2 || 'El nombre del pueblo, que significa "donde hay camarones" en náhuatl, refleja su conexión con la cultura local y la abundante vida marina, añadiendo al carácter distintivo de esta joya costera.'}
             </p>
-            <p className="font-light text-base md:text-lg text-[#2C2927]/60 leading-relaxed">
+            <p className="font-light text-lg md:text-xl text-[#2C2927]/60 leading-relaxed">
               {loc?.intro1 || 'Escondida en una pequeña cala a lo largo de la costa del Pacífico en el estado de Nayarit, Chacala destaca por su encanto único y belleza prístina. Al proporcionar una escapada serena, el pueblo cuenta con playas sin aglomeraciones y un ambiente acogedor.'}
             </p>
           </motion.div>
 
           <div className="lg:col-span-7 order-1 lg:order-2 flex items-center justify-center relative w-full aspect-square lg:aspect-[4/3] bg-white rounded-[3rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] p-8 md:p-16 border border-[#2C2927]/5">
             <MexicoMap className="w-full h-full object-contain drop-shadow-xl" />
-            <div className="absolute bottom-8 right-8 text-[#9B7E67] font-serif italic text-lg opacity-50">{loc?.riviera || 'Riviera Nayarit'}</div>
+            <div className="absolute bottom-8 right-8 text-[#9B7E67] font-serif italic text-xl md:text-2xl opacity-50">{loc?.riviera || 'Riviera Nayarit'}</div>
           </div>
         </div>
 

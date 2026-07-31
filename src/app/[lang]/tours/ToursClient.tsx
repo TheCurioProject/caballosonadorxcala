@@ -211,7 +211,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
     const rawImages = TOUR_IMAGES[tourData.type] || [TOUR_IMAGES["ATV_OJO_DE_AGUA"][0]];
     return {
       ...tourData,
-      images: rawImages.map(img => getImageUrl(img, siteImages)),
+      images: rawImages.map(img => (siteImages && siteImages[img] && siteImages[img].url) ? siteImages[img].url : img),
       price: getTourPrice(tourData)
     };
   });
@@ -239,7 +239,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                 aria-label={lang === 'en' ? 'BACK TO HOME' : 'VOLVER AL INICIO'}
               >
                 <ArrowLeft strokeWidth={1.5} className="w-5 h-5 md:w-6 md:h-6 transform group-hover:-translate-x-1 transition-transform" />
-                <span className="hidden md:block uppercase tracking-[0.2em] text-xs font-bold text-[#F9F7F4]">
+                <span className="hidden md:block uppercase tracking-[0.2em] text-sm md:text-base font-bold text-[#F9F7F4]">
                   {lang === 'en' ? 'HOME' : 'INICIO'}
                 </span>
               </Link>
@@ -269,7 +269,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                           isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
                         }`}
                       >
-                        <span className="text-sm md:text-base leading-none block tracking-widest">{l.toUpperCase()}</span>
+                        <span className="text-base md:text-lg md:text-base leading-none block tracking-widest">{l.toUpperCase()}</span>
                         <div className="h-1.5 mt-1 w-full flex justify-center items-center">
                           {isActive && (
                             <motion.div 
@@ -297,8 +297,8 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                   onClick={() => openBookingModal()}
                   className="whitespace-nowrap uppercase tracking-widest text-[10px] md:text-xs font-bold border rounded-full px-4 py-1.5 hover:opacity-70 transition-all border-[#F9F7F4] text-[#F9F7F4]"
                 >
-                  <span className="hidden md:inline">{t.bookTour}</span>
-                  <span className="md:hidden">{t.bookTourShort || t.bookTour}</span>
+                  <span className="hidden md:inline">{lang === 'en' ? 'Book Now' : 'Reservar Ahora'}</span>
+                  <span className="md:hidden">{lang === 'en' ? 'Book Now' : 'Reservar Ahora'}</span>
                 </button>
               </div>
               
@@ -432,7 +432,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                 <Compass className="text-[#9B7E67]" size={24} />
               </div>
               <h4 className="font-serif text-2xl text-[#F9F7F4] mb-4">{t.infoCustomToursTitle}</h4>
-              <p className="font-light text-[#F9F7F4]/60 leading-relaxed text-sm">
+              <p className="font-light text-[#F9F7F4]/60 leading-relaxed text-base md:text-lg">
                 {t.infoCustomToursText}
               </p>
             </motion.div>
@@ -449,7 +449,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                 <ShieldCheck className="text-[#9B7E67]" size={24} />
               </div>
               <h4 className="font-serif text-2xl text-[#F9F7F4] mb-4">{t.infoVehiclesTitle}</h4>
-              <p className="font-light text-[#F9F7F4]/60 leading-relaxed text-sm">
+              <p className="font-light text-[#F9F7F4]/60 leading-relaxed text-base md:text-lg">
                 {t.infoVehiclesText}
               </p>
             </motion.div>
@@ -470,7 +470,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                 {t.infoBringItems && t.infoBringItems.map((item: string, i: number) => (
                   <li key={i} className="flex items-start gap-3">
                     <CheckCircle2 className="text-[#9B7E67] shrink-0 mt-0.5" size={16} />
-                    <span className="font-light text-[#F9F7F4]/70 text-sm leading-tight">{item}</span>
+                    <span className="font-light text-[#F9F7F4]/70 text-base md:text-lg leading-tight">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -491,9 +491,14 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                 </svg>
               </div>
               <h4 className="font-serif text-2xl text-[#F9F7F4] mb-4">{lang === 'en' ? 'Private Tours' : 'Tour Privado'}</h4>
-              <p className="font-light text-[#F9F7F4]/60 leading-relaxed text-sm">
+              <p className="font-light text-[#F9F7F4]/60 leading-relaxed text-base md:text-lg">
                 {lang === 'en' ? 'Looking for a private tour? Contact us on WhatsApp to arrange a personalized experience tailored to your needs.' : '¿Buscas un Tour Privado? Escríbenos por WhatsApp para organizar un recorrido personalizado a tu medida.'}
               </p>
+              <div className="mt-8">
+                <span className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full border border-[#25D366] text-[#25D366] font-bold uppercase tracking-widest text-sm transition-all duration-300 group-hover:bg-[#25D366] group-hover:text-[#131110]">
+                  WhatsApp
+                </span>
+              </div>
             </motion.div>
 
           </div>
@@ -539,11 +544,11 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                       {tour.title}
                     </h3>
                     
-                    <p className="font-light text-lg md:text-xl text-[#F9F7F4]/60 leading-relaxed mb-12 max-w-xl">
+                    <p className="font-light text-xl md:text-2xl text-[#F9F7F4]/60 leading-relaxed mb-12 max-w-xl">
                       {tour.description}
                     </p>
 
-                    <div className="flex items-center gap-8 text-[#9B7E67] mb-12 text-sm tracking-widest uppercase font-bold">
+                    <div className="flex items-center gap-8 text-[#9B7E67] mb-12 text-base md:text-lg tracking-widest uppercase font-bold">
                       <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/5">
                         <Clock size={16} />
                         <span>{tour.duration}</span>
@@ -559,9 +564,9 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                     <div>
                       <button 
                         onClick={() => openModal(tour)}
-                        className="inline-flex items-center gap-4 text-xs uppercase tracking-[0.2em] text-[#0A0908] font-bold bg-[#9B7E67] px-10 py-5 rounded-full hover:bg-[#F9F7F4] transition-all duration-300 shadow-md hover:shadow-xl hover:shadow-white/10 transform hover:-translate-y-1"
+                        className="inline-flex items-center gap-4 text-sm md:text-base uppercase tracking-[0.2em] text-[#0A0908] font-bold bg-[#9B7E67] px-10 py-5 rounded-full hover:bg-[#F9F7F4] transition-all duration-300 shadow-md hover:shadow-xl hover:shadow-white/10 transform hover:-translate-y-1"
                       >
-                        {tour.learnMoreBtn} <ArrowLeft className="w-4 h-4 rotate-180" />
+                        {lang === 'en' ? 'Learn More' : 'Saber Más'} <ArrowLeft className="w-4 h-4 rotate-180" />
                       </button>
                     </div>
                   </div>
@@ -587,11 +592,11 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                     <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                   ))}
                 </div>
-                <p className="font-light text-[#F9F7F4]/70 text-lg md:text-xl leading-relaxed mb-10 italic">
+                <p className="font-light text-[#F9F7F4]/70 text-xl md:text-2xl leading-relaxed mb-10 italic">
                   "{review.text}"
                 </p>
                 <div className="flex items-center gap-4 font-serif text-[#F9F7F4]">
-                  <div className="w-10 h-10 rounded-full bg-[#9B7E67] flex items-center justify-center text-[#0A0908] font-bold text-sm">
+                  <div className="w-10 h-10 rounded-full bg-[#9B7E67] flex items-center justify-center text-[#0A0908] font-bold text-base md:text-lg">
                     {review.author.charAt(0)}
                   </div>
                   {review.author}
@@ -707,40 +712,40 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                   <div className="bg-[#0A0908] border border-white/5 rounded-2xl p-5 flex-1 min-w-[120px]">
                     <Clock size={20} className="text-[#9B7E67] mb-3" />
                     <span className="block text-[9px] uppercase tracking-widest text-[#F9F7F4]/40 font-bold mb-1">{t.modal.duration}</span>
-                    <span className="font-medium text-[#F9F7F4] text-sm">{selectedTour.duration}</span>
+                    <span className="font-medium text-[#F9F7F4] text-base md:text-lg">{selectedTour.duration}</span>
                   </div>
                   {selectedTour.price > 0 && (
                     <div className="bg-[#0A0908] border border-white/5 rounded-2xl p-5 flex-1 min-w-[120px]">
                       <DollarSign size={20} className="text-[#9B7E67] mb-3" />
                       <span className="block text-[9px] uppercase tracking-widest text-[#F9F7F4]/40 font-bold mb-1">{t.modal.price}</span>
-                      <span className="font-medium text-[#F9F7F4] text-sm">{formatPrice(selectedTour.price)} {lang === 'en' ? 'per person' : 'por persona'}</span>
+                      <span className="font-medium text-[#F9F7F4] text-base md:text-lg">{formatPrice(selectedTour.price)} {lang === 'en' ? 'per person' : 'por persona'}</span>
                     </div>
                   )}
                   <div className="bg-[#0A0908] border border-white/5 rounded-2xl p-5 flex-1 min-w-[120px]">
                     <Users size={20} className="text-[#9B7E67] mb-3" />
                     <span className="block text-[9px] uppercase tracking-widest text-[#F9F7F4]/40 font-bold mb-1">{t.modal.capacity}</span>
-                    <span className="font-medium text-[#F9F7F4] text-xs leading-tight">{selectedTour.capacity}</span>
+                    <span className="font-medium text-[#F9F7F4] text-sm md:text-base leading-tight">{selectedTour.capacity}</span>
                   </div>
                 </div>
 
                 <div className="h-px bg-white/5 w-full mb-10"></div>
 
                 <h4 className="font-serif text-2xl mb-5 text-[#F9F7F4]">{t.modal?.about || "Acerca del Recorrido"}</h4>
-                <p className="font-light text-[#F9F7F4]/70 leading-relaxed mb-10 text-lg">
+                <p className="font-light text-[#F9F7F4]/70 leading-relaxed mb-10 text-xl md:text-2xl">
                   {selectedTour.longDescription}
                 </p>
 
                 <h4 className="font-serif text-2xl mb-5 text-[#F9F7F4]">{t.modal.includes}</h4>
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
                   {selectedTour.includes.map((item: string, idx: number) => (
-                    <li key={idx} className="flex items-start gap-3 text-sm font-light text-[#F9F7F4]/70">
+                    <li key={idx} className="flex items-start gap-3 text-base md:text-lg font-light text-[#F9F7F4]/70">
                       <CheckCircle2 size={18} className="text-[#9B7E67] shrink-0 mt-0.5" />
                       <span>{item}</span>
                     </li>
                   ))}
                 </ul>
 
-                <div className="w-full inline-flex justify-center items-center gap-4 text-xs uppercase tracking-[0.2em] text-[#9B7E67] font-bold bg-[#9B7E67]/10 border border-[#9B7E67]/30 px-8 py-6 rounded-2xl text-center">
+                <div className="w-full inline-flex justify-center items-center gap-4 text-sm md:text-base uppercase tracking-[0.2em] text-[#9B7E67] font-bold bg-[#9B7E67]/10 border border-[#9B7E67]/30 px-8 py-6 rounded-2xl text-center">
                   {lang === 'en' ? 'Reserve this tour when booking your stay' : 'Reserva este tour al reservar tu estancia'}
                 </div>
 

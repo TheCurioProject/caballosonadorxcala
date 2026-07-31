@@ -131,7 +131,7 @@ const PremiumInput = ({
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          className="w-full bg-transparent border-b-2 border-gray-200 py-4 pr-10 text-[#23211F] text-lg focus:outline-none transition-colors peer font-light placeholder:text-transparent"
+          className="w-full bg-transparent border-b-2 border-gray-200 py-4 pr-10 text-[#23211F] text-xl md:text-2xl focus:outline-none transition-colors peer font-light placeholder:text-transparent"
           placeholder={placeholder}
         />
         <motion.div
@@ -293,7 +293,7 @@ const PremiumButton = ({
       disabled={disabled}
       whileHover={disabled ? {} : { scale: 1.02, y: -2 }}
       whileTap={disabled ? {} : { scale: 0.98 }}
-      className={`w-full py-4 rounded-full font-bold text-sm uppercase tracking-widest flex items-center justify-center gap-3 transition-all relative overflow-hidden ${
+      className={`w-full py-4 rounded-full font-bold text-base md:text-lg uppercase tracking-widest flex items-center justify-center gap-3 transition-all relative overflow-hidden ${
         disabled
           ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
           : 'bg-[#23211F] text-[#F9F7F4] shadow-xl hover:shadow-2xl'
@@ -911,8 +911,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const Counter = ({ label, value, onChange, max, sublabel = null }: { label: string, value: number, onChange: (v: number) => void, max: number, sublabel?: string | null }) => (
     <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
       <div className="flex flex-col">
-        <span className="font-bold text-base text-[#23211F]">{label}</span>
-        {sublabel && <span className="text-sm text-gray-400 mt-1">{sublabel}</span>}
+        <span className="font-bold text-lg md:text-xl text-[#23211F]">{label}</span>
+        {sublabel && <span className="text-base md:text-lg text-gray-400 mt-1">{sublabel}</span>}
       </div>
       <div className="flex items-center gap-3">
         <button 
@@ -1019,7 +1019,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   transition={{ delay: 0.5 }}
                   className="mt-12 space-y-6"
                 >
-                  <div className="flex items-start gap-4 text-sm font-light text-gray-300">
+                  <div className="flex items-start gap-4 text-base md:text-lg font-light text-gray-300">
                     <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
                       <CalendarDays size={16} className="text-[#9B7E67]" />
                     </div>
@@ -1029,7 +1029,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     </div>
                   </div>
                   
-                  <div className="flex items-start gap-4 text-sm font-light text-gray-300">
+                  <div className="flex items-start gap-4 text-base md:text-lg font-light text-gray-300">
                     <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
                       <User size={16} className="text-[#9B7E67]" />
                     </div>
@@ -1041,7 +1041,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
                   <AnimatePresence>
                     {wantsCook && (totalCookServices > 0 || isDinnerService(selectedCookService?.name)) && (
-                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex items-start gap-4 text-sm font-light text-gray-300 overflow-hidden">
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex items-start gap-4 text-base md:text-lg font-light text-gray-300 overflow-hidden">
                         <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
                           <Utensils size={16} className="text-[#9B7E67]" />
                         </div>
@@ -1053,7 +1053,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     )}
                     
                     {wantsATV && totalAtvTours > 0 && (
-                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex items-start gap-4 text-sm font-light text-gray-300 overflow-hidden">
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex items-start gap-4 text-base md:text-lg font-light text-gray-300 overflow-hidden">
                         <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
                           <Map size={16} className="text-[#9B7E67]" />
                         </div>
@@ -1147,7 +1147,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           />
                         </div>
                         {range?.from && !range?.to && (
-                          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#9B7E67] text-sm mt-6 font-medium animate-pulse text-center w-full">
+                          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#9B7E67] text-xs mt-6 font-medium animate-pulse text-center w-full">
                             {dict.modal?.minStay}
                           </motion.p>
                         )}
@@ -1168,12 +1168,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       </div>
                       <div className="mt-8 shrink-0 pb-8">
                         {(!range?.from || !range?.to) && (
-                          <p className="text-amber-600 text-sm font-bold mb-3 text-center">
+                          <p className="text-amber-600 text-xs font-bold mb-3 text-center">
                             {isEn ? 'Please select your check-in and check-out dates' : 'Por favor selecciona tus fechas de entrada y salida'}
                           </p>
                         )}
                         {range?.from && range?.to && nights < 2 && (
-                          <p className="text-red-500 text-sm font-bold mb-3 text-center">
+                          <p className="text-red-500 text-xs font-bold mb-3 text-center">
                             {dict.modal?.minStay || (isEn ? 'Minimum 2 nights required' : 'Mínimo 2 noches requeridas')}
                           </p>
                         )}
@@ -1208,11 +1208,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       </div>
 
                       <div className="grid grid-cols-2 gap-4 mt-auto md:mt-0 pb-4">
-                        <button onClick={() => handleWantsCook(true)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
+                        <button onClick={() => handleWantsCook(true)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-base md:text-lg md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
                           <span className="w-8 h-8 rounded-full border-2 border-gray-300 group-hover:border-[#9B7E67] flex items-center justify-center text-transparent group-hover:bg-[#9B7E67] group-hover:text-white transition-all">✓</span>
                           {dict.addons?.yesPlease}
                         </button>
-                        <button onClick={() => handleWantsCook(false)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
+                        <button onClick={() => handleWantsCook(false)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-base md:text-lg md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
                           <span className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-transparent group-hover:bg-gray-400 group-hover:text-white transition-all">✕</span>
                           {dict.addons?.noThanks}
                         </button>
@@ -1257,7 +1257,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                               className="p-5 border border-[#E8D5B7] rounded-xl hover:bg-[#F9F7F4] text-left transition-colors flex flex-col group bg-white"
                             >
                               <span className="font-bold text-[#23211F] group-hover:text-[#9B7E67] transition-colors">{translateDB(service.name, isEn)}</span>
-                              {service.description && <span className="text-sm text-gray-500 mt-1">{translateDB(service.description, isEn)}</span>}
+                              {service.description && <span className="text-base md:text-lg text-gray-500 mt-1">{translateDB(service.description, isEn)}</span>}
                             </button>
                           ))}
                         </div>
@@ -1283,21 +1283,21 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         <h3 className="text-3xl font-serif text-[#23211F] mb-2">
                           {isEn ? "Select Assistant" : "Seleccionar Asistente"}
                         </h3>
-                        <p className="text-sm text-gray-500 font-light mb-4">
+                        <p className="text-base md:text-lg text-gray-500 font-light mb-4">
                           {isEn ? "Request Assistant to help in the kitchen" : "Solicitar asistente para ayudar en la cocina"}
                         </p>
                       </div>
 
                       <div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-8">
                         <div className="flex justify-between items-center mb-4">
-                          <h4 className="text-sm font-bold uppercase tracking-widest text-[#9B7E67]">
+                          <h4 className="text-base md:text-lg font-bold uppercase tracking-widest text-[#9B7E67]">
                             {isEn ? 'Your Stay Dates' : 'Fechas de Estancia'}
                           </h4>
-                          <span className="text-sm font-bold text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">
+                          <span className="text-base md:text-lg font-bold text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">
                             {Object.keys(planByDate).length} / {stayDates.length} {isEn ? 'days planned' : 'días planeados'}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-500 font-light mb-4 italic">
+                        <p className="text-base md:text-lg text-gray-500 font-light mb-4 italic">
                           {isEn ? (
                             <>
                               By selecting a personal assistant you are purchasing help in the kitchen, not a meal plan.
@@ -1410,7 +1410,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         
                         <div className="shrink-0 mt-4 pb-8 hidden md:block">
                           {Object.keys(planByDate).length === 0 && (
-                            <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
+                            <p className="text-amber-600 text-xs font-bold mb-3 text-center animate-pulse">
                               {isEn ? `Select at least 1 day to advance` : `Selecciona al menos 1 dia para avanzar`}
                             </p>
                           )}
@@ -1440,7 +1440,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       
                       {isDinnerService(selectedCookService?.name) && (
                         <div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-8">
-                          <h4 className="text-lg font-serif text-[#2C2621] mb-2">
+                          <h4 className="text-xl md:text-2xl font-serif text-[#2C2621] mb-2">
                             {isEn ? 'Select group size, date of service and entree from each day' : 'Seleccione el tamaño del grupo, la fecha del servicio y el plato principal de cada día'}
                           </h4>
                           <div className="flex gap-4 mt-4">
@@ -1450,7 +1450,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                 <button
                                   key={size}
                                   onClick={() => setDinnerGroupSize(prev => prev === size ? '' : size)}
-                                  className={`flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-xl border-2 transition-all font-bold tracking-widest text-sm uppercase ${
+                                  className={`flex-1 flex flex-col items-center justify-center py-3 px-4 rounded-xl border-2 transition-all font-bold tracking-widest text-base md:text-lg uppercase ${
                                     dinnerGroupSize === size 
                                       ? 'border-[#9B7E67] bg-[#9B7E67] text-white shadow-md' 
                                       : 'border-gray-200 bg-white text-gray-500 hover:border-[#9B7E67] hover:text-[#9B7E67]'
@@ -1470,17 +1470,17 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       {(!isDinnerService(selectedCookService?.name) || dinnerGroupSize) && (
                         <div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-8">
                           <div className="flex justify-between items-center mb-4">
-                            <h4 className="text-sm font-bold uppercase tracking-widest text-[#9B7E67]">
+                            <h4 className="text-base md:text-lg font-bold uppercase tracking-widest text-[#9B7E67]">
                               {isEn ? 'Available Dishes (Menu)' : 'Platillos Disponibles (Menú)'}
                             </h4>
-                            <span className="text-sm font-bold text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">
+                            <span className="text-base md:text-lg font-bold text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">
                               {isDinnerService(selectedCookService?.name) 
                                 ? `${Object.keys(dishesByDate).length} / ${stayDates.length} ${isEn ? 'days planned' : 'días planeados'}`
                                 : `${selectedDishes.length} / ${globalMaxDishes} ${isEn ? 'selected' : 'seleccionados'}`
                               }
                             </span>
                           </div>
-                          <p className="text-sm text-gray-500 mb-4 font-light">
+                          <p className="text-base md:text-lg text-gray-500 mb-4 font-light">
                             {isDinnerService(selectedCookService?.name)
                               ? (isEn ? "Select a day from your stay, then pick the dish you want for that day." : "Selecciona un día de tu estancia, luego elige el platillo que deseas para ese día.")
                               : (isEn ? `Based on your selections, please pick ${globalMaxDishes} dish(es).` : `Basado en tus selecciones, elige ${globalMaxDishes} platillo(s).`)
@@ -1589,7 +1589,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                           className="overflow-hidden bg-gray-50 rounded-b-[2rem]"
                                         >
                                           <div className="p-6 border-t border-gray-100 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-                                            <p className="text-base text-gray-600 font-light leading-relaxed flex-1 whitespace-pre-wrap">
+                                            <p className="text-lg md:text-xl text-gray-600 font-light leading-relaxed flex-1 whitespace-pre-wrap">
                                               {translateDB(dish.description, isEn)}
                                             </p>
                                             <div className="shrink-0">
@@ -1616,7 +1616,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                                       return next;
                                                     });
                                                   }}
-                                                  className={`px-6 py-2 rounded-full text-sm font-bold uppercase tracking-widest transition-all ${
+                                                  className={`px-6 py-2 rounded-full text-base md:text-lg font-bold uppercase tracking-widest transition-all ${
                                                     isSelectedForDay 
                                                       ? 'bg-[#23211F] text-white' 
                                                       : 'bg-white border border-[#23211F] text-[#23211F] hover:bg-[#F9F7F4]'
@@ -1687,13 +1687,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       <div className="shrink-0 mt-4 pb-8 hidden md:block">
                         {isDinnerService(selectedCookService?.name) ? (
                           Object.keys(dishesByDate).length === 0 && dinnerGroupSize && (
-                            <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
+                            <p className="text-amber-600 text-xs font-bold mb-3 text-center animate-pulse">
                               {isEn ? `Select at least 1 day to advance` : `Selecciona al menos 1 dia para avanzar`}
                             </p>
                           )
                         ) : (
                           selectedDishes.length < globalMaxDishes && (
-                            <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
+                            <p className="text-amber-600 text-xs font-bold mb-3 text-center animate-pulse">
                               {isEn ? `Please select ${globalMaxDishes - selectedDishes.length} more dish(es)` : `Por favor selecciona ${globalMaxDishes - selectedDishes.length} platillo(s) más`}
                             </p>
                           )
@@ -1730,7 +1730,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       </div>
 
                       {isTourBookedOnSelectedDates ? (
-                        <div className="bg-[#FAF8F5] border border-[#D4A574] text-[#9B7E67] p-4 rounded-xl mb-6 text-base">
+                        <div className="bg-[#FAF8F5] border border-[#D4A574] text-[#9B7E67] p-4 rounded-xl mb-6 text-lg md:text-xl">
                           <strong>{isEn ? 'Tour already booked' : 'Tour ya reservado'}</strong>
                           <p className="mt-1 opacity-80">
                             {isEn 
@@ -1740,24 +1740,24 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </div>
                       ) : wantsATV === null ? (
                         <div className="grid grid-cols-2 gap-4 mt-auto md:mt-0 pb-4">
-                          <button onClick={() => handleWantsATV(true)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
+                          <button onClick={() => handleWantsATV(true)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-base md:text-lg md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
                             <span className="w-8 h-8 rounded-full border-2 border-gray-300 group-hover:border-[#9B7E67] flex items-center justify-center text-transparent group-hover:bg-[#9B7E67] group-hover:text-white transition-all">✓</span>
                             {dict.addons?.yesExplore}
                           </button>
-                          <button onClick={() => handleWantsATV(false)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-sm md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
+                          <button onClick={() => handleWantsATV(false)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-base md:text-lg md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
                             <span className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-transparent group-hover:bg-gray-400 group-hover:text-white transition-all">✕</span>
                             {dict.addons?.noThanks}
                           </button>
                         </div>
                       ) : wantsATV === true ? (
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 flex-1 flex flex-col">
-                          <button onClick={() => setWantsATV(null)} className="text-sm text-[#9B7E67] font-bold tracking-widest uppercase mb-2 block w-full text-left hover:text-[#23211F] transition-colors">{isEn ? '← Change option (Unselect)' : '← Cambiar opción (Deseleccionar)'}</button>
-                          <div className="bg-amber-50 text-amber-800 text-sm px-4 py-2 rounded-lg font-medium shrink-0">
+                          <button onClick={() => setWantsATV(null)} className="text-base md:text-lg text-[#9B7E67] font-bold tracking-widest uppercase mb-2 block w-full text-left hover:text-[#23211F] transition-colors">{isEn ? '← Change option (Unselect)' : '← Cambiar opción (Deseleccionar)'}</button>
+                          <div className="bg-amber-50 text-amber-800 text-base md:text-lg px-4 py-2 rounded-lg font-medium shrink-0">
                             {isEn ? `Maximum 1 tour per day (${nights - totalAtvTours} available)` : `Máximo 1 recorrido por día (${nights - totalAtvTours} disponibles)`}
                           </div>
                           
                           <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm shrink-0">
-                            <div className="font-bold text-base text-[#23211F] mb-2">{dict.addons?.howManyPeople} (Min {minTourPax}, Max {maxTourPax})</div>
+                            <div className="font-bold text-lg md:text-xl text-[#23211F] mb-2">{dict.addons?.howManyPeople} (Min {minTourPax}, Max {maxTourPax})</div>
                             <div className="flex items-center gap-3">
                               <button 
                                 onClick={() => setAtvPeople(Math.max(minTourPax, atvPeople - 1))}
@@ -1776,7 +1776,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </div>
                           
                           <div className="flex-1 space-y-3 pb-4">
-                            <p className="font-bold text-base text-[#23211F] mb-2">{dict.addons?.selectDestination}</p>
+                            <p className="font-bold text-lg md:text-xl text-[#23211F] mb-2">{dict.addons?.selectDestination}</p>
                             {tours.map(tour => (
                               <Counter 
                                 key={tour.id}
@@ -1791,7 +1791,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
                           <div className="mt-4 pb-8 shrink-0 hidden md:block">
                             {(totalAtvTours === 0 || atvPeople < minTourPax) && (
-                              <p className="text-amber-600 text-sm font-bold mb-3 text-center animate-pulse">
+                              <p className="text-amber-600 text-xs font-bold mb-3 text-center animate-pulse">
                                 {isEn ? 'Please select at least one destination and number of people' : 'Por favor selecciona al menos un destino y personas'}
                               </p>
                             )}
@@ -1872,7 +1872,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
                         <div className="mt-8 pb-8 shrink-0 hidden md:block">
                           {!isFormValid && (
-                            <p className="text-amber-600 text-sm font-bold mb-3 text-center">
+                            <p className="text-amber-600 text-xs font-bold mb-3 text-center">
                               {isEn ? 'Please fill in all required fields correctly' : 'Por favor completa todos los campos requeridos correctamente'}
                             </p>
                           )}
@@ -1905,14 +1905,14 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           {/* Guest Data Review */}
                           <div className="pb-6 border-b border-gray-100">
                             <h4 className="font-bold text-[#23211F] mb-2">{isEn ? 'Guest Details' : 'Tus Datos'}</h4>
-                            <p className="text-base text-gray-500 font-medium">{guestName}</p>
-                            <p className="text-base text-gray-500">{guestEmail}</p>
-                            <p className="text-base text-gray-500">{countryCode} {guestPhone}</p>
+                            <p className="text-lg md:text-xl text-gray-500 font-medium">{guestName}</p>
+                            <p className="text-lg md:text-xl text-gray-500">{guestEmail}</p>
+                            <p className="text-lg md:text-xl text-gray-500">{countryCode} {guestPhone}</p>
                           </div>
                           <div className="flex justify-between items-center pb-6 border-b border-gray-100">
                             <div>
                               <h4 className="font-bold text-[#23211F]">{dict.addons?.accommodation}</h4>
-                              <p className="text-base text-gray-500">{nights} {dict.modal?.nights}</p>
+                              <p className="text-lg md:text-xl text-gray-500">{nights} {dict.modal?.nights}</p>
                             </div>
                             <div className="font-serif text-xl text-[#9B7E67]">${accommodationTotal.toLocaleString('en-US')} {currency}</div>
                           </div>
@@ -1926,7 +1926,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                   const selectedDaysCount = Object.keys(dishesByDate).length;
                                   const price = service ? selectedDaysCount * getConvertedPrice(service.price) : 0;
                                   return (
-                                    <div className="flex justify-between text-base text-gray-600 mb-1">
+                                    <div className="flex justify-between text-lg md:text-xl text-gray-600 mb-1">
                                       <span className="font-medium text-[#9B7E67]">{selectedDaysCount}x {translateDB(selectedCookService.name, isEn)} ({dinnerGroupSize} pax)</span>
                                       <span className="font-bold text-[#9B7E67]">{formatPrice(price)}</span>
                                     </div>
@@ -1942,7 +1942,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                   const service = foodServices.find(s => s.id.toString() === id);
                                   if (!service) return null;
                                   return (
-                                    <div key={id} className="flex justify-between items-center text-sm py-1">
+                                    <div key={id} className="flex justify-between items-center text-base md:text-lg py-1">
                                       <span className="text-[#23211F]">{count}x {translateDB(service.name, isEn)}</span>
                                       <span className="font-bold text-[#9B7E67]">{formatPrice(service.price * count)}</span>
                                     </div>
@@ -1951,13 +1951,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                               })()}
                               {selectedDishes.length > 0 && (
                                 <div className="mt-2 pt-2 border-t border-gray-50">
-                                  <p className="text-sm uppercase tracking-widest text-gray-400 font-bold mb-1">{isEn ? 'Selected Dishes:' : 'Platillos Seleccionados:'}</p>
+                                  <p className="text-base md:text-lg uppercase tracking-widest text-gray-400 font-bold mb-1">{isEn ? 'Selected Dishes:' : 'Platillos Seleccionados:'}</p>
                                   {Array.from(new Set(selectedDishes)).map(dishId => {
                                     const dish = foodServices.find(s => s.id === dishId);
                                     const count = selectedDishes.filter(id => id === dishId).length;
                                     if (dish) {
                                       return (
-                                        <div key={dishId} className="flex justify-between text-base text-gray-500 mb-0.5 ml-2">
+                                        <div key={dishId} className="flex justify-between text-lg md:text-xl text-gray-500 mb-0.5 ml-2">
                                           <span>• {count}x {translateDB(dish.name, isEn)}</span>
                                           {(dish.price || 0) > 0 && <span>${(count * (dish.price || 0)).toLocaleString('en-US')}</span>}
                                         </div>
@@ -1978,7 +1978,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                   const tour = tours.find(t => t.id.toString() === id);
                                   if (tour) {
                                     return (
-                                      <div key={id} className="flex justify-between text-base text-gray-600 mb-1">
+                                      <div key={id} className="flex justify-between text-lg md:text-xl text-gray-600 mb-1">
                                         <span>{count}x {atvPeople} pax - {translateDB(tour.name, isEn)}</span>
                                         <span>${(count * atvPeople * (tour.pricePerPax || 0)).toLocaleString('en-US')}</span>
                                       </div>
@@ -1993,14 +1993,14 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           <div className="flex justify-between items-center pt-2">
                             <div>
                               <h4 className="font-bold text-2xl text-[#23211F]">{dict.modal?.total}</h4>
-                              <p className="text-sm text-gray-400 uppercase tracking-widest">{dict.modal?.taxesIncluded}</p>
+                              <p className="text-base md:text-lg text-gray-400 uppercase tracking-widest">{dict.modal?.taxesIncluded}</p>
                             </div>
                             <div className="font-serif text-3xl text-[#23211F]">${grandTotal.toLocaleString('en-US')} {currency}</div>
                           </div>
                         </div>
 
                         {error && (
-                          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 text-red-600 p-4 rounded-xl text-base font-medium mb-6 text-center shrink-0">
+                          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-red-50 text-red-600 p-4 rounded-xl text-lg md:text-xl font-medium mb-6 text-center shrink-0">
                             {error}
                           </motion.div>
                         )}
@@ -2042,7 +2042,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 {step === 'dates' && (
                   <div className="flex flex-col items-end">
                     {range?.from && range?.to && nights < 2 && <span className="text-red-500 text-xs font-bold mb-1 mr-2">{isEn ? 'Min 2 nights' : 'Mínimo 2 noches'}</span>}
-                    <button onClick={nextStep} disabled={!range?.from || !range?.to || nights < 2} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
+                    <button onClick={nextStep} disabled={!range?.from || !range?.to || nights < 2} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-base md:text-lg font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {isEn ? 'Proceed' : 'Proceder'}
                     </button>
                   </div>
@@ -2050,7 +2050,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 {step === 'food_plan' && (
                   <div className="flex flex-col items-end">
                     {totalCookServices === 0 ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select service' : 'Selecciona servicio'}</span> : null}
-                    <button onClick={nextStep} disabled={totalCookServices === 0} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
+                    <button onClick={nextStep} disabled={totalCookServices === 0} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-base md:text-lg font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {isEn ? 'Proceed' : 'Proceder'}
                     </button>
                   </div>
@@ -2059,7 +2059,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   {step === 'menu' && (
                   <div className="flex flex-col items-end">
                     {selectedDishes.length < globalMaxDishes ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select your dishes' : 'Selecciona tus platillos'}</span> : null}
-                    <button onClick={nextStep} disabled={selectedDishes.length < globalMaxDishes} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
+                    <button onClick={nextStep} disabled={selectedDishes.length < globalMaxDishes} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-base md:text-lg font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {isEn ? 'Proceed' : 'Proceder'}
                     </button>
                   </div>
@@ -2067,7 +2067,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 {step === 'tours' && (
                   <div className="flex flex-col items-end">
                     {(!isTourBookedOnSelectedDates && wantsATV === null) ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : (wantsATV === true && (totalAtvTours === 0 || atvPeople < minTourPax)) ? <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Select destination' : 'Selecciona un destino'}</span> : null}
-                    <button onClick={nextStep} disabled={(!isTourBookedOnSelectedDates && wantsATV === null) || (wantsATV === true && (totalAtvTours === 0 || atvPeople < minTourPax))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
+                    <button onClick={nextStep} disabled={(!isTourBookedOnSelectedDates && wantsATV === null) || (wantsATV === true && (totalAtvTours === 0 || atvPeople < minTourPax))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-base md:text-lg font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {isEn ? 'Proceed' : 'Proceder'}
                     </button>
                   </div>
@@ -2075,7 +2075,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 {step === 'guest_data' && (
                   <div className="flex flex-col items-end">
                     {!isFormValid && <span className="text-amber-600 text-xs font-bold mb-1 mr-2">{isEn ? 'Fill required fields' : 'Llena los campos'}</span>}
-                    <button onClick={nextStep} disabled={!isFormValid} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
+                    <button onClick={nextStep} disabled={!isFormValid} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-base md:text-lg font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {isEn ? 'Proceed' : 'Proceder'}
                     </button>
                   </div>

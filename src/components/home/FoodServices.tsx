@@ -20,7 +20,7 @@ export const FoodServices = () => {
       <div className="h-[70vh] flex items-center justify-center text-center px-6 bg-[#23211F] text-white">
         <div className="max-w-3xl">
           <RevealText>
-            <h2 className="uppercase tracking-[0.3em] text-xs font-bold mb-4 text-[#9B7E67]">
+            <h2 className="uppercase tracking-[0.3em] text-sm md:text-base font-bold mb-4 text-[#9B7E67]">
               {(dict as any).foodServices?.superTitle || 'Experiencia Culinaria'}
             </h2>
           </RevealText>
@@ -37,7 +37,7 @@ export const FoodServices = () => {
           <RevealText delay={0.3}>
              <Link 
                 href={`${langPrefix}/servicios-de-comida`}
-                className="mt-12 inline-block border border-white/20 text-white bg-transparent px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] rounded-full hover:bg-white hover:text-[#23211F] transition-all duration-300 shadow-sm"
+                className="mt-12 inline-block border border-white/20 text-white bg-transparent px-8 py-4 text-sm md:text-base font-bold uppercase tracking-[0.2em] rounded-full hover:bg-white hover:text-[#23211F] transition-all duration-300 shadow-sm"
              >
                 {(dict as any).foodServices?.viewOptions || 'Ver Opciones'}
              </Link>

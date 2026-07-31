@@ -97,7 +97,7 @@ export default async function AdminSettingsPage() {
     <div className="max-w-7xl mx-auto space-y-8 pb-12">
       <div className="mb-4 sm:mb-8">
         <h2 className="text-2xl sm:text-4xl font-serif text-[#23211F]">Settings & Rules</h2>
-        <p className="text-gray-500 font-light mt-1 sm:mt-2 text-sm sm:text-base">
+        <p className="text-gray-500 font-light mt-1 sm:mt-2 text-base md:text-lg sm:text-base">
           Configure the global rules and pricing of the property.
         </p>
       </div>
@@ -105,20 +105,20 @@ export default async function AdminSettingsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Settings Form */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h2 className="text-lg font-serif text-[#23211F] mb-4">Base House Rules</h2>
+          <h2 className="text-xl md:text-2xl font-serif text-[#23211F] mb-4">Base House Rules</h2>
           <form action={updateSettings} className="space-y-4">
             <div>
               <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Base Price per Night (MXN)</label>
-              <input type="number" name="basePrice" defaultValue={property.basePrice} required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
+              <input type="number" name="basePrice" defaultValue={property.basePrice} required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-lg md:text-xl sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
             </div>
             <div>
               <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Base Capacity</label>
-              <input type="number" name="baseCapacity" defaultValue={property.baseCapacity} required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
+              <input type="number" name="baseCapacity" defaultValue={property.baseCapacity} required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-lg md:text-xl sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
             </div>
             <div>
               <AdminEmailsEditor initialEmails={property.adminEmails} />
             </div>
-            <button type="submit" className="w-full bg-[#23211F] hover:bg-[#9B7E67] text-white font-bold text-xs tracking-widest uppercase py-3 rounded-xl transition-all duration-300">
+            <button type="submit" className="w-full bg-[#23211F] hover:bg-[#9B7E67] text-white font-bold text-sm md:text-base tracking-widest uppercase py-3 rounded-xl transition-all duration-300">
               SAVE SETTINGS
             </button>
           </form>
@@ -126,26 +126,26 @@ export default async function AdminSettingsPage() {
 
         {/* Coupon Form */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h2 className="text-lg font-serif text-[#23211F] mb-4">Create Discount Coupon (Stripe)</h2>
+          <h2 className="text-xl md:text-2xl font-serif text-[#23211F] mb-4">Create Discount Coupon (Stripe)</h2>
           <form action={handleCreateCoupon} className="space-y-4">
             <div>
               <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Name / Code</label>
-              <input type="text" name="name" required placeholder="e.g. SUMMER20" className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
+              <input type="text" name="name" required placeholder="e.g. SUMMER20" className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-lg md:text-xl sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Type</label>
-                <select name="type" className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]">
+                <select name="type" className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-lg md:text-xl sm:text-sm focus:outline-none focus:border-[#9B7E67]">
                   <option value="percent">Percentage (%)</option>
                   <option value="amount">Fixed Amount ($)</option>
                 </select>
               </div>
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Value</label>
-                <input type="number" name="amount" required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
+                <input type="number" name="amount" required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-lg md:text-xl sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
               </div>
             </div>
-            <button type="submit" className="w-full bg-[#23211F] hover:bg-[#9B7E67] text-white font-bold text-xs tracking-widest uppercase py-3 rounded-xl transition-all duration-300">
+            <button type="submit" className="w-full bg-[#23211F] hover:bg-[#9B7E67] text-white font-bold text-sm md:text-base tracking-widest uppercase py-3 rounded-xl transition-all duration-300">
               CREATE COUPON
             </button>
           </form>
@@ -154,19 +154,19 @@ export default async function AdminSettingsPage() {
 
         {/* Update Credentials Form */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:col-span-2">
-          <h2 className="text-lg font-serif text-[#23211F] mb-4">Update Administrator Credentials</h2>
+          <h2 className="text-xl md:text-2xl font-serif text-[#23211F] mb-4">Update Administrator Credentials</h2>
           <form action={updateAdminCredentials} className="space-y-4 max-w-xl">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">New Username (Email)</label>
-                <input type="text" name="newUsername" required placeholder="admin" className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
+                <input type="text" name="newUsername" required placeholder="admin" className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-lg md:text-xl sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
               </div>
               <div>
                 <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">New Password</label>
-                <input type="password" name="newPassword" required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
+                <input type="password" name="newPassword" required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-lg md:text-xl sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
               </div>
             </div>
-            <button type="submit" className="w-full sm:w-auto bg-[#9c2b2b] hover:bg-[#7a2222] text-white font-bold text-xs tracking-widest uppercase py-3 px-8 rounded-xl transition-all duration-300 mt-2">
+            <button type="submit" className="w-full sm:w-auto bg-[#9c2b2b] hover:bg-[#7a2222] text-white font-bold text-sm md:text-base tracking-widest uppercase py-3 px-8 rounded-xl transition-all duration-300 mt-2">
               UPDATE CREDENTIALS & LOGOUT
             </button>
             <p className="text-[10px] text-gray-400 mt-2">You will be logged out immediately upon updating these credentials.</p>

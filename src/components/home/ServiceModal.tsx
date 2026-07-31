@@ -83,10 +83,10 @@ export const ServiceModal = ({ service, onClose }: ServiceModalProps) => {
               </div>
               
               <div className="flex flex-col gap-4">
-                <h3 className="text-lg md:text-xl font-light text-[#E5E0D8] opacity-90">
+                <h3 className="text-xl md:text-2xl font-light text-[#E5E0D8] opacity-90">
                   {service.short}
                 </h3>
-                <p className="text-[#E5E0D8] font-light text-base md:text-lg leading-relaxed opacity-70">
+                <p className="text-[#E5E0D8] font-light text-lg md:text-xl leading-relaxed opacity-70">
                   {service.desc}
                 </p>
               </div>

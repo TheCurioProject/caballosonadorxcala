@@ -34,7 +34,7 @@ export const Hero = ({ imageSrc }: { imageSrc?: string }) => {
       <div className="relative z-10 min-h-[100dvh] flex flex-col pt-32 pb-24 md:pb-32 px-6 md:px-16 text-white w-full max-w-7xl mx-auto drop-shadow-2xl">
         <RevealText delay={0.2} className="mb-6 md:mb-8 max-w-5xl mt-auto">
           <h1 className="flex flex-col gap-3 md:gap-5">
-            <span className="uppercase tracking-[0.2em] md:tracking-[0.4em] text-xs md:text-sm font-bold text-[#D5C6B1]">
+            <span className="uppercase tracking-[0.2em] md:tracking-[0.4em] text-sm md:text-base md:text-sm font-bold text-[#D5C6B1]">
               {dict.hero.title}
             </span>
             <span className="font-serif leading-[0.85] tracking-tighter block break-words" style={{ fontSize: 'clamp(4.5rem, min(15vw, 22vh), 14rem)' }}>
