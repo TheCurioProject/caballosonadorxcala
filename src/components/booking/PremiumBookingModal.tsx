@@ -945,7 +945,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[200] flex items-end justify-center md:items-center p-0 md:p-2 lg:p-6 touch-none perspective-[1000px]">
+        <div className="fixed inset-0 z-[200] flex items-end justify-center md:items-center p-0 md:p-2 lg:p-6 perspective-[1000px]">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
