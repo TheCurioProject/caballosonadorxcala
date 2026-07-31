@@ -2,8 +2,14 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import prisma from '@/lib/prisma';
-import { sendBookingConfirmation, sendInvoiceEmail } from '@/lib/resend';
+import { sendBookingConfirmation, sendInvoiceEmail, sendAdminBookingNotification } from '@/lib/resend';
 import { differenceInDays } from 'date-fns';
+import { renderToBuffer } from '@react-pdf/renderer';
+import { InvoicePDF } from '@/components/pdf/InvoicePDF';
+import { TourInvoicePDF } from '@/components/pdf/TourInvoicePDF';
+import React from 'react';
+import fs from 'fs';
+import path from 'path';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_for_build', {
   apiVersion: '2025-02-24.acacia' as any,
@@ -65,23 +71,32 @@ export async function POST(request: Request) {
         const rawAdminEmails = booking.property?.adminEmails || 'kelli9@telus.net';
         const adminEmailArray = rawAdminEmails.split(',').map((e: string) => e.trim()).filter((e: string) => e);
 
-        // Send confirmation to admins
-        if (adminEmailArray.length > 0) {
-          await sendBookingConfirmation({
-            guestName: booking.guestName,
-            guestEmail: booking.guestEmail,
-            toEmails: adminEmailArray,
-            checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
-            checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
-            totalPrice: booking.totalPrice,
-            currency,
-            bookingId: booking.id,
-            nights,
-          });
+        // Generate Invoice PDF Buffer
+        let pdfBuffer: Buffer | undefined = undefined;
+        try {
+          const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_official.png');
+          const logoBase64 = fs.existsSync(logoPath) ? fs.readFileSync(logoPath).toString('base64') : '';
+          
+          pdfBuffer = await renderToBuffer(
+            <InvoicePDF 
+              bookingId={booking.id}
+              guestName={booking.guestName}
+              roomName={booking.property?.name || 'Casa Caballo Soñador'}
+              checkIn={new Date(booking.checkIn).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' })}
+              checkOut={new Date(booking.checkOut).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' })}
+              totalPrice={booking.totalPrice}
+              depositPaid={booking.depositPaid || 0}
+              depositCurrency={booking.depositCurrency || 'MXN'}
+              date={new Date().toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' })}
+              logoBase64={logoBase64}
+              addons={booking.addons}
+            /> as any
+          );
+        } catch (pdfError) {
+          console.error('[Webhook] Failed to generate invoice PDF for admin notification', pdfError);
         }
 
-        // Send invoice email (without PDF attachment for now)
-        await sendInvoiceEmail({
+        const emailData = {
           guestName: booking.guestName,
           guestEmail: booking.guestEmail,
           checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
@@ -90,7 +105,15 @@ export async function POST(request: Request) {
           currency,
           bookingId: booking.id,
           nights,
-        });
+        };
+
+        // Send confirmation to admins
+        if (adminEmailArray.length > 0) {
+          await sendAdminBookingNotification(adminEmailArray, emailData, pdfBuffer);
+        }
+
+        // Send invoice email to guest
+        await sendInvoiceEmail(emailData, pdfBuffer);
 
       } catch (dbError) {
         console.error('[Webhook] Error updating booking:', dbError);
@@ -131,23 +154,30 @@ export async function POST(request: Request) {
           bookingId: booking.id
         });
 
-        // Send confirmation to admin
-        if (adminEmailArray.length > 0) {
-          await sendTourConfirmation({
-            guestName: booking.guestName,
-            guestEmail: booking.guestEmail,
-            tourDestination: destinationNames,
-            date: new Date(booking.startDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
-            pax: booking.pax || 1,
-            totalPrice: booking.totalPrice,
-            currency,
-            bookingId: booking.id,
-            toEmails: adminEmailArray
-          });
+        // Generate Tour Invoice PDF Buffer
+        let pdfBuffer: Buffer | undefined = undefined;
+        try {
+          const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_official.png');
+          const logoBase64 = fs.existsSync(logoPath) ? fs.readFileSync(logoPath).toString('base64') : '';
+          
+          pdfBuffer = await renderToBuffer(
+            <TourInvoicePDF 
+              bookingId={booking.id}
+              guestName={booking.guestName}
+              tourDestination={destinationNames}
+              date={new Date(booking.startDate).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' })}
+              pax={booking.pax || 1}
+              totalPrice={booking.totalPrice}
+              currency={currency}
+              issueDate={new Date().toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' })}
+              logoBase64={logoBase64}
+            /> as any
+          );
+        } catch (pdfError) {
+          console.error('[Webhook] Failed to generate tour invoice PDF for admin notification', pdfError);
         }
 
-        // Send Invoice email without pdf attachment initially
-        await sendTourInvoiceEmail({
+        const emailData = {
           guestName: booking.guestName,
           guestEmail: booking.guestEmail,
           tourDestination: destinationNames,
@@ -156,7 +186,15 @@ export async function POST(request: Request) {
           totalPrice: booking.totalPrice,
           currency,
           bookingId: booking.id
-        });
+        };
+
+        // Send confirmation to admin
+        if (adminEmailArray.length > 0) {
+          await sendAdminBookingNotification(adminEmailArray, emailData, pdfBuffer);
+        }
+
+        // Send Invoice email to guest
+        await sendTourInvoiceEmail(emailData, pdfBuffer);
 
       } catch (error) {
         console.error('[Webhook] Error updating tour booking:', error);

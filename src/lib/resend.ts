@@ -318,3 +318,99 @@ export async function sendTourInvoiceEmail(data: TourEmailData, pdfBuffer?: Buff
     return { success: false, error: err };
   }
 }
+
+export async function sendAdminBookingNotification(adminEmails: string[], data: BookingEmailData | TourEmailData, pdfBuffer?: Buffer) {
+  try {
+    const currencySymbol = data.currency === 'MXN' ? '$' : data.currency === 'USD' ? 'US$' : '€';
+    const formattedPrice = `${currencySymbol}${data.totalPrice.toLocaleString()}`;
+    const attachments = pdfBuffer ? [{
+      filename: `invoice-${data.bookingId}.pdf`,
+      content: pdfBuffer,
+    }] : [];
+
+    const isTour = 'tourDestination' in data;
+    const detailsHtml = isTour ? `
+      <tr>
+        <td style="padding:12px 0;color:#999;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;">Destino</td>
+        <td style="padding:12px 0;text-align:right;color:#23211F;font-weight:500;">${(data as TourEmailData).tourDestination}</td>
+      </tr>
+      <tr>
+        <td style="padding:12px 0;color:#999;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;">Fecha</td>
+        <td style="padding:12px 0;text-align:right;color:#23211F;font-weight:500;">${(data as TourEmailData).date}</td>
+      </tr>
+      <tr>
+        <td style="padding:12px 0;color:#999;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;">Personas</td>
+        <td style="padding:12px 0;text-align:right;color:#23211F;font-weight:500;">${(data as TourEmailData).pax}</td>
+      </tr>
+    ` : `
+      <tr>
+        <td style="padding:12px 0;color:#999;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;">Check-in</td>
+        <td style="padding:12px 0;text-align:right;color:#23211F;font-weight:500;">${(data as BookingEmailData).checkIn}</td>
+      </tr>
+      <tr>
+        <td style="padding:12px 0;color:#999;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;">Check-out</td>
+        <td style="padding:12px 0;text-align:right;color:#23211F;font-weight:500;">${(data as BookingEmailData).checkOut}</td>
+      </tr>
+      <tr>
+        <td style="padding:12px 0;color:#999;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;">Noches</td>
+        <td style="padding:12px 0;text-align:right;color:#23211F;font-weight:500;">${(data as BookingEmailData).nights}</td>
+      </tr>
+    `;
+
+    const { data: responseData, error } = await withRetry(() => resend.emails.send({
+      from: 'Casa Caballo Soñador <reservas@casacaballosonador.com>',
+      to: adminEmails,
+      subject: `NUEVA RESERVA #${data.bookingId} — Notificación Administrador`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin:0;padding:0;background-color:#F9F7F4;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+          <div style="max-width:600px;margin:0 auto;padding:40px 24px;">
+            <div style="text-align:center;margin-bottom:40px;">
+              <h1 style="font-size:24px;color:#d9534f;margin:0;font-weight:bold;letter-spacing:0.05em;">NUEVA RESERVA</h1>
+              <div style="width:60px;height:2px;background:#d9534f;margin:16px auto;"></div>
+            </div>
+            
+            <div style="background:white;border-radius:16px;padding:32px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+              <h2 style="font-size:20px;color:#23211F;margin:0 0 16px;font-weight:bold;">DATOS DE LA PERSONA</h2>
+              <p style="color:#666;font-size:16px;margin:0 0 8px;"><strong>Nombre:</strong> ${data.guestName}</p>
+              <p style="color:#666;font-size:16px;margin:0 0 24px;"><strong>Email:</strong> ${data.guestEmail}</p>
+              
+              <h3 style="font-size:18px;color:#23211F;margin:0 0 16px;font-weight:bold;">Detalles de la Reserva</h3>
+              <div style="border-top:1px solid #eee;padding-top:20px;">
+                <table style="width:100%;border-collapse:collapse;">
+                  <tr>
+                    <td style="padding:12px 0;color:#999;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;">Reserva</td>
+                    <td style="padding:12px 0;text-align:right;color:#23211F;font-weight:500;">#${data.bookingId}</td>
+                  </tr>
+                  ${detailsHtml}
+                  <tr style="border-top:2px solid #23211F;">
+                    <td style="padding:16px 0;color:#23211F;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;">Total</td>
+                    <td style="padding:16px 0;text-align:right;color:#9B7E67;font-size:24px;font-weight:600;">${formattedPrice} ${data.currency}</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+      attachments,
+    }));
+
+    if (error) {
+      console.error('[Resend] Error sending admin notification:', error);
+      return { success: false, error };
+    }
+
+    console.log('[Resend] Admin notification sent for booking:', data.bookingId);
+    return { success: true };
+  } catch (err) {
+    console.error('[Resend] Failed to send admin notification:', err);
+    return { success: false, error: err };
+  }
+}

@@ -65,6 +65,13 @@ export async function POST(req: Request) {
 
     const emailResult = await sendTourInvoiceEmail(emailData, Buffer.from(pdfBuffer));
 
+    const property = await prisma.property.findFirst();
+    const adminEmails = property?.adminEmails ? property.adminEmails.split(',').map((e: string) => e.trim()).filter(Boolean) : [];
+    if (adminEmails.length > 0) {
+      const { sendAdminBookingNotification } = await import('@/lib/resend');
+      await sendAdminBookingNotification(adminEmails, emailData, Buffer.from(pdfBuffer));
+    }
+
     if (!emailResult.success) {
       console.error('[SendTourInvoice] Error sending email:', emailResult.error);
       return NextResponse.json({ error: 'No se pudo enviar el correo' }, { status: 500 });

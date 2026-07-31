@@ -66,6 +66,13 @@ export async function POST(request: Request) {
     // Send email via resend.ts
     const result = await sendInvoiceEmail(data, pdfBuffer as Buffer);
 
+    // Notify admins since it is sent to the client manually
+    const adminEmails = booking.property?.adminEmails ? booking.property.adminEmails.split(',').map((e: string) => e.trim()).filter(Boolean) : [];
+    if (adminEmails.length > 0) {
+      const { sendAdminBookingNotification } = await import('@/lib/resend');
+      await sendAdminBookingNotification(adminEmails, data, pdfBuffer as Buffer);
+    }
+
     if (result.success) {
       return NextResponse.json({ success: true });
     } else {

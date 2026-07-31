@@ -206,15 +206,25 @@ export default function EditBookingModal({
                   {booking.addons.map((addon: any) => {
                     let detailsObj: any = {};
                     try { if (addon.details) detailsObj = JSON.parse(addon.details); } catch(e) {}
-                    
-                    let name = detailsObj.service || detailsObj.plan || detailsObj.name || (addon.type.includes('DISH') ? 'Platillo / Dish' : 'Servicio / Service');
-                    if (detailsObj.groupSize) {
-                      name += ` (${detailsObj.groupSize} pax)`;
+                    let name = "";
+                    if (addon.type.startsWith('TOUR')) {
+                      const dest = detailsObj.destination || detailsObj.name || addon.name || 'Tour';
+                      const pax = detailsObj.people || addon.quantity;
+                      const dateStr = detailsObj.date ? ` el día ${detailsObj.date}` : '';
+                      name = `Tour a ${dest} para ${pax} personas${dateStr}`;
+                    } else if (addon.type.startsWith('FOOD')) {
+                      if (addon.type.includes('DISH')) {
+                        name = `Servicio de Cena el día ${detailsObj.date || ''} con platillo: ${addon.name}`;
+                      } else if (detailsObj.service || detailsObj.plan || detailsObj.name) {
+                        name = `${detailsObj.service || detailsObj.plan || detailsObj.name}`;
+                        if (detailsObj.date) name += ` el día ${detailsObj.date}`;
+                        if (detailsObj.groupSize) name += ` para ${detailsObj.groupSize} personas`;
+                      } else {
+                        name = addon.name || 'Servicio de Comida';
+                      }
+                    } else {
+                      name = addon.name || 'Adicional';
                     }
-                    if (detailsObj.date) {
-                      name += ` - ${detailsObj.date}`;
-                    }
-
                     return (
                       <div key={addon.id} className="bg-gray-50 rounded-xl p-4 flex justify-between items-center">
                         <div>

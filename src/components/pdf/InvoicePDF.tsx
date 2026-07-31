@@ -201,12 +201,15 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
             let detailsObj: any = {};
             try { if (addon.details) detailsObj = JSON.parse(addon.details); } catch(e) {}
             
-            let name = detailsObj.service || detailsObj.plan || detailsObj.name || (addon.type.includes('DISH') ? 'Platillo / Dish' : 'Servicio / Service');
-            if (detailsObj.groupSize) {
-              name += ` (${detailsObj.groupSize} Personas / Guests)`;
-            }
-            if (detailsObj.date) {
-              name += ` - ${detailsObj.date}`;
+            let name = "";
+            if (addon.type.includes('DISH')) {
+              name = `Servicio de Cena el día ${detailsObj.date || ''} con platillo: ${addon.name}`;
+            } else if (detailsObj.service || detailsObj.plan || detailsObj.name) {
+              name = `${detailsObj.service || detailsObj.plan || detailsObj.name}`;
+              if (detailsObj.date) name += ` el día ${detailsObj.date}`;
+              if (detailsObj.groupSize) name += ` para ${detailsObj.groupSize} personas`;
+            } else {
+              name = addon.name || 'Servicio de Comida';
             }
 
             return (
@@ -232,11 +235,13 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
           {addons.filter(a => a.type.startsWith('TOUR')).map((addon, i) => {
             let detailsObj: any = {};
             try { if (addon.details) detailsObj = JSON.parse(addon.details); } catch(e) {}
-            const name = detailsObj.destination || detailsObj.name || 'Tour';
+            const dest = detailsObj.destination || detailsObj.name || addon.name || 'Tour';
             const pax = detailsObj.people || addon.quantity;
+            const dateStr = detailsObj.date ? ` el día ${detailsObj.date}` : '';
+            const name = `Tour a ${dest} para ${pax} personas${dateStr}`;
             return (
               <View key={i} style={styles.row}>
-                <Text style={styles.label}>{pax} Personas / Guests - {name}</Text>
+                <Text style={styles.label}>{addon.quantity}x {name}</Text>
                 <Text style={styles.value}>${addon.price.toLocaleString('es-MX')} {depositCurrency}</Text>
               </View>
             );
