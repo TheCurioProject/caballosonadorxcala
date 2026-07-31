@@ -568,7 +568,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [minTourPax, setMinTourPax] = useState(3);
   const [maxTourPax, setMaxTourPax] = useState(10);
   const [atvPeople, setAtvPeople] = useState(3);
-  const [atvSelections, setAtvSelections] = useState<Record<string, number>>({});
+  const [atvByDate, setAtvByDate] = useState<Record<string, string>>({});
+  const [selectedDateForAtv, setSelectedDateForAtv] = useState<string>('');
 
   const currency = 'MXN';
   const formatPrice = (amountInMxn: number) => `$${Math.round(amountInMxn).toLocaleString()} MXN`;
@@ -632,7 +633,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         setSelectedDishes([]);
         setWantsATV(null);
         setAtvPeople(1);
-        setAtvSelections({});
+        setAtvByDate({});
+        setSelectedDateForAtv('');
         setError(null);
         setIsSuccess(false);
         setShowConfetti(false);
@@ -658,7 +660,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   useEffect(() => {
     if (isTourBookedOnSelectedDates && wantsATV === true) {
       setWantsATV(false);
-      setAtvSelections({});
+      setAtvByDate({});
+      setSelectedDateForAtv('');
     }
   }, [isTourBookedOnSelectedDates, wantsATV]);
 
@@ -711,11 +714,9 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   
   let atvTotal = 0;
   if (wantsATV) {
-    Object.entries(atvSelections).forEach(([id, count]) => {
-      if (count > 0) {
-        const tour = tours.find(t => t.id.toString() === id);
-        if (tour) atvTotal += count * atvPeople * getConvertedPrice(tour.pricePerPax);
-      }
+    Object.values(atvByDate).forEach(tourId => {
+      const tour = tours.find(t => t.id.toString() === tourId);
+      if (tour) atvTotal += atvPeople * getConvertedPrice(tour.pricePerPax);
     });
   }
   
@@ -781,13 +782,18 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
       }
     }
     if (wantsATV) {
-      Object.entries(atvSelections).forEach(([id, count]) => {
-        if (count > 0) {
-          const tour = tours.find(t => t.id.toString() === id);
-          if (tour) {
-            const unitPrice = getConvertedPrice(tour.pricePerPax);
-            selectedAddons.push({ type: `TOUR_${tour.id}`, name: tour.name, quantity: count * atvPeople, unitPrice, price: count * atvPeople * unitPrice, details: JSON.stringify({ people: atvPeople, destination: tour.name, instances: count }) });
-          }
+      Object.entries(atvByDate).forEach(([dateStr, tourId]) => {
+        const tour = tours.find(t => t.id.toString() === tourId);
+        if (tour) {
+          const unitPrice = getConvertedPrice(tour.pricePerPax);
+          selectedAddons.push({
+            type: `TOUR_${tour.id}_${dateStr}`,
+            name: tour.name,
+            quantity: atvPeople,
+            unitPrice,
+            price: atvPeople * unitPrice,
+            details: JSON.stringify({ people: atvPeople, destination: tour.name, date: dateStr })
+          });
         }
       });
     }
@@ -917,7 +923,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const handleWantsATV = (wants: boolean) => {
     setWantsATV(wants);
     if (!wants) {
-      setAtvSelections({});
+      setAtvByDate({});
+      setSelectedDateForAtv('');
       nextStep();
     }
   };
@@ -947,10 +954,10 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   );
 
   const handleAtvChange = (type: string, val: number) => {
-    setAtvSelections(prev => ({ ...prev, [type]: val }));
+    // legacy unused
   };
 
-  const totalAtvTours = Object.values(atvSelections).reduce((a, b) => a + b, 0);
+  const totalAtvTours = Object.keys(atvByDate).length;
 
   return (
     <AnimatePresence>
@@ -1780,41 +1787,135 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       ) : wantsATV === true ? (
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 flex-1 flex flex-col">
                           
-                          <div className="bg-amber-50 text-amber-800 text-base md:text-lg px-4 py-2 rounded-lg font-medium shrink-0">
-                            {isEn ? `Maximum 1 tour per day (${nights - totalAtvTours} available)` : `Máximo 1 recorrido por día (${nights - totalAtvTours} disponibles)`}
-                          </div>
-                          
                           <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm shrink-0">
                             <div className="font-bold text-lg md:text-xl text-[#23211F] mb-2">{dict.addons?.howManyPeople} (Min {minTourPax}, Max {maxTourPax})</div>
                             <div className="flex items-center gap-3">
                               <button 
                                 onClick={() => setAtvPeople(Math.max(minTourPax, atvPeople - 1))}
-                                className={`w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 border border-gray-200 text-gray-500 hover:text-black transition-colors ${atvPeople <= minTourPax ? 'invisible' : ''}`}
+                                className={`w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 border border-gray-200 text-gray-500 hover:text-black transition-colors ${atvPeople <= minTourPax ? 'opacity-30 cursor-not-allowed' : ''}`}
                               >
                                 <Minus size={16} />
                               </button>
                               <span className="w-4 text-center font-bold text-[#9B7E67]">{atvPeople}</span>
                               <button 
                                 onClick={() => setAtvPeople(Math.min(maxTourPax, atvPeople + 1))}
-                                className={`w-8 h-8 flex items-center justify-center rounded-full bg-[#23211F] text-white hover:bg-[#9B7E67] transition-colors ${atvPeople >= maxTourPax ? 'invisible' : ''}`}
+                                className={`w-8 h-8 flex items-center justify-center rounded-full bg-[#23211F] text-white hover:bg-[#9B7E67] transition-colors ${atvPeople >= maxTourPax ? 'opacity-30 cursor-not-allowed' : ''}`}
                               >
                                 <Plus size={16} />
                               </button>
                             </div>
                           </div>
-                          
+
+                          <div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-4 shrink-0">
+                            <div className="flex justify-between items-center mb-4">
+                              <h4 className="text-base md:text-lg font-bold uppercase tracking-widest text-[#9B7E67]">
+                                {isEn ? 'Your Stay Dates' : 'Fechas de Estancia'}
+                              </h4>
+                              <span className="text-base md:text-lg font-bold text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">
+                                {Object.keys(atvByDate).length} / {stayDates.length} {isEn ? 'days planned' : 'días planeados'}
+                              </span>
+                            </div>
+                            <p className="text-base md:text-lg text-gray-500 font-light mb-4 italic">
+                              {isEn 
+                                ? 'Select the dates of your stay and the destination you want to visit. Only one destination per day is allowed.' 
+                                : 'Selecciona las fechas en tu estancia y el destino que quieras visitar. Solo se puede seleccionar un destino por día.'}
+                            </p>
+                            <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+                              {stayDates.map((date, idx) => {
+                                const dateStr = date.toISOString().split('T')[0];
+                                const isSelected = selectedDateForAtv === dateStr;
+                                const hasPlan = !!atvByDate[dateStr];
+                                return (
+                                  <button
+                                    key={dateStr}
+                                    onClick={() => {
+                                      if (isSelected && hasPlan) {
+                                        setAtvByDate(prev => {
+                                          const next = { ...prev };
+                                          delete next[dateStr];
+                                          return next;
+                                        });
+                                      } else {
+                                        setSelectedDateForAtv(dateStr);
+                                      }
+                                    }}
+                                    className={`shrink-0 flex flex-col items-center justify-center min-w-[80px] p-3 rounded-2xl border transition-all ${
+                                      isSelected 
+                                        ? 'border-[#9B7E67] bg-[#9B7E67] text-white shadow-md' 
+                                        : hasPlan
+                                          ? 'border-[#9B7E67] bg-white text-[#9B7E67]'
+                                          : 'border-gray-200 bg-white text-gray-400 hover:border-gray-300'
+                                    }`}
+                                  >
+                                    <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest opacity-80 mb-1">
+                                      {isEn ? `Day ${idx + 1}` : `Día ${idx + 1}`}
+                                    </span>
+                                    <span className="text-xl font-serif">
+                                      {date.getDate()}
+                                    </span>
+                                    <span className="text-[10px] md:text-[11px] font-bold uppercase">
+                                      {date.toLocaleDateString(isEn ? 'en-US' : 'es-MX', { month: 'short' })}
+                                    </span>
+                                    {hasPlan && (
+                                      <div className={`mt-2 w-2 h-2 rounded-full ${isSelected ? 'bg-white' : 'bg-[#9B7E67]'}`} />
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+
                           <div className="flex-grow shrink-0 space-y-3 pb-4 w-full">
-                            <p className="font-bold text-lg md:text-xl text-[#23211F] mb-2">{dict.addons?.selectDestination}</p>
-                            {tours.map(tour => (
-                              <Counter 
-                                key={tour.id}
-                                label={translateDB(tour.name, isEn)} 
-                                value={atvSelections[tour.id.toString()] || 0} 
-                                onChange={(val) => handleAtvChange(tour.id.toString(), val)} 
-                                max={(atvSelections[tour.id.toString()] || 0) + (nights - totalAtvTours)} 
-                                sublabel={`+${formatPrice(tour.pricePerPax)} / ${isEn ? 'Guest' : 'Persona'}`} 
-                              />
-                            ))}
+                            {selectedDateForAtv && (
+                              <div className="space-y-3 mb-8">
+                                <p className="font-bold text-lg md:text-xl text-[#23211F] mb-2">{dict.addons?.selectDestination}</p>
+                                {tours.map(tour => {
+                                  const optionId = tour.id.toString();
+                                  const isSelectedForDay = atvByDate[selectedDateForAtv] === optionId;
+                                  
+                                  return (
+                                    <button
+                                      key={optionId}
+                                      onClick={() => {
+                                        setAtvByDate(prev => {
+                                          const next = { ...prev };
+                                          if (next[selectedDateForAtv] === optionId) {
+                                            delete next[selectedDateForAtv];
+                                          } else {
+                                            next[selectedDateForAtv] = optionId;
+                                          }
+                                          
+                                          if (Object.keys(next).length < stayDates.length) {
+                                            const dates = stayDates.map(d => d.toISOString().split('T')[0]);
+                                            const nextEmpty = dates.find(d => !next[d]);
+                                            if (nextEmpty) {
+                                              setTimeout(() => setSelectedDateForAtv(nextEmpty), 400);
+                                            }
+                                          }
+                                          return next;
+                                        });
+                                      }}
+                                      className={`w-full p-5 rounded-2xl border transition-all flex justify-between items-center ${
+                                        isSelectedForDay
+                                          ? 'bg-[#9B7E67] border-[#9B7E67] text-white shadow-md'
+                                          : 'bg-white border-gray-100 hover:border-[#E8D5B7] text-[#23211F]'
+                                      }`}
+                                    >
+                                      <div className="text-left">
+                                        <p className="font-bold">{translateDB(tour.name, isEn)}</p>
+                                      </div>
+                                      <div className={`text-[10px] md:text-[11px] font-bold px-3 py-1 rounded-full border ${
+                                        isSelectedForDay
+                                          ? 'bg-white/20 border-transparent text-white'
+                                          : 'bg-[#FAF8F5] border-[#E8D5B7] text-[#9B7E67]'
+                                      }`}>
+                                        +{formatPrice(tour.pricePerPax || 0)} / {isEn ? 'Guest' : 'Persona'}
+                                      </div>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
 
                           <div className="mt-4 pb-8 shrink-0 hidden md:block">
@@ -1999,20 +2100,18 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             </div>
                           )}
 
-                          {wantsATV && Object.values(atvSelections).some(v => v > 0) && (
+                          {wantsATV && Object.keys(atvByDate).length > 0 && (
                             <div className="pb-6 border-b border-gray-100">
                               <h4 className="font-bold text-[#23211F] mb-3 flex items-center gap-2"><Map size={16}/> {dict.addons?.atvTitle || (isEn ? 'Tours' : 'Tours')}</h4>
-                              {Object.entries(atvSelections).map(([id, count]) => {
-                                if (count > 0) {
-                                  const tour = tours.find(t => t.id.toString() === id);
-                                  if (tour) {
-                                    return (
-                                      <div key={id} className="flex justify-between text-lg md:text-xl text-gray-600 mb-1">
-                                        <span>{count}x {atvPeople} {isEn ? 'Guests' : 'Personas'} - {translateDB(tour.name, isEn)}</span>
-                                        <span>${(count * atvPeople * (tour.pricePerPax || 0)).toLocaleString('en-US')}</span>
-                                      </div>
-                                    );
-                                  }
+                              {Object.entries(atvByDate).map(([dateStr, id]) => {
+                                const tour = tours.find(t => t.id.toString() === id);
+                                if (tour) {
+                                  return (
+                                    <div key={dateStr} className="flex justify-between text-lg md:text-xl text-gray-600 mb-1">
+                                      <span>{atvPeople} {isEn ? 'Guests' : 'Personas'} - {translateDB(tour.name, isEn)} ({dateStr})</span>
+                                      <span>${(atvPeople * (tour.pricePerPax || 0)).toLocaleString('en-US')}</span>
+                                    </div>
+                                  );
                                 }
                                 return null;
                               })}
