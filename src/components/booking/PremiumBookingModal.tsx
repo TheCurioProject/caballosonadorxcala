@@ -911,7 +911,9 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const handleWantsCook = (wants: boolean) => {
     setWantsCook(wants);
     if (!wants) {
-      setCookSelectionsByDate({});
+      setPlanByDate({});
+      setDishesByDate({});
+      setSelectedCookService(null);
       setSelectedDishes([]);
       setStep('tours');
     } else {
