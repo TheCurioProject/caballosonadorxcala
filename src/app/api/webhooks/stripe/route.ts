@@ -4,10 +4,7 @@ import Stripe from 'stripe';
 import prisma from '@/lib/prisma';
 import { sendBookingConfirmation, sendInvoiceEmail, sendAdminBookingNotification } from '@/lib/resend';
 import { differenceInDays } from 'date-fns';
-import { renderToBuffer } from '@react-pdf/renderer';
-import { InvoicePDF } from '@/components/pdf/InvoicePDF';
-import { TourInvoicePDF } from '@/components/pdf/TourInvoicePDF';
-import React from 'react';
+import { generateInvoicePDFBuffer, generateTourInvoicePDFBuffer } from '@/lib/pdf';
 import fs from 'fs';
 import path from 'path';
 
@@ -77,21 +74,19 @@ export async function POST(request: Request) {
           const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_official.png');
           const logoBase64 = fs.existsSync(logoPath) ? fs.readFileSync(logoPath).toString('base64') : '';
           
-          pdfBuffer = await renderToBuffer(
-            <InvoicePDF 
-              bookingId={booking.id}
-              guestName={booking.guestName}
-              roomName={booking.property?.name || 'Casa Caballo Soñador'}
-              checkIn={new Date(booking.checkIn).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' })}
-              checkOut={new Date(booking.checkOut).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' })}
-              totalPrice={booking.totalPrice}
-              depositPaid={booking.depositPaid || 0}
-              depositCurrency={booking.depositCurrency || 'MXN'}
-              date={new Date().toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' })}
-              logoBase64={logoBase64}
-              addons={booking.addons}
-            /> as any
-          );
+          pdfBuffer = await generateInvoicePDFBuffer({
+            bookingId: booking.id,
+            guestName: booking.guestName,
+            roomName: booking.property?.name || 'Casa Caballo Soñador',
+            checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
+            checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
+            totalPrice: booking.totalPrice,
+            depositPaid: booking.depositPaid || 0,
+            depositCurrency: booking.depositCurrency || 'MXN',
+            date: new Date().toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
+            logoBase64: logoBase64,
+            addons: booking.addons
+          });
         } catch (pdfError) {
           console.error('[Webhook] Failed to generate invoice PDF for admin notification', pdfError);
         }
@@ -160,19 +155,17 @@ export async function POST(request: Request) {
           const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_official.png');
           const logoBase64 = fs.existsSync(logoPath) ? fs.readFileSync(logoPath).toString('base64') : '';
           
-          pdfBuffer = await renderToBuffer(
-            <TourInvoicePDF 
-              bookingId={booking.id}
-              guestName={booking.guestName}
-              tourDestination={destinationNames}
-              date={new Date(booking.startDate).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' })}
-              pax={booking.pax || 1}
-              totalPrice={booking.totalPrice}
-              currency={currency}
-              issueDate={new Date().toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' })}
-              logoBase64={logoBase64}
-            /> as any
-          );
+          pdfBuffer = await generateTourInvoicePDFBuffer({
+            bookingId: booking.id,
+            guestName: booking.guestName,
+            tourDestination: destinationNames,
+            date: new Date(booking.startDate).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
+            pax: booking.pax || 1,
+            totalPrice: booking.totalPrice,
+            currency: currency,
+            issueDate: new Date().toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
+            logoBase64: logoBase64
+          });
         } catch (pdfError) {
           console.error('[Webhook] Failed to generate tour invoice PDF for admin notification', pdfError);
         }
