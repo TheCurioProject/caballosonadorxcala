@@ -1072,7 +1072,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   <div className="flex flex-col gap-1">
                     <p className="text-base uppercase tracking-widest font-bold text-gray-400">{dict.modal?.total} {nights > 0 && `(${nights} ${dict.modal?.nights})`}</p>
                     <div className="flex gap-2 items-center mt-2">
-                      <span className="text-base uppercase text-[#9B7E67] font-bold tracking-widest max-w-[200px]">
+                      <span className="text-[10px] md:text-[11px] uppercase text-[#9B7E67] font-bold tracking-widest max-w-[200px]">
                         {isEn ? '* Stripe will handle the currency conversion at checkout' : '* Stripe aplicará el tipo de cambio correspondiente al momento del pago'}
                       </span>
                     </div>
@@ -1151,7 +1151,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             {dict.modal?.minStay}
                           </motion.p>
                         )}
-                        <div className="flex flex-row flex-wrap items-center justify-center gap-x-4 gap-y-4 md:gap-x-8 mt-10 md:mt-14 pt-8 md:pt-10 border-t border-gray-100 text-base md:text-[11px] font-bold uppercase tracking-widest text-gray-500 w-full max-w-[300px] md:max-w-full mx-auto">
+                        <div className="flex flex-row flex-wrap items-center justify-center gap-x-4 gap-y-4 md:gap-x-8 mt-10 md:mt-14 pt-8 md:pt-10 border-t border-gray-100 text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-gray-500 w-full max-w-[300px] md:max-w-full mx-auto">
                           <div className="flex items-center gap-2.5 md:gap-3">
                             <div className="w-2.5 h-2.5 md:w-3 md:h-3 shrink-0 rounded-full bg-red-500 opacity-80 shadow-sm"></div>
                             <span>{isEn ? 'Booked' : 'Reservado'}</span>
