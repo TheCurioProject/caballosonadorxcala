@@ -835,13 +835,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     const steps = ['dates', 'guest_data', 'food_prompt'];
     if (wantsCook) {
       steps.push('food_service');
-      const isPersonalized = selectedCookService?.name?.toLowerCase().includes('personalized') || selectedCookService?.name?.toLowerCase().includes('personalizado');
-      if (isPersonalized) {
-        steps.push('food_plan');
-      }
-      const isDinner = selectedCookService?.name?.toLowerCase().includes('dinner') || selectedCookService?.name?.toLowerCase().includes('cena');
-      if (isDinner) {
-        steps.push('menu');
+      if (selectedCookService) {
+        const isDinner = selectedCookService.name?.toLowerCase().includes('dinner') || selectedCookService.name?.toLowerCase().includes('cena');
+        if (isDinner) {
+          steps.push('menu');
+        } else {
+          steps.push('food_plan');
+        }
       }
     }
     steps.push('tours', 'summary');
