@@ -632,7 +632,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         setSelectedDateForPlan('');
         setSelectedDishes([]);
         setWantsATV(null);
-        setAtvPeople(1);
+        setAtvPeople(minTourPax);
         setAtvByDate({});
         setSelectedDateForAtv('');
         setError(null);
