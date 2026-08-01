@@ -30,7 +30,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
     intro: isEn 
       ? 'Delight your senses with personalized service. Treat yourself to a culinary experience and have dinners prepared for you or request assistance in the kitchen.'
       : 'Deleita tus sentidos con un servicio personalizado. Consiéntete con una experiencia culinaria y haz que te preparen la cena o solicita asistencia en la cocina.',
-    servicesTitle: isEn ? 'Choose Yours' : 'Elige el Tuyo',
+    servicesTitle: isEn ? 'Choose Your' : 'Elige el Tuyo',
     bookBtn: isEn ? 'Book Now' : 'Reservar Ahora',
     bookTour: isEn ? 'BOOK NOW' : 'RESERVAR AHORA',
     bookTourShort: isEn ? 'BOOK NOW' : 'RESERVAR AHORA',
@@ -78,8 +78,24 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
         time: '5:00 PM - 7:00 PM',
         icon: Sunset,
         desc: isEn 
-          ? 'For groups wanting to maximize daily activities we offer dinner Service between 5:00 and 7:00 PM. Our chef will prepare a meal from our dinner menu and look after the kitchen for you. Treat your family to an evening of Authentic Mexican Cuisine! This Service is perfect for groups of 6-12 people.'
-          : 'Para los grupos que desean maximizar las actividades diarias, ofrecemos servicio de cena entre las 5:00 y las 7:00 PM. Nuestro chef preparará una comida de nuestro menú de cena y se encargará de la cocina por usted. ¡Invite a su familia a una noche de auténtica cocina mexicana! Este servicio es perfecto para grupos de 6 a 12 personas.',
+          ? (
+            <>
+              For groups wanting to maximize daily activities we offer dinner Service between 5:00 and 7:00 PM. Our chef will prepare a meal from our dinner menu and look after the kitchen for you. Treat your family to an evening of Authentic Mexican Cuisine! This Service is perfect for groups of 6-12 people.
+              <br /><br />
+              <span className="italic text-[#D4A373] text-base md:text-lg">
+                Prices and selections available when confirming your stay
+              </span>
+            </>
+          )
+          : (
+            <>
+              Para los grupos que desean maximizar las actividades diarias, ofrecemos servicio de cena entre las 5:00 y las 7:00 PM. Nuestro chef preparará una comida de nuestro menú de cena y se encargará de la cocina por usted. ¡Invite a su familia a una noche de auténtica cocina mexicana! Este servicio es perfecto para grupos de 6 a 12 personas.
+              <br /><br />
+              <span className="italic text-[#D4A373] text-base md:text-lg">
+                Precios y selecciones disponibles al confirmar su estancia
+              </span>
+            </>
+          ),
         image: getImageUrl('/food_services/service_2.webp', siteImages)
       }
     ]
@@ -285,7 +301,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
             {texts.servicesTitle}
           </h2>
           <h3 className="font-serif text-4xl md:text-5xl lg:text-6xl text-[#2C2621]">
-            {isEn ? 'Food Services Options' : 'Opciones de Servicios de Comida'}
+            {isEn ? 'Food Service Option' : 'Opciones de Servicios de Comida'}
           </h3>
           <div className="mt-6 w-full inline-flex justify-center items-center gap-4 text-sm md:text-base uppercase tracking-[0.2em] text-[#D4A373] font-bold bg-[#D4A373]/10 border border-[#D4A373]/30 px-8 py-4 rounded-2xl mx-auto max-w-fit">
             {isEn ? 'Select these options when booking your stay' : 'Selecciona estas opciones al reservar tu estancia'}

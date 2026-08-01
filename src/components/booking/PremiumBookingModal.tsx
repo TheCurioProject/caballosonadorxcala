@@ -1791,7 +1791,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm shrink-0">
                             <div className="font-bold text-lg md:text-xl text-[#23211F] mb-2 flex items-baseline gap-2 flex-wrap">
                               {dict.addons?.howManyPeople} 
-                              <span className="text-[10px] md:text-[11px] uppercase tracking-widest font-bold text-gray-400">
+                              <span className="text-xs md:text-sm uppercase tracking-widest font-bold text-gray-400">
                                 (Min {minTourPax}, Max {maxTourPax})
                               </span>
                             </div>
