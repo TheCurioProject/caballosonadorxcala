@@ -1466,21 +1466,21 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           <h4 className="text-xl md:text-2xl font-serif text-[#2C2621] mb-2">
                             {isEn ? 'Select group size, date of service and entree from each day' : 'Seleccione el tamaño del grupo, la fecha del servicio y el plato principal de cada día'}
                           </h4>
-                          <div className="flex gap-4 mt-4">
+                          <div className="flex gap-2 md:gap-4 mt-4">
                             {['6-8', '10-12'].map((size) => {
                               const servicePrice = foodServices.find(s => s.serviceType === 'FOOD_PRICE' && isDinnerService(s.name) && matchesDinnerSize(s.name, size))?.price || 0;
                               return (
                                 <button
                                   key={size}
                                   onClick={() => setDinnerGroupSize(prev => prev === size ? '' : size)}
-                                  className={`flex-1 flex flex-col items-center justify-center py-4 px-4 rounded-xl border-2 transition-all font-bold tracking-widest text-base md:text-lg uppercase ${
+                                  className={`flex-1 flex flex-col items-center justify-center py-3 px-1 md:py-4 md:px-4 rounded-xl border-2 transition-all font-bold tracking-widest text-xs md:text-lg uppercase ${
                                     dinnerGroupSize === size 
                                       ? 'border-[#9B7E67] bg-[#9B7E67] text-white shadow-md' 
                                       : 'border-gray-200 bg-white text-gray-500 hover:border-[#9B7E67] hover:text-[#9B7E67]'
                                   }`}
                                 >
-                                  <span>{size} {isEn ? 'People' : 'Personas'}</span>
-                                  <span className={`text-sm md:text-base mt-2 normal-case font-bold ${dinnerGroupSize === size ? 'text-white' : 'text-[#9B7E67]'}`}>
+                                  <span className="text-center">{size} {isEn ? 'People' : 'Personas'}</span>
+                                  <span className={`text-[10px] md:text-base mt-1 md:mt-2 normal-case font-bold text-center ${dinnerGroupSize === size ? 'text-white' : 'text-[#9B7E67]'}`}>
                                     +{formatPrice(servicePrice)} / {isEn ? 'day' : 'día'}
                                   </span>
                                 </button>
