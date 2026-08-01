@@ -1512,8 +1512,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             {isDinnerService(selectedCookService?.name) && (
                               <span className="font-medium mt-2 inline-block text-[#9B7E67]">
                                 {isEn 
-                                  ? "Dinner includes an afternoon appetizer, fresh salad, your choice of main course, and dessert."
-                                  : "La cena incluye un aperitivo por la tarde, ensalada fresca, su elección de plato principal y postre."}
+                                  ? "Dinner includes an afternoon appetizer, fresh salad, main course, and dessert."
+                                  : "La cena incluye un aperitivo por la tarde, ensalada fresca, plato principal y postre."}
                               </span>
                             )}
                           </p>
