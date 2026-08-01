@@ -1494,7 +1494,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         <div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-4 md:mb-8">
                           <div className="flex justify-between items-center mb-4">
                             <h4 className="text-base md:text-lg font-bold uppercase tracking-widest text-[#9B7E67]">
-                              {isEn ? 'Available Dishes (Menu)' : 'Platillos Disponibles (Menú)'}
+                              {isEn ? 'Dinner Service' : 'Servicio de Cena'}
                             </h4>
                             <span className="text-base md:text-lg font-bold text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">
                               {isDinnerService(selectedCookService?.name) 
@@ -1505,7 +1505,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </div>
                           <p className="text-base md:text-lg text-gray-500 mb-4 font-light">
                             {isDinnerService(selectedCookService?.name)
-                              ? (isEn ? "Select a day from your stay, then pick the dish you want for that day." : "Selecciona un día de tu estancia, luego elige el platillo que deseas para ese día.")
+                              ? (isEn ? "Select date and entree" : "Selecciona fecha y plato principal")
                               : (isEn ? `Based on your selections, please pick ${globalMaxDishes} dish(es).` : `Basado en tus selecciones, elige ${globalMaxDishes} platillo(s).`)
                             }
                             <br/>
