@@ -15,7 +15,8 @@ import {
   Menu, 
   X,
   Sparkles,
-  Compass
+  Compass,
+  BookOpen
 } from 'lucide-react';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 
@@ -53,6 +54,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { name: 'Calendar', href: '/admin/calendar', icon: CalendarDays, desc: 'Availability & Date Lock' },
     { name: 'Edit Content', href: '/admin/content', icon: ImageIcon, desc: 'Site Media & Images' },
     { name: 'Experiences', href: '/admin/experiencias', icon: Sparkles, desc: 'Guest Activities' },
+    { name: 'Writers Group', href: '/admin/writers-group', icon: BookOpen, desc: 'Manage Workshops' },
     { name: 'Payments', href: '/admin/stripe', icon: CreditCard, desc: 'Stripe Transactions' },
     { name: 'iCal Sync', href: '/admin/ical', icon: CalendarSync, desc: 'Calendar Integrations' },
     { name: 'Settings', href: '/admin/settings', icon: Settings, desc: 'System Configuration' },

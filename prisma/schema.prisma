@@ -202,3 +202,15 @@ model SiteImage {
 
   @@map("site_images")
 }
+
+model WritersWorkshop {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(255)
+  description String   @db.Text
+  imageUrl    String?  @db.VarChar(500)
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("writers_workshops")
+}
