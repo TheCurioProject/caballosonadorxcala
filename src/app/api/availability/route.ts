@@ -57,6 +57,23 @@ export async function GET() {
     const bufferRanges = [];
     const blockedRanges = [];
     const tourBookedDates = []; // List of specific dates that have a tour booked
+    const foodBlockedRanges = [];
+    const tourBlockedRanges = [];
+
+    // Get service blocks
+    const serviceBlocks = await prisma.serviceBlockedDate.findMany({
+      where: {
+        endDate: { gte: new Date() }
+      }
+    });
+
+    for (const sb of serviceBlocks) {
+      if (sb.serviceType === 'FOOD') {
+        foodBlockedRanges.push({ from: sb.startDate, to: sb.endDate });
+      } else if (sb.serviceType === 'TOUR') {
+        tourBlockedRanges.push({ from: sb.startDate, to: sb.endDate });
+      }
+    }
 
     for (const b of blocks) {
       disabledRanges.push({ from: b.startDate, to: b.endDate });
@@ -95,6 +112,8 @@ export async function GET() {
       bufferRanges,
       blockedRanges,
       tourBookedDates,
+      foodBlockedRanges,
+      tourBlockedRanges,
       propertySettings: {
         checkInTime: "15:00",
         checkOutTime: "12:00",

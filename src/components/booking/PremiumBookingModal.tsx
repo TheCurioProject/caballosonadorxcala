@@ -533,6 +533,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [bookedRanges, setBookedRanges] = useState<{from: Date, to: Date}[]>([]);
   const [bufferRanges, setBufferRanges] = useState<DateRange[]>([]);
   const [blockedRanges, setBlockedRanges] = useState<DateRange[]>([]);
+  const [foodBlockedRanges, setFoodBlockedRanges] = useState<DateRange[]>([]);
+  const [tourBlockedRanges, setTourBlockedRanges] = useState<DateRange[]>([]);
   const [tourBookedDates, setTourBookedDates] = useState<string[]>([]);
   const [propertySettings, setPropertySettings] = useState<any>(null);
   
@@ -612,6 +614,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
           }
           setBufferRanges(data.bufferRanges || []);
           setBlockedRanges(data.blockedRanges || []);
+          if (data.foodBlockedRanges) {
+            setFoodBlockedRanges(data.foodBlockedRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })));
+          }
+          if (data.tourBlockedRanges) {
+            setTourBlockedRanges(data.tourBlockedRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })));
+          }
           setTourBookedDates(data.tourBookedDates || []);
           if (data.propertySettings) {
             setPropertySettings(data.propertySettings);
@@ -657,13 +665,41 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     return false;
   }, [range, tourBookedDates]);
 
+  const isServiceBlocked = (serviceRanges: DateRange[]) => {
+    if (!range?.from || !range?.to || !serviceRanges.length) return false;
+    const start = new Date(range.from);
+    start.setHours(0,0,0,0);
+    const end = new Date(range.to);
+    end.setHours(23,59,59,999);
+
+    return serviceRanges.some(block => {
+      if (!block.from || !block.to) return false;
+      const bStart = new Date(block.from);
+      const bEnd = new Date(block.to);
+      return start <= bEnd && end >= bStart;
+    });
+  };
+
+  const isFoodBlockedOnSelectedDates = isServiceBlocked(foodBlockedRanges);
+  const isTourBlockedOnSelectedDates = isServiceBlocked(tourBlockedRanges) || isTourBookedOnSelectedDates;
+
   useEffect(() => {
-    if (isTourBookedOnSelectedDates && wantsATV === true) {
+    if (isTourBlockedOnSelectedDates && wantsATV === true) {
       setWantsATV(false);
       setAtvByDate({});
       setSelectedDateForAtv('');
     }
-  }, [isTourBookedOnSelectedDates, wantsATV]);
+  }, [isTourBlockedOnSelectedDates, wantsATV]);
+
+  useEffect(() => {
+    if (isFoodBlockedOnSelectedDates && wantsCook === true) {
+      setWantsCook(false);
+      setSelectedCookService(null);
+      setPlanByDate({});
+      setDishesByDate({});
+      setSelectedDishes([]);
+    }
+  }, [isFoodBlockedOnSelectedDates, wantsCook]);
 
   const basePrice = useMemo(() => {
     return getConvertedPrice(propertySettings?.basePrice || 15000); // Dynamic base price from settings
@@ -1230,16 +1266,34 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </p>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 mt-auto md:mt-0 pb-4">
-                        <button type="button" onClick={() => handleWantsCook(true)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-base md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
-                          <span className="w-8 h-8 rounded-full border-2 border-gray-300 group-hover:border-[#9B7E67] flex items-center justify-center text-transparent group-hover:bg-[#9B7E67] group-hover:text-white transition-all">✓</span>
-                          {dict.addons?.yesPlease}
-                        </button>
-                        <button type="button" onClick={() => handleWantsCook(false)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-base md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
-                          <span className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-transparent group-hover:bg-gray-400 group-hover:text-white transition-all">✕</span>
-                          {dict.addons?.noThanks}
-                        </button>
-                      </div>
+                      {isFoodBlockedOnSelectedDates ? (
+                        <div className="bg-[#FAF8F5] border border-[#D4A574] text-[#9B7E67] p-6 rounded-2xl mb-6 shadow-sm flex flex-col gap-3">
+                          <strong className="text-xl font-serif">
+                            {isEn ? 'Service Temporarily Unavailable' : 'Servicio Temporalmente No Disponible'}
+                          </strong>
+                          <p className="text-sm md:text-base font-light opacity-90 leading-relaxed">
+                            {isEn 
+                              ? 'The food service is temporarily unavailable for the selected dates. You can still book your accommodation and enjoy our beautiful property.' 
+                              : 'El servicio de comida no se encuentra disponible temporalmente para las fechas seleccionadas. Aún puedes reservar tu alojamiento y disfrutar de nuestra hermosa propiedad.'}
+                          </p>
+                          <div className="mt-2">
+                            <PremiumButton onClick={() => { setWantsCook(false); setStep('tours'); }} variant="primary">
+                              {isEn ? 'Continue without food service' : 'Continuar sin servicio de comida'} <ArrowRight size={16} />
+                            </PremiumButton>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-4 mt-auto md:mt-0 pb-4">
+                          <button type="button" onClick={() => handleWantsCook(true)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-[#9B7E67] text-[#23211F] font-bold text-base md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
+                            <span className="w-8 h-8 rounded-full border-2 border-gray-300 group-hover:border-[#9B7E67] flex items-center justify-center text-transparent group-hover:bg-[#9B7E67] group-hover:text-white transition-all">✓</span>
+                            {dict.addons?.yesPlease}
+                          </button>
+                          <button type="button" onClick={() => handleWantsCook(false)} className="p-6 md:p-8 border-2 border-gray-200 rounded-2xl hover:border-gray-400 text-gray-500 font-bold text-base md:text-lg transition-colors flex flex-col items-center gap-2 group bg-white">
+                            <span className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-transparent group-hover:bg-gray-400 group-hover:text-white transition-all">✕</span>
+                            {dict.addons?.noThanks}
+                          </button>
+                        </div>
+                      )}
                     </motion.div>
                   )}
 
@@ -1765,14 +1819,21 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         <p className="text-gray-500 font-light">{dict.addons?.atvDesc}</p>
                       </div>
 
-                      {isTourBookedOnSelectedDates ? (
-                        <div className="bg-[#FAF8F5] border border-[#D4A574] text-[#9B7E67] p-4 rounded-xl mb-6 text-lg md:text-xl">
-                          <strong>{isEn ? 'Tour already booked' : 'Tour ya reservado'}</strong>
-                          <p className="mt-1 opacity-80">
+                      {isTourBlockedOnSelectedDates ? (
+                        <div className="bg-[#FAF8F5] border border-[#D4A574] text-[#9B7E67] p-6 rounded-2xl mb-6 shadow-sm flex flex-col gap-3">
+                          <strong className="text-xl font-serif">
+                            {isEn ? 'Service Temporarily Unavailable' : 'Servicio Temporalmente No Disponible'}
+                          </strong>
+                          <p className="text-sm md:text-base font-light opacity-90 leading-relaxed">
                             {isEn 
-                              ? 'There is already a tour booked for these dates. You can still book the accommodation, but the ATV tour option is currently unavailable.' 
-                              : 'Ya hay un tour reservado para estas fechas. Puedes reservar el alojamiento, pero la opción de tour en cuatrimoto no está disponible actualmente.'}
+                              ? 'The ATV tour service is temporarily unavailable for the selected dates. You can still book your accommodation.' 
+                              : 'El servicio de tour en cuatrimoto no se encuentra disponible temporalmente para las fechas seleccionadas. Aún puedes reservar tu alojamiento.'}
                           </p>
+                          <div className="mt-2">
+                            <PremiumButton onClick={() => { setWantsATV(false); nextStep(); }} variant="primary">
+                              {isEn ? 'Continue without tours' : 'Continuar sin tours'} <ArrowRight size={16} />
+                            </PremiumButton>
+                          </div>
                         </div>
                       ) : wantsATV === null ? (
                         <div className="grid grid-cols-2 gap-4 mt-auto md:mt-0 pb-4">

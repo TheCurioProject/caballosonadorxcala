@@ -7,6 +7,8 @@ import bcrypt from 'bcryptjs';
 import { getSession } from '@/lib/auth';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { getServiceBlockedDates } from './service-actions';
+import ServiceAvailabilitySection from './ServiceAvailabilitySection';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,6 +32,10 @@ export default async function AdminSettingsPage() {
       whatsappNumber: '+521234567890'
     };
   }
+
+  const allServiceBlocks = await getServiceBlockedDates();
+  const foodBlocks = allServiceBlocks.filter(b => b.serviceType === 'FOOD');
+  const tourBlocks = allServiceBlocks.filter(b => b.serviceType === 'TOUR');
 
   // Server Actions for this page
   async function updateSettings(formData: FormData) {
@@ -179,6 +185,9 @@ export default async function AdminSettingsPage() {
             <p className="text-[10px] text-gray-400 mt-2">You will be logged out immediately upon updating these credentials.</p>
           </form>
         </div>
+
+        {/* Service Availability Section */}
+        <ServiceAvailabilitySection foodBlocks={foodBlocks} tourBlocks={tourBlocks} />
       </div>
     </div>
   );

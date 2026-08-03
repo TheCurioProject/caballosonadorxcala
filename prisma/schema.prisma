@@ -226,3 +226,17 @@ model WritersWorkshop {
 
   @@map("writers_workshops")
 }
+
+model ServiceBlockedDate {
+  id          Int      @id @default(autoincrement())
+  serviceType String   @map("service_type") @db.VarChar(50) // 'FOOD' or 'TOUR'
+  startDate   DateTime @map("start_date")
+  endDate     DateTime @map("end_date")
+  reason      String?  @db.VarChar(500)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([startDate, endDate])
+  @@index([serviceType])
+  @@map("service_blocked_dates")
+}
