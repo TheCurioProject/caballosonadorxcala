@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Edit2, Trash2, X, Image as ImageIcon, Loader2, BookOpen } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Image as ImageIcon, Loader2, BookOpen, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 
 interface Workshop {
@@ -282,52 +282,52 @@ export default function WritersGroupAdmin() {
                 <form id="workshopForm" onSubmit={handleSubmit} className="space-y-6">
                   
                   <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4 mb-4">
-                    <p className="text-sm text-blue-800 font-medium flex gap-2">
-                      <span className="text-xl">✨</span> ¡Traducción automática activada! El sistema generará y mostrará las versiones en inglés y español limpiamente.
+                    <p className="text-sm text-blue-800 font-medium flex items-center gap-2">
+                      <Sparkles size={18} className="text-blue-600 shrink-0" /> Automatic translation active! The system will cleanly generate and display English and Spanish versions.
                     </p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Título</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
                     <input
                       type="text"
                       required
                       value={title}
                       onChange={e => setTitle(e.target.value)}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#9B7E67]/20 focus:border-[#9B7E67] transition-all outline-none"
-                      placeholder="Ej. Taller de Poesía Intensivo"
+                      placeholder="e.g. Intensive Poetry Workshop"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Resumen <span className="text-gray-400 font-normal">(1-2 líneas)</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Summary <span className="text-gray-400 font-normal">(1-2 lines)</span></label>
                     <textarea
                       rows={2}
                       value={summary}
                       onChange={e => setSummary(e.target.value)}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#9B7E67]/20 focus:border-[#9B7E67] transition-all outline-none resize-none"
-                      placeholder="Breve descripción para la tarjeta principal..."
+                      placeholder="Brief description for the main card..."
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Descripción Completa</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Description</label>
                     <textarea
                       required
                       rows={8}
                       value={description}
                       onChange={e => setDescription(e.target.value)}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#9B7E67]/20 focus:border-[#9B7E67] transition-all outline-none resize-none"
-                      placeholder="Detalles completos del taller..."
+                      placeholder="Complete workshop details..."
                     />
                   </div>
 
                   <div className="pt-6 border-t border-gray-100">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Imagen Principal (Opcional)</label>
-                    <div className="flex items-start gap-6">
-                      <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Main Image (Optional)</label>
+                    <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
+                      <div className="flex-1 w-full">
                         <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
                           <div className="flex flex-col items-center justify-center pt-5 pb-6 text-gray-500">
                             <ImageIcon size={24} className="mb-2" />
-                            <p className="text-sm">Clic para subir imagen</p>
+                            <p className="text-sm">Click to upload image</p>
                           </div>
                           <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
                         </label>
@@ -352,61 +352,61 @@ export default function WritersGroupAdmin() {
                   </div>
 
                   <div className="pt-6 border-t border-gray-100">
-                    <h3 className="text-lg font-serif text-[#2C2927] mb-4">Detalles del Taller e Instructor (Opcional)</h3>
+                    <h3 className="text-lg font-serif text-[#2C2927] mb-4">Workshop & Instructor Details (Optional)</h3>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Fechas (Ej. Nov 12 - Nov 16)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Dates (e.g. Nov 12 - Nov 16)</label>
                         <input
                           type="text"
                           value={dates}
                           onChange={e => setDates(e.target.value)}
                           className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#9B7E67]/20 focus:border-[#9B7E67] transition-all outline-none"
-                          placeholder="Fechas del taller"
+                          placeholder="Workshop dates"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Precio (Ej. $1,395 USD)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Price (e.g. $1,395 USD)</label>
                         <input
                           type="text"
                           value={price}
                           onChange={e => setPrice(e.target.value)}
                           className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#9B7E67]/20 focus:border-[#9B7E67] transition-all outline-none"
-                          placeholder="Precio opcional"
+                          placeholder="Optional price"
                         />
                       </div>
                     </div>
 
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del Instructor</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Instructor Name</label>
                       <input
                         type="text"
                         value={instructorName}
                         onChange={e => setInstructorName(e.target.value)}
                         className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#9B7E67]/20 focus:border-[#9B7E67] transition-all outline-none"
-                        placeholder="Nombre del instructor"
+                        placeholder="Instructor Name"
                       />
                     </div>
                     
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Biografía del Instructor</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Instructor Bio</label>
                       <textarea
                         rows={4}
                         value={instructorBio}
                         onChange={e => setInstructorBio(e.target.value)}
                         className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#9B7E67]/20 focus:border-[#9B7E67] transition-all outline-none resize-none"
-                        placeholder="Biografía breve..."
+                        placeholder="Short bio..."
                       />
                     </div>
 
                     <div className="mt-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Imagen del Instructor</label>
-                      <div className="flex items-start gap-6">
-                        <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Instructor Image</label>
+                      <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
+                        <div className="flex-1 w-full">
                           <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
                             <div className="flex flex-col items-center justify-center pt-5 pb-6 text-gray-500">
                               <ImageIcon size={24} className="mb-2" />
-                              <p className="text-sm">Clic para subir imagen</p>
+                              <p className="text-sm">Click to upload image</p>
                             </div>
                             <input type="file" className="hidden" accept="image/*" onChange={handleInstructorImageChange} />
                           </label>

@@ -16,7 +16,8 @@ import {
   X,
   Sparkles,
   Compass,
-  BookOpen
+  BookOpen,
+  Globe
 } from 'lucide-react';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 
@@ -118,6 +119,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="p-8 border-t border-[#F9F7F4]/10">
+          <Link 
+            href="/es" 
+            className="flex items-center gap-3 text-sm font-medium text-gray-400 hover:text-white transition-colors w-full mb-4"
+          >
+            <Globe className="w-4 h-4" />
+            View Public Site
+          </Link>
           <button 
             onClick={handleLogout}
             className="flex items-center gap-3 text-sm font-medium text-red-400 hover:text-red-300 transition-colors w-full"
@@ -221,17 +229,26 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 })}
               </div>
 
-              {/* Logout inside Drawer */}
-              <button
-                onClick={() => {
-                  setIsToolsOpen(false);
-                  handleLogout();
-                }}
-                className="w-full py-3.5 px-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-red-500/20 transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                Log Out
-              </button>
+              {/* Actions inside Drawer */}
+              <div className="flex flex-col gap-3 mt-4">
+                <Link
+                  href="/es"
+                  className="w-full py-3.5 px-4 bg-white/5 border border-white/10 text-gray-300 rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-white/10 transition-colors"
+                >
+                  <Globe className="w-4 h-4" />
+                  View Public Site
+                </Link>
+                <button
+                  onClick={() => {
+                    setIsToolsOpen(false);
+                    handleLogout();
+                  }}
+                  className="w-full py-3.5 px-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-red-500/20 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Log Out
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

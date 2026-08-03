@@ -102,16 +102,6 @@ export const WorkshopAccordion = ({ workshop, lang, whatsappNumber }: WorkshopPr
                 <span className="group-hover:mr-1 transition-all">{lang === 'en' ? 'Read More' : 'Leer Más'}</span>
                 <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
               </div>
-              <a 
-                href={whatsappUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="hidden md:flex items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white px-6 py-2.5 rounded-full text-sm font-bold tracking-widest uppercase transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-              >
-                <MessageCircle size={18} />
-                <span>{lang === 'en' ? 'Contact via WhatsApp' : 'Contactar por WhatsApp'}</span>
-              </a>
             </div>
           )}
         </div>
@@ -143,7 +133,7 @@ export const WorkshopAccordion = ({ workshop, lang, whatsappNumber }: WorkshopPr
                     href={whatsappUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white px-8 py-4 rounded-full text-sm font-bold tracking-widest uppercase transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1"
+                    className="inline-flex items-center gap-2 bg-[#D4A373] hover:bg-[#C39362] text-white px-8 py-4 rounded-full text-sm font-bold tracking-widest uppercase transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1"
                   >
                     <MessageCircle size={20} />
                     <span>{lang === 'en' ? 'Contact via WhatsApp' : 'Contactar por WhatsApp'}</span>
