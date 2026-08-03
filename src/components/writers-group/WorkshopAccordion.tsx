@@ -20,7 +20,8 @@ interface WorkshopProps {
     instructorBioEn: string | null;
     instructorImageUrl: string | null;
     price: string | null;
-    dates: string | null;
+    datesEs: string | null;
+    datesEn: string | null;
   };
   lang: 'es' | 'en';
   whatsappNumber: string;
@@ -33,6 +34,7 @@ export const WorkshopAccordion = ({ workshop, lang, whatsappNumber }: WorkshopPr
   const summary = lang === 'en' ? workshop.summaryEn : workshop.summaryEs;
   const description = lang === 'en' ? workshop.descriptionEn : workshop.descriptionEs;
   const instructorBio = lang === 'en' ? workshop.instructorBioEn : workshop.instructorBioEs;
+  const dates = lang === 'en' ? workshop.datesEn : workshop.datesEs;
 
   const whatsappMessage = lang === 'en' 
     ? `Hello! I would like more information about the workshop: ${title}`
@@ -73,12 +75,12 @@ export const WorkshopAccordion = ({ workshop, lang, whatsappNumber }: WorkshopPr
             </div>
           </div>
           
-          {(workshop.dates || workshop.price) && (
+          {(dates || workshop.price) && (
             <div className="flex flex-wrap gap-4 mb-6">
-              {workshop.dates && (
+              {dates && (
                 <div className="flex items-center gap-2 text-sm text-[#9B7E67] font-medium tracking-wide bg-[#F9F7F4] px-4 py-2 rounded-full border border-[#9B7E67]/20">
                   <Calendar size={16} />
-                  <span>{workshop.dates}</span>
+                  <span>{dates}</span>
                 </div>
               )}
               {workshop.price && (

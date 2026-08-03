@@ -42,11 +42,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
     }
 
-    // Auto-translate fields
     const translatedTitle = parseTranslation(await autoTranslate(title));
     const translatedSummary = summary ? parseTranslation(await autoTranslate(summary)) : { en: null, es: null };
     const translatedDesc = parseTranslation(await autoTranslate(description));
     const translatedInstructorBio = instructorBio ? parseTranslation(await autoTranslate(instructorBio)) : { en: null, es: null };
+    const translatedDates = dates ? parseTranslation(await autoTranslate(dates)) : { en: null, es: null };
 
     let imageUrl = null;
     let instructorImageUrl = null;
@@ -100,7 +100,8 @@ export async function POST(request: Request) {
         instructorBioEn: translatedInstructorBio.en || instructorBio,
         instructorImageUrl,
         price,
-        dates
+        datesEs: translatedDates.es || dates,
+        datesEn: translatedDates.en || dates
       }
     });
 
@@ -139,6 +140,7 @@ export async function PUT(request: Request) {
     const translatedSummary = summary ? parseTranslation(await autoTranslate(summary)) : { en: null, es: null };
     const translatedDesc = parseTranslation(await autoTranslate(description));
     const translatedInstructorBio = instructorBio ? parseTranslation(await autoTranslate(instructorBio)) : { en: null, es: null };
+    const translatedDates = dates ? parseTranslation(await autoTranslate(dates)) : { en: null, es: null };
 
     const updateData: any = {
       titleEs: translatedTitle.es || title,
@@ -152,7 +154,8 @@ export async function PUT(request: Request) {
       instructorBioEs: translatedInstructorBio.es || instructorBio,
       instructorBioEn: translatedInstructorBio.en || instructorBio,
       price,
-      dates
+      datesEs: translatedDates.es || dates,
+      datesEn: translatedDates.en || dates
     };
 
     if (removeImage) {

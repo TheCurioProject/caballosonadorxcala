@@ -19,7 +19,8 @@ interface Workshop {
   instructorBioEn: string | null;
   instructorImageUrl: string | null;
   price: string | null;
-  dates: string | null;
+  datesEs: string | null;
+  datesEn: string | null;
   isActive: boolean;
 }
 
@@ -77,7 +78,7 @@ export default function WritersGroupAdmin() {
       setInstructorName(workshop.instructorName || '');
       setInstructorBio(workshop.instructorBioEs || '');
       setPrice(workshop.price || '');
-      setDates(workshop.dates || '');
+      setDates(workshop.datesEs || workshop.datesEn || '');
       setInstructorImagePreview(workshop.instructorImageUrl);
       setInstructorImageFile(null);
       setRemoveInstructorImage(false);
@@ -183,15 +184,16 @@ export default function WritersGroupAdmin() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
+    <div className="p-4 md:p-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
           <h1 className="font-serif text-3xl text-[#2C2927]">Writers Group Workshops</h1>
           <p className="text-gray-500 mt-1">Manage Chacala Writers Group workshops and content</p>
         </div>
         <button
           onClick={() => openModal()}
-          className="bg-[#9B7E67] text-white px-5 py-2.5 rounded-lg flex items-center gap-2 hover:bg-[#8A6D56] transition-colors"
+          className="bg-[#9B7E67] text-white px-5 py-2.5 rounded-lg flex items-center gap-2 hover:bg-[#8A6D56] transition-colors whitespace-nowrap"
         >
           <Plus size={18} />
           New Workshop
@@ -327,9 +329,9 @@ export default function WritersGroupAdmin() {
                         <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
                           <div className="flex flex-col items-center justify-center pt-5 pb-6 text-gray-500">
                             <ImageIcon size={24} className="mb-2" />
-                            <p className="text-sm">Click to upload image</p>
+                            <p className="text-sm">Click to upload 1 image</p>
                           </div>
-                          <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+                          <input type="file" className="hidden" accept="image/*" multiple={false} onChange={handleImageChange} />
                         </label>
                       </div>
                       {(imagePreview || (editingWorkshop?.imageUrl && !removeImage)) && (
@@ -406,9 +408,9 @@ export default function WritersGroupAdmin() {
                           <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
                             <div className="flex flex-col items-center justify-center pt-5 pb-6 text-gray-500">
                               <ImageIcon size={24} className="mb-2" />
-                              <p className="text-sm">Click to upload image</p>
+                              <p className="text-sm">Click to upload 1 image</p>
                             </div>
-                            <input type="file" className="hidden" accept="image/*" onChange={handleInstructorImageChange} />
+                            <input type="file" className="hidden" accept="image/*" multiple={false} onChange={handleInstructorImageChange} />
                           </label>
                         </div>
                         {(instructorImagePreview || (editingWorkshop?.instructorImageUrl && !removeInstructorImage)) && (
