@@ -204,13 +204,17 @@ model SiteImage {
 }
 
 model WritersWorkshop {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(255)
-  description String   @db.Text
-  imageUrl    String?  @db.VarChar(500)
-  isActive    Boolean  @default(true) @map("is_active")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id            Int      @id @default(autoincrement())
+  titleEs       String   @db.VarChar(255) @map("title_es")
+  titleEn       String   @db.VarChar(255) @map("title_en")
+  summaryEs     String?  @db.Text @map("summary_es")
+  summaryEn     String?  @db.Text @map("summary_en")
+  descriptionEs String   @db.Text @map("description_es")
+  descriptionEn String   @db.Text @map("description_en")
+  imageUrl      String?  @db.VarChar(500) @map("image_url")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
   @@map("writers_workshops")
 }

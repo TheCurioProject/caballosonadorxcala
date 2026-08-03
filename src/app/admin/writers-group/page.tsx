@@ -2,13 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Edit2, Trash2, X, Image as ImageIcon, CheckCircle, Loader2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Image as ImageIcon, Loader2, BookOpen } from 'lucide-react';
 import Image from 'next/image';
 
 interface Workshop {
   id: number;
-  title: string;
-  description: string;
+  titleEs: string;
+  titleEn: string;
+  summaryEs: string | null;
+  summaryEn: string | null;
+  descriptionEs: string;
+  descriptionEn: string;
   imageUrl: string | null;
   isActive: boolean;
 }
@@ -22,6 +26,7 @@ export default function WritersGroupAdmin() {
 
   // Form state
   const [title, setTitle] = useState('');
+  const [summary, setSummary] = useState('');
   const [description, setDescription] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -47,8 +52,9 @@ export default function WritersGroupAdmin() {
   const openModal = (workshop?: Workshop) => {
     if (workshop) {
       setEditingWorkshop(workshop);
-      setTitle(workshop.title);
-      setDescription(workshop.description);
+      setTitle(workshop.titleEs);
+      setSummary(workshop.summaryEs || '');
+      setDescription(workshop.descriptionEs);
       setIsActive(workshop.isActive);
       setImagePreview(workshop.imageUrl);
       setImageFile(null);
@@ -56,6 +62,7 @@ export default function WritersGroupAdmin() {
     } else {
       setEditingWorkshop(null);
       setTitle('');
+      setSummary('');
       setDescription('');
       setIsActive(true);
       setImagePreview(null);
@@ -80,6 +87,7 @@ export default function WritersGroupAdmin() {
 
     const formData = new FormData();
     formData.append('title', title);
+    formData.append('summary', summary);
     formData.append('description', description);
     formData.append('isActive', isActive.toString());
     
@@ -157,17 +165,17 @@ export default function WritersGroupAdmin() {
             >
               {workshop.imageUrl && (
                 <div className="relative w-full h-48 bg-gray-100">
-                  <Image src={workshop.imageUrl} alt={workshop.title} fill className="object-cover" />
+                  <Image src={workshop.imageUrl} alt={workshop.titleEs} fill className="object-cover" />
                 </div>
               )}
               <div className="p-6 flex-grow flex flex-col">
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-serif text-xl font-bold text-[#2C2927] line-clamp-2">{workshop.title}</h3>
+                  <h3 className="font-serif text-xl font-bold text-[#2C2927] line-clamp-2">{workshop.titleEs}</h3>
                   <div className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${workshop.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
                     {workshop.isActive ? 'Active' : 'Draft'}
                   </div>
                 </div>
-                <p className="text-gray-500 text-sm line-clamp-3 mb-6 flex-grow whitespace-pre-wrap">{workshop.description}</p>
+                <p className="text-gray-500 text-sm line-clamp-3 mb-6 flex-grow whitespace-pre-wrap">{workshop.summaryEs || workshop.descriptionEs}</p>
                 
                 <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 mt-auto">
                   <button
@@ -211,7 +219,7 @@ export default function WritersGroupAdmin() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
+              className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col"
             >
               <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-[#F9F7F4]">
                 <h2 className="font-serif text-2xl text-[#2C2927]">
@@ -222,34 +230,49 @@ export default function WritersGroupAdmin() {
                 </button>
               </div>
 
-              <div className="p-6 overflow-y-auto custom-scrollbar">
+              <div className="p-6 overflow-y-auto custom-scrollbar flex-grow">
                 <form id="workshopForm" onSubmit={handleSubmit} className="space-y-6">
                   
+                  <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4 mb-4">
+                    <p className="text-sm text-blue-800 font-medium flex gap-2">
+                      <span className="text-xl">✨</span> ¡Traducción automática activada! El sistema generará y mostrará las versiones en inglés y español limpiamente.
+                    </p>
+                  </div>
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Workshop Title</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Título</label>
                     <input
                       type="text"
                       required
                       value={title}
                       onChange={e => setTitle(e.target.value)}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#9B7E67]/20 focus:border-[#9B7E67] transition-all outline-none"
-                      placeholder="e.g. Memoir Writing Intensive"
+                      placeholder="Ej. Taller de Poesía Intensivo"
                     />
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Resumen <span className="text-gray-400 font-normal">(1-2 líneas)</span></label>
+                    <textarea
+                      rows={2}
+                      value={summary}
+                      onChange={e => setSummary(e.target.value)}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#9B7E67]/20 focus:border-[#9B7E67] transition-all outline-none resize-none"
+                      placeholder="Breve descripción para la tarjeta principal..."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Descripción Completa</label>
                     <textarea
                       required
-                      rows={6}
+                      rows={8}
                       value={description}
                       onChange={e => setDescription(e.target.value)}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#9B7E67]/20 focus:border-[#9B7E67] transition-all outline-none resize-none"
-                      placeholder="Workshop details..."
+                      placeholder="Detalles completos del taller..."
                     />
                   </div>
 
-                  <div>
+                  <div className="pt-6 border-t border-gray-100">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Cover Image</label>
                     <div className="flex items-start gap-6">
                       <div className="flex-1">
@@ -262,7 +285,7 @@ export default function WritersGroupAdmin() {
                         </label>
                       </div>
                       {(imagePreview || (editingWorkshop?.imageUrl && !removeImage)) && (
-                        <div className="relative w-32 h-32 rounded-xl overflow-hidden border border-gray-200">
+                        <div className="relative w-32 h-32 rounded-xl overflow-hidden border border-gray-200 shadow-sm">
                           <Image src={imagePreview || editingWorkshop!.imageUrl!} alt="Preview" fill className="object-cover" />
                           <button
                             type="button"
@@ -271,7 +294,7 @@ export default function WritersGroupAdmin() {
                               setImagePreview(null);
                               setRemoveImage(true);
                             }}
-                            className="absolute top-1 right-1 bg-white/80 p-1 rounded-full text-red-500 hover:bg-white"
+                            className="absolute top-1 right-1 bg-white/90 p-1 rounded-full text-red-500 hover:bg-white shadow-sm"
                           >
                             <X size={14} />
                           </button>
@@ -301,7 +324,7 @@ export default function WritersGroupAdmin() {
                 </form>
               </div>
 
-              <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+              <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
@@ -326,6 +349,3 @@ export default function WritersGroupAdmin() {
     </div>
   );
 }
-
-// Need BookOpen icon for the empty state
-import { BookOpen } from 'lucide-react';

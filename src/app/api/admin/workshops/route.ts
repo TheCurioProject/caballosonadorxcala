@@ -2,6 +2,16 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { v2 as cloudinary } from 'cloudinary';
 import { revalidatePath } from 'next/cache';
+import { autoTranslate } from '@/lib/translate';
+
+// Helper to parse translation result
+const parseTranslation = (jsonStr: string) => {
+  try {
+    return JSON.parse(jsonStr);
+  } catch (e) {
+    return { en: jsonStr, es: jsonStr };
+  }
+};
 
 export async function GET() {
   try {
@@ -18,6 +28,7 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const title = formData.get('title') as string;
+    const summary = formData.get('summary') as string;
     const description = formData.get('description') as string;
     const isActive = formData.get('isActive') === 'true';
     const image = formData.get('image') as File | null;
@@ -25,6 +36,11 @@ export async function POST(request: Request) {
     if (!title || !description) {
       return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
     }
+
+    // Auto-translate fields
+    const translatedTitle = parseTranslation(await autoTranslate(title));
+    const translatedSummary = summary ? parseTranslation(await autoTranslate(summary)) : { en: null, es: null };
+    const translatedDesc = parseTranslation(await autoTranslate(description));
 
     let imageUrl = null;
 
@@ -47,8 +63,12 @@ export async function POST(request: Request) {
 
     const workshop = await prisma.writersWorkshop.create({
       data: {
-        title,
-        description,
+        titleEs: translatedTitle.es || title,
+        titleEn: translatedTitle.en || title,
+        summaryEs: translatedSummary.es || summary,
+        summaryEn: translatedSummary.en || summary,
+        descriptionEs: translatedDesc.es || description,
+        descriptionEn: translatedDesc.en || description,
         isActive,
         imageUrl
       }
@@ -69,6 +89,7 @@ export async function PUT(request: Request) {
     const formData = await request.formData();
     const id = parseInt(formData.get('id') as string);
     const title = formData.get('title') as string;
+    const summary = formData.get('summary') as string;
     const description = formData.get('description') as string;
     const isActive = formData.get('isActive') === 'true';
     const image = formData.get('image') as File | null;
@@ -78,9 +99,18 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Auto-translate fields
+    const translatedTitle = parseTranslation(await autoTranslate(title));
+    const translatedSummary = summary ? parseTranslation(await autoTranslate(summary)) : { en: null, es: null };
+    const translatedDesc = parseTranslation(await autoTranslate(description));
+
     const updateData: any = {
-      title,
-      description,
+      titleEs: translatedTitle.es || title,
+      titleEn: translatedTitle.en || title,
+      summaryEs: translatedSummary.es || summary,
+      summaryEn: translatedSummary.en || summary,
+      descriptionEs: translatedDesc.es || description,
+      descriptionEn: translatedDesc.en || description,
       isActive
     };
 
