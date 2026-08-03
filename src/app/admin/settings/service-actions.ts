@@ -45,3 +45,12 @@ export async function toggleServiceBlockDates(serviceType: string, dates: Date[]
   revalidatePath('/admin/settings');
   revalidatePath('/admin');
 }
+
+export async function getServiceBlockedDates() {
+  const blocks = await prisma.serviceBlockedDate.findMany({
+    where: {
+      endDate: { gte: new Date() }
+    }
+  });
+  return blocks;
+}
