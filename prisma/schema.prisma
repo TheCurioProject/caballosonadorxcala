@@ -23,6 +23,7 @@ model Property {
   minTourPax    Int           @default(3) @map("min_tour_pax")
   maxTourPax    Int           @default(10) @map("max_tour_pax")
   adminEmails   String        @default("kelli9@telus.net") @map("admin_emails") @db.VarChar(500)
+  whatsappNumber String       @default("+521234567890") @map("whatsapp_number") @db.VarChar(50)
   bookings     Booking[]
 
   @@map("properties")
@@ -212,6 +213,12 @@ model WritersWorkshop {
   descriptionEs String   @db.Text @map("description_es")
   descriptionEn String   @db.Text @map("description_en")
   imageUrl      String?  @db.VarChar(500) @map("image_url")
+  instructorName     String?  @db.VarChar(255) @map("instructor_name")
+  instructorBioEs    String?  @db.Text @map("instructor_bio_es")
+  instructorBioEn    String?  @db.Text @map("instructor_bio_en")
+  instructorImageUrl String?  @db.VarChar(500) @map("instructor_image_url")
+  price              String?  @db.VarChar(100)
+  dates              String?  @db.VarChar(255)
   isActive      Boolean  @default(true) @map("is_active")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")

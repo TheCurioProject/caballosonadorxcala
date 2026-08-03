@@ -19,25 +19,63 @@ export default async function WritersGroupPage(props: { params: Promise<{ lang: 
     orderBy: { createdAt: 'desc' }
   });
 
+  const property = await prisma.property.findFirst();
+  const whatsappNumber = property?.whatsappNumber || '+521234567890';
+
   return (
     <main className="min-h-screen bg-[#F9F7F4] pt-24 md:pt-32 pb-20 relative">
       
-      {/* Custom Minimal Header */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 bg-gradient-to-b from-[#F9F7F4] to-transparent pointer-events-none">
-        <div className="flex items-center gap-4 pointer-events-auto">
-          <Link href={`/${lang}`} className="flex items-center justify-center w-10 h-10 rounded-full bg-white/50 backdrop-blur-md border border-[#2C2927]/10 text-[#2C2927] hover:bg-white transition-colors">
-            <ArrowLeft size={18} />
-          </Link>
-          <div className="flex bg-white/50 backdrop-blur-md border border-[#2C2927]/10 rounded-full overflow-hidden text-xs font-bold tracking-widest uppercase">
-            <Link href="/es/writers-group" className={`px-4 py-2.5 transition-colors ${lang === 'es' ? 'bg-[#9B7E67] text-white' : 'text-[#2C2927]/60 hover:text-[#2C2927]'}`}>
-              ES
-            </Link>
-            <Link href="/en/writers-group" className={`px-4 py-2.5 transition-colors ${lang === 'en' ? 'bg-[#9B7E67] text-white' : 'text-[#2C2927]/60 hover:text-[#2C2927]'}`}>
-              EN
-            </Link>
+      {/* Floating Navigation */}
+      <nav className="fixed top-0 w-full z-[100] bg-transparent text-[#F9F7F4] pointer-events-none transition-all duration-300">
+        <div className="py-5 md:py-6">
+          <div className="max-w-[1400px] mx-auto px-6 md:px-16 grid grid-cols-3 items-center relative">
+            
+            <div className="flex justify-start pointer-events-auto">
+              <Link 
+                href={`/${lang}`}
+                className="group flex items-center gap-3 hover:opacity-70 transition-opacity duration-300"
+                aria-label={lang === 'en' ? 'BACK TO HOME' : 'VOLVER AL INICIO'}
+              >
+                <ArrowLeft strokeWidth={1.5} className="w-5 h-5 md:w-6 md:h-6 text-[#2C2927] transform group-hover:-translate-x-1 transition-transform" />
+                <span className="hidden md:block uppercase tracking-[0.2em] text-sm md:text-base font-bold text-[#2C2927]">
+                  {lang === 'en' ? 'HOME' : 'INICIO'}
+                </span>
+              </Link>
+            </div>
+
+            <div className="hidden md:flex justify-center pointer-events-auto">
+              {/* Optional centered logo or text can go here */}
+            </div>
+            <div className="md:hidden"></div>
+
+            <div className="flex justify-end items-center pointer-events-auto gap-4 relative">
+              <div className="flex items-center gap-2">
+                {['es', 'en'].map((l) => {
+                  const isActive = lang === l;
+                  return (
+                    <Link 
+                      key={l}
+                      href={`/${l}/writers-group`}
+                      prefetch={true}
+                      className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
+                        isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
+                      }`}
+                    >
+                      <span className="text-base md:text-lg text-[#2C2927] leading-none block tracking-widest">{l.toUpperCase()}</span>
+                      <div className="h-1.5 mt-1 w-full flex justify-center items-center">
+                        {isActive && (
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#9B7E67] shadow-sm" />
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+
           </div>
         </div>
-      </div>
+      </nav>
 
       <div className="max-w-[1200px] mx-auto px-6 md:px-12">
         {/* Header Section */}
@@ -84,7 +122,7 @@ export default async function WritersGroupPage(props: { params: Promise<{ lang: 
             </h2>
             <div className="flex flex-col gap-6">
               {workshops.map(workshop => (
-                <WorkshopAccordion key={workshop.id} workshop={workshop} lang={lang as 'es'|'en'} />
+                <WorkshopAccordion key={workshop.id} workshop={workshop as any} lang={lang as 'es'|'en'} whatsappNumber={whatsappNumber} />
               ))}
             </div>
           </div>

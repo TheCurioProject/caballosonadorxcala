@@ -26,7 +26,8 @@ export default async function AdminSettingsPage() {
       name: 'Casa Caballo Soñador',
       baseCapacity: 12,
       basePrice: 1500,
-      adminEmails: 'kelli9@telus.net'
+      adminEmails: 'kelli9@telus.net',
+      whatsappNumber: '+521234567890'
     };
   }
 
@@ -36,6 +37,7 @@ export default async function AdminSettingsPage() {
     const basePrice = parseFloat(formData.get('basePrice') as string);
     const baseCapacity = parseInt(formData.get('baseCapacity') as string, 10);
     const adminEmails = formData.get('adminEmails') as string || 'kelli9@telus.net';
+    const whatsappNumber = formData.get('whatsappNumber') as string || '';
     
     if (!isNaN(basePrice) && !isNaN(baseCapacity)) {
       await prisma.property.update({
@@ -43,7 +45,8 @@ export default async function AdminSettingsPage() {
         data: { 
           basePrice, 
           baseCapacity,
-          adminEmails
+          adminEmails,
+          whatsappNumber
         }
       });
       revalidatePath('/admin/settings');
@@ -114,6 +117,10 @@ export default async function AdminSettingsPage() {
             <div>
               <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Base Capacity</label>
               <input type="number" name="baseCapacity" defaultValue={property.baseCapacity} required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">WhatsApp Number (incl. country code)</label>
+              <input type="text" name="whatsappNumber" defaultValue={property.whatsappNumber} placeholder="e.g. +521234567890" className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
             </div>
             <div>
               <AdminEmailsEditor initialEmails={property.adminEmails} />

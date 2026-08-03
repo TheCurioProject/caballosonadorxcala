@@ -14,6 +14,12 @@ interface Workshop {
   descriptionEs: string;
   descriptionEn: string;
   imageUrl: string | null;
+  instructorName: string | null;
+  instructorBioEs: string | null;
+  instructorBioEn: string | null;
+  instructorImageUrl: string | null;
+  price: string | null;
+  dates: string | null;
   isActive: boolean;
 }
 
@@ -32,6 +38,15 @@ export default function WritersGroupAdmin() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [removeImage, setRemoveImage] = useState(false);
+
+  // Instructor / Details form state
+  const [instructorName, setInstructorName] = useState('');
+  const [instructorBio, setInstructorBio] = useState('');
+  const [price, setPrice] = useState('');
+  const [dates, setDates] = useState('');
+  const [instructorImageFile, setInstructorImageFile] = useState<File | null>(null);
+  const [instructorImagePreview, setInstructorImagePreview] = useState<string | null>(null);
+  const [removeInstructorImage, setRemoveInstructorImage] = useState(false);
 
   const fetchWorkshops = async () => {
     try {
@@ -59,6 +74,13 @@ export default function WritersGroupAdmin() {
       setImagePreview(workshop.imageUrl);
       setImageFile(null);
       setRemoveImage(false);
+      setInstructorName(workshop.instructorName || '');
+      setInstructorBio(workshop.instructorBioEs || '');
+      setPrice(workshop.price || '');
+      setDates(workshop.dates || '');
+      setInstructorImagePreview(workshop.instructorImageUrl);
+      setInstructorImageFile(null);
+      setRemoveInstructorImage(false);
     } else {
       setEditingWorkshop(null);
       setTitle('');
@@ -68,6 +90,13 @@ export default function WritersGroupAdmin() {
       setImagePreview(null);
       setImageFile(null);
       setRemoveImage(false);
+      setInstructorName('');
+      setInstructorBio('');
+      setPrice('');
+      setDates('');
+      setInstructorImagePreview(null);
+      setInstructorImageFile(null);
+      setRemoveInstructorImage(false);
     }
     setIsModalOpen(true);
   };
@@ -81,6 +110,15 @@ export default function WritersGroupAdmin() {
     }
   };
 
+  const handleInstructorImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setInstructorImageFile(file);
+      setInstructorImagePreview(URL.createObjectURL(file));
+      setRemoveInstructorImage(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -90,12 +128,22 @@ export default function WritersGroupAdmin() {
     formData.append('summary', summary);
     formData.append('description', description);
     formData.append('isActive', isActive.toString());
+    formData.append('instructorName', instructorName);
+    formData.append('instructorBio', instructorBio);
+    formData.append('price', price);
+    formData.append('dates', dates);
     
     if (imageFile) {
       formData.append('image', imageFile);
     }
     if (removeImage) {
       formData.append('removeImage', 'true');
+    }
+    if (instructorImageFile) {
+      formData.append('instructorImage', instructorImageFile);
+    }
+    if (removeInstructorImage) {
+      formData.append('removeInstructorImage', 'true');
     }
 
     try {
@@ -273,13 +321,13 @@ export default function WritersGroupAdmin() {
                   </div>
 
                   <div className="pt-6 border-t border-gray-100">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Cover Image</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Imagen Principal (Opcional)</label>
                     <div className="flex items-start gap-6">
                       <div className="flex-1">
                         <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
                           <div className="flex flex-col items-center justify-center pt-5 pb-6 text-gray-500">
                             <ImageIcon size={24} className="mb-2" />
-                            <p className="text-sm">Click to upload image</p>
+                            <p className="text-sm">Clic para subir imagen</p>
                           </div>
                           <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
                         </label>
@@ -300,6 +348,86 @@ export default function WritersGroupAdmin() {
                           </button>
                         </div>
                       )}
+                    </div>
+                  </div>
+
+                  <div className="pt-6 border-t border-gray-100">
+                    <h3 className="text-lg font-serif text-[#2C2927] mb-4">Detalles del Taller e Instructor (Opcional)</h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Fechas (Ej. Nov 12 - Nov 16)</label>
+                        <input
+                          type="text"
+                          value={dates}
+                          onChange={e => setDates(e.target.value)}
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#9B7E67]/20 focus:border-[#9B7E67] transition-all outline-none"
+                          placeholder="Fechas del taller"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Precio (Ej. $1,395 USD)</label>
+                        <input
+                          type="text"
+                          value={price}
+                          onChange={e => setPrice(e.target.value)}
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#9B7E67]/20 focus:border-[#9B7E67] transition-all outline-none"
+                          placeholder="Precio opcional"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del Instructor</label>
+                      <input
+                        type="text"
+                        value={instructorName}
+                        onChange={e => setInstructorName(e.target.value)}
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#9B7E67]/20 focus:border-[#9B7E67] transition-all outline-none"
+                        placeholder="Nombre del instructor"
+                      />
+                    </div>
+                    
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Biografía del Instructor</label>
+                      <textarea
+                        rows={4}
+                        value={instructorBio}
+                        onChange={e => setInstructorBio(e.target.value)}
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#9B7E67]/20 focus:border-[#9B7E67] transition-all outline-none resize-none"
+                        placeholder="Biografía breve..."
+                      />
+                    </div>
+
+                    <div className="mt-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Imagen del Instructor</label>
+                      <div className="flex items-start gap-6">
+                        <div className="flex-1">
+                          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+                            <div className="flex flex-col items-center justify-center pt-5 pb-6 text-gray-500">
+                              <ImageIcon size={24} className="mb-2" />
+                              <p className="text-sm">Clic para subir imagen</p>
+                            </div>
+                            <input type="file" className="hidden" accept="image/*" onChange={handleInstructorImageChange} />
+                          </label>
+                        </div>
+                        {(instructorImagePreview || (editingWorkshop?.instructorImageUrl && !removeInstructorImage)) && (
+                          <div className="relative w-32 h-32 rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+                            <Image src={instructorImagePreview || editingWorkshop!.instructorImageUrl!} alt="Preview" fill className="object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setInstructorImageFile(null);
+                                setInstructorImagePreview(null);
+                                setRemoveInstructorImage(true);
+                              }}
+                              className="absolute top-1 right-1 bg-white/90 p-1 rounded-full text-red-500 hover:bg-white shadow-sm"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 

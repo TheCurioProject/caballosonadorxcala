@@ -32,6 +32,11 @@ export async function POST(request: Request) {
     const description = formData.get('description') as string;
     const isActive = formData.get('isActive') === 'true';
     const image = formData.get('image') as File | null;
+    const instructorName = formData.get('instructorName') as string | null;
+    const instructorBio = formData.get('instructorBio') as string | null;
+    const price = formData.get('price') as string | null;
+    const dates = formData.get('dates') as string | null;
+    const instructorImage = formData.get('instructorImage') as File | null;
 
     if (!title || !description) {
       return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
@@ -41,8 +46,10 @@ export async function POST(request: Request) {
     const translatedTitle = parseTranslation(await autoTranslate(title));
     const translatedSummary = summary ? parseTranslation(await autoTranslate(summary)) : { en: null, es: null };
     const translatedDesc = parseTranslation(await autoTranslate(description));
+    const translatedInstructorBio = instructorBio ? parseTranslation(await autoTranslate(instructorBio)) : { en: null, es: null };
 
     let imageUrl = null;
+    let instructorImageUrl = null;
 
     if (image && image.size > 0) {
       const buffer = Buffer.from(await image.arrayBuffer());
@@ -61,6 +68,23 @@ export async function POST(request: Request) {
       imageUrl = result.secure_url;
     }
 
+    if (instructorImage && instructorImage.size > 0) {
+      const buffer = Buffer.from(await instructorImage.arrayBuffer());
+      const publicId = `hotelsonador/workshops/instructor_${Date.now()}`;
+      
+      const result = await new Promise<any>((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { public_id: publicId, resource_type: 'image' },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        uploadStream.end(buffer);
+      });
+      instructorImageUrl = result.secure_url;
+    }
+
     const workshop = await prisma.writersWorkshop.create({
       data: {
         titleEs: translatedTitle.es || title,
@@ -70,7 +94,13 @@ export async function POST(request: Request) {
         descriptionEs: translatedDesc.es || description,
         descriptionEn: translatedDesc.en || description,
         isActive,
-        imageUrl
+        imageUrl,
+        instructorName,
+        instructorBioEs: translatedInstructorBio.es || instructorBio,
+        instructorBioEn: translatedInstructorBio.en || instructorBio,
+        instructorImageUrl,
+        price,
+        dates
       }
     });
 
@@ -94,15 +124,21 @@ export async function PUT(request: Request) {
     const isActive = formData.get('isActive') === 'true';
     const image = formData.get('image') as File | null;
     const removeImage = formData.get('removeImage') === 'true';
+    const instructorName = formData.get('instructorName') as string | null;
+    const instructorBio = formData.get('instructorBio') as string | null;
+    const price = formData.get('price') as string | null;
+    const dates = formData.get('dates') as string | null;
+    const instructorImage = formData.get('instructorImage') as File | null;
+    const removeInstructorImage = formData.get('removeInstructorImage') === 'true';
 
     if (!id || !title || !description) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Auto-translate fields
     const translatedTitle = parseTranslation(await autoTranslate(title));
     const translatedSummary = summary ? parseTranslation(await autoTranslate(summary)) : { en: null, es: null };
     const translatedDesc = parseTranslation(await autoTranslate(description));
+    const translatedInstructorBio = instructorBio ? parseTranslation(await autoTranslate(instructorBio)) : { en: null, es: null };
 
     const updateData: any = {
       titleEs: translatedTitle.es || title,
@@ -111,7 +147,12 @@ export async function PUT(request: Request) {
       summaryEn: translatedSummary.en || summary,
       descriptionEs: translatedDesc.es || description,
       descriptionEn: translatedDesc.en || description,
-      isActive
+      isActive,
+      instructorName,
+      instructorBioEs: translatedInstructorBio.es || instructorBio,
+      instructorBioEn: translatedInstructorBio.en || instructorBio,
+      price,
+      dates
     };
 
     if (removeImage) {
@@ -131,6 +172,25 @@ export async function PUT(request: Request) {
         uploadStream.end(buffer);
       });
       updateData.imageUrl = result.secure_url;
+    }
+
+    if (removeInstructorImage) {
+      updateData.instructorImageUrl = null;
+    } else if (instructorImage && instructorImage.size > 0) {
+      const buffer = Buffer.from(await instructorImage.arrayBuffer());
+      const publicId = `hotelsonador/workshops/instructor_${Date.now()}`;
+      
+      const result = await new Promise<any>((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { public_id: publicId, resource_type: 'image' },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        uploadStream.end(buffer);
+      });
+      updateData.instructorImageUrl = result.secure_url;
     }
 
     const workshop = await prisma.writersWorkshop.update({
