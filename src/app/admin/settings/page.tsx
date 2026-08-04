@@ -165,6 +165,9 @@ export default async function AdminSettingsPage() {
           <p className="text-[10px] text-gray-400 mt-4 text-center">Coupons will appear in the Stripe dashboard.</p>
         </div>
 
+        {/* Service Availability Section */}
+        <ServiceAvailabilitySection foodBlocks={foodBlocks} tourBlocks={tourBlocks} />
+
         {/* Update Credentials Form */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:col-span-2">
           <h2 className="text-lg font-serif text-[#23211F] mb-4">Update Administrator Credentials</h2>
@@ -185,9 +188,6 @@ export default async function AdminSettingsPage() {
             <p className="text-[10px] text-gray-400 mt-2">You will be logged out immediately upon updating these credentials.</p>
           </form>
         </div>
-
-        {/* Service Availability Section */}
-        <ServiceAvailabilitySection foodBlocks={foodBlocks} tourBlocks={tourBlocks} />
       </div>
     </div>
   );

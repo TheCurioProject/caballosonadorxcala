@@ -95,13 +95,13 @@ export default function ServiceAvailabilitySection({ foodBlocks, tourBlocks }: {
           <div className="flex bg-gray-100 p-1 rounded-xl">
             <button
               onClick={() => { setActiveTab('FOOD'); setRange(undefined); }}
-              className={`flex-1 py-2 text-sm font-bold uppercase tracking-widest rounded-lg transition-colors ${activeTab === 'FOOD' ? 'bg-white shadow text-[#9B7E67]' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`flex-1 py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wide sm:tracking-widest rounded-lg transition-colors ${activeTab === 'FOOD' ? 'bg-white shadow text-[#9B7E67]' : 'text-gray-500 hover:text-gray-700'}`}
             >
               Food Services
             </button>
             <button
               onClick={() => { setActiveTab('TOUR'); setRange(undefined); }}
-              className={`flex-1 py-2 text-sm font-bold uppercase tracking-widest rounded-lg transition-colors ${activeTab === 'TOUR' ? 'bg-white shadow text-[#9B7E67]' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`flex-1 py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wide sm:tracking-widest rounded-lg transition-colors ${activeTab === 'TOUR' ? 'bg-white shadow text-[#9B7E67]' : 'text-gray-500 hover:text-gray-700'}`}
             >
               ATV Tours
             </button>
