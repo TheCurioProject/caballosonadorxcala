@@ -215,17 +215,17 @@ export default function WritersGroupAdmin() {
             >
               {workshop.imageUrl && (
                 <div className="relative w-full h-48 bg-gray-100">
-                  <Image src={workshop.imageUrl} alt={workshop.titleEs} fill className="object-cover" />
+                  <Image src={workshop.imageUrl} alt={workshop.titleEn} fill className="object-cover" />
                 </div>
               )}
               <div className="p-6 flex-grow flex flex-col">
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-serif text-xl font-bold text-[#2C2927] line-clamp-2">{workshop.titleEs}</h3>
+                  <h3 className="font-serif text-xl font-bold text-[#2C2927] line-clamp-2">{workshop.titleEn}</h3>
                   <div className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${workshop.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
                     {workshop.isActive ? 'Active' : 'Draft'}
                   </div>
                 </div>
-                <p className="text-gray-500 text-sm line-clamp-3 mb-6 flex-grow whitespace-pre-wrap">{workshop.summaryEs || workshop.descriptionEs}</p>
+                <p className="text-gray-500 text-sm line-clamp-3 mb-6 flex-grow whitespace-pre-wrap">{workshop.summaryEn || workshop.descriptionEn}</p>
                 
                 <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 mt-auto">
                   <button
