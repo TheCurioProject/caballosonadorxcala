@@ -47,10 +47,15 @@ export async function toggleServiceBlockDates(serviceType: string, dates: Date[]
 }
 
 export async function getServiceBlockedDates() {
-  const blocks = await prisma.serviceBlockedDate.findMany({
-    where: {
-      endDate: { gte: new Date() }
-    }
-  });
-  return blocks;
+  try {
+    const blocks = await prisma.serviceBlockedDate.findMany({
+      where: {
+        endDate: { gte: new Date() }
+      }
+    });
+    return blocks;
+  } catch (error) {
+    console.error("Failed to fetch service blocked dates (table might not exist):", error);
+    return [];
+  }
 }

@@ -61,11 +61,16 @@ export async function GET() {
     const tourBlockedRanges = [];
 
     // Get service blocks
-    const serviceBlocks = await prisma.serviceBlockedDate.findMany({
-      where: {
-        endDate: { gte: new Date() }
-      }
-    });
+    let serviceBlocks: any[] = [];
+    try {
+      serviceBlocks = await prisma.serviceBlockedDate.findMany({
+        where: {
+          endDate: { gte: new Date() }
+        }
+      });
+    } catch (error) {
+      console.warn("Could not fetch service blocked dates (table might not exist):", error);
+    }
 
     for (const sb of serviceBlocks) {
       if (sb.serviceType === 'FOOD') {
