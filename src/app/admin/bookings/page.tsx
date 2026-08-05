@@ -6,6 +6,7 @@ import path from 'path';
 import BookingCalendarClient from './BookingCalendarClient';
 import ClearPendingButton from './ClearPendingButton';
 import BookingActions from './BookingActions';
+import DeleteBookingButton from './DeleteBookingButton';
 
 export const dynamic = 'force-dynamic';
 
