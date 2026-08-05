@@ -4,7 +4,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Navigation } from 'lucide-react';
 import { useDictionary } from '@/i18n/DictionaryContext';
-import { MexicoMap } from '@/components/ui/MexicoMap';
+import dynamic from 'next/dynamic';
+
+// Lazy load the 176KB SVG map — only needed when section is visible
+const MexicoMap = dynamic(
+  () => import('@/components/ui/MexicoMap').then(mod => mod.MexicoMap),
+  { ssr: false }
+);
 
 export const Location = () => {
   const dict = useDictionary();
@@ -95,6 +101,7 @@ export const Location = () => {
               allowFullScreen={true} 
               loading="lazy" 
               referrerPolicy="no-referrer-when-downgrade"
+              title="Mapa de ubicación de Casa Caballo Soñador en Chacala, Nayarit"
               className="absolute inset-0 w-full h-full object-cover scale-[1.02] group-hover:scale-100 transition-transform duration-1000"
             ></iframe>
           </div>

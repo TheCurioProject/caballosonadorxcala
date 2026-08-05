@@ -2,10 +2,28 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
-export const metadata = {
-  title: 'Políticas y Condiciones - Casa Caballo Soñador',
-  description: 'Políticas de reservación y cancelación de Casa Caballo Soñador.',
-};
+import type { Metadata } from 'next';
+
+const siteUrl = 'https://casadelcaballosonador.com';
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params;
+  const isEn = lang === 'en';
+  return {
+    title: isEn ? 'Policies & Conditions' : 'Políticas y Condiciones',
+    description: isEn
+      ? 'Reservation and cancellation policies for Casa Caballo Soñador boutique hotel in Chacala, Nayarit.'
+      : 'Políticas de reservación y cancelación de Casa Caballo Soñador en Chacala, Nayarit.',
+    robots: { index: false, follow: false },
+    alternates: {
+      canonical: `${siteUrl}/${lang}/politicas/`,
+      languages: {
+        'es': `${siteUrl}/es/politicas/`,
+        'en': `${siteUrl}/en/politicas/`,
+      },
+    },
+  };
+}
 
 export default async function PoliticasPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;

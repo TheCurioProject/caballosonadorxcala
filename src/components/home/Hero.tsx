@@ -21,10 +21,12 @@ export const Hero = ({ imageSrc }: { imageSrc?: string }) => {
       <motion.div style={{ y, scale, opacity, willChange }} className="absolute inset-0 w-full h-full transform-gpu origin-top">
         <Image 
           src={imageSrc || `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/casaexterior.webp`}
-          alt="Casa Caballo Soñador - Hotel Boutique" 
+          alt="Casa Caballo Soñador - Hotel Boutique en Chacala, Nayarit" 
           fill
           priority
+          sizes="100vw"
           className="object-cover opacity-70"
+          fetchPriority="high"
         />
         {/* Refined gradient overlay for high contrast and elegant moody feel */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#1A1817] via-[#1A1817]/40 to-transparent"></div>

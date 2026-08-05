@@ -38,7 +38,7 @@ export const About = ({ imageSrc }: { imageSrc?: string }) => {
         >
           <Image 
             src={imageSrc || `/casaestancia.webp`} 
-            alt="Casa Caballo Soñador - Exterior" 
+            alt="Casa Caballo Soñador — Estancia en la Riviera Nayarit" 
             fill 
             sizes="(max-width: 1024px) 100vw, 50vw" 
             className="object-cover transition-transform duration-1000 group-hover:scale-105" 

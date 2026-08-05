@@ -54,9 +54,9 @@ export const Concept = ({ imageSrc }: { imageSrc?: string }) => {
         >
           <Image
             src={imageSrc || `/imagenes/02_hero/hero_01_img_4885.webp`}
-            alt="Concepto Hotel Soñador"
+            alt="Concepto Casa Caballo Soñador — Un lugar para pausar, respirar y pertenecer en Chacala"
             fill
-            sizes="(max-width: 1024px) 100vw, 1024px"
+            sizes="(max-width: 1024px) 100vw, 672px"
             className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-105"
           />
           {/* subtle overlay */}

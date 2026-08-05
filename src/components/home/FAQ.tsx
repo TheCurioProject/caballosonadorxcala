@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Plus, Minus } from 'lucide-react';
 import { useDictionary } from '@/i18n/DictionaryContext';
 
@@ -16,8 +16,27 @@ export const FAQ = () => {
 
   if (!faqData) return null;
 
+  // Build FAQPage JSON-LD for Google rich snippets
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqData.items.map((item: any) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.a,
+      },
+    })),
+  };
+
   return (
     <section id="faq" className="py-24 bg-[#F9F7F4] text-[#2C2927]">
+      {/* FAQPage structured data for Google rich snippets */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <div className="max-w-[800px] mx-auto px-6 md:px-16">
         
         <motion.div 
@@ -48,6 +67,8 @@ export const FAQ = () => {
               <button
                 onClick={() => toggleFaq(index)}
                 className="w-full flex justify-between items-center py-6 text-left focus:outline-none"
+                aria-expanded={openIndex === index}
+                aria-controls={`faq-answer-${index}`}
               >
                 <span className="font-serif text-2xl pr-8">{faq.q}</span>
                 <div className="text-[#9b6e2f] shrink-0">
@@ -56,6 +77,7 @@ export const FAQ = () => {
               </button>
               
               <div 
+                id={`faq-answer-${index}`}
                 className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
                   openIndex === index ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
                 }`}

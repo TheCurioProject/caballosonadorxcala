@@ -11,7 +11,7 @@ export const Footer = () => {
   const { openBookingModal } = useBooking();
   const dict = useDictionary();
   return (
-    <footer className="relative z-30 bg-[#161412] text-[#F9F7F4] pt-32 pb-16 px-6 md:px-16 overflow-hidden">
+    <footer role="contentinfo" aria-label="Pie de página - Casa Caballo Soñador" className="relative z-30 bg-[#161412] text-[#F9F7F4] pt-32 pb-16 px-6 md:px-16 overflow-hidden">
       {/* Gran logo difuminado de fondo */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5 pointer-events-none w-[120%] md:w-[80%]">
         <LogoNuevo solidWhite={true} className="w-full h-auto" />

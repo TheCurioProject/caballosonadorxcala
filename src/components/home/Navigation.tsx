@@ -398,6 +398,8 @@ export const HomeNavigation = () => {
                 {/* Hamburger Menu */}
                 <button 
                   onClick={() => setMenuOpen(true)}
+                  aria-label={dict?.nav?.menu || 'Abrir menú'}
+                  aria-expanded={menuOpen}
                   className="uppercase tracking-widest text-xs font-bold flex items-center gap-2 hover:opacity-70 transition-all"
                 >
                   {dict?.nav?.menu || 'MENU'} <Menu size={20} />

@@ -5,10 +5,49 @@ import { Feather, BookOpen, Coffee, Users, Calendar, ArrowLeft } from 'lucide-re
 import { getDictionary } from '@/i18n/dictionaries';
 import Link from 'next/link';
 
-export const metadata = {
-  title: 'Chacala Writers Group | Hotel Soñador',
-  description: 'Small group writing workshops and Word Church in Chacala, Nayarit.',
-};
+const siteUrl = 'https://casadelcaballosonador.com';
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params;
+  const isEn = lang === 'en';
+
+  const title = isEn ? 'Chacala Writers Group | Writing Workshops in Mexico' : 'Chacala Writers Group | Talleres de Escritura en México';
+  const description = isEn
+    ? 'Join small group writing workshops and Word Church every Sunday in Chacala, Nayarit. Writers of all disciplines welcome at Casa Caballo Soñador.'
+    : 'Únete a talleres de escritura en grupos pequeños y Word Church cada domingo en Chacala, Nayarit. Escritores de todas las disciplinas bienvenidos en Casa Caballo Soñador.';
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `${siteUrl}/${lang}/writers-group/`,
+      languages: {
+        'es': `${siteUrl}/es/writers-group/`,
+        'en': `${siteUrl}/en/writers-group/`,
+        'x-default': `${siteUrl}/es/writers-group/`,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${siteUrl}/${lang}/writers-group/`,
+      siteName: 'Casa Caballo Soñador',
+      images: [{
+        url: 'https://res.cloudinary.com/p6nhvksw/image/upload/v1784743742/hotelsonador/casaexterior.webp',
+        width: 1200,
+        height: 630,
+        alt: title,
+      }],
+      locale: isEn ? 'en_US' : 'es_MX',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  };
+}
 
 export default async function WritersGroupPage(props: { params: Promise<{ lang: string }> }) {
   const { lang } = await props.params;
