@@ -11,9 +11,6 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   trailingSlash: true,
   compress: true,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
