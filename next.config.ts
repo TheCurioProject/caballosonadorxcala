@@ -17,6 +17,7 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ['localhost', '127.0.0.1'],
   serverExternalPackages: ['@prisma/client', 'prisma', 'node-ical'],
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
