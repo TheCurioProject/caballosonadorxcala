@@ -117,15 +117,15 @@ export default async function AdminSettingsPage() {
           <h2 className="text-lg font-serif text-[#23211F] mb-4">Base House Rules</h2>
           <form action={updateSettings} className="space-y-4">
             <div>
-              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Base Price per Night (MXN)</label>
+              <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Base Price per Night (MXN)</label>
               <input type="number" name="basePrice" defaultValue={property.basePrice} required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Base Capacity</label>
+              <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Base Capacity</label>
               <input type="number" name="baseCapacity" defaultValue={property.baseCapacity} required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">WhatsApp Number (incl. country code)</label>
+              <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">WhatsApp Number (incl. country code)</label>
               <input type="text" name="whatsappNumber" defaultValue={property.whatsappNumber} placeholder="e.g. +521234567890" className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
             </div>
             <div>
@@ -142,19 +142,19 @@ export default async function AdminSettingsPage() {
           <h2 className="text-lg font-serif text-[#23211F] mb-4">Create Discount Coupon (Stripe)</h2>
           <form action={handleCreateCoupon} className="space-y-4">
             <div>
-              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Name / Code</label>
+              <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Name / Code</label>
               <input type="text" name="name" required placeholder="e.g. SUMMER20" className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Type</label>
+                <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Type</label>
                 <select name="type" className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]">
                   <option value="percent">Percentage (%)</option>
                   <option value="amount">Fixed Amount ($)</option>
                 </select>
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Value</label>
+                <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Value</label>
                 <input type="number" name="amount" required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
               </div>
             </div>
@@ -162,7 +162,7 @@ export default async function AdminSettingsPage() {
               CREATE COUPON
             </button>
           </form>
-          <p className="text-[10px] text-gray-400 mt-4 text-center">Coupons will appear in the Stripe dashboard.</p>
+          <p className="text-xs md:text-[10px] text-gray-400 mt-4 text-center">Coupons will appear in the Stripe dashboard.</p>
         </div>
 
         {/* Service Availability Section */}
@@ -174,18 +174,18 @@ export default async function AdminSettingsPage() {
           <form action={updateAdminCredentials} className="space-y-4 max-w-xl">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">New Username (Email)</label>
+                <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">New Username (Email)</label>
                 <input type="text" name="newUsername" required placeholder="admin" className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">New Password</label>
+                <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">New Password</label>
                 <input type="password" name="newPassword" required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
               </div>
             </div>
             <button type="submit" className="w-full sm:w-auto bg-[#9c2b2b] hover:bg-[#7a2222] text-white font-bold text-xs tracking-widest uppercase py-3 px-8 rounded-xl transition-all duration-300 mt-2">
               UPDATE CREDENTIALS & LOGOUT
             </button>
-            <p className="text-[10px] text-gray-400 mt-2">You will be logged out immediately upon updating these credentials.</p>
+            <p className="text-xs md:text-[10px] text-gray-400 mt-2">You will be logged out immediately upon updating these credentials.</p>
           </form>
         </div>
       </div>

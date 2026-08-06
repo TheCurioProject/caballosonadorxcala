@@ -258,7 +258,7 @@ export default async function AdminBookingsPage() {
               <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full min-w-max">
                   <thead>
-                    <tr className="bg-orange-50/50 text-[10px] font-bold text-orange-400 uppercase tracking-widest text-left">
+                    <tr className="bg-orange-50/50 text-xs md:text-[10px] font-bold text-orange-400 uppercase tracking-widest text-left">
                       <th className="py-4 px-6">Guest</th>
                       <th className="py-4 px-6">Creation Date</th>
                       <th className="py-4 px-6 text-right">Action</th>
@@ -299,7 +299,7 @@ export default async function AdminBookingsPage() {
                     <div className="min-w-0">
                       <p className="font-bold text-sm text-[#23211F] truncate">{b.guestName}</p>
                       {b.idCardUrl && (
-                        <a href={b.idCardUrl} target="_blank" rel="noopener noreferrer" className="text-[10px] text-blue-500 hover:underline font-bold uppercase tracking-widest">View ID</a>
+                        <a href={b.idCardUrl} target="_blank" rel="noopener noreferrer" className="text-xs md:text-[10px] text-blue-500 hover:underline font-bold uppercase tracking-widest">View ID</a>
                       )}
                     </div>
                     <BookingActions booking={b} basePrice={property.basePrice} />
@@ -323,7 +323,7 @@ export default async function AdminBookingsPage() {
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full min-w-max">
                 <thead>
-                  <tr className="bg-[#F9F7F4] text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">
+                  <tr className="bg-[#F9F7F4] text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">
                     <th className="py-4 px-6">Guest</th>
                     <th className="py-4 px-6">Dates</th>
                     <th className="py-4 px-6">Origin</th>
@@ -336,7 +336,7 @@ export default async function AdminBookingsPage() {
                       <td className="py-4 px-6 font-medium text-[#23211F]">
                         {b.guestName}
                         {b.idCardUrl && (
-                          <a href={b.idCardUrl} target="_blank" rel="noopener noreferrer" className="block text-[10px] text-blue-500 hover:underline mt-1 uppercase font-bold tracking-widest">
+                          <a href={b.idCardUrl} target="_blank" rel="noopener noreferrer" className="block text-xs md:text-[10px] text-blue-500 hover:underline mt-1 uppercase font-bold tracking-widest">
                             View ID
                           </a>
                         )}
@@ -345,7 +345,7 @@ export default async function AdminBookingsPage() {
                         {formatDate(b.checkIn)} — {formatDate(b.checkOut)}
                       </td>
                       <td className="py-4 px-6">
-                        <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase ${getOriginDisplay(b).color}`}>
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs md:text-[10px] font-bold tracking-widest uppercase ${getOriginDisplay(b).color}`}>
                           {getOriginDisplay(b).label}
                         </span>
                       </td>

@@ -284,7 +284,7 @@ export default function ContentAdminClient() {
                       {img.url ? 'Uploaded' : 'Empty'}
                     </span>
                   </div>
-                  <p className="text-[10px] text-gray-400 font-mono truncate">{img.key}</p>
+                  <p className="text-xs md:text-[10px] text-gray-400 font-mono truncate">{img.key}</p>
                 </div>
               </div>
 
@@ -364,7 +364,7 @@ export default function ContentAdminClient() {
                 <div className="mb-4">
                   <div className="flex items-center justify-between gap-2">
                     <h3 className="text-base font-semibold text-gray-900 line-clamp-1">{img.name}</h3>
-                    <span className={`text-[10px] px-2 py-0.5 rounded font-medium uppercase tracking-wide shrink-0 ${img.url ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                    <span className={`text-xs md:text-[10px] px-2 py-0.5 rounded font-medium uppercase tracking-wide shrink-0 ${img.url ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
                       {img.url ? 'Uploaded' : 'Empty'}
                     </span>
                   </div>

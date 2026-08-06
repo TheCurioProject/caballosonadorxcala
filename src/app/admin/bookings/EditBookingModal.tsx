@@ -151,29 +151,29 @@ export default function EditBookingModal({
             <form id="edit-booking-form" onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Guest Name</label>
+                  <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Guest Name</label>
                   <input type="text" required value={guestName} onChange={e => setGuestName(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67]" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Email</label>
+                  <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Email</label>
                   <input type="email" value={guestEmail} onChange={e => setGuestEmail(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67]" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Check In</label>
+                  <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Check In</label>
                   <input type="date" required value={checkIn} onChange={e => setCheckIn(e.target.value)} className="w-full border border-gray-200 rounded-xl px-2 py-3 text-[#23211F] text-xs focus:outline-none focus:border-[#9B7E67]" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Check Out</label>
+                  <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Check Out</label>
                   <input type="date" required value={checkOut} onChange={e => setCheckOut(e.target.value)} className="w-full border border-gray-200 rounded-xl px-2 py-3 text-[#23211F] text-xs focus:outline-none focus:border-[#9B7E67]" />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div className="md:col-span-1">
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Deposit Currency</label>
+                  <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Deposit Currency</label>
                   <select value={depositCurrency} onChange={e => setDepositCurrency(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67] bg-white">
                     <option value="MXN">MXN</option>
                     <option value="USD">USD</option>
@@ -181,27 +181,27 @@ export default function EditBookingModal({
                   </select>
                 </div>
                 <div className="md:col-span-1">
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Deposit Type</label>
+                  <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Deposit Type</label>
                   <select value={depositType} onChange={e => setDepositType(e.target.value as 'percentage'|'fixed')} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67] bg-white">
                     <option value="percentage">Percentage (%)</option>
                     <option value="fixed">Fixed</option>
                   </select>
                 </div>
                 <div className="md:col-span-1">
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Amount</label>
+                  <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Amount</label>
                   <input type="number" required value={depositValue} onChange={e => setDepositValue(parseFloat(e.target.value))} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67]" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Total Price (MXN)</label>
+                <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Total Price (MXN)</label>
                 <input type="number" required value={totalPrice} onChange={e => setTotalPrice(parseFloat(e.target.value))} className="w-full border border-[#D4C3AB] bg-[#F9F7F4] rounded-xl px-4 py-3 text-[#23211F] text-lg font-serif focus:outline-none focus:border-[#9B7E67]" />
               </div>
             </form>
             
             {booking.addons && booking.addons.length > 0 && (
               <div className="mt-8 border-t border-gray-100 pt-6">
-                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Adicionales / Addons</h4>
+                <h4 className="text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Adicionales / Addons</h4>
                 <div className="space-y-3">
                   {booking.addons.map((addon: any) => {
                     let detailsObj: any = {};

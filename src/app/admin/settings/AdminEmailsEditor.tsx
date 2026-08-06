@@ -38,7 +38,7 @@ export default function AdminEmailsEditor({ initialEmails }: Props) {
 
   return (
     <div>
-      <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+      <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
         Admin Notification Emails
       </label>
       
@@ -90,7 +90,7 @@ export default function AdminEmailsEditor({ initialEmails }: Props) {
             <Plus size={18} />
           </button>
         </div>
-        <p className="text-[10px] text-gray-400 mt-1">
+        <p className="text-xs md:text-[10px] text-gray-400 mt-1">
           These emails receive invoice copies and new booking alerts. Press Enter to add.
         </p>
       </div>

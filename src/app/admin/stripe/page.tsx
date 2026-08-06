@@ -50,13 +50,13 @@ export default async function AdminStripePage() {
             {balance ? (
               <div className="space-y-4">
                 <div>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Available</p>
+                  <p className="text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Available</p>
                   <p className="text-3xl font-serif text-[#9B7E67]">
                     ${((balance.available[0]?.amount || 0) / 100).toFixed(2)} <span className="text-sm text-gray-400">{balance.available[0]?.currency.toUpperCase() || 'MXN'}</span>
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Pending</p>
+                  <p className="text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Pending</p>
                   <p className="text-xl font-serif text-gray-500">
                     ${((balance.pending[0]?.amount || 0) / 100).toFixed(2)}
                   </p>
@@ -93,7 +93,7 @@ export default async function AdminStripePage() {
                     <span className="text-[11px] text-gray-500 capitalize">{coupon.duration}</span>
                     <form action={handleDeleteCoupon}>
                       <input type="hidden" name="id" value={coupon.id} />
-                      <button type="submit" className="text-[10px] font-bold uppercase tracking-widest text-red-400 active:text-red-600 transition-colors">
+                      <button type="submit" className="text-xs md:text-[10px] font-bold uppercase tracking-widest text-red-400 active:text-red-600 transition-colors">
                         Delete
                       </button>
                     </form>
@@ -107,7 +107,7 @@ export default async function AdminStripePage() {
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full min-w-max">
                 <thead>
-                  <tr className="bg-[#F9F7F4] text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">
+                  <tr className="bg-[#F9F7F4] text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">
                     <th className="py-4 px-6">Code / Name</th>
                     <th className="py-4 px-6 text-center">Discount</th>
                     <th className="py-4 px-6 text-center">Duration</th>
@@ -155,7 +155,7 @@ export default async function AdminStripePage() {
                     </span>
                   </div>
                   <p className="text-[11px] text-gray-500 truncate">{charge.description || charge.receipt_email || 'Web Charge'}</p>
-                  <p className="text-[10px] text-gray-400">
+                  <p className="text-xs md:text-[10px] text-gray-400">
                     {new Date(charge.created * 1000).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
@@ -167,7 +167,7 @@ export default async function AdminStripePage() {
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full min-w-max">
                 <thead>
-                  <tr className="bg-[#F9F7F4] text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">
+                  <tr className="bg-[#F9F7F4] text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">
                     <th className="py-4 px-6">Date</th>
                     <th className="py-4 px-6">Amount</th>
                     <th className="py-4 px-6">Status</th>
@@ -184,7 +184,7 @@ export default async function AdminStripePage() {
                         ${(charge.amount / 100).toFixed(2)} {charge.currency.toUpperCase()}
                       </td>
                       <td className="py-4 px-6">
-                        <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase ${charge.status === 'succeeded' ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'}`}>
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs md:text-[10px] font-bold tracking-widest uppercase ${charge.status === 'succeeded' ? 'bg-green-50 text-green-600' : 'bg-orange-50 text-orange-600'}`}>
                           {charge.status === 'succeeded' ? 'Paid' : charge.status}
                         </span>
                       </td>

@@ -40,7 +40,7 @@ export default function ClearPendingButton({ all = false, label = 'Clear Expired
       <button
         onClick={() => setIsConfirmOpen(true)}
         disabled={isPending}
-        className={`inline-flex items-center gap-2 px-3 py-1.5 text-[10px] font-bold tracking-widest uppercase rounded-md transition-colors ${
+        className={`inline-flex items-center gap-2 px-3 py-1.5 text-xs md:text-[10px] font-bold tracking-widest uppercase rounded-md transition-colors ${
           all 
             ? 'bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-50'
             : 'bg-orange-50 text-orange-600 hover:bg-orange-100 disabled:opacity-50'

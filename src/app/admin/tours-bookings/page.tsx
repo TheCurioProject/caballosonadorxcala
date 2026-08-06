@@ -57,7 +57,7 @@ export default async function AdminToursBookingsPage() {
           <div className="hidden sm:block overflow-x-auto">
             <table className="w-full min-w-max">
               <thead>
-                <tr className="bg-orange-50/50 text-[10px] font-bold text-orange-400 uppercase tracking-widest text-left">
+                <tr className="bg-orange-50/50 text-xs md:text-[10px] font-bold text-orange-400 uppercase tracking-widest text-left">
                   <th className="py-4 px-6">Guest</th>
                   <th className="py-4 px-6">Tour Date</th>
                   <th className="py-4 px-6">Destination</th>
@@ -108,7 +108,7 @@ export default async function AdminToursBookingsPage() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="font-bold text-sm text-[#23211F] truncate">{b.guestName}</p>
-                    <p className="text-[10px] text-gray-500 truncate">{b.guestEmail}</p>
+                    <p className="text-xs md:text-[10px] text-gray-500 truncate">{b.guestEmail}</p>
                   </div>
                   <TourBookingActions booking={b} />
                 </div>
@@ -134,7 +134,7 @@ export default async function AdminToursBookingsPage() {
         <div className="hidden sm:block overflow-x-auto">
           <table className="w-full min-w-max">
             <thead>
-              <tr className="bg-[#F9F7F4] text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">
+              <tr className="bg-[#F9F7F4] text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left">
                 <th className="py-4 px-6">Guest</th>
                 <th className="py-4 px-6">Tour Date</th>
                 <th className="py-4 px-6">Destination</th>
@@ -153,7 +153,7 @@ export default async function AdminToursBookingsPage() {
                   <tr key={b.id} className="hover:bg-gray-50 transition-colors">
                     <td className="py-4 px-6 font-medium text-[#23211F]">
                       {b.guestName}
-                      <p className="text-[10px] text-gray-400 font-normal">{b.guestEmail}</p>
+                      <p className="text-xs md:text-[10px] text-gray-400 font-normal">{b.guestEmail}</p>
                     </td>
                     <td className="py-4 px-6 text-gray-600">
                       {formatDate(b.startDate)}

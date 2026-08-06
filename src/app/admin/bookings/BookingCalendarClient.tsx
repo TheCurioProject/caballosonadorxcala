@@ -314,7 +314,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
           <div className="w-full">
             <div className="grid grid-cols-7 mb-2 gap-1 sm:gap-2">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-                <div key={d} className="text-center text-[10px] font-bold text-gray-400 uppercase">
+                <div key={d} className="text-center text-xs md:text-[10px] font-bold text-gray-400 uppercase">
                   {d}
                 </div>
               ))}
@@ -410,7 +410,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
         </div>
 
         {/* Legend */}
-        <div className="mt-4 flex flex-wrap gap-4 items-center justify-center text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+        <div className="mt-4 flex flex-wrap gap-4 items-center justify-center text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest">
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-full bg-[#c1121f]"></div>
             <span>Reserva Web</span>
@@ -427,11 +427,11 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
         
         <div className="mt-6 flex justify-between bg-gray-50 p-4 rounded-xl border border-gray-100">
           <div className="text-center w-full border-r border-gray-200">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Check-in</span>
+            <span className="text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Check-in</span>
             <span className="font-serif text-[#23211F]">{checkIn ? format(checkIn, 'MMM dd, yyyy', { locale: enUS }) : '--/--/----'}</span>
           </div>
           <div className="text-center w-full">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Check-out</span>
+            <span className="text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Check-out</span>
             <span className="font-serif text-[#23211F]">{checkOut ? format(checkOut, 'MMM dd, yyyy', { locale: enUS }) : '--/--/----'}</span>
           </div>
         </div>
@@ -552,7 +552,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Full Name</label>
+                    <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Full Name</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <User className="h-4 w-4 text-gray-400" />
@@ -562,7 +562,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Email (Optional)</label>
+                    <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Email (Optional)</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <Mail className="h-4 w-4 text-gray-400" />
@@ -574,7 +574,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Phone (Optional)</label>
+                    <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Phone (Optional)</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <Phone className="h-4 w-4 text-gray-400" />
@@ -584,7 +584,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">ID Document (Optional)</label>
+                    <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">ID Document (Optional)</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <ImageIcon className="h-4 w-4 text-gray-400" />
@@ -596,7 +596,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Deposit Currency</label>
+                    <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Deposit Currency</label>
                     <div className="flex bg-gray-100 p-1 rounded-xl">
                       {(['MXN', 'USD', 'CAD']).map((c) => (
                         <button
@@ -613,7 +613,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Deposit Type</label>
+                    <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Deposit Type</label>
                     <div className="flex bg-gray-100 p-1 rounded-xl">
                       <button
                         type="button"
@@ -632,7 +632,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
+                    <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
                       {depositType === 'percentage' ? 'Deposit Percentage (%)' : `Deposit Amount (${depositCurrency})`}
                     </label>
                     <input 
@@ -652,7 +652,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                         <Calculator className="w-5 h-5 text-[#9B7E67]" />
                       </div>
                       <div>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Estimated Cost ({checkIn && checkOut ? differenceInDays(checkOut, checkIn) : 0} nights)</p>
+                        <p className="text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest">Estimated Cost ({checkIn && checkOut ? differenceInDays(checkOut, checkIn) : 0} nights)</p>
                         <p className="text-xs text-gray-500">At ${basePrice.toLocaleString('es-MX')} MXN per night</p>
                       </div>
                     </div>
@@ -728,7 +728,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                   <p className="text-sm text-gray-500">Set a custom price per night for the selected dates. Base price is ${basePrice}.</p>
                   
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">New Price per Night</label>
+                    <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">New Price per Night</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <span className="text-gray-400 font-bold">$</span>

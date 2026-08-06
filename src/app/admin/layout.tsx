@@ -223,7 +223,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         <item.icon className="w-5 h-5" />
                       </div>
                       <span className="font-bold text-sm text-white mb-0.5">{item.name}</span>
-                      <span className="text-[10px] text-gray-400 font-light leading-snug">{item.desc}</span>
+                      <span className="text-xs md:text-[10px] text-gray-400 font-light leading-snug">{item.desc}</span>
                     </Link>
                   );
                 })}

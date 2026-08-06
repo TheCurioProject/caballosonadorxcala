@@ -201,7 +201,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
         <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 sm:hidden">
           <div className="grid grid-cols-7 mb-2 gap-1">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-              <div key={d} className="text-center text-[10px] font-bold text-gray-400 uppercase">
+              <div key={d} className="text-center text-xs md:text-[10px] font-bold text-gray-400 uppercase">
                 {d}
               </div>
             ))}
@@ -297,7 +297,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
             {/* Days of week */}
             <div className="grid grid-cols-7 mb-4">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-                <div key={d} className="text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                <div key={d} className="text-center text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                   {d}
                 </div>
               ))}
@@ -399,7 +399,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
             </AnimatePresence>
             
             {/* Admin Legend */}
-            <div className="flex flex-wrap items-center justify-center gap-6 mt-8 pt-6 border-t border-gray-200 text-[10px] font-bold uppercase tracking-widest text-gray-500 w-full">
+            <div className="flex flex-wrap items-center justify-center gap-6 mt-8 pt-6 border-t border-gray-200 text-xs md:text-[10px] font-bold uppercase tracking-widest text-gray-500 w-full">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#c1121f] shadow-inner"></div>
                 <span>Reserva Web</span>
@@ -490,7 +490,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
                 
                 <form onSubmit={handleSavePrice} className="space-y-3">
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Price per Night (MXN)</label>
+                    <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Price per Night (MXN)</label>
                     <input 
                       type="number" 
                       value={customPriceInput}

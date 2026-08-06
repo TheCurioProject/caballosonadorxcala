@@ -249,7 +249,7 @@ export default function AdminExperiencias() {
             items.map((item) => (
               <div key={item.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Name</label>
+                  <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Name</label>
                   <input 
                     type="text" 
                     value={item.name}
@@ -259,7 +259,7 @@ export default function AdminExperiencias() {
                 </div>
                 {showDesc && (
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Description</label>
+                    <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Description</label>
                     <textarea 
                       value={item.description || ''}
                       onChange={(e) => handleFoodChange(item.id, 'description', e.target.value)}
@@ -270,7 +270,7 @@ export default function AdminExperiencias() {
                 )}
                 {showPrice && (
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Price (MXN)</label>
+                    <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Price (MXN)</label>
                     <div className="relative">
                       <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
                       <input 
@@ -362,7 +362,7 @@ export default function AdminExperiencias() {
             tours.map((tour) => (
               <div key={tour.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Destination Name</label>
+                  <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Destination Name</label>
                   <input 
                     type="text" 
                     value={tour.name}
@@ -372,7 +372,7 @@ export default function AdminExperiencias() {
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex-1">
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Price (MXN/Person)</label>
+                    <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Price (MXN/Person)</label>
                     <div className="relative">
                       <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
                       <input 
@@ -384,7 +384,7 @@ export default function AdminExperiencias() {
                     </div>
                   </div>
                   <div className="flex flex-col items-center shrink-0">
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Active</label>
+                    <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Active</label>
                     <input 
                       type="checkbox"
                       checked={tour.isActive}

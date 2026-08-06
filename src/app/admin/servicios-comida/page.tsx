@@ -125,7 +125,7 @@ export default async function ServiciosComidaAdminPage() {
                   </div>
                   <div className="text-right">
                     <span className="block font-serif text-lg">${booking.totalPrice}</span>
-                    <span className={`text-[10px] px-2 py-1 rounded-full uppercase tracking-wider font-bold ${
+                    <span className={`text-xs md:text-[10px] px-2 py-1 rounded-full uppercase tracking-wider font-bold ${
                       booking.paymentStatus === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
                     }`}>
                       {booking.paymentStatus}
