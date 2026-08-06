@@ -19,11 +19,7 @@ export const DEFAULT_IMAGES: Record<string, { url: string; name: string; group: 
     name: 'Main Image (Left) & Card 1 (Rooms)',
     group: 'DURING YOUR STAY (Cards)'
   },
-  '/chef_durante_estancia.webp': {
-    url: '/chef_durante_estancia.webp',
-    name: 'Card 2 (Chef Service)',
-    group: 'DURING YOUR STAY (Cards)'
-  },
+
 
   '/DSC_0226.webp': {
     url: 'https://res.cloudinary.com/p6nhvksw/image/upload/v1784743737/hotelsonador/DSC_0226.webp',

@@ -12,8 +12,8 @@ export const FoodServices = () => {
   const langMatch = pathname.match(/^\/(es|en|de)/);
   const langPrefix = langMatch ? langMatch[0] : '/es';
 
-  // Use the dictionary data for Servicios de comida
-  const foodServiceData = (dict as any).services?.items?.[1];
+  // Use the dedicated dictionary data for Servicios de comida
+  const foodServiceData = (dict as any).foodServices;
 
   return (
     <section id="servicios-de-comida" className="relative bg-[#23211F]">

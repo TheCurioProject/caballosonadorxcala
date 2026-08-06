@@ -156,11 +156,6 @@
         "desc": "Seis habitaciones distintas para hasta 12 huéspedes, con baño privado, Wi-Fi y A/C. Creadas con madera y piedra local, desde lujosas Suites King hasta versátiles habitaciones Twin y Queen, diseñadas para un retiro pacífico."
       },
       {
-        "title": "Servicios de comida",
-        "short": "Sabores tradicionales preparados para ti.",
-        "desc": "Nuestro cocinero prepara platillos con un inigualable sazón mexicano utilizando ingredientes frescos de temporada. Puedes traer tus propios ingredientes o dejar que nosotros nos encarguemos de todo. Ofrecemos opciones de desayuno, comida y cena para que disfrutes de una experiencia culinaria inigualable durante tu estancia."
-      },
-      {
         "title": "Piscina, Jacuzzi y Lounge",
         "short": "Relájate bajo el sol, disfruta de la sombra y sumérgete en el jacuzzi.",
         "desc": "Desconecta en nuestra amplia zona de piscina. Ya sea nadando, leyendo bajo las palmeras o dejando que las aguas cálidas del jacuzzi disuelvan tu estrés, este es tu oasis personal."
@@ -480,6 +475,9 @@
   },
   "foodServices": {
     "superTitle": "Experiencia Culinaria",
-    "viewOptions": "Ver Opciones"
+    "viewOptions": "Ver Opciones",
+    "title": "Servicios de comida",
+    "short": "Sabores tradicionales preparados para ti.",
+    "desc": "Nuestro cocinero prepara platillos con un inigualable sazón mexicano utilizando ingredientes frescos de temporada. Puedes traer tus propios ingredientes o dejar que nosotros nos encarguemos de todo. Ofrecemos opciones de desayuno, comida y cena para que disfrutes de una experiencia culinaria inigualable durante tu estancia."
   }
 }

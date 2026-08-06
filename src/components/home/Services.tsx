@@ -16,7 +16,6 @@ const ServiceModal = dynamic(() => import('./ServiceModal').then(mod => mod.Serv
 
 const images = [
   '/imagenes/05_amenities/amenity_01_private_rooms.webp', // Card 1: Rooms
-  '/chef_durante_estancia.webp', // Chef
   '/imagenes/05_amenities/amenity_02_pool_lounge_new.webp', // Pool
   '/imagenes/05_amenities/amenity_05_guest_kitchen.webp', // Guest Kitchen
   '/imagenes/05_amenities/amenity_06_wifi.webp', // Wifi
@@ -25,7 +24,7 @@ const images = [
 ];
 
 const icons = [
-  BedDouble, Utensils, Waves, 
+  BedDouble, Waves, 
   Utensils, Wifi, Sun, MoonStar
 ];
 
@@ -48,10 +47,8 @@ export const Services = ({ imageSrc, siteImages }: { imageSrc?: string, siteImag
       short: item.short,
       desc: item.desc,
       image: siteImages ? getImageUrl(images[index], siteImages) : images[index],
-      icon: icons[index],
-      originalIndex: index
-    }))
-    .filter((item: any) => item.originalIndex !== 1);
+      icon: icons[index]
+    }));
 
   return (
     <>
