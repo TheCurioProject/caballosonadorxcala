@@ -45,6 +45,7 @@ model Booking {
   externalId     String?        @unique @db.VarChar(255)
   idCardUrl      String?        @db.VarChar(500)
   notes          String?        @db.Text
+  invoiceLanguage String       @default("en") @map("invoice_language")
   createdAt      DateTime       @default(now()) @map("created_at")
   updatedAt      DateTime       @updatedAt @map("updated_at")
   addons         BookingAddon[]
@@ -185,6 +186,7 @@ model ServiceBooking {
   totalPrice     Float    @map("total_price")
   externalId     String?  @unique @db.VarChar(255)
   notes          String?  @db.Text
+  invoiceLanguage String  @default("en") @map("invoice_language")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
@@ -239,4 +241,18 @@ model ServiceBlockedDate {
   @@index([startDate, endDate])
   @@index([serviceType])
   @@map("service_blocked_dates")
+}
+
+model StayAmenity {
+  id        Int      @id @default(autoincrement())
+  titleEs   String   @db.VarChar(255) @map("title_es")
+  titleEn   String   @db.VarChar(255) @map("title_en")
+  shortEs   String   @db.VarChar(500) @map("short_es")
+  shortEn   String   @db.VarChar(500) @map("short_en")
+  descEs    String   @db.Text @map("desc_es")
+  descEn    String   @db.Text @map("desc_en")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("stay_amenities")
 }

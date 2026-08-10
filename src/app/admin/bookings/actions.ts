@@ -44,6 +44,7 @@ export async function updateBooking(bookingId: number, formData: FormData) {
     const price = parseFloat(formData.get('price') as string);
     const depositPaid = parseFloat(formData.get('depositPaid') as string) || 0;
     const depositCurrency = formData.get('depositCurrency') as string || 'MXN';
+    const invoiceLanguage = formData.get('invoiceLanguage') as string || 'en';
 
     if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime())) {
       return { success: false, error: 'Invalid dates' };
@@ -59,7 +60,8 @@ export async function updateBooking(bookingId: number, formData: FormData) {
         guestPhone,
         totalPrice: isNaN(price) ? 0 : price,
         depositPaid,
-        depositCurrency
+        depositCurrency,
+        invoiceLanguage
       }
     });
 

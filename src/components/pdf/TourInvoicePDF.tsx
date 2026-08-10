@@ -133,7 +133,47 @@ interface TourInvoiceProps {
   currency?: string;
   issueDate: string;
   logoBase64: string;
+  language?: 'en' | 'es';
 }
+
+const translations = {
+  en: {
+    invoice: 'TOUR INVOICE',
+    clientDetails: 'Client Details',
+    name: 'Name:',
+    tourDetails: 'Tour Details',
+    destination: 'Destination:',
+    date: 'Date:',
+    guests: 'Guests:',
+    totalPaid: 'Total Paid',
+    importantNotes: 'Important Notes',
+    notes: [
+      '• Please arrive 15 minutes before the scheduled time for your tour.',
+      '• This voucher confirms your full payment for the tour service. No additional payments are necessary unless you request extra services on the day of the tour.',
+      '• Cancellations are subject to Casa Caballo Soñador cancellation policy.'
+    ],
+    footer: 'Casa Caballo Soñador — Chacala, Nayarit, Mexico',
+    footerContact: 'If you have any questions about your tour, contact us at reservas@casacaballosonador.com'
+  },
+  es: {
+    invoice: 'FACTURA DE TOUR',
+    clientDetails: 'Detalles del Cliente',
+    name: 'Nombre:',
+    tourDetails: 'Detalles del Tour',
+    destination: 'Destino:',
+    date: 'Fecha:',
+    guests: 'Número de Personas:',
+    totalPaid: 'Total Pagado',
+    importantNotes: 'Notas Importantes',
+    notes: [
+      '• Por favor, preséntese 15 minutos antes de la hora programada para su tour.',
+      '• Este comprobante confirma su pago total por el servicio de tour. No es necesario realizar pagos adicionales a menos que solicite servicios extra el día del tour.',
+      '• Las cancelaciones están sujetas a la política de cancelación de Casa Caballo Soñador.'
+    ],
+    footer: 'Casa Caballo Soñador — Chacala, Nayarit, México',
+    footerContact: 'Si tiene alguna duda con su tour, contáctenos en reservas@casacaballosonador.com'
+  }
+};
 
 export const TourInvoicePDF = ({ 
   bookingId, 
@@ -144,8 +184,12 @@ export const TourInvoicePDF = ({
   totalPrice, 
   currency = 'MXN', 
   issueDate, 
-  logoBase64 
-}: TourInvoiceProps) => (
+  logoBase64,
+  language = 'en'
+}: TourInvoiceProps) => {
+  const t = translations[language] || translations.en;
+  
+  return (
   <Document>
     <Page size="A4" style={styles.page}>
       
@@ -162,7 +206,7 @@ export const TourInvoicePDF = ({
           )}
         </View>
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>TOUR FACTURA</Text>
+          <Text style={styles.title}>{t.invoice}</Text>
           <Text style={styles.invoiceNumber}>#TOUR-{bookingId}</Text>
           <Text style={styles.invoiceNumber}>{issueDate}</Text>
         </View>
@@ -170,33 +214,33 @@ export const TourInvoicePDF = ({
 
       {/* CLIENT DETAILS */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Detalles del Cliente / Client Details</Text>
+        <Text style={styles.sectionTitle}>{t.clientDetails}</Text>
         <View style={styles.row}>
-          <Text style={styles.label}>Nombre / Name:</Text>
+          <Text style={styles.label}>{t.name}</Text>
           <Text style={styles.value}>{guestName}</Text>
         </View>
       </View>
 
       {/* TOUR DETAILS */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Detalles del Tour / Tour Details</Text>
+        <Text style={styles.sectionTitle}>{t.tourDetails}</Text>
         <View style={styles.row}>
-          <Text style={styles.label}>Destino / Destination:</Text>
+          <Text style={styles.label}>{t.destination}</Text>
           <Text style={styles.value}>{tourDestination}</Text>
         </View>
         <View style={styles.row}>
-          <Text style={styles.label}>Fecha / Date:</Text>
+          <Text style={styles.label}>{t.date}</Text>
           <Text style={styles.value}>{date}</Text>
         </View>
         <View style={styles.row}>
-          <Text style={styles.label}>Número de Personas / Guests:</Text>
+          <Text style={styles.label}>{t.guests}</Text>
           <Text style={styles.value}>{pax}</Text>
         </View>
       </View>
 
       {/* TOTAL */}
       <View style={styles.totalSection}>
-        <Text style={styles.totalLabel}>Total Pagado / Total Paid</Text>
+        <Text style={styles.totalLabel}>{t.totalPaid}</Text>
         <Text style={styles.totalValue}>
           ${totalPrice.toLocaleString('es-MX')} {currency}
         </Text>
@@ -204,17 +248,18 @@ export const TourInvoicePDF = ({
 
       {/* NOTES */}
       <View style={styles.rulesSection}>
-        <Text style={styles.sectionTitle}>Notas Importantes / Important Notes</Text>
-        <Text style={styles.ruleText}>• Por favor, preséntese 15 minutos antes de la hora programada para su tour.</Text>
-        <Text style={styles.ruleText}>• Este comprobante confirma su pago total por el servicio de tour. No es necesario realizar pagos adicionales a menos que solicite servicios extra el día del tour.</Text>
-        <Text style={styles.ruleText}>• Las cancelaciones están sujetas a la política de cancelación de Casa Caballo Soñador.</Text>
+        <Text style={styles.sectionTitle}>{t.importantNotes}</Text>
+        {t.notes.map((note, idx) => (
+          <Text key={idx} style={styles.ruleText}>{note}</Text>
+        ))}
       </View>
       
       {/* FOOTER */}
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Casa Caballo Soñador — Chacala, Nayarit, México</Text>
-        <Text style={styles.footerText}>Si tiene alguna duda con su tour, contáctenos en reservas@casacaballosonador.com</Text>
+        <Text style={styles.footerText}>{t.footer}</Text>
+        <Text style={styles.footerText}>{t.footerContact}</Text>
       </View>
     </Page>
   </Document>
-);
+  );
+};

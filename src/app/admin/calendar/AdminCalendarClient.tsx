@@ -39,8 +39,17 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
   const startDate = startOfWeek(monthStart, { weekStartsOn: 0 }); // Sunday
   const endDate = endOfWeek(monthEnd, { weekStartsOn: 0 });
 
-  const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
+  const nextMonth = () => {
+    const maxYear = new Date().getFullYear() + 2;
+    const canGoNext = currentDate.getFullYear() < maxYear || (currentDate.getFullYear() === maxYear && currentDate.getMonth() < 11);
+    if (canGoNext) {
+      setCurrentDate(addMonths(currentDate, 1));
+    }
+  };
   const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
+
+  const maxYear = new Date().getFullYear() + 2;
+  const canGoNext = currentDate.getFullYear() < maxYear || (currentDate.getFullYear() === maxYear && currentDate.getMonth() < 11);
 
   const getDayInfo = (day: Date) => {
     // Check bookings and buffer
@@ -191,8 +200,12 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
             <button onClick={prevMonth} className="p-2.5 sm:p-3 hover:bg-[#F9F7F4] rounded-xl transition-colors">
               <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
-            <button onClick={nextMonth} className="p-2.5 sm:p-3 hover:bg-[#F9F7F4] rounded-xl transition-colors">
-              <ChevronRight className="w-5 h-5 text-gray-600" />
+            <button 
+              onClick={nextMonth} 
+              disabled={!canGoNext}
+              className={`p-2.5 sm:p-3 rounded-xl transition-colors ${canGoNext ? 'hover:bg-[#F9F7F4]' : 'opacity-50 cursor-not-allowed'}`}
+            >
+              <ChevronRight className={`w-5 h-5 ${canGoNext ? 'text-gray-600' : 'text-gray-400'}`} />
             </button>
           </div>
         </div>

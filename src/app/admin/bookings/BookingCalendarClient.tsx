@@ -51,6 +51,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
   const [isSendingInvoice, setIsSendingInvoice] = useState(false);
   const [invoiceSent, setInvoiceSent] = useState(false);
   const [invoiceEmail, setInvoiceEmail] = useState('');
+  const [invoiceLanguage, setInvoiceLanguage] = useState<'en' | 'es' | ''>('');
 
   const [toastState, setToastState] = useState<{ isOpen: boolean; message: string; type: 'success' | 'error' }>({
     isOpen: false,
@@ -63,8 +64,17 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
   const startDate = startOfWeek(monthStart, { weekStartsOn: 0 });
   const endDate = endOfWeek(monthEnd, { weekStartsOn: 0 });
 
-  const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
+  const nextMonth = () => {
+    const maxYear = new Date().getFullYear() + 2;
+    const canGoNext = currentDate.getFullYear() < maxYear || (currentDate.getFullYear() === maxYear && currentDate.getMonth() < 11);
+    if (canGoNext) {
+      setCurrentDate(addMonths(currentDate, 1));
+    }
+  };
   const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
+
+  const maxYear = new Date().getFullYear() + 2;
+  const canGoNext = currentDate.getFullYear() < maxYear || (currentDate.getFullYear() === maxYear && currentDate.getMonth() < 11);
 
   const isDateUnavailable = (day: Date) => {
     if (day < new Date(new Date().setHours(0,0,0,0))) return true;
@@ -168,6 +178,7 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
       : (depositValue || 0);
     formData.append('depositPaid', depositPaid.toString());
     formData.append('depositCurrency', depositCurrency);
+    formData.append('invoiceLanguage', invoiceLanguage);
 
     startTransition(async () => {
       const result = await addManualBooking(formData);
@@ -223,13 +234,20 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
   };
 
   const handleSendInvoice = async () => {
-    if (!createdBooking || !invoiceEmail) return;
+    if (!createdBooking || !invoiceEmail || !invoiceLanguage) {
+      setToastState({
+        isOpen: true,
+        message: 'Please select an Invoice Language before sending.',
+        type: 'error'
+      });
+      return;
+    }
     setIsSendingInvoice(true);
     try {
       const res = await fetch('/api/admin/send-invoice-flow', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId: createdBooking.id, sendToClient: true, clientEmail: invoiceEmail })
+        body: JSON.stringify({ bookingId: createdBooking.id, sendToClient: true, clientEmail: invoiceEmail, invoiceLanguage })
       });
       const data = await res.json();
       if (data.success || data.clientEmailSent) {
@@ -300,8 +318,13 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
             <button type="button" onClick={prevMonth} className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
               <ChevronLeft className="w-4 h-4 text-gray-600" />
             </button>
-            <button type="button" onClick={nextMonth} className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-              <ChevronRight className="w-4 h-4 text-gray-600" />
+            <button 
+              type="button" 
+              onClick={nextMonth} 
+              disabled={!canGoNext}
+              className={`p-2 rounded-lg transition-colors ${canGoNext ? 'bg-gray-100 hover:bg-gray-200' : 'bg-gray-50 cursor-not-allowed opacity-50'}`}
+            >
+              <ChevronRight className={`w-4 h-4 ${canGoNext ? 'text-gray-600' : 'text-gray-400'}`} />
             </button>
           </div>
         </div>
@@ -509,6 +532,18 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                       className="w-full border border-gray-200 rounded-xl pl-10 px-4 py-4 text-[#23211F] focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all"
                     />
                   </div>
+                  <div className="relative">
+                    <select
+                      value={invoiceLanguage}
+                      onChange={(e) => setInvoiceLanguage(e.target.value as 'en' | 'es')}
+                      className="w-full border border-gray-200 rounded-xl px-4 py-4 text-[#23211F] focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all appearance-none bg-white"
+                      required
+                    >
+                      <option value="" disabled>Select Invoice Language</option>
+                      <option value="en">English (EN)</option>
+                      <option value="es">Español (ES)</option>
+                    </select>
+                  </div>
                   <div className="flex gap-3">
                     <button 
                       onClick={() => {
@@ -590,6 +625,25 @@ export default function BookingCalendarClient({ bookings, tourBookings = [], blo
                         <ImageIcon className="h-4 w-4 text-gray-400" />
                       </div>
                       <input type="file" name="idCard" accept="image/*" className="w-full border border-gray-200 rounded-xl pl-10 px-3 py-2 text-gray-500 text-sm focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] bg-white transition-all file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Invoice Language</label>
+                    <div className="relative">
+                      <select
+                        name="invoiceLanguage"
+                        value={invoiceLanguage}
+                        onChange={(e) => setInvoiceLanguage(e.target.value as 'en' | 'es')}
+                        required
+                        className="w-full border border-gray-200 rounded-xl px-3 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67] focus:ring-1 focus:ring-[#9B7E67] transition-all appearance-none bg-white"
+                      >
+                        <option value="" disabled>Select Language</option>
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                      </select>
                     </div>
                   </div>
                 </div>

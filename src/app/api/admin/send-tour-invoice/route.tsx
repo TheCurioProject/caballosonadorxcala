@@ -10,7 +10,7 @@ import path from 'path';
 
 export async function POST(req: Request) {
   try {
-    const { bookingId } = await req.json();
+    const { bookingId, invoiceLanguage } = await req.json();
 
     if (!bookingId) {
       return NextResponse.json({ error: 'Falta bookingId' }, { status: 400 });
@@ -49,6 +49,7 @@ export async function POST(req: Request) {
         totalPrice={booking.totalPrice}
         issueDate={new Date().toLocaleDateString('es-MX')}
         logoBase64={logoBase64}
+        language={invoiceLanguage || booking.invoiceLanguage || 'en'}
       /> as any
     );
 
@@ -60,7 +61,8 @@ export async function POST(req: Request) {
       pax: booking.pax || 1,
       totalPrice: booking.totalPrice,
       currency: 'MXN', // Or derived from somewhere else
-      bookingId: booking.id
+      bookingId: booking.id,
+      language: invoiceLanguage || booking.invoiceLanguage || 'en'
     };
 
     const emailResult = await sendTourInvoiceEmail(emailData, Buffer.from(pdfBuffer));

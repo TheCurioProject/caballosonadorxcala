@@ -1,10 +1,15 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { expandRecurringPricing } from '@/lib/pricing';
 
 export async function GET() {
   try {
-    const property = await prisma.property.findFirst();
+    const property = await prisma.property.findFirst({
+      include: {
+        pricingRules: true
+      }
+    });
     
     if (!property) {
       return NextResponse.json({ disabledDates: [] });
@@ -119,6 +124,7 @@ export async function GET() {
       tourBookedDates,
       foodBlockedRanges,
       tourBlockedRanges,
+      pricingRules: expandRecurringPricing(property.pricingRules || []),
       propertySettings: {
         checkInTime: "15:00",
         checkOutTime: "12:00",

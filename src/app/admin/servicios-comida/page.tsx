@@ -42,7 +42,7 @@ export default async function ServiciosComidaAdminPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10">
-        {/* Precios Section */}
+        {/* Prices Section */}
         <section className="bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-gray-100">
           <h2 className="text-2xl font-serif text-[#2C2621] mb-6 flex items-center gap-3">
             <span className="w-8 h-[2px] bg-[#9B7E67]"></span> Base Prices (MXN)
@@ -101,7 +101,7 @@ export default async function ServiciosComidaAdminPage() {
           </div>
         </section>
 
-        {/* Reservas Section */}
+        {/* Bookings Section */}
         <section className="bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-gray-100">
           <h2 className="text-2xl font-serif text-[#2C2621] mb-6 flex items-center gap-3">
             <span className="w-8 h-[2px] bg-[#9B7E67]"></span> Food Bookings

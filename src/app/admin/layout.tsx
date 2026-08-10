@@ -56,6 +56,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { name: 'Edit Content', href: '/admin/content', icon: ImageIcon, desc: 'Site Media & Images' },
     { name: 'Experiences', href: '/admin/experiencias', icon: Sparkles, desc: 'Guest Activities' },
     { name: 'Writers Group', href: '/admin/writers-group', icon: BookOpen, desc: 'Manage Workshops' },
+    { name: 'During Your Stay', href: '/admin/during-your-stay', icon: Sparkles, desc: 'Manage Amenities' },
     { name: 'Payments', href: '/admin/stripe', icon: CreditCard, desc: 'Stripe Transactions' },
     { name: 'iCal Sync', href: '/admin/ical', icon: CalendarSync, desc: 'Calendar Integrations' },
     { name: 'Settings', href: '/admin/settings', icon: Settings, desc: 'System Configuration' },

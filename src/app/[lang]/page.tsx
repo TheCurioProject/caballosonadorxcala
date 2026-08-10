@@ -28,6 +28,19 @@ const getCachedExperiences = unstable_cache(
   { revalidate: 3600, tags: ['experiences'] }
 );
 
+const getCachedAmenities = unstable_cache(
+  async () => {
+    try {
+      return await prisma.stayAmenity.findMany({ orderBy: { id: 'asc' } });
+    } catch (error) {
+      console.warn("Failed to fetch amenities");
+      return [];
+    }
+  },
+  ['stay-amenities'],
+  { revalidate: 3600, tags: ['amenities'] }
+);
+
 // Dynamic imports for below-the-fold components to improve initial load performance
 const About = dynamic(() => import('@/components/home/About').then(mod => mod.About));
 const Concept = dynamic(() => import('@/components/home/Concept').then(mod => mod.Concept));
@@ -51,6 +64,7 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
 
   // Fetch from database using Next.js cache
   let experiences = await getCachedExperiences();
+  const amenities = await getCachedAmenities();
 
   const getRoom = (id: number, basePrice: number, imageKeys: string[]) => {
     const r = (dict.roomsData as any)[id.toString()];
@@ -107,7 +121,7 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
         <About imageSrc={getImageUrl('/casaestancia.webp', siteImages)} />
         <Concept imageSrc={getImageUrl('/imagenes/02_hero/hero_01_img_4885.webp', siteImages)} />
         <Suites rooms={rooms} />
-        <Services imageSrc={getImageUrl('/casacuartos.webp', siteImages)} siteImages={siteImages} />
+        <Services imageSrc={getImageUrl('/casacuartos.webp', siteImages)} siteImages={siteImages} amenities={amenities} lang={safeLang} />
         <FoodServices />
         <Experiences experiences={experiences} />
         <Reviews />

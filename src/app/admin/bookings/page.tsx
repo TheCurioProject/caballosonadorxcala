@@ -7,6 +7,7 @@ import BookingCalendarClient from './BookingCalendarClient';
 import ClearPendingButton from './ClearPendingButton';
 import BookingActions from './BookingActions';
 import DeleteBookingButton from './DeleteBookingButton';
+import { expandRecurringPricing } from '@/lib/pricing';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,9 +25,7 @@ export default async function AdminBookingsPage() {
         blockedDates: {
           where: { endDate: { gte: new Date() } }
         },
-        pricingRules: {
-          where: { date: { gte: new Date(new Date().setHours(0,0,0,0)) } }
-        }
+        pricingRules: true
       }
     });
     
@@ -71,6 +70,7 @@ export default async function AdminBookingsPage() {
     const price = parseFloat(formData.get('price') as string);
     const depositPaid = parseFloat(formData.get('depositPaid') as string) || 0;
     const depositCurrency = formData.get('depositCurrency') as string || 'MXN';
+    const invoiceLanguage = formData.get('invoiceLanguage') as string || 'en';
     const idCardFile = formData.get('idCard') as File | null;
 
     let idCardUrl = null;
@@ -106,7 +106,8 @@ export default async function AdminBookingsPage() {
             totalPrice: isNaN(price) ? 0 : price,
             depositPaid: depositPaid,
             depositCurrency: depositCurrency,
-            idCardUrl
+            idCardUrl,
+            invoiceLanguage
           }
         });
         revalidatePath('/admin/bookings');
@@ -220,7 +221,7 @@ export default async function AdminBookingsPage() {
             bookings={property.bookings} 
             tourBookings={property.tourBookings || []}
             blocks={property.blockedDates}
-            pricingRules={property.pricingRules}
+            pricingRules={expandRecurringPricing(property.pricingRules || [])}
             basePrice={property.basePrice}
             addManualBooking={addManualBooking}
             manageDateRange={manageDateRange}

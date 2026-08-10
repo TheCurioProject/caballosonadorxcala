@@ -30,25 +30,27 @@ const icons = [
 
 import { getImageUrl } from '@/lib/siteImages';
 
-export const Services = ({ imageSrc, siteImages }: { imageSrc?: string, siteImages?: any }) => {
+export const Services = ({ imageSrc, siteImages, amenities, lang }: { imageSrc?: string, siteImages?: any, amenities?: any[], lang?: string }) => {
   const dict = useDictionary();
   const router = useRouter();
   const params = useParams();
-  const lang = params?.lang || 'en';
+  const currentLang = lang || params?.lang || 'en';
   const [selectedService, setSelectedService] = useState<any | null>(null);
 
-  const servicesData = (dict as any).services.items;
-
   // Build the full service items
-  const serviceItems: any[] = servicesData
-    .map((item: any, index: number) => ({
-      id: `service-${index}`,
-      title: item.title,
-      short: item.short,
-      desc: item.desc,
-      image: siteImages ? getImageUrl(images[index], siteImages) : images[index],
-      icon: icons[index]
-    }));
+  const serviceItems: any[] = (amenities && amenities.length > 0 ? amenities : (dict as any).services.items)
+    .map((item: any, index: number) => {
+      // Handle both old JSON format (title, short, desc) and new DB format (titleEs, titleEn, etc)
+      const isDbItem = item.id && (item.titleEs || item.titleEn);
+      return {
+        id: `service-${index}`,
+        title: isDbItem ? (currentLang === 'es' ? item.titleEs : item.titleEn) : item.title,
+        short: isDbItem ? (currentLang === 'es' ? item.shortEs : item.shortEn) : item.short,
+        desc: isDbItem ? (currentLang === 'es' ? item.descEs : item.descEn) : item.desc,
+        image: siteImages ? getImageUrl(images[index % images.length], siteImages) : images[index % images.length],
+        icon: icons[index % icons.length]
+      };
+    });
 
   return (
     <>

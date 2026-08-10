@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import React from 'react';
 import AdminCalendarClient from './AdminCalendarClient';
+import { expandRecurringPricing } from '@/lib/pricing';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,9 +22,7 @@ export default async function AdminCalendarPage() {
             where: { endDate: { gte: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1) } },
             orderBy: { startDate: 'asc' }
           },
-          pricingRules: {
-            where: { date: { gte: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1) } }
-          }
+          pricingRules: true
         }
       }),
       // @ts-ignore
@@ -64,7 +63,7 @@ export default async function AdminCalendarPage() {
         bookings={property.bookings}
         tourBookings={tourBookings}
         blocks={property.blockedDates}
-        dailyRates={property.pricingRules}
+        dailyRates={expandRecurringPricing(property.pricingRules || [])}
         holidays={holidays}
       />
     </div>

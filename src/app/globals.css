@@ -176,3 +176,26 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: rgba(155, 126, 103, 0.5);
 }
+
+/* Summary Scrollbar - More noticeable */
+.summary-scrollbar::-webkit-scrollbar {
+  width: 8px; /* Slightly thicker for mobile */
+  height: 8px;
+}
+.summary-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.02); /* Slight track visibility */
+  border-radius: 20px;
+}
+.summary-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(155, 126, 103, 0.4); /* More opaque */
+  border-radius: 20px;
+}
+.summary-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(155, 126, 103, 0.7);
+}
+
+@media (min-width: 768px) {
+  .summary-scrollbar::-webkit-scrollbar {
+    width: 14px; /* Much thicker for desktop to be visible from a distance */
+  }
+}

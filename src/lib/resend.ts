@@ -18,6 +18,7 @@ interface BookingEmailData {
   bookingId: number;
   nights: number;
   toEmails?: string[];
+  language?: 'en' | 'es';
 }
 
 export interface TourEmailData {
@@ -30,6 +31,7 @@ export interface TourEmailData {
   currency: string;
   bookingId: number;
   toEmails?: string[];
+  language?: 'en' | 'es';
 }
 
 // Helper para reintentar envíos en caso de errores de conexión intermitentes
@@ -148,10 +150,28 @@ export async function sendInvoiceEmail(data: BookingEmailData, pdfBuffer?: Buffe
       content: pdfBuffer,
     }] : [];
 
+    const t = {
+      en: {
+        subject: `Reservation Invoice #${data.bookingId} — Casa Caballo Soñador`,
+        title: 'Your Invoice',
+        body: `Attached is your invoice for ${formattedPrice} ${data.currency} corresponding to reservation #${data.bookingId}.`,
+        footer: 'Casa Caballo Soñador — Chacala, Nayarit, Mexico'
+      },
+      es: {
+        subject: `Factura de Reserva #${data.bookingId} — Casa Caballo Soñador`,
+        title: 'Tu Factura',
+        body: `Adjuntamos tu factura por ${formattedPrice} ${data.currency} correspondiente a la reserva #${data.bookingId}.`,
+        footer: 'Casa Caballo Soñador — Chacala, Nayarit, México'
+      }
+    };
+    
+    const lang = data.language || 'en';
+    const text = t[lang];
+
     const { data: responseData, error } = await withRetry(() => resend.emails.send({
       from: 'Casa Caballo Soñador <facturas@casacaballosonador.com>',
       to: data.toEmails || [data.guestEmail],
-      subject: `Factura de Reserva #${data.bookingId} — Casa Caballo Soñador`,
+      subject: text.subject,
       html: `
         <!DOCTYPE html>
         <html>
@@ -163,11 +183,11 @@ export async function sendInvoiceEmail(data: BookingEmailData, pdfBuffer?: Buffe
               <div style="width:60px;height:2px;background:#9B7E67;margin:16px auto;"></div>
             </div>
             <div style="background:white;border-radius:16px;padding:32px;box-shadow:0 2px 12px rgba(0,0,0,0.06);text-align:center;">
-              <h2 style="font-size:22px;color:#23211F;margin:0 0 16px;">Tu Factura</h2>
-              <p style="color:#666;font-size:14px;">Adjuntamos tu factura por ${formattedPrice} ${data.currency} correspondiente a la reserva #${data.bookingId}.</p>
+              <h2 style="font-size:22px;color:#23211F;margin:0 0 16px;">${text.title}</h2>
+              <p style="color:#666;font-size:14px;">${text.body}</p>
             </div>
             <div style="text-align:center;margin-top:32px;">
-              <p style="color:#999;font-size:12px;">Casa Caballo Soñador — Chacala, Nayarit, México</p>
+              <p style="color:#999;font-size:12px;">${text.footer}</p>
             </div>
           </div>
         </body>
@@ -278,10 +298,28 @@ export async function sendTourInvoiceEmail(data: TourEmailData, pdfBuffer?: Buff
       content: pdfBuffer,
     }] : [];
 
+    const t = {
+      en: {
+        subject: `Tour Invoice #${data.bookingId} — Casa Caballo Soñador`,
+        title: 'Your Tour Invoice',
+        body: `Attached is your invoice for ${formattedPrice} ${data.currency} corresponding to tour reservation #${data.bookingId}.`,
+        footer: 'Casa Caballo Soñador — Chacala, Nayarit, Mexico'
+      },
+      es: {
+        subject: `Factura de Tour #${data.bookingId} — Casa Caballo Soñador`,
+        title: 'Tu Factura de Tour',
+        body: `Adjuntamos tu factura por ${formattedPrice} ${data.currency} correspondiente a la reserva de tour #${data.bookingId}.`,
+        footer: 'Casa Caballo Soñador — Chacala, Nayarit, México'
+      }
+    };
+
+    const lang = data.language || 'en';
+    const text = t[lang];
+
     const { data: responseData, error } = await withRetry(() => resend.emails.send({
       from: 'Casa Caballo Soñador <facturas@casacaballosonador.com>',
       to: data.toEmails || [data.guestEmail],
-      subject: `Factura de Tour #${data.bookingId} — Casa Caballo Soñador`,
+      subject: text.subject,
       html: `
         <!DOCTYPE html>
         <html>
@@ -293,11 +331,11 @@ export async function sendTourInvoiceEmail(data: TourEmailData, pdfBuffer?: Buff
               <div style="width:60px;height:2px;background:#9B7E67;margin:16px auto;"></div>
             </div>
             <div style="background:white;border-radius:16px;padding:32px;box-shadow:0 2px 12px rgba(0,0,0,0.06);text-align:center;">
-              <h2 style="font-size:22px;color:#23211F;margin:0 0 16px;">Tu Factura de Tour</h2>
-              <p style="color:#666;font-size:14px;">Adjuntamos tu factura por ${formattedPrice} ${data.currency} correspondiente a la reserva de tour #${data.bookingId}.</p>
+              <h2 style="font-size:22px;color:#23211F;margin:0 0 16px;">${text.title}</h2>
+              <p style="color:#666;font-size:14px;">${text.body}</p>
             </div>
             <div style="text-align:center;margin-top:32px;">
-              <p style="color:#999;font-size:12px;">Casa Caballo Soñador — Chacala, Nayarit, México</p>
+              <p style="color:#999;font-size:12px;">${text.footer}</p>
             </div>
           </div>
         </body>

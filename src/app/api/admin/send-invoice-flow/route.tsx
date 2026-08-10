@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
-    const { bookingId, sendToClient, clientEmail } = await request.json();
+    const { bookingId, sendToClient, clientEmail, invoiceLanguage } = await request.json();
 
     if (!bookingId) {
       return NextResponse.json({ success: false, error: 'Missing bookingId' }, { status: 400 });
@@ -56,6 +56,7 @@ export async function POST(request: Request) {
         date={date}
         logoBase64={logoBase64}
         addons={booking.addons}
+        language={invoiceLanguage || booking.invoiceLanguage || 'en'}
       /> as any
     );
 
@@ -73,7 +74,8 @@ export async function POST(request: Request) {
       totalPrice: booking.totalPrice,
       currency: 'MXN', 
       bookingId: booking.id,
-      nights: Math.ceil((booking.checkOut.getTime() - booking.checkIn.getTime()) / (1000 * 3600 * 24))
+      nights: Math.ceil((booking.checkOut.getTime() - booking.checkIn.getTime()) / (1000 * 3600 * 24)),
+      language: invoiceLanguage || booking.invoiceLanguage || 'en'
     };
 
     // Send email to admin(s)

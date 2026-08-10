@@ -135,9 +135,81 @@ interface InvoiceProps {
   date: string;
   logoBase64: string;
   addons?: any[];
+  language?: 'en' | 'es';
 }
 
-export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, totalPrice, depositPaid = 0, depositCurrency = 'MXN', date, logoBase64, addons = [] }: InvoiceProps) => (
+const translations = {
+  en: {
+    invoice: 'INVOICE',
+    clientDetails: 'Client Details',
+    name: 'Name:',
+    bookingDetails: 'Booking Details',
+    property: 'Property:',
+    checkIn: 'Check-in:',
+    checkOut: 'Check-out:',
+    from: 'from 15:00 hrs',
+    until: 'until 11:00 hrs',
+    foodServices: 'Food Services',
+    dinnerService: 'Dinner Service on',
+    withDish: 'with dish:',
+    for: 'for',
+    people: 'people',
+    foodService: 'Food Service',
+    tours: 'Tours',
+    tourTo: 'Tour to',
+    paymentSummary: 'Payment Summary',
+    totalAmount: 'Total amount:',
+    depositPaid: 'Deposit paid:',
+    balanceDue: 'Balance Due',
+    houseRules: 'House Rules',
+    rules: [
+      '• Quiet hours: 10:00 PM - 8:00 AM.',
+      '• No smoking inside facilities and rooms.',
+      '• No unauthorized parties or events.',
+      '• Pets must be declared at the time of booking.',
+      '• Please conserve energy and water to support the local environment.'
+    ],
+    footer: 'Casa Caballo Soñador — Chacala, Nayarit, Mexico',
+    footerContact: 'If you have any questions about your reservation, contact us at reservas@casacaballosonador.com'
+  },
+  es: {
+    invoice: 'FACTURA',
+    clientDetails: 'Detalles del Cliente',
+    name: 'Nombre:',
+    bookingDetails: 'Detalles de la Reserva',
+    property: 'Propiedad:',
+    checkIn: 'Check-in:',
+    checkOut: 'Check-out:',
+    from: 'a partir de las 15:00 hrs',
+    until: 'hasta las 11:00 hrs',
+    foodServices: 'Servicios de Comida',
+    dinnerService: 'Servicio de Cena el día',
+    withDish: 'con platillo:',
+    for: 'para',
+    people: 'personas',
+    foodService: 'Servicio de Comida',
+    tours: 'Tours',
+    tourTo: 'Tour a',
+    paymentSummary: 'Resumen de Pago',
+    totalAmount: 'Total de la reserva:',
+    depositPaid: 'Anticipo pagado:',
+    balanceDue: 'Balance Pendiente',
+    houseRules: 'Reglas de la Casa',
+    rules: [
+      '• Horario de silencio: 10:00 PM - 8:00 AM.',
+      '• Prohibido fumar dentro de las instalaciones y habitaciones.',
+      '• No se permiten fiestas o eventos no autorizados previamente.',
+      '• Las mascotas deben ser declaradas al momento de la reserva.',
+      '• Por favor, cuide el consumo de energía y agua en apoyo al medio ambiente local.'
+    ],
+    footer: 'Casa Caballo Soñador — Chacala, Nayarit, México',
+    footerContact: 'Si tiene alguna duda con su reserva, contáctenos en reservas@casacaballosonador.com'
+  }
+};
+
+export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, totalPrice, depositPaid = 0, depositCurrency = 'MXN', date, logoBase64, addons = [], language = 'en' }: InvoiceProps) => {
+  const t = translations[language] || translations.en;
+  return (
   <Document>
     <Page size="A4" style={styles.page}>
       
@@ -154,7 +226,7 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
           )}
         </View>
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>INVOICE</Text>
+          <Text style={styles.title}>{t.invoice}</Text>
           <Text style={styles.invoiceNumber}>#RES-{bookingId}</Text>
           <Text style={styles.invoiceNumber}>{date}</Text>
         </View>
@@ -162,27 +234,27 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
 
       {/* CLIENT DETAILS */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Detalles del Cliente</Text>
+        <Text style={styles.sectionTitle}>{t.clientDetails}</Text>
         <View style={styles.row}>
-          <Text style={styles.label}>Nombre:</Text>
+          <Text style={styles.label}>{t.name}</Text>
           <Text style={styles.value}>{guestName}</Text>
         </View>
       </View>
 
       {/* BOOKING DETAILS */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Detalles de la Reserva</Text>
+        <Text style={styles.sectionTitle}>{t.bookingDetails}</Text>
         <View style={styles.row}>
-          <Text style={styles.label}>Propiedad:</Text>
+          <Text style={styles.label}>{t.property}</Text>
           <Text style={styles.value}>{roomName}</Text>
         </View>
         <View style={styles.row}>
-          <Text style={styles.label}>Check-in:</Text>
-          <Text style={styles.value}>{checkIn} a partir de las 15:00 hrs</Text>
+          <Text style={styles.label}>{t.checkIn}</Text>
+          <Text style={styles.value}>{checkIn} {t.from}</Text>
         </View>
         <View style={styles.row}>
-          <Text style={styles.label}>Check-out:</Text>
-          <Text style={styles.value}>{checkOut} hasta las 11:00 hrs</Text>
+          <Text style={styles.label}>{t.checkOut}</Text>
+          <Text style={styles.value}>{checkOut} {t.until}</Text>
         </View>
       </View>
 
@@ -195,7 +267,7 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
               <Path d="M7 2v20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
               <Path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
-            <Text style={{ fontSize: 12, color: '#23211F', textTransform: 'uppercase', letterSpacing: 2, fontFamily: 'Helvetica-Bold' }}>Servicios de Comida / Food Services</Text>
+            <Text style={{ fontSize: 12, color: '#23211F', textTransform: 'uppercase', letterSpacing: 2, fontFamily: 'Helvetica-Bold' }}>{t.foodServices}</Text>
           </View>
           {addons.filter(a => a.type.startsWith('FOOD')).map((addon, i) => {
             let detailsObj: any = {};
@@ -203,13 +275,13 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
             
             let name = "";
             if (addon.type.includes('DISH')) {
-              name = `Servicio de Cena el día ${detailsObj.date || ''} con platillo: ${addon.name}`;
+              name = `${t.dinnerService} ${detailsObj.date || ''} ${t.withDish} ${addon.name}`;
             } else if (detailsObj.service || detailsObj.plan || detailsObj.name) {
               name = `${detailsObj.service || detailsObj.plan || detailsObj.name}`;
-              if (detailsObj.date) name += ` el día ${detailsObj.date}`;
-              if (detailsObj.groupSize) name += ` para ${detailsObj.groupSize} personas`;
+              if (detailsObj.date) name += ` (el día / on ${detailsObj.date})`;
+              if (detailsObj.groupSize) name += ` ${t.for} ${detailsObj.groupSize} ${t.people}`;
             } else {
-              name = addon.name || 'Servicio de Comida';
+              name = addon.name || t.foodService;
             }
 
             return (
@@ -230,15 +302,15 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
               <Path d="M14 8v11" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
               <Path d="M8 5v11" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
             </Svg>
-            <Text style={{ fontSize: 12, color: '#23211F', textTransform: 'uppercase', letterSpacing: 2, fontFamily: 'Helvetica-Bold' }}>Tours</Text>
+            <Text style={{ fontSize: 12, color: '#23211F', textTransform: 'uppercase', letterSpacing: 2, fontFamily: 'Helvetica-Bold' }}>{t.tours}</Text>
           </View>
           {addons.filter(a => a.type.startsWith('TOUR')).map((addon, i) => {
             let detailsObj: any = {};
             try { if (addon.details) detailsObj = JSON.parse(addon.details); } catch(e) {}
             const dest = detailsObj.destination || detailsObj.name || addon.name || 'Tour';
             const pax = detailsObj.people || addon.quantity;
-            const dateStr = detailsObj.date ? ` el día ${detailsObj.date}` : '';
-            const name = `Tour a ${dest} para ${pax} personas${dateStr}`;
+            const dateStr = detailsObj.date ? ` (el día / on ${detailsObj.date})` : '';
+            const name = `${t.tourTo} ${dest} ${t.for} ${pax} ${t.people}${dateStr}`;
             return (
               <View key={i} style={styles.row}>
                 <Text style={styles.label}>{addon.quantity}x {name}</Text>
@@ -251,19 +323,19 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
 
       {/* TOTAL */}
       <View style={{ ...styles.section, marginTop: 20 }}>
-        <Text style={styles.sectionTitle}>Resumen de Pago / Payment Summary</Text>
+        <Text style={styles.sectionTitle}>{t.paymentSummary}</Text>
         <View style={styles.row}>
-          <Text style={styles.label}>Total de la reserva / Total amount:</Text>
+          <Text style={styles.label}>{t.totalAmount}</Text>
           <Text style={styles.value}>${totalPrice.toLocaleString('es-MX')} MXN</Text>
         </View>
         <View style={styles.row}>
-          <Text style={styles.label}>Anticipo pagado / Deposit paid:</Text>
+          <Text style={styles.label}>{t.depositPaid}</Text>
           <Text style={styles.value}>${depositPaid.toLocaleString('es-MX')} {depositCurrency}</Text>
         </View>
       </View>
 
       <View style={styles.totalSection}>
-        <Text style={styles.totalLabel}>Balance Pendiente / Balance Due</Text>
+        <Text style={styles.totalLabel}>{t.balanceDue}</Text>
         <Text style={styles.totalValue}>
           {depositCurrency === 'MXN' 
             ? `$${(totalPrice - depositPaid).toLocaleString('es-MX')} MXN`
@@ -274,19 +346,18 @@ export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, 
 
       {/* RULES */}
       <View style={styles.rulesSection}>
-        <Text style={styles.sectionTitle}>Reglas de la Casa</Text>
-        <Text style={styles.ruleText}>• Horario de silencio: 10:00 PM - 8:00 AM.</Text>
-        <Text style={styles.ruleText}>• Prohibido fumar dentro de las instalaciones y habitaciones.</Text>
-        <Text style={styles.ruleText}>• No se permiten fiestas o eventos no autorizados previamente.</Text>
-        <Text style={styles.ruleText}>• Las mascotas deben ser declaradas al momento de la reserva.</Text>
-        <Text style={styles.ruleText}>• Por favor, cuide el consumo de energía y agua en apoyo al medio ambiente local.</Text>
+        <Text style={styles.sectionTitle}>{t.houseRules}</Text>
+        {t.rules.map((rule, idx) => (
+          <Text key={idx} style={styles.ruleText}>{rule}</Text>
+        ))}
       </View>
       
       {/* FOOTER */}
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Casa Caballo Soñador — Chacala, Nayarit, México</Text>
-        <Text style={styles.footerText}>Si tiene alguna duda con su reserva, contáctenos en reservas@casacaballosonador.com</Text>
+        <Text style={styles.footerText}>{t.footer}</Text>
+        <Text style={styles.footerText}>{t.footerContact}</Text>
       </View>
     </Page>
   </Document>
-);
+  );
+};

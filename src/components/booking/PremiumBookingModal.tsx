@@ -452,7 +452,20 @@ const dbTranslations: Record<string, { en: string, es: string }> = {
   "Filete sazonado con finas hierbas, envuelto en papel y acompañado de verduras salteadas y arroz.": {
     en: "Steak seasoned with fine herbs, wrapped in paper, accompanied by sautéed vegetables and rice.",
     es: "Filete sazonado con finas hierbas, envuelto en papel y acompañado de verduras salteadas y arroz."
-  }
+  },
+  // English variants for DB content
+  "Breakfast": { en: "Breakfast", es: "Desayuno" },
+  "Breakfast & Lunch": { en: "Breakfast & Lunch", es: "Desayuno y Comida" },
+  "Dinner": { en: "Dinner", es: "Cena" },
+  "Red Enchiladas": { en: "Red Enchiladas", es: "Enchiladas rojas" },
+  "Stuffed Chiles": { en: "Stuffed Chiles", es: "Chiles rellenos" },
+  "Fillet in Capers": { en: "Fillet in Capers", es: "Filete en alcaparras" },
+  "Asada and Adobada Tacos": { en: "Asada and Adobada Tacos", es: "Tacos de asada y adobada" },
+  "Shrimp Spaghetti": { en: "Shrimp Spaghetti", es: "Spaguetti con camarones" },
+  "Paper-Wrapped Fillet": { en: "Paper-Wrapped Fillet", es: "Filete empapelado" },
+  "Water Eye": { en: "Water Eye", es: "Ojo de Agua" },
+  "Molote River": { en: "Molote River", es: "Río Molote" },
+  "The Caves": { en: "The Caves", es: "Las Cuevas" }
 };
 
 const translateDB = (text: string | undefined | null, isEn: boolean): string => {
@@ -537,6 +550,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [tourBlockedRanges, setTourBlockedRanges] = useState<DateRange[]>([]);
   const [tourBookedDates, setTourBookedDates] = useState<string[]>([]);
   const [propertySettings, setPropertySettings] = useState<any>(null);
+  const [pricingRules, setPricingRules] = useState<any[]>([]);
   
   // Form Data
   const [guestName, setGuestName] = useState('');
@@ -545,6 +559,9 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [guestPhone, setGuestPhone] = useState('');
   
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+  const summaryScrollRef = React.useRef<HTMLDivElement>(null);
+  const autoScrollActive = React.useRef(true);
+  const [showScrollLegend, setShowScrollLegend] = useState(false);
 
   // Extras state
   const [foodServices, setFoodServices] = useState<any[]>([]);
@@ -582,6 +599,53 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [showConfetti, setShowConfetti] = useState(false);
 
   useScrollLock(isOpen);
+
+  useEffect(() => {
+    if (step === 'summary') {
+      autoScrollActive.current = true;
+      setShowScrollLegend(true);
+      const container = summaryScrollRef.current;
+      if (!container) return;
+
+      let animationFrameId: number;
+      let lastTime = performance.now();
+
+      const scrollStep = (time: number) => {
+        if (!autoScrollActive.current) return;
+        
+        const delta = time - lastTime;
+        lastTime = time;
+
+        // Smooth, slow scroll speed
+        if (container.scrollTop + container.clientHeight < container.scrollHeight) {
+          container.scrollTop += (delta * 0.04); 
+          animationFrameId = requestAnimationFrame(scrollStep);
+        } else {
+          // Stop when reached bottom
+          autoScrollActive.current = false;
+          setShowScrollLegend(false);
+        }
+      };
+
+      // Delay start slightly to let the user see the top
+      const timeoutId = setTimeout(() => {
+        lastTime = performance.now();
+        animationFrameId = requestAnimationFrame(scrollStep);
+      }, 1500);
+
+      return () => {
+        clearTimeout(timeoutId);
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      };
+    } else {
+      setShowScrollLegend(false);
+    }
+  }, [step]);
+
+  const handleUserScrollInteraction = () => {
+    autoScrollActive.current = false;
+    setShowScrollLegend(false);
+  };
 
   useEffect(() => {
     Promise.all([
@@ -623,6 +687,9 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
           setTourBookedDates(data.tourBookedDates || []);
           if (data.propertySettings) {
             setPropertySettings(data.propertySettings);
+          }
+          if (data.pricingRules) {
+            setPricingRules(data.pricingRules);
           }
         })
         .catch(console.error);
@@ -728,7 +795,23 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     return matchesDinnerSize(name, '6-8') || matchesDinnerSize(name, '10-12');
   };
 
-  const accommodationTotal = nights > 0 ? nights * basePrice : 0;
+  const accommodationTotal = useMemo(() => {
+    if (!range?.from || !range?.to || nights === 0) return 0;
+    let total = 0;
+    let current = new Date(range.from);
+    const end = new Date(range.to);
+    while (current < end) {
+      const rule = pricingRules.find(r => {
+        const d = new Date(r.date);
+        return d.getUTCFullYear() === current.getFullYear() && 
+               d.getUTCMonth() === current.getMonth() && 
+               d.getUTCDate() === current.getDate();
+      });
+      total += getConvertedPrice(rule ? rule.priceOverride : (propertySettings?.basePrice || 15000));
+      current.setDate(current.getDate() + 1);
+    }
+    return total;
+  }, [range, nights, propertySettings?.basePrice, pricingRules, getConvertedPrice]);
 
   let cookTotal = 0;
   if (wantsCook) {
@@ -1187,6 +1270,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             disabled={[{ before: new Date() }, ...disabledRanges]}
                             modifiers={{ booked: bookedRanges, buffer: bufferRanges, blocked: blockedRanges }}
                             numberOfMonths={1}
+                            endMonth={new Date(new Date().getFullYear() + 2, 11)}
                             className="premium-calendar !m-0"
                             components={{ DayButton: AnimatedDayButton }}
                           />
@@ -1201,6 +1285,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             disabled={[{ before: new Date() }, ...disabledRanges]}
                             modifiers={{ booked: bookedRanges, buffer: bufferRanges, blocked: blockedRanges }}
                             numberOfMonths={1}
+                            endMonth={new Date(new Date().getFullYear() + 2, 11)}
                             className="premium-calendar !m-0"
                             components={{ DayButton: AnimatedDayButton }}
                           />
@@ -2096,8 +2181,14 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       <div className="flex flex-col h-full">
                         <h3 className="text-3xl font-serif text-[#23211F] mb-6 shrink-0">{dict.modal?.summary || (isEn ? 'Summary' : 'Resumen')}</h3>
                         
-                        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex-1 flex flex-col mb-4 md:mb-8 overflow-hidden">
-                          <div className="overflow-y-auto custom-scrollbar flex-1 space-y-4 md:space-y-6 pr-2 max-h-[300px]">
+                        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex-1 flex flex-col mb-4 md:mb-8 overflow-hidden relative">
+                          <div 
+                            ref={summaryScrollRef}
+                            className="overflow-y-auto summary-scrollbar flex-1 space-y-4 md:space-y-6 pr-2 max-h-[300px]"
+                            onWheel={handleUserScrollInteraction}
+                            onTouchStart={handleUserScrollInteraction}
+                            onMouseDown={handleUserScrollInteraction}
+                          >
                           
                           {/* Guest Data Review */}
                           <div className="pb-6 border-b border-gray-100">
@@ -2186,7 +2277,31 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           )}
 
                           </div>
-  <div className="flex justify-between items-center pt-4 border-t border-gray-100 mt-4 shrink-0">
+                          
+                          <AnimatePresence>
+                            {showScrollLegend && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 10 }}
+                                className="absolute bottom-24 left-0 right-0 flex justify-center pointer-events-none"
+                              >
+                                <div className="flex flex-col items-center gap-1 text-[#9B7E67] opacity-80 drop-shadow-md">
+                                  <motion.div
+                                    animate={{ y: [0, 4, 0] }}
+                                    transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                                  >
+                                    <ChevronDown size={18} />
+                                  </motion.div>
+                                  <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-center">
+                                    {isEn ? 'Scroll to view details' : 'Desliza para ver el desglose'}
+                                  </span>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+
+                          <div className="flex justify-between items-center pt-4 border-t border-gray-100 mt-4 shrink-0">
     <div>
       <h4 className="font-bold text-2xl text-[#23211F]">{dict.modal?.total}</h4>
                               <p className="text-base md:text-lg text-gray-400 uppercase tracking-widest">{dict.modal?.taxesIncluded}</p>

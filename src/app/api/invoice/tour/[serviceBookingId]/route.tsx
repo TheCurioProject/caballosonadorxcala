@@ -53,6 +53,7 @@ export async function GET(
         totalPrice={booking.totalPrice}
         issueDate={new Date().toLocaleDateString()}
         logoBase64={logoBase64}
+        language={(booking.invoiceLanguage as 'en' | 'es') || 'en'}
       /> as any
     );
 

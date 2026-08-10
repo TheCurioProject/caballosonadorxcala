@@ -42,6 +42,7 @@ export default function EditBookingModal({
       : booking.depositPaid
   );
   const [depositCurrency, setDepositCurrency] = useState(booking.depositCurrency || 'MXN');
+  const [invoiceLanguage, setInvoiceLanguage] = useState<'en' | 'es' | ''>(booking.invoiceLanguage || '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,6 +60,7 @@ export default function EditBookingModal({
       
     formData.append('depositPaid', depositPaid.toString());
     formData.append('depositCurrency', depositCurrency);
+    formData.append('invoiceLanguage', invoiceLanguage);
 
     startTransition(async () => {
       const result = await updateBooking(booking.id, formData);
@@ -75,15 +77,24 @@ export default function EditBookingModal({
   };
 
   const handlePrintInvoice = async (sendToClient: boolean) => {
+    if (!invoiceLanguage) {
+      setToastState({
+        isOpen: true,
+        message: 'Please select an Invoice Language before sending.',
+        type: 'error'
+      });
+      return;
+    }
     setIsSendingInvoice(true);
     try {
       const res = await fetch('/api/admin/send-invoice-flow', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           bookingId: booking.id, 
           sendToClient, 
-          clientEmail: guestEmail 
+          clientEmail: guestEmail,
+          invoiceLanguage
         })
       });
       const data = await res.json();
@@ -160,6 +171,26 @@ export default function EditBookingModal({
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Phone</label>
+                  <input type="tel" value={guestPhone} onChange={e => setGuestPhone(e.target.value)} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67]" />
+                </div>
+                <div>
+                  <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Invoice Language</label>
+                  <select 
+                    value={invoiceLanguage} 
+                    onChange={e => setInvoiceLanguage(e.target.value as 'en' | 'es')} 
+                    required
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#23211F] text-sm focus:outline-none focus:border-[#9B7E67] bg-white appearance-none"
+                  >
+                    <option value="" disabled>Select Language</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                  </select>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-5">
                 <div>
                   <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Check In</label>
@@ -201,7 +232,7 @@ export default function EditBookingModal({
             
             {booking.addons && booking.addons.length > 0 && (
               <div className="mt-8 border-t border-gray-100 pt-6">
-                <h4 className="text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Adicionales / Addons</h4>
+                <h4 className="text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Addons</h4>
                 <div className="space-y-3">
                   {booking.addons.map((addon: any) => {
                     let detailsObj: any = {};
@@ -210,20 +241,20 @@ export default function EditBookingModal({
                     if (addon.type.startsWith('TOUR')) {
                       const dest = detailsObj.destination || detailsObj.name || addon.name || 'Tour';
                       const pax = detailsObj.people || addon.quantity;
-                      const dateStr = detailsObj.date ? ` el día ${detailsObj.date}` : '';
-                      name = `Tour a ${dest} para ${pax} personas${dateStr}`;
+                      const dateStr = detailsObj.date ? ` on ${detailsObj.date}` : '';
+                      name = `Tour to ${dest} for ${pax} people${dateStr}`;
                     } else if (addon.type.startsWith('FOOD')) {
                       if (addon.type.includes('DISH')) {
-                        name = `Servicio de Cena el día ${detailsObj.date || ''} con platillo: ${addon.name}`;
+                        name = `Dinner Service on ${detailsObj.date || ''} with dish: ${addon.name}`;
                       } else if (detailsObj.service || detailsObj.plan || detailsObj.name) {
                         name = `${detailsObj.service || detailsObj.plan || detailsObj.name}`;
-                        if (detailsObj.date) name += ` el día ${detailsObj.date}`;
-                        if (detailsObj.groupSize) name += ` para ${detailsObj.groupSize} personas`;
+                        if (detailsObj.date) name += ` on ${detailsObj.date}`;
+                        if (detailsObj.groupSize) name += ` for ${detailsObj.groupSize} people`;
                       } else {
-                        name = addon.name || 'Servicio de Comida';
+                        name = addon.name || 'Food Service';
                       }
                     } else {
-                      name = addon.name || 'Adicional';
+                      name = addon.name || 'Addon';
                     }
                     return (
                       <div key={addon.id} className="bg-gray-50 rounded-xl p-4 flex justify-between items-center">

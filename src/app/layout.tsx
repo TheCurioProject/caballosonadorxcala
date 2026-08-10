@@ -4,6 +4,7 @@ import "./globals.css";
 import Navigation from "@/components/Navigation";
 import { BookingProvider } from "@/context/BookingContext";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
+import { CookieConsent } from "@/components/ui/CookieConsent";
 import { cookies } from 'next/headers';
 import { getDictionary } from '@/i18n/dictionaries';
 import { DictionaryProvider } from '@/i18n/DictionaryContext';
@@ -81,6 +82,7 @@ export default async function RootLayout({
             <main className="min-h-screen">
               {children}
             </main>
+            <CookieConsent />
           </BookingProvider>
         </DictionaryProvider>
       </body>

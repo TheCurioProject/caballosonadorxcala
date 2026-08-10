@@ -333,7 +333,7 @@ export default function AdminExperiencias() {
 
       {renderFoodSection('Food Services (Main Options)', 'FOOD_SERVICE', true, false)}
       {renderFoodSection('Catering Prices', 'FOOD_PRICE', false, true)}
-      {renderFoodSection('Dishes Menu (Platillos)', 'FOOD_DISH', true, false)}
+      {renderFoodSection('Dishes Menu', 'FOOD_DISH', true, false)}
 
       {/* Tour Destinations Section */}
       <section>

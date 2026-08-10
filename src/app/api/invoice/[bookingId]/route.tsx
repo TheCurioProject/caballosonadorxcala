@@ -44,6 +44,7 @@ export async function GET(
         date={new Date().toLocaleDateString()}
         logoBase64={logoBase64}
         addons={booking.addons}
+        language={(booking.invoiceLanguage as 'en' | 'es') || 'en'}
       /> as any
     );
 
