@@ -581,6 +581,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [minTourPax, setMinTourPax] = useState(3);
   const [maxTourPax, setMaxTourPax] = useState(10);
   const [atvPeople, setAtvPeople] = useState(3);
+  const [hasSelectedAtvPeople, setHasSelectedAtvPeople] = useState(false);
   const [atvByDate, setAtvByDate] = useState<Record<string, string>>({});
   const [selectedDateForAtv, setSelectedDateForAtv] = useState<string>('');
 
@@ -709,6 +710,9 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         setWantsATV(null);
         setAtvPeople(minTourPax);
         setAtvByDate({});
+        setHasSelectedAtvPeople(false);
+        setPlanByDate({});
+        setDishesByDate({});
         setSelectedDateForAtv('');
         setError(null);
         setIsSuccess(false);
@@ -1941,22 +1945,24 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                 (Min {minTourPax}, Max {maxTourPax})
                               </span>
                             </div>
-                            <div className="flex items-center gap-3">
-                              <button 
-                                onClick={() => setAtvPeople(Math.max(minTourPax, atvPeople - 1))}
-                                className={`w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 border border-gray-200 text-gray-500 hover:text-black transition-colors ${atvPeople <= minTourPax ? 'opacity-30 cursor-not-allowed' : ''}`}
-                              >
-                                <Minus size={16} />
-                              </button>
-                              <span className="w-4 text-center font-bold text-[#9B7E67]">{atvPeople}</span>
-                              <button 
-                                onClick={() => setAtvPeople(Math.min(maxTourPax, atvPeople + 1))}
-                                className={`w-8 h-8 flex items-center justify-center rounded-full bg-[#23211F] text-white hover:bg-[#9B7E67] transition-colors ${atvPeople >= maxTourPax ? 'opacity-30 cursor-not-allowed' : ''}`}
-                              >
-                                <Plus size={16} />
-                              </button>
+                            <div className="flex flex-wrap gap-2 md:gap-3 mt-4">
+                              {Array.from({length: maxTourPax - minTourPax + 1}, (_, i) => minTourPax + i).map(num => (
+                                <button 
+                                  key={num}
+                                  onClick={() => {
+                                    setAtvPeople(num);
+                                    setHasSelectedAtvPeople(true);
+                                  }}
+                                  className={`w-10 h-10 md:w-12 md:h-12 rounded-xl font-bold text-sm md:text-base flex items-center justify-center transition-all ${atvPeople === num && hasSelectedAtvPeople ? 'bg-[#9B7E67] text-white shadow-md' : 'bg-[#FAF8F5] border border-[#E8D5B7] text-[#9B7E67] hover:bg-[#9B7E67] hover:text-white'}`}
+                                >
+                                  {num}
+                                </button>
+                              ))}
                             </div>
                           </div>
+
+                          {hasSelectedAtvPeople && (
+                            <>
 
                           <div className="bg-[#FAF8F5] p-5 rounded-3xl border border-[#E8D5B7] mb-4 shrink-0">
                             <div className="flex justify-between items-center mb-4">
@@ -2080,6 +2086,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                               {isEn ? 'Proceed' : 'Proceder'} <ArrowRight size={16} />
                             </PremiumButton>
                           </div>
+                          </>
+                        )}
                         </motion.div>
                       ) : null}
                     </motion.div>
