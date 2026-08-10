@@ -107,6 +107,32 @@
   background-color: transparent !important;
   border-color: transparent !important;
   box-shadow: none !important;
+  color: #9CA3AF !important; /* Gray for past dates */
+}
+
+/* Custom Modifiers */
+.rdp-day_booked .rdp-day_button {
+  background-color: #ef4444 !important; /* bg-red-500 */
+  color: #ffffff !important;
+  border-color: transparent !important;
+  opacity: 0.8 !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+.rdp-day_buffer .rdp-day_button {
+  background-color: #D4A574 !important; /* bg-[#D4A574] */
+  color: #ffffff !important;
+  border-color: transparent !important;
+  opacity: 0.8 !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+.rdp-day_blocked .rdp-day_button {
+  background-color: #9CA3AF !important; /* bg-gray-400 */
+  color: #ffffff !important;
+  border-color: transparent !important;
+  opacity: 0.6 !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
 }
 
 /* Month navigation and text layout */
