@@ -585,11 +585,13 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [atvByDate, setAtvByDate] = useState<Record<string, string>>({});
   const [selectedDateForAtv, setSelectedDateForAtv] = useState<string>('');
 
+  const idleTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
-    if (isMobile && scrollContainerRef.current) {
+    if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [step, isMobile, wantsCook, wantsATV]);
+  }, [step, wantsCook, wantsATV]);
 
   const currency = 'MXN';
   const formatPrice = (amountInMxn: number) => `$${Math.round(amountInMxn).toLocaleString()} MXN`;
@@ -604,9 +606,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   useEffect(() => {
     if (step === 'summary') {
       autoScrollActive.current = true;
-      setShowScrollLegend(true);
+      setShowScrollLegend(false); // don't show it until 1s of idle or initial delay
       const container = summaryScrollRef.current;
       if (!container) return;
+      
+      container.scrollTop = 0; // reset scroll
 
       let animationFrameId: number;
       let lastTime = performance.now();
@@ -632,20 +636,35 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
       const timeoutId = setTimeout(() => {
         lastTime = performance.now();
         animationFrameId = requestAnimationFrame(scrollStep);
+        setShowScrollLegend(true);
       }, 1500);
 
       return () => {
         clearTimeout(timeoutId);
         if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
       };
     } else {
       setShowScrollLegend(false);
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     }
   }, [step]);
 
   const handleUserScrollInteraction = () => {
     autoScrollActive.current = false;
     setShowScrollLegend(false);
+    
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current);
+    }
+    
+    // Show legend after 1s of no interaction
+    idleTimerRef.current = setTimeout(() => {
+      const container = summaryScrollRef.current;
+      if (container && (container.scrollTop + container.clientHeight < container.scrollHeight)) {
+        setShowScrollLegend(true);
+      }
+    }, 1000);
   };
 
   useEffect(() => {
