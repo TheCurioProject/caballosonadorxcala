@@ -696,8 +696,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
           if (data.bookedRanges) {
             setBookedRanges(data.bookedRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })));
           }
-          setBufferRanges(data.bufferRanges || []);
-          setBlockedRanges(data.blockedRanges || []);
+          setBufferRanges(data.bufferRanges ? data.bufferRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })) : []);
+          setBlockedRanges(data.blockedRanges ? data.blockedRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })) : []);
           if (data.foodBlockedRanges) {
             setFoodBlockedRanges(data.foodBlockedRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })));
           }
