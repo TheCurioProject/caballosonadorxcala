@@ -690,19 +690,25 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
       fetch('/api/availability')
         .then(res => res.json())
         .then(data => {
+          const parseLocalDate = (dateString: string) => {
+            if (!dateString) return new Date();
+            const [year, month, day] = dateString.split('T')[0].split('-').map(Number);
+            return new Date(year, month - 1, day);
+          };
+
           if (data.disabledRanges) {
-            setDisabledRanges(data.disabledRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })));
+            setDisabledRanges(data.disabledRanges.map((r: any) => ({ from: parseLocalDate(r.from), to: parseLocalDate(r.to) })));
           }
           if (data.bookedRanges) {
-            setBookedRanges(data.bookedRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })));
+            setBookedRanges(data.bookedRanges.map((r: any) => ({ from: parseLocalDate(r.from), to: parseLocalDate(r.to) })));
           }
-          setBufferRanges(data.bufferRanges ? data.bufferRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })) : []);
-          setBlockedRanges(data.blockedRanges ? data.blockedRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })) : []);
+          setBufferRanges(data.bufferRanges ? data.bufferRanges.map((r: any) => ({ from: parseLocalDate(r.from), to: parseLocalDate(r.to) })) : []);
+          setBlockedRanges(data.blockedRanges ? data.blockedRanges.map((r: any) => ({ from: parseLocalDate(r.from), to: parseLocalDate(r.to) })) : []);
           if (data.foodBlockedRanges) {
-            setFoodBlockedRanges(data.foodBlockedRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })));
+            setFoodBlockedRanges(data.foodBlockedRanges.map((r: any) => ({ from: parseLocalDate(r.from), to: parseLocalDate(r.to) })));
           }
           if (data.tourBlockedRanges) {
-            setTourBlockedRanges(data.tourBlockedRanges.map((r: any) => ({ from: new Date(r.from), to: new Date(r.to) })));
+            setTourBlockedRanges(data.tourBlockedRanges.map((r: any) => ({ from: parseLocalDate(r.from), to: parseLocalDate(r.to) })));
           }
           setTourBookedDates(data.tourBookedDates || []);
           if (data.propertySettings) {
@@ -1292,6 +1298,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             onSelect={setRange}
                             disabled={[{ before: new Date() }, ...disabledRanges]}
                             modifiers={{ booked: bookedRanges, buffer: bufferRanges, blocked: blockedRanges }}
+                            modifiersClassNames={{ booked: 'rdp-day_booked', buffer: 'rdp-day_buffer', blocked: 'rdp-day_blocked' }}
                             numberOfMonths={1}
                             endMonth={new Date(new Date().getFullYear() + 2, 11)}
                             className="premium-calendar !m-0"
@@ -1307,6 +1314,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             onSelect={setRange}
                             disabled={[{ before: new Date() }, ...disabledRanges]}
                             modifiers={{ booked: bookedRanges, buffer: bufferRanges, blocked: blockedRanges }}
+                            modifiersClassNames={{ booked: 'rdp-day_booked', buffer: 'rdp-day_buffer', blocked: 'rdp-day_blocked' }}
                             numberOfMonths={1}
                             endMonth={new Date(new Date().getFullYear() + 2, 11)}
                             className="premium-calendar !m-0"
