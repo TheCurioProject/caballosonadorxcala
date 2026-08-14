@@ -18,7 +18,8 @@ export async function POST(req: Request) {
       guestPhone, 
       totalPrice, 
       items = [], 
-      currency = 'usd' 
+      currency = 'usd',
+      lang = 'es'
     } = body;
 
     if (!serviceType || !startDate || !endDate || !guestName || !guestEmail || !totalPrice) {
@@ -69,8 +70,8 @@ export async function POST(req: Request) {
           quantity: item.quantity || 1,
         })),
         mode: 'payment',
-        success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}&service_booking_id=${serviceBooking.id}`,
-        cancel_url: `${origin}/?canceled=true`,
+        success_url: `${origin}/${lang}/checkout/success?session_id={CHECKOUT_SESSION_ID}&service_booking_id=${serviceBooking.id}`,
+        cancel_url: `${origin}/${lang}?canceled=true`,
         customer_email: guestEmail,
         metadata: {
           serviceBookingId: serviceBooking.id.toString(),

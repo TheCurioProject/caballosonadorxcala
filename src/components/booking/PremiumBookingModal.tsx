@@ -960,6 +960,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
           totalPrice: grandTotal,
           addons: selectedAddons,
           currency: currency.toLowerCase(),
+          lang: currentLangCode,
         }),
       });
 

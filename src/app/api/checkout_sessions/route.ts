@@ -7,7 +7,7 @@ import { getBilingualText } from '@/lib/bilingual';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { checkIn, checkOut, guestName, guestEmail, guestPhone, totalPrice, accommodationTotal, addons = [], currency = 'mxn' } = body;
+    const { checkIn, checkOut, guestName, guestEmail, guestPhone, totalPrice, accommodationTotal, addons = [], currency = 'mxn', lang = 'es' } = body;
 
     // Use accommodationTotal for the room line item if provided, otherwise fallback to totalPrice (for backward compatibility)
     const baseRoomPrice = accommodationTotal || totalPrice;
@@ -120,8 +120,8 @@ export async function POST(req: Request) {
           }))
         ],
         mode: 'payment',
-        success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}&booking_id=${booking.id}`,
-        cancel_url: `${origin}/?canceled=true`,
+        success_url: `${origin}/${lang}/checkout/success?session_id={CHECKOUT_SESSION_ID}&booking_id=${booking.id}`,
+        cancel_url: `${origin}/${lang}?canceled=true`,
         customer_email: guestEmail,
         metadata: {
           bookingId: booking.id.toString(),
