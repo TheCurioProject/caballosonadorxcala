@@ -2,28 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import prisma from '@/lib/prisma';
-
-const bilingualNames: Record<string, string> = {
-  "Breakfast": "Desayuno / Breakfast",
-  "Breakfast & Lunch": "Desayuno y Comida / Breakfast & Lunch",
-  "Dinner": "Cena / Dinner",
-  "Dinner Service (6 to 8 people)": "Servicio de Cena (6 a 8 personas) / Dinner Service (6 to 8 people)",
-  "Dinner Service (10 to 12 people)": "Servicio de Cena (10 a 12 personas) / Dinner Service (10 to 12 people)",
-  "Breakfast Assistance": "Asistencia de desayuno / Breakfast Assistance",
-  "Dinner Assistance": "Asistencia para la cena / Dinner Assistance",
-  "Breakfast & Dinner Assistance": "Asistencia para desayuno y cena / Breakfast & Dinner Assistance",
-  "Red Enchiladas": "Enchiladas rojas / Red Enchiladas",
-  "Stuffed Chiles": "Chiles rellenos / Stuffed Chiles",
-  "Fillet in Capers": "Filete en alcaparras / Fillet in Capers",
-  "Asada and Adobada Tacos": "Tacos de asada y adobada / Asada and Adobada Tacos",
-  "Shrimp Spaghetti": "Spaguetti con camarones / Shrimp Spaghetti",
-  "Paper-Wrapped Fillet": "Filete empapelado / Paper-Wrapped Fillet",
-  "Water Eye": "Ojo de Agua / Water Eye",
-  "Molote River": "Río Molote / Molote River",
-  "The Caves": "Las Cuevas / The Caves",
-  "Personalized Service": "Servicio Personalizado / Personalized Service",
-  "Dinner Service": "Servicio de Cena / Dinner Service"
-};
+import { getBilingualText } from '@/lib/bilingual';
 
 export async function POST(req: Request) {
   try {
@@ -130,7 +109,7 @@ export async function POST(req: Request) {
             price_data: {
               currency: currency.toLowerCase(),
               product_data: {
-                name: a.name ? (bilingualNames[a.name] || a.name) : `Extra: ${a.type}`,
+                name: a.name ? getBilingualText(a.name) : `Extra: ${getBilingualText(a.type)}`,
               },
               // We assume a.price passed from frontend is the UNIT price because Stripe takes unit_amount and quantity
               // Wait, if a.price in DB is total price, we need to pass unit_price to Stripe.

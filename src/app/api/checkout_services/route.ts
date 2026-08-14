@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import prisma from '@/lib/prisma';
+import { getBilingualText } from '@/lib/bilingual';
 
 export async function POST(req: Request) {
   try {
@@ -60,8 +61,8 @@ export async function POST(req: Request) {
           price_data: {
             currency: currency.toLowerCase(),
             product_data: {
-              name: item.name,
-              description: item.description || '',
+              name: getBilingualText(item.name),
+              description: getBilingualText(item.description) || '',
             },
             unit_amount: Math.round(item.unitPrice * 100),
           },
