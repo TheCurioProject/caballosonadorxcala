@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     const { bookingId } = await req.json();
 
     if (!bookingId) {
-      return NextResponse.json({ error: 'Missing bookingId' }, { status: 400 });
+      return NextResponse.json({ error: 'Falta el ID de la reserva' }, { status: 400 });
     }
 
     const booking = await prisma.booking.findUnique({
@@ -20,15 +20,15 @@ export async function POST(req: Request) {
     });
 
     if (!booking) {
-      return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Reserva no encontrada' }, { status: 404 });
     }
 
     if (booking.payment_status !== 'CONFIRMED') {
-      return NextResponse.json({ error: 'Booking is not confirmed' }, { status: 400 });
+      return NextResponse.json({ error: 'El pago aún está en proceso de validación por Stripe. Intenta de nuevo en unos segundos.' }, { status: 400 });
     }
 
     const nights = differenceInDays(new Date(booking.checkOut), new Date(booking.checkIn));
-    const currency = 'MXN'; // Defaulting to MXN, ideally should be fetched from session or booking
+    const currency = 'MXN';
 
     let pdfBuffer: Buffer | undefined = undefined;
     try {
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
       });
     } catch (pdfError) {
       console.error('[Resend Invoice] Failed to generate invoice PDF', pdfError);
-      return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 });
+      return NextResponse.json({ error: 'Error interno: No se pudo generar el PDF' }, { status: 500 });
     }
 
     const emailData = {
@@ -67,13 +67,13 @@ export async function POST(req: Request) {
     const emailResult = await sendInvoiceEmail(emailData, pdfBuffer);
 
     if (!emailResult.success) {
-      return NextResponse.json({ error: 'Failed to send email' }, { status: 500 });
+      return NextResponse.json({ error: 'El sistema de correos falló. ¿Falta la API Key de Resend?' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
 
   } catch (err: any) {
     console.error('[Resend Invoice Error]:', err);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: 'Error del servidor al intentar reenviar.' }, { status: 500 });
   }
 }

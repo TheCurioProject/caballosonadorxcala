@@ -21,7 +21,7 @@ export function BookingSuccessModal({ booking, lang }: BookingSuccessModalProps)
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
   const [isResending, setIsResending] = useState(false);
-  const [resendStatus, setResendStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [resendStatus, setResendStatus] = useState<'idle' | 'success' | 'error' | string>('idle');
 
   // Prevent background scrolling when modal is open
   useEffect(() => {
@@ -91,17 +91,18 @@ export function BookingSuccessModal({ booking, lang }: BookingSuccessModalProps)
       if (res.ok) {
         setResendStatus('success');
       } else {
-        setResendStatus('error');
+        const data = await res.json().catch(() => ({}));
+        setResendStatus(data.error || 'error');
       }
     } catch (e) {
       setResendStatus('error');
     }
     setIsResending(false);
     
-    // Reset status after 3 seconds
+    // Reset status after 5 seconds to let them read the error
     setTimeout(() => {
       setResendStatus('idle');
-    }, 3000);
+    }, 5000);
   };
 
   return (
@@ -177,7 +178,7 @@ export function BookingSuccessModal({ booking, lang }: BookingSuccessModalProps)
             className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-[#9B7E67] text-[#9B7E67] rounded-lg font-medium hover:bg-[#9B7E67]/5 transition-colors disabled:opacity-70"
           >
             <Mail className="w-4 h-4" />
-            {isResending ? t.resending : resendStatus === 'success' ? t.sent : resendStatus === 'error' ? t.error : t.resendInvoice}
+            {isResending ? t.resending : resendStatus === 'success' ? t.sent : (resendStatus !== 'idle' && resendStatus !== 'error') ? resendStatus : (resendStatus === 'error' ? t.error : t.resendInvoice)}
           </button>
           
           <button
