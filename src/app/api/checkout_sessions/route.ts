@@ -112,6 +112,7 @@ export async function POST(req: Request) {
       const origin = req.headers.get('origin') || 'http://localhost:3000';
       
       const session = await stripe.checkout.sessions.create({
+        allow_promotion_codes: true,
         payment_method_types: ['card'],
         line_items: [
           {
