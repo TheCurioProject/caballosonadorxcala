@@ -53,14 +53,28 @@ const Location = dynamic(() => import('@/components/home/Location').then(mod => 
 const Footer = dynamic(() => import('@/components/home/Footer').then(mod => mod.Footer));
 const FoodServices = dynamic(() => import('@/components/home/FoodServices').then(mod => mod.FoodServices));
 
+import { BookingSuccessModal } from '@/components/home/BookingSuccessModal';
+
 // Revalidate page every 60 seconds (ISR) to fix caching issues without losing performance
 export const revalidate = 60;
 
-export default async function Home({ params }: { params: Promise<{ lang: 'es' | 'en' }> }) {
+export default async function Home({ params, searchParams }: { params: Promise<{ lang: 'es' | 'en' }>, searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
   const { lang } = await params;
+  const search = await searchParams;
   const safeLang = lang || 'es';
   const dict = await getDictionary(safeLang);
   const siteImages = await getSiteImages();
+
+  let bookingSuccessData = null;
+  if (search?.success === 'true' && search?.booking_id) {
+    const bId = parseInt(search.booking_id as string);
+    if (!isNaN(bId)) {
+      const booking = await prisma.booking.findUnique({ where: { id: bId } });
+      if (booking) {
+        bookingSuccessData = booking;
+      }
+    }
+  }
 
   // Fetch from database using Next.js cache
   let experiences = await getCachedExperiences();
@@ -116,6 +130,8 @@ export default async function Home({ params }: { params: Promise<{ lang: 'es' | 
   return (
     <div className="bg-[#F9F7F4] font-sans min-h-screen antialiased selection:bg-[#9B7E67] selection:text-[#F9F7F4]">
       
+      {bookingSuccessData && <BookingSuccessModal booking={bookingSuccessData as any} lang={safeLang} />}
+
       <main>
         <Hero imageSrc={getImageUrl('/casaexterior.webp', siteImages)} />
         <About imageSrc={getImageUrl('/casaestancia.webp', siteImages)} />

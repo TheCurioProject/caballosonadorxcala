@@ -42,10 +42,14 @@ export async function POST(request: Request) {
     
     if (bookingId) {
       try {
+        const amountTotal = session.amount_total ? session.amount_total / 100 : undefined;
         // Update booking status in database
         const booking = await prisma.booking.update({
           where: { id: parseInt(bookingId) },
-          data: { payment_status: 'CONFIRMED' },
+          data: { 
+            payment_status: 'CONFIRMED',
+            ...(amountTotal !== undefined ? { totalPrice: amountTotal } : {})
+          },
           include: { property: true },
         });
 

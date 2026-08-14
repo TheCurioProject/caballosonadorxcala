@@ -120,7 +120,7 @@ export async function POST(req: Request) {
           }))
         ],
         mode: 'payment',
-        success_url: `${origin}/${lang}/checkout/success?session_id={CHECKOUT_SESSION_ID}&booking_id=${booking.id}`,
+        success_url: `${origin}/${lang}/?success=true&session_id={CHECKOUT_SESSION_ID}&booking_id=${booking.id}`,
         cancel_url: `${origin}/${lang}?canceled=true`,
         customer_email: guestEmail,
         metadata: {
