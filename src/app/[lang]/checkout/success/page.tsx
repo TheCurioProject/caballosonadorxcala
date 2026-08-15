@@ -26,28 +26,42 @@ export default async function CheckoutSuccessPage({
 
   if (session_id && (booking_id || service_booking_id)) {
     try {
-      // Very basic verification: in production you should use Webhooks for robust verification
+      // Retrieve session to verify payment status — READ ONLY, no DB updates.
+      // The webhook (POST /api/webhooks/stripe) is the single source of truth for confirming payments.
       const session = await stripe.checkout.sessions.retrieve(session_id);
       
       if (session.payment_status === 'paid') {
         if (booking_id) {
-          const booking = await prisma.booking.update({
-            where: { id: parseInt(booking_id, 10) },
-            data: { payment_status: 'CONFIRMED' }
-          });
-          success = true;
-          guestName = booking.guestName;
+          // Verify that the session metadata matches the booking_id (prevent ID manipulation)
+          if (session.metadata?.bookingId !== booking_id) {
+            console.warn('[Success Page] Session metadata bookingId mismatch:', session.metadata?.bookingId, '!=', booking_id);
+          } else {
+            // Read-only: just fetch current state (webhook sets CONFIRMED)
+            const booking = await prisma.booking.findUnique({
+              where: { id: parseInt(booking_id, 10) }
+            });
+            if (booking && (booking.payment_status === 'CONFIRMED' || booking.payment_status === 'PENDING')) {
+              success = true;
+              guestName = booking.guestName;
+            }
+          }
         } else if (service_booking_id) {
-          const serviceBooking = await prisma.serviceBooking.update({
-            where: { id: parseInt(service_booking_id, 10) },
-            data: { paymentStatus: 'CONFIRMED' }
-          });
-          success = true;
-          guestName = serviceBooking.guestName;
+          // Verify that the session metadata matches the serviceBookingId
+          if (session.metadata?.serviceBookingId !== service_booking_id) {
+            console.warn('[Success Page] Session metadata serviceBookingId mismatch:', session.metadata?.serviceBookingId, '!=', service_booking_id);
+          } else {
+            const serviceBooking = await prisma.serviceBooking.findUnique({
+              where: { id: parseInt(service_booking_id, 10) }
+            });
+            if (serviceBooking && (serviceBooking.paymentStatus === 'CONFIRMED' || serviceBooking.paymentStatus === 'PENDING')) {
+              success = true;
+              guestName = serviceBooking.guestName;
+            }
+          }
         }
       }
     } catch (error) {
-      console.error('Error verifying session:', error);
+      console.error('[Success Page] Error verifying session:', error);
     }
   }
 

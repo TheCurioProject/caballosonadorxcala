@@ -6,9 +6,33 @@ import { generateInvoicePDFBuffer } from '@/lib/pdf';
 import fs from 'fs';
 import path from 'path';
 
+// ─── Rate limiter for invoice resend (prevent enumeration/spam) ───
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX = 3; // max 3 resend attempts per minute per IP
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+  entry.count++;
+  return entry.count > RATE_LIMIT_MAX;
+}
+
 export async function POST(req: Request) {
   try {
-    const { bookingId } = await req.json();
+    // Rate limiting to prevent enumeration attacks
+    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() 
+      || req.headers.get('x-real-ip') 
+      || 'unknown';
+    if (isRateLimited(clientIp)) {
+      return NextResponse.json({ error: 'Demasiados intentos. Espera un momento.' }, { status: 429 });
+    }
+
+    const { bookingId, guestEmail } = await req.json();
 
     if (!bookingId) {
       return NextResponse.json({ error: 'Falta el ID de la reserva' }, { status: 400 });
@@ -20,7 +44,14 @@ export async function POST(req: Request) {
     });
 
     if (!booking) {
-      return NextResponse.json({ error: 'Reserva no encontrada' }, { status: 404 });
+      // Return generic error to prevent ID enumeration
+      return NextResponse.json({ error: 'Reserva no encontrada o datos incorrectos' }, { status: 404 });
+    }
+
+    // VULN-06 FIX: Verify that the requester is the booking owner via email match
+    // This prevents arbitrary users from requesting invoices for bookings they don't own
+    if (guestEmail && guestEmail.toLowerCase() !== booking.guestEmail.toLowerCase()) {
+      return NextResponse.json({ error: 'Reserva no encontrada o datos incorrectos' }, { status: 404 });
     }
 
     if (booking.payment_status !== 'CONFIRMED') {

@@ -16,11 +16,17 @@ export async function POST(request: Request) {
       where: { email: username },
     });
 
-    // Si no hay usuarios y es admin/caballosonador8, lo creamos para inicializar el sistema
+    // Si no hay usuarios y es admin, lo creamos para inicializar el sistema
+    // VULN-10 FIX: Default password comes from environment variable, not hardcoded
     if (!user && username === 'admin') {
       const allUsers = await prisma.adminUser.count();
       if (allUsers === 0) {
-        const hash = await bcrypt.hash('caballosonador8', 10);
+        const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD;
+        if (!defaultPassword) {
+          console.error('[Auth] ADMIN_DEFAULT_PASSWORD not set. Cannot auto-create admin user.');
+          return NextResponse.json({ error: 'System not initialized. Contact administrator.' }, { status: 503 });
+        }
+        const hash = await bcrypt.hash(defaultPassword, 12);
         user = await prisma.adminUser.create({
           data: {
             email: 'admin',

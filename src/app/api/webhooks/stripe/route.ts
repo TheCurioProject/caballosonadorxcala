@@ -1,16 +1,13 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { stripe } from '@/lib/stripe';
 import prisma from '@/lib/prisma';
 import { sendBookingConfirmation, sendInvoiceEmail, sendAdminBookingNotification } from '@/lib/resend';
 import { differenceInDays } from 'date-fns';
 import { generateInvoicePDFBuffer, generateTourInvoicePDFBuffer } from '@/lib/pdf';
 import fs from 'fs';
 import path from 'path';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_for_build', {
-  apiVersion: '2025-02-24.acacia' as any,
-});
 
 export async function POST(request: Request) {
   const body = await request.text();
@@ -20,13 +17,19 @@ export async function POST(request: Request) {
     return new NextResponse('Missing stripe signature', { status: 400 });
   }
 
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+    console.error('[Webhook] CRITICAL: STRIPE_WEBHOOK_SECRET is not configured');
+    return new NextResponse('Webhook secret not configured', { status: 500 });
+  }
+
   let event: Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET || ''
+      webhookSecret
     );
   } catch (err: any) {
     console.error('[Webhook] Signature verification failed:', err.message);
@@ -42,6 +45,15 @@ export async function POST(request: Request) {
     
     if (bookingId) {
       try {
+        // IDEMPOTENCY: Check if already processed to prevent duplicate emails on Stripe retries
+        const existingBooking = await prisma.booking.findUnique({
+          where: { id: parseInt(bookingId) }
+        });
+        if (existingBooking?.payment_status === 'CONFIRMED') {
+          console.log('[Webhook] Booking already confirmed (idempotent skip):', bookingId);
+          return NextResponse.json({ received: true });
+        }
+
         const amountTotal = session.amount_total ? session.amount_total / 100 : undefined;
         // Update booking status in database
         const booking = await prisma.booking.update({
@@ -50,7 +62,7 @@ export async function POST(request: Request) {
             payment_status: 'CONFIRMED',
             ...(amountTotal !== undefined ? { totalPrice: amountTotal } : {})
           },
-          include: { property: true },
+          include: { property: true, addons: true },
         });
 
         console.log('[Webhook] Booking confirmed:', bookingId);
@@ -119,6 +131,15 @@ export async function POST(request: Request) {
       }
     } else if (serviceBookingId && type === 'tour') {
       try {
+        // IDEMPOTENCY: Check if already processed to prevent duplicate emails on Stripe retries
+        const existingServiceBooking = await prisma.serviceBooking.findUnique({
+          where: { id: parseInt(serviceBookingId) }
+        });
+        if (existingServiceBooking?.paymentStatus === 'CONFIRMED') {
+          console.log('[Webhook] Tour Booking already confirmed (idempotent skip):', serviceBookingId);
+          return NextResponse.json({ received: true });
+        }
+
         const booking = await prisma.serviceBooking.update({
           where: { id: parseInt(serviceBookingId) },
           data: { paymentStatus: 'CONFIRMED' }

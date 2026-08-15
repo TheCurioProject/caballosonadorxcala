@@ -4,8 +4,32 @@ import { stripe } from '@/lib/stripe';
 import prisma from '@/lib/prisma';
 import { getBilingualText } from '@/lib/bilingual';
 
+// ─── Simple in-memory rate limiter ───
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const RATE_LIMIT_MAX = 5;
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+  entry.count++;
+  return entry.count > RATE_LIMIT_MAX;
+}
+
 export async function POST(req: Request) {
   try {
+    // Rate limiting
+    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() 
+      || req.headers.get('x-real-ip') 
+      || 'unknown';
+    if (isRateLimited(clientIp)) {
+      return NextResponse.json({ error: 'Demasiados intentos. Por favor, espera un momento.' }, { status: 429 });
+    }
+
     const body = await req.json();
     const { 
       serviceType, 
@@ -26,16 +50,52 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Faltan datos requeridos' }, { status: 400 });
     }
 
+    // Validate email format
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)) {
+      return NextResponse.json({ error: 'Email inválido' }, { status: 400 });
+    }
+
+    // Validate totalPrice is a positive number
+    if (typeof totalPrice !== 'number' || totalPrice <= 0 || !isFinite(totalPrice)) {
+      return NextResponse.json({ error: 'Precio total inválido' }, { status: 400 });
+    }
+
+    // Validate dates
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return NextResponse.json({ error: 'Fechas inválidas' }, { status: 400 });
+    }
+
+    // Validate each item has required fields and positive prices
+    for (const item of items) {
+      if (!item.name || typeof item.unitPrice !== 'number' || item.unitPrice < 0 || !isFinite(item.unitPrice)) {
+        return NextResponse.json({ error: 'Datos de item inválidos' }, { status: 400 });
+      }
+      if (typeof item.quantity === 'number' && (item.quantity < 1 || !Number.isInteger(item.quantity))) {
+        return NextResponse.json({ error: 'Cantidad de item inválida' }, { status: 400 });
+      }
+    }
+
     let serviceBooking;
     
     // 1. Create a "PENDING" service booking in the database
     try {
+      // VULN-13: Clean up expired pending service bookings
+      const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+      await prisma.serviceBooking.deleteMany({
+        where: {
+          paymentStatus: 'PENDING',
+          createdAt: { lt: fifteenMinutesAgo }
+        }
+      });
+
       serviceBooking = await prisma.serviceBooking.create({
         data: {
           serviceType,
           serviceDetails: JSON.stringify(serviceDetails),
-          startDate: new Date(startDate),
-          endDate: new Date(endDate),
+          startDate: start,
+          endDate: end,
           pax: pax ? parseInt(pax) : null,
           guestName,
           guestEmail,

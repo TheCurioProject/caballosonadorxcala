@@ -1,8 +1,28 @@
 import Stripe from 'stripe';
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock', {
-  apiVersion: '2025-02-24.acacia' as any, // using latest stable or default API version
-  typescript: true,
+// Lazy singleton — instance is created on first access, not at module load time.
+// This allows Next.js builds to succeed without STRIPE_SECRET_KEY set.
+let _stripe: Stripe | null = null;
+
+function getStripeInstance(): Stripe {
+  if (!_stripe) {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key && process.env.NODE_ENV === 'production') {
+      throw new Error('CRITICAL: STRIPE_SECRET_KEY environment variable is not set in production');
+    }
+    _stripe = new Stripe(key || 'sk_test_placeholder_for_build', {
+      apiVersion: '2025-02-24.acacia' as any,
+      typescript: true,
+    });
+  }
+  return _stripe;
+}
+
+// Export a proxy object that lazily initializes on first property access
+export const stripe: Stripe = new Proxy({} as Stripe, {
+  get(_target, prop) {
+    return (getStripeInstance() as any)[prop];
+  }
 });
 
 export async function createCoupon(name: string, amountOff: number | null, percentOff: number | null, duration: Stripe.CouponCreateParams.Duration = 'once') {

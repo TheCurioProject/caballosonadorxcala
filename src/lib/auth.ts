@@ -3,10 +3,13 @@ import { cookies } from 'next/headers';
 
 function getSecretKey() {
   const secretKey = process.env.JWT_SECRET;
-  if (!secretKey && process.env.NODE_ENV === 'production') {
-    throw new Error('CRITICAL: JWT_SECRET environment variable is not set in production');
+  if (!secretKey) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('CRITICAL: JWT_SECRET environment variable is not set in production');
+    }
+    console.warn('[Auth] WARNING: Using development fallback JWT secret. Set JWT_SECRET in .env for production.');
   }
-  return new TextEncoder().encode(secretKey || 'fallback-secret-caballosonador-2024');
+  return new TextEncoder().encode(secretKey || 'dev-only-fallback-secret-caballosonador-2024');
 }
 
 export async function encrypt(payload: any) {
