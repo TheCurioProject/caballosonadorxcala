@@ -3,6 +3,11 @@ import { stripe } from '@/lib/stripe';
 import { CheckCircle, ArrowRight, X } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
+import { sendBookingConfirmation, sendInvoiceEmail, sendAdminBookingNotification, sendTourConfirmation, sendTourInvoiceEmail } from '@/lib/resend';
+import { generateInvoicePDFBuffer, generateTourInvoicePDFBuffer } from '@/lib/pdf';
+import { differenceInDays } from 'date-fns';
+import path from 'path';
+import fs from 'fs';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,11 +41,80 @@ export default async function CheckoutSuccessPage({
           if (session.metadata?.bookingId !== booking_id) {
             console.warn('[Success Page] Session metadata bookingId mismatch:', session.metadata?.bookingId, '!=', booking_id);
           } else {
-            // Read-only: just fetch current state (webhook sets CONFIRMED)
-            const booking = await prisma.booking.findUnique({
-              where: { id: parseInt(booking_id, 10) }
+            let booking = await prisma.booking.findUnique({
+              where: { id: parseInt(booking_id, 10) },
+              include: { property: true, addons: true }
             });
-            if (booking && (booking.payment_status === 'CONFIRMED' || booking.payment_status === 'PENDING')) {
+
+            if (booking && booking.payment_status === 'PENDING') {
+              console.log('[Success Page Fallback] Confirming booking', booking_id);
+              const amountTotal = session.amount_total ? session.amount_total / 100 : undefined;
+              booking = await prisma.booking.update({
+                where: { id: parseInt(booking_id, 10) },
+                data: { 
+                  payment_status: 'CONFIRMED',
+                  ...(amountTotal !== undefined ? { totalPrice: amountTotal } : {})
+                },
+                include: { property: true, addons: true },
+              });
+
+              // Send Emails Fallback
+              try {
+                const currency = (session.currency || 'mxn').toUpperCase();
+                const nights = differenceInDays(new Date(booking.checkOut), new Date(booking.checkIn));
+
+                await sendBookingConfirmation({
+                  guestName: booking.guestName,
+                  guestEmail: booking.guestEmail,
+                  checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+                  checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+                  totalPrice: booking.totalPrice,
+                  currency,
+                  bookingId: booking.id,
+                  nights,
+                });
+
+                const rawAdminEmails = booking.property?.adminEmails || 'kelli9@telus.net';
+                const adminEmailArray = rawAdminEmails.split(',').map((e: string) => e.trim()).filter((e: string) => e);
+
+                let pdfBuffer: Buffer | undefined = undefined;
+                try {
+                  const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_official.png');
+                  const logoBase64 = fs.existsSync(logoPath) ? fs.readFileSync(logoPath).toString('base64') : '';
+                  pdfBuffer = await generateInvoicePDFBuffer({
+                    bookingId: booking.id,
+                    guestName: booking.guestName,
+                    roomName: booking.property?.name || 'Casa Caballo Soñador',
+                    checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
+                    checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
+                    totalPrice: booking.totalPrice,
+                    depositPaid: booking.depositPaid || 0,
+                    depositCurrency: booking.depositCurrency || 'MXN',
+                    date: new Date().toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
+                    logoBase64,
+                    addons: booking.addons
+                  });
+                } catch (e) { console.error('PDF error in fallback', e); }
+
+                const emailData = {
+                  guestName: booking.guestName,
+                  guestEmail: booking.guestEmail,
+                  checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+                  checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+                  totalPrice: booking.totalPrice,
+                  currency,
+                  bookingId: booking.id,
+                  nights,
+                };
+
+                if (adminEmailArray.length > 0) await sendAdminBookingNotification(adminEmailArray, emailData, pdfBuffer);
+                await sendInvoiceEmail(emailData, pdfBuffer);
+              } catch (e) {
+                console.error('[Success Page Fallback] Email error:', e);
+              }
+            }
+
+            if (booking && booking.payment_status === 'CONFIRMED') {
               success = true;
               guestName = booking.guestName;
             }
@@ -50,10 +124,75 @@ export default async function CheckoutSuccessPage({
           if (session.metadata?.serviceBookingId !== service_booking_id) {
             console.warn('[Success Page] Session metadata serviceBookingId mismatch:', session.metadata?.serviceBookingId, '!=', service_booking_id);
           } else {
-            const serviceBooking = await prisma.serviceBooking.findUnique({
+            let serviceBooking = await prisma.serviceBooking.findUnique({
               where: { id: parseInt(service_booking_id, 10) }
             });
-            if (serviceBooking && (serviceBooking.paymentStatus === 'CONFIRMED' || serviceBooking.paymentStatus === 'PENDING')) {
+
+            if (serviceBooking && serviceBooking.paymentStatus === 'PENDING') {
+              console.log('[Success Page Fallback] Confirming tour booking', service_booking_id);
+              serviceBooking = await prisma.serviceBooking.update({
+                where: { id: parseInt(service_booking_id, 10) },
+                data: { paymentStatus: 'CONFIRMED' }
+              });
+
+              // Send Emails Fallback
+              try {
+                const currency = (session.currency || 'mxn').toUpperCase();
+                let tourDetails = { destinations: [] as any[] };
+                try { tourDetails = JSON.parse(serviceBooking.serviceDetails); } catch (e) {}
+                const destinationNames = tourDetails.destinations?.map((d: any) => d.name).join(', ') || 'Tour';
+
+                const property = await prisma.property.findFirst();
+                const rawAdminEmails = property?.adminEmails || 'kelli9@telus.net';
+                const adminEmailArray = rawAdminEmails.split(',').map((e: string) => e.trim()).filter((e: string) => e);
+
+                await sendTourConfirmation({
+                  guestName: serviceBooking.guestName,
+                  guestEmail: serviceBooking.guestEmail,
+                  tourDestination: destinationNames,
+                  date: new Date(serviceBooking.startDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+                  pax: serviceBooking.pax || 1,
+                  totalPrice: serviceBooking.totalPrice,
+                  currency,
+                  bookingId: serviceBooking.id
+                });
+
+                let pdfBuffer: Buffer | undefined = undefined;
+                try {
+                  const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_official.png');
+                  const logoBase64 = fs.existsSync(logoPath) ? fs.readFileSync(logoPath).toString('base64') : '';
+                  pdfBuffer = await generateTourInvoicePDFBuffer({
+                    bookingId: serviceBooking.id,
+                    guestName: serviceBooking.guestName,
+                    tourDestination: destinationNames,
+                    date: new Date(serviceBooking.startDate).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
+                    pax: serviceBooking.pax || 1,
+                    totalPrice: serviceBooking.totalPrice,
+                    currency,
+                    issueDate: new Date().toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
+                    logoBase64
+                  });
+                } catch (e) { console.error('Tour PDF error in fallback', e); }
+
+                const emailData = {
+                  guestName: serviceBooking.guestName,
+                  guestEmail: serviceBooking.guestEmail,
+                  tourDestination: destinationNames,
+                  date: new Date(serviceBooking.startDate).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+                  pax: serviceBooking.pax || 1,
+                  totalPrice: serviceBooking.totalPrice,
+                  currency,
+                  bookingId: serviceBooking.id
+                };
+
+                if (adminEmailArray.length > 0) await sendAdminBookingNotification(adminEmailArray, emailData, pdfBuffer);
+                await sendTourInvoiceEmail(emailData, pdfBuffer);
+              } catch (e) {
+                console.error('[Success Page Fallback] Tour Email error:', e);
+              }
+            }
+
+            if (serviceBooking && serviceBooking.paymentStatus === 'CONFIRMED') {
               success = true;
               guestName = serviceBooking.guestName;
             }

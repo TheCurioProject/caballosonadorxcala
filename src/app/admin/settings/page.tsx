@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache';
 import React from 'react';
 import { createCoupon } from '@/lib/stripe';
 import AdminEmailsEditor from './AdminEmailsEditor';
+import SaveSettingsButton from './SaveSettingsButton';
 import bcrypt from 'bcryptjs';
 import { getSession } from '@/lib/auth';
 import { cookies } from 'next/headers';
@@ -131,9 +132,7 @@ export default async function AdminSettingsPage() {
             <div>
               <AdminEmailsEditor initialEmails={property.adminEmails} />
             </div>
-            <button type="submit" className="w-full bg-[#23211F] hover:bg-[#9B7E67] text-white font-bold text-xs tracking-widest uppercase py-3 rounded-xl transition-all duration-300">
-              SAVE SETTINGS
-            </button>
+            <SaveSettingsButton />
           </form>
         </div>
 
