@@ -312,7 +312,7 @@ const PremiumButton = ({
           }}
         />
       )}
-      <span className="relative z-10 flex items-center gap-2">
+      <span className="relative z-10 flex items-center justify-center gap-2 w-full">
         {children}
       </span>
     </motion.button>
@@ -1200,7 +1200,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </p>
                           <div className="mt-2">
                             <PremiumButton onClick={() => { setWantsCook(false); setStep('tours'); }} variant="primary">
-                              <span className="text-wrap px-1 text-xs md:text-base leading-tight text-center whitespace-normal">{isEn ? 'Continue without food service' : 'Continuar sin servicio de comida'}</span> <ArrowRight size={16} className="shrink-0" />
+                              <span className="text-wrap px-6 text-xs md:text-base leading-tight text-center whitespace-normal w-full">{isEn ? 'Continue without food service' : 'Continuar sin servicio de comida'}</span> 
+                              <ArrowRight size={16} className="absolute right-4 sm:right-6 shrink-0 opacity-80" />
                             </PremiumButton>
                           </div>
                         </div>
@@ -1753,7 +1754,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </p>
                           <div className="mt-2">
                             <PremiumButton onClick={() => { setWantsATV(false); nextStep(); }} variant="primary">
-                              <span className="text-wrap px-1 text-xs md:text-base leading-tight text-center whitespace-normal">{isEn ? 'Continue without tours' : 'Continuar sin tours'}</span> <ArrowRight size={16} className="shrink-0" />
+                              <span className="text-wrap px-6 text-xs md:text-base leading-tight text-center whitespace-normal w-full">{isEn ? 'Continue without tours' : 'Continuar sin tours'}</span> 
+                              <ArrowRight size={16} className="absolute right-4 sm:right-6 shrink-0 opacity-80" />
                             </PremiumButton>
                           </div>
                         </div>
