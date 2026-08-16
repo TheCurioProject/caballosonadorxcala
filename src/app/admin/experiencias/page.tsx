@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Save, Loader2, AlertCircle, Utensils, Map, Trash2 } from 'lucide-react';
+import { translateDB } from '@/lib/translations';
 
 export default function AdminExperiencias() {
   const [foodItems, setFoodItems] = useState<any[]>([]);
@@ -25,8 +26,21 @@ export default function AdminExperiencias() {
         fetch('/api/settings/tours')
       ]);
       
-      if (foodRes.ok) setFoodItems(await foodRes.json());
-      if (toursRes.ok) setTours(await toursRes.json());
+      if (foodRes.ok) {
+        const data = await foodRes.json();
+        setFoodItems(data.map((item: any) => ({
+          ...item,
+          name: translateDB(item.name, true),
+          description: translateDB(item.description, true),
+        })));
+      }
+      if (toursRes.ok) {
+        const data = await toursRes.json();
+        setTours(data.map((item: any) => ({
+          ...item,
+          name: translateDB(item.name, true),
+        })));
+      }
       if (settingsRes.ok) {
         const settings = await settingsRes.json();
         setMinTourPax(settings.minTourPax || 3);
