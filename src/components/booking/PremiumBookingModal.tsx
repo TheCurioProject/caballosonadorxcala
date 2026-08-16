@@ -1395,7 +1395,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </p>
                           <div className="mt-2">
                             <PremiumButton onClick={() => { setWantsCook(false); setStep('tours'); }} variant="primary">
-                              {isEn ? 'Continue without food service' : 'Continuar sin servicio de comida'} <ArrowRight size={16} />
+                              <span className="text-wrap px-1 text-xs md:text-base leading-tight text-center whitespace-normal">{isEn ? 'Continue without food service' : 'Continuar sin servicio de comida'}</span> <ArrowRight size={16} className="shrink-0" />
                             </PremiumButton>
                           </div>
                         </div>
@@ -1948,7 +1948,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </p>
                           <div className="mt-2">
                             <PremiumButton onClick={() => { setWantsATV(false); nextStep(); }} variant="primary">
-                              {isEn ? 'Continue without tours' : 'Continuar sin tours'} <ArrowRight size={16} />
+                              <span className="text-wrap px-1 text-xs md:text-base leading-tight text-center whitespace-normal">{isEn ? 'Continue without tours' : 'Continuar sin tours'}</span> <ArrowRight size={16} className="shrink-0" />
                             </PremiumButton>
                           </div>
                         </div>
@@ -2413,7 +2413,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     </button>
                   </div>
                 )}
-                {step === 'tours' && (
+                {step === 'tours' && !isTourBlockedOnSelectedDates && (
                   <div className="flex flex-col items-end">
                     {(!isTourBookedOnSelectedDates && wantsATV === null) ? <span className="text-amber-600 text-[10px] md:text-[11px] font-bold mb-1 mr-2">{isEn ? 'Select an option' : 'Selecciona una opción'}</span> : (wantsATV === true && (totalAtvTours === 0 || atvPeople < minTourPax)) ? <span className="text-amber-600 text-[10px] md:text-[11px] font-bold mb-1 mr-2">{isEn ? 'Select destination' : 'Selecciona un destino'}</span> : null}
                     <button onClick={nextStep} disabled={(!isTourBookedOnSelectedDates && wantsATV === null) || (wantsATV === true && (totalAtvTours === 0 || atvPeople < minTourPax))} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-base md:text-lg font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
