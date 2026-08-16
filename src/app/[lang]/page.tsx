@@ -6,6 +6,12 @@ import { getImageUrl } from '@/lib/siteImages';
 import { getSiteImages } from '@/lib/siteImages.server';
 
 import { unstable_cache } from 'next/cache';
+import { stripe } from '@/lib/stripe';
+import { sendBookingConfirmation, sendInvoiceEmail, sendAdminBookingNotification } from '@/lib/resend';
+import { generateInvoicePDFBuffer } from '@/lib/pdf';
+import { differenceInDays } from 'date-fns';
+import path from 'path';
+import fs from 'fs';
 
 const getCachedExperiences = unstable_cache(
   async () => {
@@ -69,7 +75,80 @@ export default async function Home({ params, searchParams }: { params: Promise<{
   if (search?.success === 'true' && search?.booking_id) {
     const bId = parseInt(search.booking_id as string);
     if (!isNaN(bId)) {
-      const booking = await prisma.booking.findUnique({ where: { id: bId } });
+      let booking = await prisma.booking.findUnique({ where: { id: bId }, include: { property: true, addons: true } });
+      
+      // Fallback logic if webhook hasn't processed it yet
+      if (booking && booking.payment_status === 'PENDING' && search.session_id) {
+        try {
+          const session = await stripe.checkout.sessions.retrieve(search.session_id as string);
+          if (session.payment_status === 'paid' && session.metadata?.bookingId === bId.toString()) {
+            console.log('[Home Page Fallback] Confirming booking', bId);
+            const amountTotal = session.amount_total ? session.amount_total / 100 : undefined;
+            booking = await prisma.booking.update({
+              where: { id: bId },
+              data: { 
+                payment_status: 'CONFIRMED',
+                ...(amountTotal !== undefined ? { totalPrice: amountTotal } : {})
+              },
+              include: { property: true, addons: true },
+            });
+
+            // Send Emails
+            const currency = (session.currency || 'mxn').toUpperCase();
+            const nights = differenceInDays(new Date(booking.checkOut), new Date(booking.checkIn));
+
+            await sendBookingConfirmation({
+              guestName: booking.guestName,
+              guestEmail: booking.guestEmail,
+              checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+              checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+              totalPrice: booking.totalPrice,
+              currency,
+              bookingId: booking.id,
+              nights,
+            });
+
+            const rawAdminEmails = booking.property?.adminEmails || 'kelli9@telus.net';
+            const adminEmailArray = rawAdminEmails.split(',').map((e: string) => e.trim()).filter((e: string) => e);
+
+            let pdfBuffer: Buffer | undefined = undefined;
+            try {
+              const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_official.png');
+              const logoBase64 = fs.existsSync(logoPath) ? fs.readFileSync(logoPath).toString('base64') : '';
+              pdfBuffer = await generateInvoicePDFBuffer({
+                bookingId: booking.id,
+                guestName: booking.guestName,
+                roomName: booking.property?.name || 'Casa Caballo Soñador',
+                checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
+                checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
+                totalPrice: booking.totalPrice,
+                depositPaid: booking.depositPaid || 0,
+                depositCurrency: booking.depositCurrency || 'MXN',
+                date: new Date().toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
+                logoBase64,
+                addons: booking.addons
+              });
+            } catch (e) { console.error('PDF error in fallback', e); }
+
+            const emailData = {
+              guestName: booking.guestName,
+              guestEmail: booking.guestEmail,
+              checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+              checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+              totalPrice: booking.totalPrice,
+              currency,
+              bookingId: booking.id,
+              nights,
+            };
+
+            if (adminEmailArray.length > 0) await sendAdminBookingNotification(adminEmailArray, emailData, pdfBuffer);
+            await sendInvoiceEmail(emailData, pdfBuffer);
+          }
+        } catch (e) {
+          console.error('[Home Page Fallback] Error:', e);
+        }
+      }
+
       if (booking) {
         bookingSuccessData = booking;
       }
