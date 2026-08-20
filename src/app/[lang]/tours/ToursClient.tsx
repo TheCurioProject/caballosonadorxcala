@@ -119,17 +119,28 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
   
   useEffect(() => {
     const abortController = new AbortController();
-    // Fetch prices from DB (using the new tours API instead of addons)
+    // Fetch prices from DB
     const fetchPrices = async () => {
       try {
-        const res = await fetch('/api/admin/tours', { signal: abortController.signal });
+        const res = await fetch('/api/services/tours', { signal: abortController.signal });
         if (res.ok) {
           const data = await res.json();
           const priceMap: Record<string, number> = {};
           data.forEach((item: any) => {
+            if (item.id) {
+              priceMap[item.id] = item.pricePerPax;
+            }
             if (item.name) {
-              // Normalize name for robust matching
-              priceMap[item.name.toLowerCase().trim()] = item.pricePerPax;
+              // Normalize name for robust matching.
+              // Handle case where name might be JSON string from autoTranslate.
+              let plainName = item.name;
+              try {
+                if (plainName.startsWith('{')) {
+                  const parsed = JSON.parse(plainName);
+                  plainName = parsed.original || parsed.es || parsed.en || plainName;
+                }
+              } catch (e) {}
+              priceMap[plainName.toLowerCase().trim()] = item.pricePerPax;
             }
           });
           setPrices(priceMap);
@@ -185,10 +196,27 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
   };
 
   const getTourPrice = (tourData: any) => {
+    // 1. Try to match by ID
+    if (tourData.id && prices[tourData.id] !== undefined) return prices[tourData.id];
+
+    // 2. Try to match by type mapped to ID
+    const typeToId: Record<string, number> = {
+      "ATV_OJO_DE_AGUA": 1,
+      "ATV_RIO_MOLOTE": 2,
+      "ATV_EL_CAPOMO": 3,
+      "ATV_LAS_CUEVAS": 4,
+      "ATV_JUMURRCA": 5,
+      "ATV_ALTA_VISTA": 6,
+      "ATV_VOLCANO": 7
+    };
+    const dbId = typeToId[tourData.type];
+    if (dbId && prices[dbId] !== undefined) return prices[dbId];
+
+    // 3. Fallbacks by title
     const title = tourData.title?.toLowerCase().trim();
     if (title && prices[title] !== undefined) return prices[title];
 
-    // Fallbacks based on tour type to map across translations
+    // 4. Fallbacks based on tour type to map across translations
     const fallbacks: Record<string, string[]> = {
       "ATV_VOLCANO": ["volcano sunset", "volcán", "volcan"],
       "ATV_OJO_DE_AGUA": ["ojo de agua"],
@@ -718,11 +746,11 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                     <span className="block text-[9px] uppercase tracking-widest text-[#F9F7F4]/40 font-bold mb-1">{t.modal.duration}</span>
                     <span className="font-medium text-[#F9F7F4] text-base md:text-lg">{selectedTour.duration}</span>
                   </div>
-                  {selectedTour.price > 0 && (
+                  {getTourPrice(selectedTour) > 0 && (
                     <div className="bg-[#0A0908] border border-white/5 rounded-2xl p-5 flex-1 min-w-[120px]">
                       <DollarSign size={20} className="text-[#9B7E67] mb-3" />
                       <span className="block text-[9px] uppercase tracking-widest text-[#F9F7F4]/40 font-bold mb-1">{t.modal.price}</span>
-                      <span className="font-medium text-[#F9F7F4] text-base md:text-lg">{formatPrice(selectedTour.price)} {lang === 'en' ? 'per person' : 'por persona'}</span>
+                      <span className="font-medium text-[#F9F7F4] text-base md:text-lg">{formatPrice(getTourPrice(selectedTour))} {lang === 'en' ? 'per person' : 'por persona'}</span>
                     </div>
                   )}
                   <div className="bg-[#0A0908] border border-white/5 rounded-2xl p-5 flex-1 min-w-[120px]">
