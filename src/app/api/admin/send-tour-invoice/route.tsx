@@ -1,3 +1,4 @@
+import { getSession } from '@/lib/auth';
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
@@ -9,6 +10,10 @@ import fs from 'fs';
 import path from 'path';
 
 export async function POST(req: Request) {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const { bookingId, invoiceLanguage } = await req.json();
 
@@ -44,7 +49,7 @@ export async function POST(req: Request) {
         bookingId={booking.id}
         guestName={booking.guestName}
         tourDestination={destinationNames}
-        date={booking.startDate.toLocaleDateString('es-MX')}
+        date={booking.startDate.toLocaleDateString('es-MX', { timeZone: 'UTC' })}
         pax={booking.pax || 1}
         totalPrice={booking.totalPrice}
         issueDate={new Date().toLocaleDateString('es-MX')}
@@ -57,7 +62,7 @@ export async function POST(req: Request) {
       guestName: booking.guestName,
       guestEmail: booking.guestEmail,
       tourDestination: destinationNames,
-      date: booking.startDate.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+      date: booking.startDate.toLocaleDateString('es-MX', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }),
       pax: booking.pax || 1,
       totalPrice: booking.totalPrice,
       currency: 'MXN', // Or derived from somewhere else

@@ -13,9 +13,6 @@ export default function AdminExperiencias() {
   const [maxTourPax, setMaxTourPax] = useState(10);
   const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const fetchData = async () => {
     setLoading(true);
@@ -53,6 +50,10 @@ export default function AdminExperiencias() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleFoodChange = (id: number, field: string, value: any) => {
     setFoodItems(prev => prev.map(f => f.id === id ? { ...f, [field]: value } : f));

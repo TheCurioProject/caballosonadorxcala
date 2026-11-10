@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { MapPin, Mail } from 'lucide-react';
 import { LogoNuevo } from '../ui/LogoNuevo';
@@ -10,6 +12,7 @@ import { useDictionary } from '@/i18n/DictionaryContext';
 export const Footer = () => {
   const { openBookingModal } = useBooking();
   const dict = useDictionary();
+  const lang = usePathname().split('/')[1] === 'en' ? 'en' : 'es';
   return (
     <footer role="contentinfo" aria-label="Pie de página - Casa Caballo Soñador" className="relative z-30 bg-[#161412] text-[#F9F7F4] pt-32 pb-16 px-6 md:px-16 overflow-hidden">
       {/* Gran logo difuminado de fondo */}
@@ -89,7 +92,7 @@ export const Footer = () => {
         <div className="pt-8 border-t border-[#F9F7F4]/10 text-sm md:text-base flex flex-col md:flex-row justify-between items-center text-gray-500 gap-4">
           <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
             <p>&copy; 2026 {dict.modal.hotelName}. Made By <a href="https://thecurio.com.mx" target="_blank" rel="noopener noreferrer" className="hover:text-[#9B7E67] transition-colors">The Curio Agency</a></p>
-            <a href="/politicas" className="hover:text-[#9B7E67] transition-colors underline underline-offset-4 decoration-[#F9F7F4]/10 hover:decoration-[#9B7E67]">{dict.footer.policy}</a>
+            <Link href={`/${lang}/politicas/`} className="hover:text-[#9B7E67] transition-colors underline underline-offset-4 decoration-[#F9F7F4]/10 hover:decoration-[#9B7E67]">{dict.footer.policy}</Link>
           </div>
           <p className="tracking-widest uppercase text-[10px]">{dict.footer.tagline}</p>
         </div>

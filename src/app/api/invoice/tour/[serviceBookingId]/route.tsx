@@ -1,3 +1,4 @@
+import { getSession } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import prisma from '@/lib/prisma';
@@ -11,6 +12,10 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ serviceBookingId: string }> }
 ) {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const resolvedParams = await params;
     const serviceBookingId = parseInt(resolvedParams.serviceBookingId, 10);
@@ -48,7 +53,7 @@ export async function GET(
         bookingId={booking.id}
         guestName={booking.guestName}
         tourDestination={destinationNames}
-        date={booking.startDate.toLocaleDateString()}
+        date={booking.startDate.toLocaleDateString('es-MX', { timeZone: 'UTC' })}
         pax={booking.pax || 1}
         totalPrice={booking.totalPrice}
         issueDate={new Date().toLocaleDateString()}

@@ -1,0 +1,1604 @@
+/*
+ * CALA · Device tiers
+ * -------------------------------------------------------------------------
+ * Native-app refinements, one isolated block per device class. Loaded after
+ * cala.css (generated) so nothing in the base system is edited. Each block is
+ * gated by its own media query so a change for one device never leaks into
+ * another:
+ *
+ *   1. Phone   — the MobileShell (<= 760px, see features/mobile/device.ts)
+ *   2. Tablet  — the desktop shell on iPad-class widths (761px – 1199px)
+ *   3. Touch   — any desktop-shell width driven by a finger (pointer: coarse)
+ *   4. Desktop — fine pointer, >= 1200px: intentionally untouched
+ *
+ * Baselines: Apple HIG (44×44pt minimum hit area, safe-area insets, no
+ * keyboard hints on touch), WCAG 2.2 SC 2.5.8 (target size), and PMS front-desk
+ * practice (every core flow completable on a tablet without a keyboard).
+ */
+
+/* ---------------------------------------------------------------------- */
+/* 1. PHONE · MobileShell                                                  */
+/* ---------------------------------------------------------------------- */
+
+/* iOS zooms the page when a focused field is under 16px. A native app never
+   does that, so every typed control in the phone shell is 16px. */
+.cala-admin .cala-mobile-shell
+  :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    select,
+    textarea
+  ) {
+  font-size: calc(16px * var(--cala-fs, 1));
+}
+
+/* .button is nowrap + overflow:hidden; squeezed in a narrow row it clipped its
+   own label ("Hoy", "Agregar unidad", "Crear / rotar enlace privado").
+   Never shrink below the longest word, and wrap long labels inside the pill. */
+.cala-admin .cala-mobile-shell .button {
+  white-space: normal;
+  min-width: min-content;
+  text-align: center;
+  line-height: 1.25;
+}
+
+/* Toolbars: the search field takes the full row instead of a 160px sliver. */
+.cala-admin .cala-mobile-shell .toolbar {
+  flex-wrap: wrap;
+}
+.cala-admin .cala-mobile-shell .toolbar > .field {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+.cala-admin .cala-mobile-shell .toolbar > .field input {
+  width: 100%;
+}
+
+/* Guests: a phone shows a list, not a 5-column table squeezed to 360px. */
+.cala-admin .cala-mobile-shell .guest-table thead {
+  display: none;
+}
+.cala-admin .cala-mobile-shell .guest-table,
+.cala-admin .cala-mobile-shell .guest-table tbody {
+  display: block;
+  width: 100%;
+}
+.cala-admin .cala-mobile-shell .guest-table tr {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.cala-admin .cala-mobile-shell .guest-table td {
+  display: block;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.cala-admin .cala-mobile-shell .guest-table td[data-label="Huésped"] {
+  grid-column: 1;
+  font-weight: 600;
+  font-size: calc(15px * var(--cala-fs, 1));
+  color: var(--text);
+}
+.cala-admin .cala-mobile-shell .guest-table td[data-label="Contacto"] {
+  grid-column: 1;
+  color: var(--muted);
+}
+.cala-admin .cala-mobile-shell .guest-table td[data-label="País"],
+.cala-admin .cala-mobile-shell .guest-table td[data-label="Estancias"] {
+  grid-column: 1;
+  font-size: calc(12px * var(--cala-fs, 1));
+  color: var(--muted);
+}
+.cala-admin .cala-mobile-shell .guest-table td[data-label="País"]:empty {
+  display: none;
+}
+.cala-admin
+  .cala-mobile-shell
+  .guest-table
+  td:is([data-label="País"], [data-label="Estancias"])::before {
+  content: attr(data-label) " · ";
+}
+.cala-admin .cala-mobile-shell .guest-table td[data-label="Perfil"] {
+  grid-column: 2;
+  grid-row: 1 / span 4;
+  align-self: center;
+}
+
+/* Legibility floor. The base system uses 8–9px micro-labels (eyebrows,
+   table heads, calendar captions) that read fine on a desktop monitor but not
+   on a phone held at arm's length. Raise only those to 10px — the size iOS
+   itself uses for tab-bar labels. */
+.cala-admin
+  .cala-mobile-shell
+  :is(
+    .eyebrow,
+    th,
+    th small,
+    .stat > small,
+    .panel-foot,
+    .badge,
+    .channel-label,
+    .m-room-label small,
+    .m-room-header small,
+    .m-room-stay-open small,
+    .m-week-strip small,
+    .calendar-table small
+  ) {
+  font-size: calc(10px * var(--cala-fs-dense, 1));
+}
+.cala-admin .cala-mobile-shell .m-month-grid button small {
+  font-size: calc(9px * var(--cala-fs-dense, 1));
+}
+
+/* "Ver calendario" in section headers: finger-sized hit area, same look. */
+.cala-admin .cala-mobile-shell .m-section-title > a {
+  padding-block: 13px;
+  margin-block: -13px;
+}
+
+/* Native press feedback instead of hover states that stick after a tap. */
+@media (hover: none) {
+  .cala-admin .cala-mobile-shell :is(.m-tab-bar a, .m-tab-bar button) {
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+  .cala-admin
+    .cala-mobile-shell
+    :is(.m-tab-bar a, .m-tab-bar button, .m-round-button):active {
+    transform: scale(0.94);
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* 2. TABLET · desktop shell on iPad-class widths                          */
+/* ---------------------------------------------------------------------- */
+
+@media (min-width: 761px) and (max-width: 1199px) {
+  /* Four KPI tiles at ~130px clipped "$30,000.00". Portrait gets a 2×2
+     grid; landscape keeps four tiles with a fluid figure size. */
+  .cala-admin .stat > strong {
+    font-size: clamp(22px, 2.6vw, 28px);
+    overflow-wrap: anywhere;
+  }
+
+  /* An app has no page footer: give the space back to content. */
+  .cala-admin .workspace-footer {
+    display: none;
+  }
+  .cala-admin .main-content {
+    padding-bottom: calc(30px + env(safe-area-inset-bottom));
+  }
+
+  /* Installed (standalone) on iPad, respect the status bar and rounded
+     corners. env() is 0 in a regular browser tab, so this is a no-op there. */
+  .cala-admin .topbar {
+    height: calc(70px + env(safe-area-inset-top));
+    padding-top: env(safe-area-inset-top);
+    padding-right: max(25px, env(safe-area-inset-right));
+    position: sticky;
+    top: 0;
+    z-index: 15;
+  }
+  .cala-admin .sidebar {
+    padding-top: calc(24px + env(safe-area-inset-top));
+    padding-left: max(12px, env(safe-area-inset-left));
+  }
+}
+
+/* Collapsed 78px rail (768–1199px): the isotype is scaled ×2.15 (≈75px) inside
+   a 54px content box and the classic scrollbar ate another ~8px, so the mark
+   was clipped on the right. The rail keeps scrolling, without a visible bar,
+   and the logo is sized to the rail and centred. */
+@media (min-width: 761px) and (max-width: 1199px) {
+  .cala-admin .sidebar {
+    scrollbar-width: none;
+    overflow-x: hidden;
+  }
+  .cala-admin .sidebar::-webkit-scrollbar {
+    display: none;
+    width: 0;
+  }
+  .cala-admin .sidebar .brand {
+    justify-content: center;
+    padding: 4px 0 22px;
+    min-height: 56px;
+    overflow: visible;
+  }
+  .cala-admin .sidebar .brand .cala-logo {
+    gap: 0;
+  }
+  .cala-admin .sidebar .brand .cala-logo > span:not(.cala-isotype) {
+    display: none;
+  }
+  /* The SVG artwork fills the middle half of its 3:2 canvas: a 54×36 box at
+     ×1.5 paints a ~40px mark, centred with clear space on both sides. */
+  .cala-admin .sidebar .brand .cala-isotype {
+    width: 54px;
+    height: 36px;
+    transform: scale(1.5);
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1023px) {
+  .cala-admin .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* 3. TOUCH · desktop shell driven by a finger (iPad, Surface, touch PCs)  */
+/* ---------------------------------------------------------------------- */
+
+@media (min-width: 761px) and (pointer: coarse) {
+  /* 44×44 minimum hit area for chrome controls (were 38×38 and 38×17). */
+  .cala-admin :is(.icon-button, .mobile-menu, .activity-button) {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .cala-admin .guest-button {
+    min-height: 44px;
+  }
+
+  /* "⌘ K" means nothing without a hardware keyboard: show the magnifier. */
+  .cala-admin .search-button {
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+  }
+  .cala-admin .search-button kbd {
+    display: none;
+  }
+  .cala-admin .search-button .icon {
+    display: inline-block;
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  /* Form controls reach the 44pt target. (iPadOS does not auto-zoom small
+     fields, so the original type size is kept to avoid truncated selects.) */
+  .cala-admin
+    :is(
+      .field input:not([type="checkbox"]):not([type="radio"]),
+      .field select,
+      .toolbar input,
+      .toolbar select
+    ) {
+    min-height: 44px;
+  }
+
+  /* Text links ("Ver calendario") keep their look, gain a finger-sized hit
+     area without moving the layout. */
+  .cala-admin .text-link {
+    padding-block: 13px;
+    margin-block: -13px;
+  }
+
+  /* Sidebar + top bar behave like app chrome: no text selection or
+     callout on long-press, a pressed state instead of hover. */
+  .cala-admin :is(.sidebar, .topbar) {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .cala-admin :is(.nav-item, .sidebar a) {
+    -webkit-touch-callout: none;
+  }
+  .cala-admin :is(.nav-item, .icon-button, .search-button):active {
+    transform: scale(0.95);
+  }
+
+  /* Legibility floor for 8–9px micro-labels at tablet viewing distance
+     (desktop with a mouse keeps the original sizes). */
+  .cala-admin
+    .app-shell
+    :is(
+      .eyebrow,
+      .nav-group,
+      .property-picker label,
+      th,
+      th small,
+      .stat > small,
+      .panel-foot,
+      .tabs button > span,
+      .attention-item p,
+      .property-card > small,
+      .guest-button small,
+      .stay-summary small,
+      .calendar-table small,
+      .calendar-legend small,
+      .calendar-booking
+    ) {
+    font-size: calc(10px * var(--cala-fs-dense, 1));
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* 4. TEXT SIZE · Ajustes → Tamaño de texto (normal / mediano / grande)    */
+/* ---------------------------------------------------------------------- */
+/* Every px font-size in the CALA sheets is written as
+   calc(Npx * var(--cala-fs, 1)). Text in fixed-height spots (calendar cells,
+   stay bars, badges, ≤10px micro-labels) uses --cala-fs-dense, which grows
+   less so pills, chips and grid rows keep their geometry. Phones get a
+   gentler step: the screen is narrower, and iOS controls are already 16px.
+   Legacy web modules (Tailwind, rem-based) follow the root font size. */
+html[data-font-size="medium"] {
+  --cala-fs: 1.08;
+  --cala-fs-dense: 1.04;
+}
+html[data-font-size="large"] {
+  --cala-fs: 1.16;
+  --cala-fs-dense: 1.08;
+}
+html[data-font-size="medium"]:has(body.cala-admin) {
+  font-size: 106.25%;
+}
+html[data-font-size="large"]:has(body.cala-admin) {
+  font-size: 112.5%;
+}
+@media (max-width: 760px) {
+  html[data-font-size="medium"] {
+    --cala-fs: 1.06;
+    --cala-fs-dense: 1.03;
+  }
+  html[data-font-size="large"] {
+    --cala-fs: 1.12;
+    --cala-fs-dense: 1.06;
+  }
+}
+/* Larger text must wrap, not clip: long labels in fixed-width rows. */
+html:is([data-font-size="medium"], [data-font-size="large"]) .cala-admin
+  :is(.nav-item span, .list-row strong, .list-row p, .panel h2) {
+  overflow-wrap: anywhere;
+}
+.cala-admin .settings-type-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 260px) minmax(0, 360px);
+  gap: 18px 24px;
+  margin-top: 24px;
+  align-items: start;
+}
+.cala-admin .font-size-choices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.cala-admin .font-size-choices button {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 2px;
+  min-height: 64px;
+  padding: 8px 6px;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background: var(--subtle);
+  color: var(--text);
+  cursor: pointer;
+}
+.cala-admin .font-size-choices button.active {
+  border-color: var(--accent);
+}
+.cala-admin .font-size-choices b {
+  line-height: 1.1;
+  font-weight: 600;
+}
+.cala-admin .font-size-choices small {
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+  color: var(--muted);
+}
+@media (max-width: 760px) {
+  .cala-admin .settings-type-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Reservas: the whole row ("pill") opens the stay, not only name/chevron. */
+.cala-admin tr.clickable-row {
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .cala-admin tr.clickable-row:hover > td {
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+  }
+}
+.cala-admin tr.clickable-row:active > td {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+/* Empty states: Tailwind's preflight makes <img> a block, so text-align
+   centred the copy but left the illustration hugging the left edge. Centre
+   the whole stack on both axes inside whatever pane hosts it. */
+.cala-admin .empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-inline: auto;
+  width: 100%;
+  min-width: 0;
+}
+.cala-admin .empty img {
+  display: block;
+  margin-inline: auto;
+  max-width: min(160px, 60%);
+  height: auto;
+}
+.cala-admin .empty h3,
+.cala-admin .empty p {
+  max-width: 360px;
+  margin-inline: auto;
+  text-wrap: balance;
+}
+.cala-admin .empty > :is(.button, button, a, .row) {
+  align-self: center;
+}
+.cala-admin .ib-placeholder {
+  align-items: center;
+}
+
+/* Sidebar scrollbar: `scrollbar-width: thin` (set on every element) makes
+   Chrome ignore the ::-webkit-scrollbar-track margin, so the bar ran the full
+   height of the rounded panel and poked out of its 28px corners. The panel
+   itself no longer scrolls; only the navigation list between the property
+   card and the account footer does, well inside the rounded edge. */
+@media (min-width: 761px) {
+  .cala-admin .sidebar {
+    overflow: hidden;
+  }
+  .cala-admin .sidebar > nav {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin-right: -10px;
+    padding-right: 6px;
+    padding-bottom: 6px;
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      #000 10px,
+      #000 calc(100% - 14px),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      #000 10px,
+      #000 calc(100% - 14px),
+      transparent 100%
+    );
+  }
+  .cala-admin .sidebar > :is(.brand, .property-picker, .new-property-cta, .sidebar-footer) {
+    flex-shrink: 0;
+  }
+  .cala-admin .sidebar-footer {
+    margin-top: 12px;
+  }
+}
+@media (min-width: 761px) and (max-width: 1199px) {
+  .cala-admin .sidebar > nav {
+    margin-right: 0;
+    padding-right: 0;
+    scrollbar-width: none;
+  }
+  .cala-admin .sidebar > nav::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Equipo y permisos */
+.cala-admin .button.danger {
+  background: var(--error);
+  border-color: var(--error);
+  color: #fff;
+}
+.cala-admin .team-row.clickable {
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .cala-admin .team-row.clickable:hover {
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
+  }
+}
+.cala-admin .team-person {
+  min-width: 0;
+}
+.cala-admin .team-person > div {
+  min-width: 0;
+}
+.cala-admin .team-email {
+  display: block;
+  color: var(--muted);
+  font-size: calc(12px * var(--cala-fs, 1));
+  overflow-wrap: anywhere;
+}
+.cala-admin .team-you {
+  color: var(--accent);
+  font-weight: 500;
+}
+.cala-admin .team-locked {
+  font-size: calc(12px * var(--cala-fs, 1));
+}
+.cala-admin .team-grants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.cala-admin .chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--subtle);
+  color: var(--text);
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+  line-height: 1.6;
+  white-space: nowrap;
+}
+.cala-admin .team-danger {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.cala-admin .team-danger p {
+  margin: 0 0 12px;
+  color: var(--error);
+}
+.cala-admin .team-danger .row {
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.cala-admin .team-remove {
+  color: var(--error);
+}
+@media (max-width: 760px) {
+  .cala-admin .team-row {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .cala-admin .team-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* Inventario: every card opens its options. */
+.cala-admin .card.card-action {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    transform 0.15s;
+}
+.cala-admin .card.card-action > .row {
+  width: 100%;
+}
+@media (hover: hover) {
+  .cala-admin .card.card-action:hover {
+    border-color: var(--accent-border);
+    box-shadow: var(--shadow-soft);
+  }
+}
+.cala-admin .card.card-action:active {
+  transform: scale(0.99);
+}
+.cala-admin .card.card-action:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.cala-admin .card.is-inactive {
+  opacity: 0.6;
+}
+.cala-admin .card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
+  font-size: calc(12px * var(--cala-fs, 1));
+}
+.cala-admin .card-foot .icon {
+  opacity: 0.5;
+  flex: none;
+}
+
+.cala-admin .property-manager {
+  display: grid;
+  gap: 20px;
+}
+.cala-admin .property-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.cala-admin .property-summary > * {
+  display: grid;
+  gap: 2px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+.cala-admin .property-summary > button {
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .cala-admin .property-summary > button:hover {
+    border-color: var(--accent-border);
+  }
+}
+.cala-admin .property-summary strong {
+  font-size: calc(22px * var(--cala-fs, 1));
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+.cala-admin .property-summary span {
+  color: var(--muted);
+  font-size: calc(12px * var(--cala-fs, 1));
+}
+.cala-admin .unit-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--subtle);
+}
+.cala-admin .unit-housekeeping {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.cala-admin .unit-housekeeping button {
+  padding: 3px;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+}
+.cala-admin .unit-housekeeping button.active {
+  border-color: var(--accent);
+}
+.cala-admin .unit-housekeeping button:disabled {
+  cursor: default;
+}
+.cala-admin .unit-stays {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+  font-size: calc(12.5px * var(--cala-fs, 1));
+}
+.cala-admin .unit-stays a {
+  color: var(--accent);
+}
+.cala-admin .unit-blocks {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.cala-admin .unit-blocks h3 {
+  margin: 0;
+  font-size: calc(15px * var(--cala-fs, 1));
+}
+.cala-admin .unit-blocks .list-row {
+  padding-inline: 0;
+}
+@media (max-width: 1023px) {
+  .cala-admin .property-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 560px) {
+  .cala-admin .unit-overview {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.cala-admin .property-manager .panel > p.muted {
+  margin: 4px 0 20px;
+}
+.cala-admin .audit-empty {
+  margin: 0;
+  padding: 4px 24px 24px;
+}
+/* Panel intros: the lead paragraph sat flush against the first field. */
+.cala-admin .panel.padded > :is(h2, h3) + p.muted {
+  margin-top: 6px;
+  margin-bottom: 18px;
+}
+
+/* Language switch (top bar + phone header).
+   Same language as CALA's segmented controls: subtle track, surface thumb
+   with soft shadow, pill height matching the assistant button (40px). */
+.cala-admin .language-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 40px;
+  padding: 3px 3px 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--subtle);
+  color: var(--muted);
+  flex: none;
+  white-space: nowrap;
+}
+.cala-admin .language-toggle-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--muted);
+}
+.cala-admin .language-toggle-track {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 100%;
+}
+.cala-admin .language-toggle-thumb {
+  position: absolute;
+  inset: 0 50% 0 0;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: 0 1px 2px #102a2a1f, var(--shadow-soft);
+  transition: transform 0.36s var(--motion-spring);
+  pointer-events: none;
+}
+.cala-admin .language-toggle[data-locale="en"] .language-toggle-thumb {
+  transform: translateX(100%);
+}
+.cala-admin .language-toggle button {
+  position: relative;
+  z-index: 1;
+  min-width: 38px;
+  height: 100%;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: calc(11.5px * var(--cala-fs-dense, 1));
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.24s var(--motion-ease);
+}
+.cala-admin .language-toggle button.active {
+  color: var(--text);
+  cursor: default;
+}
+.cala-admin .language-toggle button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+@media (hover: hover) {
+  .cala-admin .language-toggle button:not(.active):hover {
+    color: var(--text);
+  }
+}
+/* Tablet/narrow desktop: drop the globe so the top bar never wraps. */
+@media (max-width: 1199px) {
+  .cala-admin .language-toggle {
+    padding-left: 3px;
+  }
+  .cala-admin .language-toggle-icon {
+    display: none;
+  }
+}
+@media (pointer: coarse) {
+  .cala-admin .language-toggle {
+    height: 44px;
+  }
+  .cala-admin .language-toggle button {
+    min-width: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cala-admin .language-toggle-thumb {
+    transition: none;
+  }
+}
+
+/* Phone header: icon button + active-language badge */
+.cala-admin .language-toggle-compact {
+  position: relative;
+  font: inherit;
+}
+.cala-admin .language-toggle-badge {
+  position: absolute;
+  right: 3px;
+  bottom: 5px;
+  min-width: 19px;
+  padding: 2px 3px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 8.5px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-align: center;
+  box-shadow: 0 0 0 2px var(--cala-shell, var(--surface));
+  animation: cala-lang-pop 0.38s var(--motion-spring);
+}
+@keyframes cala-lang-pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cala-admin .language-toggle-badge {
+    animation: none;
+  }
+}
+
+/* Estudio de mercado · agent */
+.cala-admin .agent-panel {
+  padding: 22px 24px;
+  margin-bottom: 22px;
+  border: 1px solid var(--accent-border);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, var(--surface)), var(--surface) 60%);
+}
+.cala-admin .agent-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: start;
+}
+.cala-admin .agent-head h2 {
+  margin: 4px 0 6px;
+  font-size: calc(21px * var(--cala-fs, 1));
+}
+.cala-admin .agent-head p {
+  margin: 0;
+  max-width: 640px;
+}
+.cala-admin .agent-mark {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.cala-admin .agent-steps {
+  display: grid;
+  gap: 10px;
+  margin: 20px 0 4px;
+  padding: 0;
+  list-style: none;
+}
+.cala-admin .agent-steps li {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  opacity: 0.45;
+  transition: opacity 0.3s;
+}
+.cala-admin .agent-steps li.done,
+.cala-admin .agent-steps li.current {
+  opacity: 1;
+}
+.cala-admin .agent-steps small {
+  display: block;
+  color: var(--muted);
+  font-size: calc(12.5px * var(--cala-fs, 1));
+}
+.cala-admin .agent-step-dot {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--subtle);
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+  font-weight: 700;
+}
+.cala-admin .agent-steps li.done .agent-step-dot {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.cala-admin .agent-steps li.current .agent-step-dot {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+  animation: rates-pulse 1s ease-in-out infinite;
+}
+.cala-admin .agent-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 20px 0;
+}
+.cala-admin .agent-metrics > div {
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.cala-admin .agent-metrics small {
+  display: block;
+  color: var(--muted);
+  font-size: calc(11.5px * var(--cala-fs-dense, 1));
+}
+.cala-admin .agent-metrics strong {
+  font-size: calc(19px * var(--cala-fs, 1));
+  font-weight: 600;
+}
+.cala-admin .agent-metrics strong span {
+  font-size: calc(12px * var(--cala-fs, 1));
+  font-weight: 400;
+  color: var(--muted);
+}
+.cala-admin .agent-subtitle {
+  margin: 4px 0 12px;
+  font-size: calc(15px * var(--cala-fs, 1));
+}
+.cala-admin .agent-recs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 12px;
+}
+.cala-admin .agent-rec {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.cala-admin .agent-rec.priority-1 {
+  border-left-color: var(--error);
+}
+.cala-admin .agent-rec.priority-2 {
+  border-left-color: var(--warning);
+}
+.cala-admin .agent-rec.priority-3 {
+  border-left-color: var(--accent);
+}
+.cala-admin .agent-rec header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.cala-admin .agent-rec h4 {
+  margin: 0;
+  font-size: calc(15px * var(--cala-fs, 1));
+}
+.cala-admin .agent-rec p {
+  margin: 0;
+  font-size: calc(13px * var(--cala-fs, 1));
+  line-height: 1.5;
+}
+.cala-admin .agent-badge {
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+  font-weight: 600;
+}
+.cala-admin .agent-badge.priority-1 {
+  background: var(--error-bg);
+  color: var(--error);
+}
+.cala-admin .agent-badge.priority-2 {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.cala-admin .agent-badge.priority-3 {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.cala-admin .agent-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.cala-admin .agent-evidence li {
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: var(--subtle);
+}
+.cala-admin .agent-evidence small {
+  display: block;
+  color: var(--muted);
+  font-size: calc(10.5px * var(--cala-fs-dense, 1));
+}
+.cala-admin .agent-evidence strong {
+  font-size: calc(13px * var(--cala-fs, 1));
+}
+.cala-admin .agent-cta {
+  align-self: flex-start;
+  margin-top: auto;
+}
+.cala-admin .agent-niche {
+  margin-top: 18px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--subtle);
+}
+.cala-admin .agent-niche summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.cala-admin .agent-niche ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+.cala-admin .agent-foot {
+  margin: 14px 0 0;
+  font-size: calc(12px * var(--cala-fs, 1));
+}
+@media (max-width: 760px) {
+  .cala-admin .agent-panel {
+    padding: 18px 16px;
+  }
+  .cala-admin .agent-head {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .cala-admin .agent-head > .button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
+/* Asistente CALA · function guide */
+.cala-admin .guide-intro {
+  margin: -8px 0 14px;
+}
+.cala-admin .guide-search {
+  width: 100%;
+  margin-bottom: 18px;
+}
+.cala-admin .guide-group h3 {
+  margin: 18px 0 8px;
+  color: var(--muted);
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.cala-admin .guide-topic {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 8px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.cala-admin .guide-topic.current {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 1px var(--accent-border);
+}
+.cala-admin .guide-topic-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cala-admin .guide-topic-head strong {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  font-size: calc(14px * var(--cala-fs, 1));
+}
+.cala-admin .guide-topic-head em {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: calc(10.5px * var(--cala-fs-dense, 1));
+  font-style: normal;
+  font-weight: 600;
+}
+.cala-admin .guide-topic-head small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: calc(12.5px * var(--cala-fs, 1));
+  line-height: 1.45;
+}
+.cala-admin .guide-topic-head > .icon {
+  opacity: 0.5;
+  transition: transform 0.2s;
+}
+.cala-admin .guide-topic.open .guide-topic-head > .icon {
+  transform: rotate(180deg);
+}
+.cala-admin .guide-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--subtle);
+  color: var(--accent);
+}
+.cala-admin .guide-topic-body {
+  padding: 0 16px 16px 60px;
+}
+.cala-admin .guide-topic-body ol {
+  margin: 0 0 10px;
+  padding-left: 18px;
+  display: grid;
+  gap: 5px;
+  font-size: calc(13px * var(--cala-fs, 1));
+  line-height: 1.5;
+}
+.cala-admin .guide-tip {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--text);
+  font-size: calc(12.5px * var(--cala-fs, 1));
+}
+.cala-admin .guide-tip .icon {
+  flex: none;
+  margin-top: 2px;
+  color: var(--accent);
+}
+@media (max-width: 760px) {
+  .cala-admin .guide-topic-body {
+    padding-left: 16px;
+  }
+}
+.cala-admin .guide-topic-body ol {
+  list-style: decimal;
+}
+.cala-admin .guide-topic-body ol li::marker {
+  color: var(--accent);
+  font-weight: 700;
+}
+.cala-admin .guide-search {
+  display: flex;
+}
+.cala-admin .guide-search input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+}
+/* The dialog element receives focus when it opens; the ring belongs on the
+   controls inside, not around the whole sheet. */
+.cala-admin dialog:focus-visible,
+.cala-admin dialog:focus {
+  outline: none;
+}
+
+/* Casa Caballo Soñador modules (Tailwind pages inside CALA). CALA's element
+   defaults (button/a colour, inputs, headings, tables) no longer reach them,
+   so their own utility colours apply again. They were designed for a light
+   canvas: keep them light and legible under every CALA theme. */
+.cala-admin .site-module {
+  color-scheme: light;
+  color: #23211f;
+  background: #fffdf8;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+.cala-admin .site-module :is(input, select, textarea) {
+  color: #23211f;
+  font: inherit;
+}
+.cala-admin .site-module :is(input, select, textarea)::placeholder {
+  color: #6b6b6b;
+  opacity: 1;
+}
+.cala-admin .site-module :is(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.cala-admin .site-module button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.cala-admin .site-module button {
+  cursor: pointer;
+}
+@media (max-width: 760px) {
+  .cala-admin .site-module {
+    border-radius: 16px;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* 5. OVERFLOW GUARDS · text must fit at every width and text size         */
+/* ---------------------------------------------------------------------- */
+/* KPI figures ("MX$343,894.20") used a fixed 32px × text-size inside a
+   quarter-width tile and spilled out of the card. Each tile is now a size
+   container; the figure keeps its tier size but shrinks to fit the tile,
+   using --fit-chars (the value's length, set by fitChars() in primitives).
+   160cqi / chars budgets ~0.62em per glyph, wider than Instrument Sans
+   digits, so the figure always fits whatever the text-size setting. */
+.cala-admin .stat,
+.cala-admin .folio-total {
+  min-width: 0;
+  container-type: inline-size;
+}
+.cala-admin {
+  --stat-fs: calc(32px * var(--cala-fs, 1));
+}
+@media (min-width: 761px) and (max-width: 1199px) {
+  .cala-admin {
+    --stat-fs: calc(28px * var(--cala-fs, 1));
+  }
+}
+@media (max-width: 767px) {
+  .cala-admin {
+    --stat-fs: calc(28px * var(--cala-fs, 1));
+  }
+}
+.cala-admin .analytics-stats {
+  --stat-fs: calc(clamp(22px, 2.3vw, 34px) * var(--cala-fs, 1));
+}
+.cala-admin :is(.stats, .analytics-stats) .stat > strong {
+  font-size: min(var(--stat-fs), calc(160cqi / var(--fit-chars, 1)));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: normal;
+}
+
+/* Folio totals (Finanzas): three fixed 1fr columns overflowed on phones and
+   tablets. Columns now reflow, and each amount fits its column. */
+.cala-admin .folio-totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: 16px;
+  margin-bottom: 0;
+}
+.cala-admin .folio-total > strong {
+  display: block;
+  font-size: min(calc(21px * var(--cala-fs, 1)), calc(160cqi / var(--fit-chars, 1)));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Property picker: the native <select> had no right padding, so long names
+   ("Casa del Caballo Soñador") ran under the arrow. Draw our own chevron in
+   reserved space and truncate with an ellipsis. */
+.cala-admin .property-picker select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 22px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    calc(100% - 9px) 50%,
+    calc(100% - 4px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+.cala-admin .property-picker select:disabled {
+  cursor: progress;
+}
+
+/* Portfolio · property details (dashboard). A card toggles an inline panel
+   that unfolds below the grid; the chevron turns to show it's open. */
+.cala-admin .property-card {
+  cursor: pointer;
+  min-width: 0;
+}
+.cala-admin .property-card > strong,
+.cala-admin .property-card > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cala-admin .property-card > small {
+  align-items: center;
+  gap: 8px;
+}
+.cala-admin .property-card-chevron {
+  display: inline-flex;
+  transition: transform 0.36s var(--motion-spring);
+}
+.cala-admin .property-card.open {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), var(--shadow-soft);
+}
+.cala-admin .property-card.open .property-card-chevron {
+  transform: rotate(90deg);
+  color: var(--accent);
+}
+.cala-admin .property-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.cala-admin .portfolio-details-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.46s var(--motion-ease),
+    opacity 0.3s var(--motion-ease),
+    margin-top 0.46s var(--motion-ease);
+}
+.cala-admin .portfolio-details-wrap.open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  margin-top: 16px;
+}
+.cala-admin .portfolio-details-clip {
+  min-height: 0;
+  overflow: hidden;
+}
+.cala-admin .property-details {
+  border: 1px solid var(--accent-border);
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 6%, var(--surface)), var(--surface) 55%);
+  padding: 20px 22px;
+  animation: cala-details-in 0.5s var(--motion-ease) both;
+}
+@keyframes cala-details-in {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+}
+.cala-admin .property-details-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: start;
+}
+.cala-admin .property-details-mark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.cala-admin .property-details-title {
+  min-width: 0;
+}
+.cala-admin .property-details-title .eyebrow {
+  margin: 2px 0 4px;
+  font-size: calc(9px * var(--cala-fs-dense, 1));
+  overflow-wrap: anywhere;
+}
+.cala-admin .property-details-title h3 {
+  margin: 0;
+  font-size: calc(19px * var(--cala-fs, 1));
+  overflow-wrap: anywhere;
+}
+.cala-admin .property-details-title p.muted {
+  margin: 4px 0 0;
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+  overflow-wrap: anywhere;
+}
+.cala-admin .property-details-kpis {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+.cala-admin .property-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  animation: cala-kpi-in 0.48s var(--motion-spring) both;
+  animation-delay: calc(var(--i, 0) * 45ms + 80ms);
+}
+@keyframes cala-kpi-in {
+  from {
+    transform: translateY(8px) scale(0.97);
+    opacity: 0;
+  }
+}
+.cala-admin .property-kpi-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: calc(10px * var(--cala-fs-dense, 1));
+  line-height: 1.25;
+  min-width: 0;
+}
+.cala-admin .property-kpi-label .icon {
+  flex: none;
+  color: var(--accent);
+}
+.cala-admin .property-kpi strong {
+  font-size: calc(22px * var(--cala-fs, 1));
+  line-height: 1;
+  color: var(--text);
+}
+.cala-admin .property-kpi-meter {
+  display: block;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--subtle);
+  overflow: hidden;
+}
+.cala-admin .property-kpi-meter > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transform-origin: left;
+  animation: cala-meter-in 0.9s var(--motion-ease) 0.25s both;
+}
+@keyframes cala-meter-in {
+  from {
+    transform: scaleX(0);
+  }
+}
+.cala-admin .property-details-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 18px;
+  margin-top: 18px;
+}
+.cala-admin .property-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 18px;
+  margin: 0;
+}
+.cala-admin .property-facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+}
+.cala-admin .property-facts dt {
+  color: var(--muted);
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+}
+.cala-admin .property-facts dd {
+  margin: 0;
+  font-weight: 600;
+  font-size: calc(12px * var(--cala-fs-dense, 1));
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.cala-admin .property-upcoming .eyebrow {
+  margin: 0 0 8px;
+  font-size: calc(9px * var(--cala-fs-dense, 1));
+}
+.cala-admin .property-upcoming ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.cala-admin .property-upcoming li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--subtle);
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+}
+.cala-admin .property-upcoming-date {
+  font-weight: 650;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.cala-admin .property-upcoming-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cala-admin .property-upcoming small {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.cala-admin .property-upcoming p.muted {
+  margin: 0;
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+}
+.cala-admin .property-details-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.cala-admin .property-details-actions .button {
+  min-width: 0;
+}
+.cala-admin .property-facts dd {
+  white-space: nowrap;
+}
+@media (max-width: 1199px) {
+  .cala-admin .property-details-kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .cala-admin .property-details-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 760px) {
+  .cala-admin .property-details {
+    padding: 16px;
+  }
+  .cala-admin .property-details-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+  .cala-admin .property-details-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .cala-admin .property-details-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cala-admin .property-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cala-admin .property-details-actions .button {
+    flex: 1 1 calc(50% - 5px);
+    justify-content: center;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cala-admin .portfolio-details-wrap,
+  .cala-admin .property-details,
+  .cala-admin .property-kpi,
+  .cala-admin .property-kpi-meter > span,
+  .cala-admin .property-card-chevron {
+    transition: none;
+    animation: none;
+  }
+}

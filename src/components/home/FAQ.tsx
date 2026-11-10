@@ -5,10 +5,15 @@ import { motion } from 'framer-motion';
 import { Plus, Minus } from 'lucide-react';
 import { useDictionary } from '@/i18n/DictionaryContext';
 
-export const FAQ = () => {
+export const FAQ = ({lodgingSummary}: {lodgingSummary?: {capacity?:number;roomCount:number}}) => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const dict = useDictionary();
-  const faqData = (dict as any).faq;
+  const original = (dict as any).faq;
+  const isEn = dict.nav?.rooms === 'Rooms';
+  const faqData = !original ? null : !lodgingSummary ? original : {...original,items:[
+    ...original.items.map((item:{q:string;a:string}) => /capacidad|capacity/i.test(item.q) ? {...item,a:lodgingSummary.capacity ? (isEn?`The entire house accommodates up to ${lodgingSummary.capacity} guests. Each room has its own capacity, shown when booking.`:`La casa completa admite hasta ${lodgingSummary.capacity} personas. Cada habitación tiene su propia capacidad, visible al reservar.`) : (isEn?'Check the capacity of each accommodation when booking.':'Consulta la capacidad de cada alojamiento al reservar.')} : item),
+    {q:isEn?'Can I book the house or an individual room?':'¿Puedo reservar la casa o una habitación?',a:isEn?`You can choose the entire house or one of our ${lodgingSummary.roomCount} rooms. Select your accommodation to see its availability, rate and rules.`:`Puedes elegir la casa completa o una de nuestras ${lodgingSummary.roomCount} habitaciones. Selecciona tu alojamiento para ver su disponibilidad, tarifa y reglas.`},
+  ]};
 
   const toggleFaq = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);

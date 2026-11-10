@@ -1,84 +1,20 @@
-import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { NextResponse } from "next/server";
+import { getSession } from "@/lib/auth";
+import { syncAllIcalFeeds } from "@/lib/icalSync";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
-export async function GET(request: Request) {
-  // Simple authorization to prevent unauthorized access
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET || 'dev-secret'}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+export async function POST() {
+  if (!(await getSession()))
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
-    const sources = await prisma.icalSource.findMany({
-      include: { property: true }
-    });
-
-    let importedCount = 0;
-    let updatedCount = 0;
-
-    for (const source of sources) {
-      if (!source.url) continue;
-
-      try {
-        const ical = (await import('node-ical')).default;
-        const events = await ical.async.fromURL(source.url);
-        
-        for (const event of Object.values(events)) {
-          if (event && event.type === 'VEVENT') {
-            const externalId = event.uid;
-            const checkIn = event.start;
-            const checkOut = event.end;
-
-            if (!externalId || !checkIn || !checkOut) continue;
-
-            // Check if booking already exists
-            const existingBooking = await prisma.booking.findUnique({
-              where: { externalId },
-            });
-
-            if (existingBooking) {
-              // Update if dates changed
-              if (
-                existingBooking.checkIn.getTime() !== checkIn.getTime() ||
-                existingBooking.checkOut.getTime() !== checkOut.getTime()
-              ) {
-                await prisma.booking.update({
-                  where: { id: existingBooking.id },
-                  data: { checkIn, checkOut },
-                });
-                updatedCount++;
-              }
-            } else {
-              const isAirbnb = source.url.toLowerCase().includes('airbnb') || source.name.toLowerCase().includes('airbnb');
-              // Create new booking
-              await prisma.booking.create({
-                data: {
-                  propertyId: source.propertyId,
-                  checkIn,
-                  checkOut,
-                  guestName: 'Reserva Externa',
-                  guestEmail: 'no-reply@external.com',
-                  origin: isAirbnb ? 'AIRBNB' : 'EXTERNAL',
-                  totalPrice: 0,
-                  payment_status: 'PAID',
-                  externalId,
-                },
-              });
-              importedCount++;
-            }
-          }
-        }
-      } catch (err) {
-        console.error(`Failed to sync calendar for property ${source.propertyId} from ${source.url}`, err);
-        // Continue with other sources
-      }
-    }
-
-    return NextResponse.json({ success: true, importedCount, updatedCount });
+    return NextResponse.json(await syncAllIcalFeeds());
   } catch (error) {
-    console.error('Error syncing iCal:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error("[iCal] Sync failed", error);
+    return NextResponse.json(
+      { error: "Synchronization failed" },
+      { status: 500 },
+    );
   }
 }

@@ -1,4 +1,4 @@
-name: Cleanup Pending Bookings (Every 5 Mins)
+name: Sync Calendars and Expire Payment Holds
 
 on:
   schedule:
@@ -6,17 +6,21 @@ on:
   workflow_dispatch:
 
 jobs:
-  cleanup:
+  maintenance:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Cleanup Endpoint
+      - name: Synchronize calendars and expire old payment holds
+        env:
+          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
-          # Si las variables de entorno están vacías, terminamos el script pacíficamente.
-          if [ -z "${{ secrets.PRODUCTION_URL }}" ]; then
-            echo "PRODUCTION_URL no está configurado en los Secretos de GitHub. Configúralo para habilitar el Cron Job."
-            exit 0
+          if [ -z "$PRODUCTION_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "Configure PRODUCTION_URL and CRON_SECRET in GitHub Secrets."
+            exit 1
           fi
-          
-          # Hacemos el request a nuestro endpoint de Next.js
-          curl -sS -X GET "${{ secrets.PRODUCTION_URL }}/api/cron/expire-pending" \
-          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+          curl --fail-with-body --max-time 60 --silent --show-error \
+            "${PRODUCTION_URL%/}/api/cron/ical/" \
+            -H "Authorization: Bearer $CRON_SECRET"
+          curl --fail-with-body --max-time 60 --silent --show-error \
+            "${PRODUCTION_URL%/}/api/cron/expire-pending/" \
+            -H "Authorization: Bearer $CRON_SECRET"

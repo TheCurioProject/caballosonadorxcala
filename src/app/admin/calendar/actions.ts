@@ -1,61 +1,51 @@
 'use server';
 
+import { requireAdmin } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { calendarDayInterval, subtractInterval } from '@/lib/dateRanges';
 
-export async function toggleBlockDates(propertyId: number, dates: Date[], isBlocking: boolean, reason: string = 'Manual block') {
-  for (const date of dates) {
-    const startDate = new Date(date);
-    startDate.setUTCHours(0, 0, 0, 0);
-    const endDate = new Date(date);
-    endDate.setUTCHours(23, 59, 59, 999);
+function validateSelection(propertyId: number, dates: Date[]) {
+  if (!Number.isSafeInteger(propertyId) || propertyId < 1 || !Array.isArray(dates) || dates.length > 366 ||
+      dates.some(date => !Number.isFinite(new Date(date).getTime()))) throw new Error('Invalid dates');
+}
 
-    const existingBlock = await prisma.blockedDate.findFirst({
-      where: {
-        propertyId,
-        startDate: { lte: startDate },
-        endDate: { gte: startDate },
-      }
-    });
-
-    if (existingBlock && !isBlocking) {
-      await prisma.blockedDate.delete({ where: { id: existingBlock.id } });
-    } else if (!existingBlock && isBlocking) {
-      await prisma.blockedDate.create({
-        data: {
-          propertyId,
-          startDate: startDate,
-          endDate: endDate,
-          reason
+export async function toggleBlockDates(propertyId: number, dates: Date[], isBlocking: boolean, reason = 'Manual block') {
+  await requireAdmin();
+  validateSelection(propertyId, dates);
+  await prisma.$transaction(async tx => {
+    for (const date of dates) {
+      const interval = calendarDayInterval(new Date(date));
+      const overlaps = await tx.blockedDate.findMany({ where: {
+        propertyId, source: 'manual', startDate: { lte: interval.endDate }, endDate: { gte: interval.startDate },
+      } });
+      if (isBlocking) {
+        if (!overlaps.some(block => block.startDate <= interval.startDate && block.endDate >= interval.endDate)) {
+          await tx.blockedDate.create({ data: { propertyId, ...interval, reason, source: 'manual' } });
         }
-      });
+      } else {
+        for (const block of overlaps) {
+          const parts = subtractInterval(block, interval);
+          await tx.blockedDate.delete({ where: { id: block.id } });
+          if (parts.length) await tx.blockedDate.createMany({ data: parts.map(part => ({ ...part, propertyId, source: 'manual', reason: block.reason })) });
+        }
+      }
     }
-  }
-
+  });
   revalidatePath('/admin/calendar');
+  revalidatePath('/admin/bookings');
 }
 
 export async function setCustomPrices(propertyId: number, dates: Date[], price: number) {
-  for (const date of dates) {
-    const targetDate = new Date(date);
-    targetDate.setUTCHours(0, 0, 0, 0);
-
-    // Upsert the daily rate
-    const existingRate = await prisma.pricingRule.findFirst({
-      where: { propertyId, date: targetDate }
+  await requireAdmin();
+  validateSelection(propertyId, dates);
+  if (!Number.isFinite(price) || price < 0) throw new Error('Invalid price');
+  await prisma.$transaction(dates.map(value => {
+    const date = calendarDayInterval(new Date(value)).startDate;
+    return prisma.pricingRule.upsert({
+      where: { propertyId_date: { propertyId, date } },
+      create: { propertyId, date, priceOverride: price }, update: { priceOverride: price },
     });
-
-    if (existingRate) {
-      await prisma.pricingRule.update({
-        where: { id: existingRate.id },
-        data: { priceOverride: price }
-      });
-    } else {
-      await prisma.pricingRule.create({
-        data: { propertyId, date: targetDate, priceOverride: price }
-      });
-    }
-  }
-
+  }));
   revalidatePath('/admin/calendar');
 }

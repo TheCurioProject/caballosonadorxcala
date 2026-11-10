@@ -1,13 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Syne, Cormorant } from "next/font/google";
 import "./globals.css";
-import Navigation from "@/components/Navigation";
-import { BookingProvider } from "@/context/BookingContext";
-import { LoadingScreen } from "@/components/ui/LoadingScreen";
-import { CookieConsent } from "@/components/ui/CookieConsent";
-import { cookies } from 'next/headers';
+import {SiteChrome} from '@/components/SiteChrome';
+import { headers } from 'next/headers';
 import { getDictionary } from '@/i18n/dictionaries';
-import { DictionaryProvider } from '@/i18n/DictionaryContext';
 
 const syne = Syne({
   subsets: ["latin", "latin-ext"],
@@ -60,8 +56,10 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   // Use cookie to determine lang for the HTML tag since this layout wraps everything
-  const cookieStore = await cookies();
-  const lang = (cookieStore.get('NEXT_LOCALE')?.value as 'es' | 'en') || 'es';
+  const requestHeaders = await headers();
+  const isCala = /^(\/admin(?:\/|$)|\/cala\/disponibilidad\/)/.test(requestHeaders.get("x-app-pathname") || "");
+  const requestedLocale = requestHeaders.get('x-app-locale');
+  const lang = requestedLocale === 'en' ? 'en' : 'es';
   const dict = await getDictionary(lang);
 
   return (
@@ -74,17 +72,8 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://maps.googleapis.com" />
         <link rel="preconnect" href="https://maps.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="font-sans bg-brand-beige text-brand-dark antialiased selection:bg-brand-terracotta selection:text-brand-beige">
-        <DictionaryProvider dict={dict}>
-          <BookingProvider>
-            <LoadingScreen />
-            <Navigation />
-            <main className="min-h-screen">
-              {children}
-            </main>
-            <CookieConsent />
-          </BookingProvider>
-        </DictionaryProvider>
+      <body className={isCala ? "cala-admin" : "font-sans bg-brand-beige text-brand-dark antialiased selection:bg-brand-terracotta selection:text-brand-beige"}>
+        <SiteChrome dict={dict}>{children}</SiteChrome>
       </body>
     </html>
   );

@@ -68,17 +68,17 @@ export default function WritersGroupAdmin() {
   const openModal = (workshop?: Workshop) => {
     if (workshop) {
       setEditingWorkshop(workshop);
-      setTitle(workshop.titleEs);
-      setSummary(workshop.summaryEs || '');
-      setDescription(workshop.descriptionEs);
+      setTitle(workshop.titleEn);
+      setSummary(workshop.summaryEn || '');
+      setDescription(workshop.descriptionEn);
       setIsActive(workshop.isActive);
       setImagePreview(workshop.imageUrl);
       setImageFile(null);
       setRemoveImage(false);
       setInstructorName(workshop.instructorName || '');
-      setInstructorBio(workshop.instructorBioEs || '');
+      setInstructorBio(workshop.instructorBioEn || '');
       setPrice(workshop.price || '');
-      setDates(workshop.datesEs || workshop.datesEn || '');
+      setDates(workshop.datesEn || workshop.datesEs || '');
       setInstructorImagePreview(workshop.instructorImageUrl);
       setInstructorImageFile(null);
       setRemoveInstructorImage(false);

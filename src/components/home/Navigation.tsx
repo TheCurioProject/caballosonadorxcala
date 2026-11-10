@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Globe } from 'lucide-react';
-import { LogoNuevo } from '../ui/LogoNuevo';
+import { HeroLogo } from '../ui/HeroLogo';
 import { useBooking } from '@/context/BookingContext';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { usePathname, useRouter } from 'next/navigation';
@@ -27,7 +27,7 @@ const SideMenu = ({ isOpen, setIsOpen, setIsSwitchingLang }: { isOpen: boolean, 
     setIsSwitchingLang(true);
     
     // Guardar cookie para que el RootLayout lo lea
-    document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000`;
+
     
     const segments = pathname.split('/');
     if (segments.length > 1 && ['es', 'en'].includes(segments[1])) {
@@ -225,7 +225,7 @@ export const HomeNavigation = () => {
 
   const changeLanguage = (lang: string) => {
     setIsSwitchingLang(true);
-    document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000`;
+
     const segments = pathname.split('/');
     if (segments.length > 1 && ['es', 'en'].includes(segments[1])) {
       segments[1] = lang;
@@ -335,10 +335,10 @@ export const HomeNavigation = () => {
                     isSolid ? 'translate-y-0' : 'translate-y-2 md:translate-y-4'
                   }`}
                 >
-                  <LogoNuevo 
+                  <HeroLogo
                     solidWhite={!isSolid}
                     className={`w-auto drop-shadow-lg hover:scale-105 transition-transform duration-300 origin-left ${
-                      isSolid ? 'h-[2.25rem] md:h-10' : 'h-[3.5rem] md:h-[5rem]'
+                      isSolid ? 'h-10 md:h-11' : 'h-[4.25rem] md:h-24'
                     }`} 
                   />
                 </motion.div>
@@ -356,7 +356,7 @@ export const HomeNavigation = () => {
                       <button 
                         key={l}
                         onClick={() => changeLanguage(l)}
-                        className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
+                        className={`tap-zone relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
                           isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
                         }`}
                       >
@@ -390,7 +390,7 @@ export const HomeNavigation = () => {
                 {/* Desktop Booking Button */}
                 <button 
                   onClick={() => openBookingModal()}
-                  className={`hidden md:block uppercase tracking-widest text-[10px] font-bold border rounded-full px-4 py-1.5 hover:opacity-70 transition-all ${isSolid ? 'border-[#2C2927] text-[#2C2927]' : 'border-[#F9F7F4] text-[#F9F7F4]'}`}
+                  className={`tap-zone relative hidden md:block uppercase tracking-widest text-[10px] font-bold border rounded-full px-4 py-1.5 hover:opacity-70 transition-all ${isSolid ? 'border-[#2C2927] text-[#2C2927]' : 'border-[#F9F7F4] text-[#F9F7F4]'}`}
                 >
                   {dict?.nav?.reserveBtn || 'RESERVAR'}
                 </button>
@@ -400,7 +400,7 @@ export const HomeNavigation = () => {
                   onClick={() => setMenuOpen(true)}
                   aria-label={dict?.nav?.menu || 'Abrir menú'}
                   aria-expanded={menuOpen}
-                  className="uppercase tracking-widest text-xs font-bold flex items-center gap-2 hover:opacity-70 transition-all"
+                  className="tap-zone relative uppercase tracking-widest text-xs font-bold flex items-center gap-2 hover:opacity-70 transition-all"
                 >
                   {dict?.nav?.menu || 'MENU'} <Menu size={20} />
                 </button>
@@ -416,7 +416,7 @@ export const HomeNavigation = () => {
                       <button 
                         key={l}
                         onClick={() => changeLanguage(l)}
-                        className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 px-1 ${
+                        className={`tap-zone relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 px-1 ${
                           isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
                         }`}
                       >

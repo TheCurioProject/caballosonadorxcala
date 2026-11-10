@@ -1,13 +1,17 @@
 'use server';
 
+import { assertAvailability } from '@/lib/reservations';
+
+import { requireAdmin } from '@/lib/auth';
+
 import prisma from './prisma';
-import * as ical from 'node-ical';
 import { revalidatePath } from 'next/cache';
 
 export async function setDailyRates(propertyId: number, dates: Date[], price: number) {
+  await requireAdmin();
   for (const date of dates) {
     const d = new Date(date);
-    d.setHours(0,0,0,0);
+    d.setUTCHours(0,0,0,0);
     await prisma.pricingRule.upsert({
       where: {
         propertyId_date: {
@@ -23,12 +27,13 @@ export async function setDailyRates(propertyId: number, dates: Date[], price: nu
 }
 
 export async function toggleBlockDates(propertyId: number, dates: Date[], block: boolean) {
+  await requireAdmin();
   if (block) {
     for (const date of dates) {
       const d = new Date(date);
-      d.setHours(0,0,0,0);
+      d.setUTCHours(0,0,0,0);
       const nextDay = new Date(d);
-      nextDay.setDate(nextDay.getDate() + 1);
+      nextDay.setUTCDate(nextDay.getUTCDate() + 1);
 
       // Check if already blocked to avoid duplicates
       const existing = await prisma.booking.findFirst({
@@ -58,8 +63,8 @@ export async function toggleBlockDates(propertyId: number, dates: Date[], block:
     // Unblock
     for (const date of dates) {
       const d = new Date(date);
-      d.setHours(0,0,0,0);
-      
+      d.setUTCHours(0,0,0,0);
+
       await prisma.booking.deleteMany({
         where: {
           propertyId,
@@ -74,19 +79,70 @@ export async function toggleBlockDates(propertyId: number, dates: Date[], block:
 }
 
 export async function saveIcalFeeds(propertyId: number, feeds: { name: string; url: string }[]) {
-  // Overwrite all feeds for simplicity
-  await prisma.icalSource.deleteMany({ where: { propertyId } });
-  
-  if (feeds.length > 0) {
-    await prisma.icalSource.createMany({
-      data: feeds.map(f => ({ propertyId, name: f.name, url: f.url }))
-    });
+  await requireAdmin();
+  if (!Number.isSafeInteger(propertyId) || propertyId < 1 || !Array.isArray(feeds) || feeds.length > 20) throw new Error('Invalid feeds');
+  const urls = new Set<string>();
+  for (const feed of feeds) {
+    const url = new URL(feed.url);
+    if (!['https:', 'http:'].includes(url.protocol) || !feed.name.trim() || feed.name.length > 255 || urls.has(feed.url)) throw new Error('Invalid or duplicate feed');
+    urls.add(feed.url);
   }
+  await prisma.$transaction(async tx => {
+    const previous = await tx.icalSource.findMany({ where: { propertyId } });
+    const removed = previous.filter(source => !urls.has(source.url));
+    if (removed.length) {
+      await tx.blockedDate.deleteMany({ where: { propertyId, source: { in: removed.map(source => `ical-${source.id}`) } } });
+      await tx.icalSource.deleteMany({ where: { id: { in: removed.map(source => source.id) } } });
+    }
+    for (const feed of feeds) {
+      const existing = previous.find(source => source.url === feed.url);
+      if (existing) await tx.icalSource.update({ where: { id: existing.id }, data: { name: feed.name } });
+      else await tx.icalSource.create({ data: { propertyId, name: feed.name, url: feed.url } });
+    }
+  });
+
+  // Auto-verificar y sincronizar inmediatamente los feeds recién guardados
+  const syncResult = await syncAllIcalFeeds(propertyId);
+  const updatedSources = await prisma.icalSource.findMany({ where: { propertyId } });
 
   revalidatePath('/admin/ical');
+  revalidatePath('/admin/calendar');
+
+  return {
+    syncResult,
+    sources: updatedSources.map(f => ({
+      id: f.id,
+      name: f.name,
+      url: f.url,
+      syncStatus: f.syncStatus,
+      lastSync: f.lastSync,
+      syncError: f.syncError
+    }))
+  };
 }
 
+export async function verifyAndSyncIcalSources(propertyId: number) {
+  await requireAdmin();
+  const syncResult = await syncAllIcalFeeds(propertyId);
+  const updatedSources = await prisma.icalSource.findMany({
+    where: { propertyId }
+  });
+  return {
+    syncResult,
+    sources: updatedSources.map(f => ({
+      id: f.id,
+      name: f.name,
+      url: f.url,
+      syncStatus: f.syncStatus,
+      lastSync: f.lastSync,
+      syncError: f.syncError
+    }))
+  };
+}
+
+
 export async function updatePropertySettings(propertyId: number, price: number, minNights: number) {
+  await requireAdmin();
   await prisma.property.update({
     where: { id: propertyId },
     data: { basePrice: price }
@@ -95,6 +151,7 @@ export async function updatePropertySettings(propertyId: number, price: number, 
 }
 
 export async function addBlockedDate(propertyId: number, startDate: Date, endDate: Date, reason?: string) {
+  await requireAdmin();
   await prisma.blockedDate.create({
     data: {
       propertyId,
@@ -107,12 +164,16 @@ export async function addBlockedDate(propertyId: number, startDate: Date, endDat
 }
 
 export async function removeBlockedDate(id: number) {
+  await requireAdmin();
   await prisma.blockedDate.delete({ where: { id } });
   revalidatePath('/admin/calendar');
 }
 
 export async function createManualBooking(propertyId: number, checkIn: Date, checkOut: Date, guestName: string, guestEmail: string) {
-  await prisma.booking.create({
+  await requireAdmin();
+  await prisma.$transaction(async tx => {
+    await assertAvailability(tx, propertyId, checkIn, checkOut);
+    return tx.booking.create({
     data: {
       propertyId,
       checkIn,
@@ -123,15 +184,17 @@ export async function createManualBooking(propertyId: number, checkIn: Date, che
       totalPrice: 0,
       payment_status: 'CONFIRMED'
     }
+    });
   });
   revalidatePath('/admin/calendar');
 }
 
 export async function addHolidayRule(propertyId: number, name: string, startDate: Date, endDate: Date, price: number, minNights: number) {
+  await requireAdmin();
   const current = new Date(startDate);
-  current.setHours(0, 0, 0, 0);
+  current.setUTCHours(0, 0, 0, 0);
   const end = new Date(endDate);
-  end.setHours(0, 0, 0, 0);
+  end.setUTCHours(0, 0, 0, 0);
 
   while (current <= end) {
     const d = new Date(current);
@@ -145,89 +208,19 @@ export async function addHolidayRule(propertyId: number, name: string, startDate
       update: { priceOverride: price },
       create: { propertyId, date: d, priceOverride: price }
     });
-    current.setDate(current.getDate() + 1);
+    current.setUTCDate(current.getUTCDate() + 1);
   }
   revalidatePath('/admin/calendar');
 }
 
 export async function removeHolidayRule(id: number) {
+  await requireAdmin();
   await prisma.pricingRule.delete({ where: { id } });
   revalidatePath('/admin/calendar');
 }
+import { syncAllIcalFeeds } from './icalSync';
+
 export async function syncIcalSources(propertyId: number) {
-  const sources = await prisma.icalSource.findMany({ where: { propertyId } });
-  if (sources.length === 0) return;
-
-  for (const source of sources) {
-    try {
-      const events = await ical.async.fromURL(source.url);
-      
-      // Delete previous blocks from this specific source
-      await prisma.blockedDate.deleteMany({
-        where: { propertyId, source: `ical-${source.id}` }
-      });
-
-      // Fetch our existing internal bookings and manual blocks to prevent double-blocking
-      const internalBookings = await prisma.booking.findMany({
-        where: { propertyId, origin: { not: 'ICAL_SYNC' } }
-      });
-      const manualBlocks = await prisma.blockedDate.findMany({
-        where: { propertyId, source: 'manual' }
-      });
-
-      const newBlocks: any[] = [];
-
-      for (const key in events) {
-        const ev = events[key];
-        if (ev.type === 'VEVENT') {
-          const start = new Date(ev.start as Date);
-          const end = new Date(ev.end as Date);
-          
-          if (isNaN(start.getTime()) || isNaN(end.getTime())) continue;
-
-          // Check for overlap with internal bookings
-          const bookingOverlap = internalBookings.some(b => 
-            (start < b.checkOut && end > b.checkIn)
-          );
-          
-          // Check for overlap with manual blocks
-          const blockOverlap = manualBlocks.some(b => 
-            (start < b.endDate && end > b.startDate)
-          );
-
-          const summaryText = typeof ev.summary === 'string' ? ev.summary : (ev.summary?.val || 'External Sync');
-
-          if (!bookingOverlap && !blockOverlap) {
-            newBlocks.push({
-              propertyId,
-              startDate: start,
-              endDate: end,
-              reason: summaryText,
-              source: `ical-${source.id}`
-            });
-          }
-        }
-      }
-
-      if (newBlocks.length > 0) {
-        await prisma.blockedDate.createMany({ data: newBlocks });
-      }
-
-      // Update source status to success
-      await prisma.icalSource.update({
-        where: { id: source.id },
-        data: { syncStatus: 'success', lastSync: new Date(), syncError: null }
-      });
-    } catch (error: any) {
-      console.error(`Error syncing iCal source ${source.name}:`, error);
-      // Update source status to error
-      await prisma.icalSource.update({
-        where: { id: source.id },
-        data: { syncStatus: 'error', syncError: error.message || 'Unknown error' }
-      });
-    }
-  }
-  
-  revalidatePath('/admin/calendar');
-  revalidatePath('/admin/ical');
+  await requireAdmin();
+  return await syncAllIcalFeeds(propertyId);
 }

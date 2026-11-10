@@ -1,3 +1,4 @@
+import { requireAdmin, requireAdminPage } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import React from 'react';
 import TourBookingActions from './TourBookingActions';
@@ -6,6 +7,7 @@ import { DeleteTourBookingButton } from './DeleteTourBookingButton';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminToursBookingsPage() {
+  await requireAdminPage();
   let tourBookings: any[] = [];
   try {
     tourBookings = await prisma.serviceBooking.findMany({
@@ -19,7 +21,7 @@ export default async function AdminToursBookingsPage() {
     console.warn("Failed to fetch tour bookings:", error);
   }
 
-  const formatDate = (date: Date) => new Date(date).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan', day: '2-digit', month: 'short', year: 'numeric' });
+  const formatDate = (date: Date) => new Date(date).toLocaleDateString('es-MX', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric' });
 
   const activeBookings = tourBookings.filter(b => b.paymentStatus !== 'PENDING');
   const pendingBookings = tourBookings.filter(b => b.paymentStatus === 'PENDING');

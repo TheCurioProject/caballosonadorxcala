@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 async function main() {
   const esPath = path.join(__dirname, '../src/i18n/dictionaries/es.json');
   const enPath = path.join(__dirname, '../src/i18n/dictionaries/en.json');
-  
+
   const esDict = JSON.parse(fs.readFileSync(esPath, 'utf8'));
   const enDict = JSON.parse(fs.readFileSync(enPath, 'utf8'));
 

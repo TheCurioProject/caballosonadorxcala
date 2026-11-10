@@ -10,6 +10,7 @@ import { useDictionary } from '@/i18n/DictionaryContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { ActionLoadingScreen } from '@/components/ui/ActionLoadingScreen';
 import { useBooking } from '@/context/BookingContext';
+import { useScrollLock } from '@/hooks/useScrollLock';
 
 const Footer = dynamic(() => import('@/components/home/Footer').then(mod => mod.Footer));
 
@@ -165,6 +166,8 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
     return () => clearInterval(interval);
   }, [selectedTour, isFullscreen]);
 
+  useScrollLock(!!selectedTour);
+
   if (!t) return null;
 
 
@@ -172,13 +175,11 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
     setSelectedTour(tour);
     setActiveImageIndex(0);
     setIsFullscreen(false);
-    document.body.style.overflow = 'hidden';
   };
 
   const closeModal = () => {
     setSelectedTour(null);
     setIsFullscreen(false);
-    document.body.style.overflow = '';
   };
 
   const handleNextImage = (e?: React.MouseEvent) => {
@@ -239,7 +240,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
     const rawImages = TOUR_IMAGES[tourData.type] || [TOUR_IMAGES["ATV_OJO_DE_AGUA"][0]];
     return {
       ...tourData,
-      images: rawImages.map(img => (siteImages && siteImages[img] && siteImages[img].url) ? siteImages[img].url : img),
+      images: rawImages.map(img => getImageUrl(img, siteImages)),
       price: getTourPrice(tourData)
     };
   });
@@ -263,7 +264,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                     router.push(langPrefix);
                   }, 100);
                 }}
-                className="group flex items-center gap-3 hover:opacity-70 transition-opacity duration-300"
+                className="tap-zone relative group flex items-center gap-3 hover:opacity-70 transition-opacity duration-300"
                 aria-label={lang === 'en' ? 'BACK TO HOME' : 'VOLVER AL INICIO'}
               >
                 <ArrowLeft strokeWidth={1.5} className="w-5 h-5 md:w-6 md:h-6 transform group-hover:-translate-x-1 transition-transform" />
@@ -293,7 +294,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                         key={l}
                         href={newPath}
                         prefetch={true}
-                        className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
+                        className={`tap-zone relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
                           isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
                         }`}
                       >
@@ -323,7 +324,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
               <div className="flex items-center gap-4">
                 <button 
                   onClick={() => openBookingModal()}
-                  className="whitespace-nowrap uppercase tracking-widest text-[10px] md:text-xs font-bold border rounded-full px-4 py-1.5 hover:opacity-70 transition-all border-[#F9F7F4] text-[#F9F7F4]"
+                  className="tap-zone relative whitespace-nowrap uppercase tracking-widest text-[10px] md:text-xs font-bold border rounded-full px-4 py-1.5 hover:opacity-70 transition-all border-[#F9F7F4] text-[#F9F7F4]"
                 >
                   <span className="hidden md:inline">{lang === 'en' ? 'Book Now' : 'Reservar Ahora'}</span>
                   <span className="md:hidden">{lang === 'en' ? 'Book Now' : 'Reservar Ahora'}</span>
@@ -349,7 +350,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                         key={l}
                         href={newPath}
                         prefetch={true}
-                        className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 px-1 ${
+                        className={`tap-zone relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 px-1 ${
                           isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
                         }`}
                       >
@@ -422,7 +423,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
           transition={{ delay: 1.5, duration: 1 }}
           className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 opacity-70"
         >
-          <span className="text-[#9B7E67] uppercase tracking-[0.3em] text-[8px] font-bold">{t.scroll}</span>
+          <span className="text-[#9B7E67] uppercase tracking-[0.3em] text-[10px] font-bold">{t.scroll}</span>
           <div className="w-[1px] h-8 md:h-12 bg-white/10 relative overflow-hidden">
             <motion.div 
               animate={{ y: ["-100%", "100%"] }}
@@ -616,16 +617,16 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
             <h4 className="font-serif text-5xl md:text-6xl text-[#F9F7F4]">{t.socialProofSubtitle}</h4>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {t.reviews.map((review: any) => (
-              <div key={review.id} className="bg-[#131110] p-10 md:p-12 rounded-[2rem] shadow-xl shadow-black/40 border border-white/5 relative hover:-translate-y-3 transition-transform duration-500">
+              <div key={review.id} className="bg-[#131110] p-8 md:p-10 lg:p-12 rounded-[2rem] shadow-xl shadow-black/40 border border-white/5 relative md:last:odd:col-span-2 lg:last:odd:col-span-1 hover:-translate-y-3 transition-transform duration-500">
                 <div className="flex gap-1 mb-8 text-[#9B7E67]">
                   {[...Array(review.rating)].map((_, i) => (
                     <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                   ))}
                 </div>
-                <p className="font-light text-[#F9F7F4]/70 text-xl md:text-2xl leading-relaxed mb-10 italic">
-                  "{review.text}"
+                <p className="font-light text-[#F9F7F4]/70 text-xl lg:text-2xl leading-relaxed mb-10 italic">
+                  &quot;{review.text}&quot;
                 </p>
                 <div className="flex items-center gap-4 font-serif text-[#F9F7F4]">
                   <div className="w-10 h-10 rounded-full bg-[#9B7E67] flex items-center justify-center text-[#0A0908] font-bold text-base md:text-lg">
@@ -683,7 +684,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                   <motion.img 
                     key={img + idx}
                     onClick={() => setIsFullscreen(true)}
-                    src={`${process.env.NEXT_PUBLIC_BASE_PATH || ''}${img}`}
+                    src={img}
                     alt={`${selectedTour.title} image ${idx + 1}`}
                     className="absolute inset-0 w-full h-full object-cover"
                     initial={{ opacity: 0, scale: 1.05 }}

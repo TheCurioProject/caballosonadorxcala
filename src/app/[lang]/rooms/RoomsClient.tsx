@@ -6,14 +6,16 @@ import { motion } from 'framer-motion';
 import { Bed, Users, Bath, Wind, Wifi, Droplets, Tv } from 'lucide-react';
 import { useBooking } from '@/context/BookingContext';
 import { getImageUrl } from '@/lib/siteImages';
+import { lodgingText, lodgingPrice, type Lodging } from '@/lib/lodgings';
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
 };
 
-export default function RoomsClient({ siteImages }: { siteImages: any }) {
-  const { openBookingModal } = useBooking();
+export default function RoomsClient({ siteImages, lodgings, lang }: { siteImages: any; lodgings: Lodging[] | null; lang: string }) {
+  const { openBookingModal, openLodgingBooking } = useBooking();
+  const isEn=lang==='en';
   
   const getPrimaryImage = (roomNum: number) => {
     const keys = [
@@ -30,7 +32,7 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
     return '';
   };
 
-  const rooms = [
+  const legacyRooms = [
     {
       id: 1,
       name: 'Paso Suave | Room 1',
@@ -81,6 +83,14 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
     },
   ];
 
+  const rooms = lodgings === null ? legacyRooms.map(r=>({...r,lodgingId:undefined as string|undefined,policy:''})) : lodgings.filter(l=>l.kind==='room').map((l,index)=>({
+    id:index+1,lodgingId:l.id,name:lodgingText(l.name,lang),desc:lodgingText(l.description,lang),
+    details:{guests:String(l.capacity),beds:lodgingText(l.beds,lang),bath:`${l.bathrooms} ${isEn?'bathroom(s)':'baño(s)'}`,extra:l.amenities.join(' · ')},
+    price:(isEn?'From ':'Desde ')+lodgingPrice(l.fromRateMinor??l.baseRateMinor,l.currency,lang),
+    img:l.photoKeys.map(key=>getImageUrl(key,siteImages)).find(Boolean)||'',policy:lodgingText(l.policy,lang),
+  }));
+  const whole=lodgings?.find(l=>l.kind==='whole_home');
+
   const heroImg = getImageUrl('/imagenes/04_about/about_casa_44.webp', siteImages);
   const rooftopImg = getImageUrl('/imagenes/05_amenities/amenity_09_rooftop_terrace.webp', siteImages);
   const poolImg = getImageUrl('/imagenes/05_amenities/amenity_02_pool_lounge.webp', siteImages);
@@ -101,14 +111,16 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
           variants={fadeIn}
           className="relative z-10 text-center text-white px-4 max-w-3xl mx-auto"
         >
-          <h1 className="text-4xl md:text-6xl mb-4 font-serif text-brand-white drop-shadow-md">Nuestras Suites</h1>
+          <h1 className="text-4xl md:text-6xl mb-4 font-serif text-brand-white drop-shadow-md">{isEn?'Your stay in Chacala':'Tu estancia en Chacala'}</h1>
           <p className="text-lg md:text-2xl font-light opacity-90">Lujo Boutique y Confort Natural. Descubre un santuario de descanso diseñado para integrarse armoniosamente con el entorno.</p>
         </motion.div>
       </section>
 
+      {whole&&<section className="max-w-7xl mx-auto px-4 pt-20"><div className="bg-white p-8 md:p-12 grid md:grid-cols-2 gap-10 items-center shadow-sm"><div><p className="text-xs tracking-[0.2em] uppercase text-[#9B7E67] mb-4">{isEn?'THE ENTIRE HOUSE, JUST FOR YOU':'TODA LA CASA, SOLO PARA TI'}</p><h2 className="text-3xl md:text-4xl font-serif mb-5">{lodgingText(whole.name,lang)}</h2><p className="text-gray-600 leading-relaxed text-lg">{lodgingText(whole.description,lang)}</p><p className="text-gray-500 my-5">{whole.capacity} {isEn?'guests':'huéspedes'} · {whole.minStay} {isEn?'nights minimum':'noches mínimo'}</p><p className="text-xl font-serif mb-6">{isEn?'From ':'Desde '}{lodgingPrice(whole.fromRateMinor??whole.baseRateMinor,whole.currency,lang)} / {isEn?'night':'noche'}</p><button onClick={()=>openLodgingBooking(whole.id)} className="bg-brand-dark text-white px-8 py-4 uppercase tracking-widest font-semibold">{isEn?'Book the entire house':'Reservar casa completa'}</button></div><div className="relative h-72 md:h-96"><Image src={whole.photoKeys.map(key=>getImageUrl(key,siteImages)).find(Boolean)||heroImg} alt={lodgingText(whole.name,lang)} fill sizes="(max-width:768px) 100vw,50vw" className="object-cover"/></div></div></section>}
       {/* Catálogo de Habitaciones */}
       <section className="py-24 px-4 max-w-7xl mx-auto">
         <div className="space-y-32">
+          {lodgings!==null&&rooms.length===0&&<p role="status" className="text-gray-600 text-center">{isEn?'Room information is temporarily unavailable. Please contact us to plan your stay.':'La información de habitaciones no está disponible en este momento. Contáctanos para planear tu estancia.'}</p>}
           {rooms.map((room, i) => (
             <motion.div 
               key={room.id}
@@ -146,10 +158,11 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
                   {room.details.extra && <div className="flex items-center gap-2"><Droplets size={16} /> {room.details.extra}</div>}
                   {room.id === 7 && <div className="flex items-center gap-2"><Tv size={16} /> TV</div>}
                 </div>
-                <div className="pt-4 flex items-center justify-between">
+                {room.policy&&<details className="text-sm text-gray-500"><summary className="cursor-pointer underline underline-offset-4">{isEn?'Rules and cancellation policy':'Reglas y política de cancelación'}</summary><p className="whitespace-pre-line leading-relaxed mt-4">{room.policy}</p></details>}
+                <div className="pt-4 flex flex-wrap gap-4 items-center justify-between">
                   <span className="text-xl font-serif italic text-brand-dark">{room.price} <span className="text-base md:text-lg font-sans not-italic text-gray-500">/ noche</span></span>
-                  <button onClick={openBookingModal} className="bg-brand-dark text-white px-8 py-3 uppercase tracking-widest text-sm md:text-base font-semibold hover:bg-black transition-colors">
-                    Reserva
+                  <button onClick={()=>room.lodgingId?openLodgingBooking(room.lodgingId):openBookingModal()} className="bg-brand-dark text-white px-8 py-3 uppercase tracking-widest text-sm md:text-base font-semibold hover:bg-black transition-colors">
+                    {isEn?'Book this room':'Reservar habitación'}
                   </button>
                 </div>
               </div>
@@ -161,7 +174,7 @@ export default function RoomsClient({ siteImages }: { siteImages: any }) {
       {/* Info extra */}
       <section className="bg-brand-white py-16 px-4 text-center border-t border-gray-200">
         <p className="text-gray-500 italic max-w-2xl mx-auto">
-          Estancia mínima de 2 noches. Todas las habitaciones incluyen acceso a cocina compartida, piscina y desayuno tradicional mexicano.
+          {isEn?'Choose the entire house or an individual room. Availability, minimum stays and rates are shown for each accommodation before you confirm.':'Elige la casa completa o una habitación. La disponibilidad, estancia mínima y tarifa de cada alojamiento se muestran antes de confirmar.'}
         </p>
       </section>
 

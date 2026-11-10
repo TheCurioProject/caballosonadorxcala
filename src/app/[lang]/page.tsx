@@ -1,21 +1,19 @@
-import dynamic from 'next/dynamic';
+import nextDynamic from 'next/dynamic';
 import prisma from '@/lib/prisma';
 import { Hero } from '@/components/home/Hero';
 import { getDictionary } from '@/i18n/dictionaries';
 import { getImageUrl } from '@/lib/siteImages';
 import { getSiteImages } from '@/lib/siteImages.server';
+import { getLodgings } from '@/lib/lodgings.server';
+import { calaConfiguration } from '@/lib/cala/config';
+import { lodgingPrice, lodgingText } from '@/lib/lodgings';
 
 import { unstable_cache } from 'next/cache';
 import { stripe } from '@/lib/stripe';
-import { sendBookingConfirmation, sendInvoiceEmail, sendAdminBookingNotification } from '@/lib/resend';
-import { generateInvoicePDFBuffer } from '@/lib/pdf';
-import { differenceInDays } from 'date-fns';
-import path from 'path';
-import fs from 'fs';
 
 const getCachedExperiences = unstable_cache(
   async () => {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: NodeJS.Timeout | undefined;
     try {
       // Reduced timeout to 4 seconds to prevent server-side hang
       const fetchExperiences = prisma.experience.findMany();
@@ -48,110 +46,44 @@ const getCachedAmenities = unstable_cache(
 );
 
 // Dynamic imports for below-the-fold components to improve initial load performance
-const About = dynamic(() => import('@/components/home/About').then(mod => mod.About));
-const Concept = dynamic(() => import('@/components/home/Concept').then(mod => mod.Concept));
-const Services = dynamic(() => import('@/components/home/Services').then(mod => mod.Services));
-const Suites = dynamic(() => import('@/components/home/Suites').then(mod => mod.Suites));
-const Experiences = dynamic(() => import('@/components/home/Experiences').then(mod => mod.Experiences));
-const Reviews = dynamic(() => import('@/components/home/Reviews').then(mod => mod.Reviews));
-const FAQ = dynamic(() => import('@/components/home/FAQ').then(mod => mod.FAQ));
-const Location = dynamic(() => import('@/components/home/Location').then(mod => mod.Location));
-const Footer = dynamic(() => import('@/components/home/Footer').then(mod => mod.Footer));
-const FoodServices = dynamic(() => import('@/components/home/FoodServices').then(mod => mod.FoodServices));
+const About = nextDynamic(() => import('@/components/home/About').then(mod => mod.About));
+const Concept = nextDynamic(() => import('@/components/home/Concept').then(mod => mod.Concept));
+const Services = nextDynamic(() => import('@/components/home/Services').then(mod => mod.Services));
+const Suites = nextDynamic(() => import('@/components/home/Suites').then(mod => mod.Suites));
+const Experiences = nextDynamic(() => import('@/components/home/Experiences').then(mod => mod.Experiences));
+const Reviews = nextDynamic(() => import('@/components/home/Reviews').then(mod => mod.Reviews));
+const FAQ = nextDynamic(() => import('@/components/home/FAQ').then(mod => mod.FAQ));
+const Location = nextDynamic(() => import('@/components/home/Location').then(mod => mod.Location));
+const Footer = nextDynamic(() => import('@/components/home/Footer').then(mod => mod.Footer));
+const FoodServices = nextDynamic(() => import('@/components/home/FoodServices').then(mod => mod.FoodServices));
 
 import { BookingSuccessModal } from '@/components/home/BookingSuccessModal';
 
 // Revalidate page every 60 seconds (ISR) to fix caching issues without losing performance
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export default async function Home({ params, searchParams }: { params: Promise<{ lang: 'es' | 'en' }>, searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
   const { lang } = await params;
   const search = await searchParams;
   const safeLang = lang || 'es';
   const dict = await getDictionary(safeLang);
-  const siteImages = await getSiteImages();
+  const [siteImages, catalog] = await Promise.all([getSiteImages(), calaConfiguration().ready ? getLodgings().catch(()=>[]) : Promise.resolve(null)]);
 
   let bookingSuccessData = null;
-  if (search?.success === 'true' && search?.booking_id) {
-    const bId = parseInt(search.booking_id as string);
-    if (!isNaN(bId)) {
-      let booking = await prisma.booking.findUnique({ where: { id: bId }, include: { property: true, addons: true } });
-      
-      // Fallback logic if webhook hasn't processed it yet
-      if (booking && booking.payment_status === 'PENDING' && search.session_id) {
-        try {
-          const session = await stripe.checkout.sessions.retrieve(search.session_id as string);
-          if (session.payment_status === 'paid' && session.metadata?.bookingId === bId.toString()) {
-            console.log('[Home Page Fallback] Confirming booking', bId);
-            const amountTotal = session.amount_total ? session.amount_total / 100 : undefined;
-            booking = await prisma.booking.update({
-              where: { id: bId },
-              data: { 
-                payment_status: 'CONFIRMED',
-                ...(amountTotal !== undefined ? { totalPrice: amountTotal } : {})
-              },
-              include: { property: true, addons: true },
-            });
-
-            // Send Emails
-            const currency = (session.currency || 'mxn').toUpperCase();
-            const nights = differenceInDays(new Date(booking.checkOut), new Date(booking.checkIn));
-
-            await sendBookingConfirmation({
-              guestName: booking.guestName,
-              guestEmail: booking.guestEmail,
-              checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
-              checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
-              totalPrice: booking.totalPrice,
-              currency,
-              bookingId: booking.id,
-              nights,
-            });
-
-            const rawAdminEmails = booking.property?.adminEmails || 'kelli9@telus.net';
-            const adminEmailArray = rawAdminEmails.split(',').map((e: string) => e.trim()).filter((e: string) => e);
-
-            let pdfBuffer: Buffer | undefined = undefined;
-            try {
-              const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_official.png');
-              const logoBase64 = fs.existsSync(logoPath) ? fs.readFileSync(logoPath).toString('base64') : '';
-              pdfBuffer = await generateInvoicePDFBuffer({
-                bookingId: booking.id,
-                guestName: booking.guestName,
-                roomName: booking.property?.name || 'Casa Caballo Soñador',
-                checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
-                checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
-                totalPrice: booking.totalPrice,
-                depositPaid: booking.depositPaid || 0,
-                depositCurrency: booking.depositCurrency || 'MXN',
-                date: new Date().toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
-                logoBase64,
-                addons: booking.addons
-              });
-            } catch (e) { console.error('PDF error in fallback', e); }
-
-            const emailData = {
-              guestName: booking.guestName,
-              guestEmail: booking.guestEmail,
-              checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
-              checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
-              totalPrice: booking.totalPrice,
-              currency,
-              bookingId: booking.id,
-              nights,
-            };
-
-            if (adminEmailArray.length > 0) await sendAdminBookingNotification(adminEmailArray, emailData, pdfBuffer);
-            await sendInvoiceEmail(emailData, pdfBuffer);
-          }
-        } catch (e) {
-          console.error('[Home Page Fallback] Error:', e);
+  if (search.success === 'true' && typeof search.booking_id === 'string' && typeof search.session_id === 'string') {
+    try {
+      const session = await stripe.checkout.sessions.retrieve(search.session_id);
+      if (['paid', 'no_payment_required'].includes(session.payment_status) && session.metadata?.bookingId === search.booking_id) {
+        const id = Number(search.booking_id);
+        if (Number.isSafeInteger(id) && id > 0) {
+          bookingSuccessData = await prisma.booking.findUnique({
+            where: { id },
+            select: { id: true, guestName: true, guestEmail: true, checkIn: true, checkOut: true, totalPrice: true, payment_status: true },
+          });
         }
       }
-
-      if (booking) {
-        bookingSuccessData = booking;
-      }
+    } catch (error) {
+      console.error('[Home] Payment verification failed', error);
     }
   }
 
@@ -176,7 +108,7 @@ export default async function Home({ params, searchParams }: { params: Promise<{
     };
   };
 
-  const rooms = [
+  const legacyRooms = [
     getRoom(1, 0, ['/rooms/room1/1.webp', '/rooms/room1/2.webp', '/rooms/room1/3.webp', '/rooms/room1/4.webp', '/rooms/room1/5.webp']),
     getRoom(2, 0, ['/rooms/room2/1.webp', '/rooms/room2/2.webp', '/rooms/room2/3.webp', '/rooms/room2/4.webp', '/rooms/room2/5.webp']),
     getRoom(3, 0, ['/rooms/room3/1.webp', '/rooms/room3/2.webp', '/rooms/room3/3.webp', '/rooms/room3/4.webp', '/rooms/room3/5.webp']),
@@ -184,6 +116,13 @@ export default async function Home({ params, searchParams }: { params: Promise<{
     getRoom(5, 0, ['/rooms/room5/1.webp', '/rooms/room5/2.webp', '/rooms/room5/3.webp', '/rooms/room5/4.webp', '/rooms/room5/5.webp']),
     getRoom(6, 0, ['/rooms/room6/1.webp', '/rooms/room6/2.webp', '/rooms/room6/3.webp', '/rooms/room6/4.webp', '/rooms/room6/5.webp'])
   ];
+
+  const rooms = catalog === null ? legacyRooms : catalog.filter(l=>l.kind==='room').map((l,index)=>({
+    id:index+1,lodgingId:l.id,name:lodgingText(l.name,safeLang),price:(safeLang==='en'?'From ':'Desde ')+lodgingPrice(l.fromRateMinor??l.baseRateMinor,l.currency,safeLang)+(safeLang==='en'?' / night':' / noche'),
+    description:lodgingText(l.description,safeLang),shortDescription:lodgingText(l.description,safeLang),
+    images:l.photoKeys.map(key=>getImageUrl(key,siteImages)).filter(Boolean),
+    details:{guests:l.capacity,beds:lodgingText(l.beds,safeLang),bath:l.bathrooms,extra:l.amenities.join(' · ')},
+  }));
 
   if (experiences.length === 0) {
     experiences = dict.toursPage.tours.map((t: any, i: number) => {
@@ -220,7 +159,7 @@ export default async function Home({ params, searchParams }: { params: Promise<{
         <FoodServices />
         <Experiences experiences={experiences} />
         <Reviews />
-        <FAQ />
+        <FAQ lodgingSummary={catalog ? {capacity:catalog.find(l=>l.kind==='whole_home')?.capacity,roomCount:catalog.filter(l=>l.kind==='room').length} : undefined} />
         <Location />
       </main>
 

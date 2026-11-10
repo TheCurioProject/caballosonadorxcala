@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/cron/ical",
+      "path": "/api/cron/ical/",
       "schedule": "0 0 * * *"
     }
   ]

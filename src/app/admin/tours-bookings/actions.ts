@@ -1,8 +1,11 @@
 'use server';
+
+import { requireAdmin } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
 export async function removeTourBooking(bookingId: number) {
+  await requireAdmin();
   try {
     await prisma.serviceBooking.delete({
       where: { id: bookingId }

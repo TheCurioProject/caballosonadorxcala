@@ -124,6 +124,8 @@ const styles = StyleSheet.create({
 });
 
 interface TourInvoiceProps {
+  serviceType?: 'FOOD' | 'TOUR';
+  issuedAt?: Date;
   bookingId: number;
   guestName: string;
   tourDestination: string;
@@ -176,6 +178,8 @@ const translations = {
 };
 
 export const TourInvoicePDF = ({ 
+  serviceType = 'TOUR',
+  issuedAt,
   bookingId, 
   guestName, 
   tourDestination, 
@@ -187,10 +191,18 @@ export const TourInvoicePDF = ({
   logoBase64,
   language = 'en'
 }: TourInvoiceProps) => {
-  const t = translations[language] || translations.en;
+  const base = translations[language] || translations.en;
+  const t = serviceType === 'FOOD' ? {
+    ...base,
+    invoice: language === 'es' ? 'FACTURA DE SERVICIO DE COMIDA' : 'FOOD SERVICE INVOICE',
+    tourDetails: language === 'es' ? 'Detalles del Servicio' : 'Service Details',
+    destination: language === 'es' ? 'Servicio:' : 'Service:',
+    notes: [language === 'es' ? 'Este comprobante confirma el pago del servicio de comida indicado.' : 'This receipt confirms payment for the food service shown above.'],
+    footerContact: language === 'es' ? 'Consultas: reservas@casacaballosonador.com' : 'Questions: reservas@casacaballosonador.com',
+  } : base;
   
   return (
-  <Document>
+  <Document creationDate={issuedAt} modificationDate={issuedAt}>
     <Page size="A4" style={styles.page}>
       
       {/* HEADER */}

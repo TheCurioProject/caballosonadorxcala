@@ -1,8 +1,9 @@
 'use client';
 
+import { calendarDateToLocal } from '@/lib/dateRanges';
+
 import React, { useState } from 'react';
 import { DayPicker, DateRange } from 'react-day-picker';
-import 'react-day-picker/style.css';
 import { toggleServiceBlockDates } from './service-actions';
 import { Loader2 } from 'lucide-react';
 import { format, isSameDay, addDays } from 'date-fns';
@@ -30,15 +31,18 @@ export default function ServiceAvailabilitySection({ foodBlocks, tourBlocks }: {
     }
 
     setIsLoading(true);
-    await toggleServiceBlockDates(activeTab, dates, isBlocking);
-    setRange(undefined);
-    setIsLoading(false);
+    try {
+      await toggleServiceBlockDates(activeTab, dates.map(date => new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))), isBlocking);
+      setRange(undefined);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getDayInfo = (day: Date) => {
     const isBlocked = currentBlocks.some(b => {
-      const start = new Date(b.startDate);
-      const end = new Date(b.endDate);
+      const start = calendarDateToLocal(b.startDate);
+      const end = calendarDateToLocal(b.endDate);
       start.setHours(0,0,0,0);
       end.setHours(23,59,59,999);
       const d = new Date(day);
@@ -79,8 +83,8 @@ export default function ServiceAvailabilitySection({ foodBlocks, tourBlocks }: {
   };
 
   const blockedRanges = currentBlocks.map(b => ({
-    from: new Date(b.startDate),
-    to: new Date(b.endDate)
+    from: calendarDateToLocal(b.startDate),
+    to: calendarDateToLocal(b.endDate)
   }));
 
   return (

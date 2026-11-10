@@ -1,3 +1,4 @@
+import { requireAdmin, requireAdminPage } from '@/lib/auth';
 import React from 'react';
 import { listCoupons, deleteCoupon, getRecentPayments, getAccountBalance } from '@/lib/stripe';
 import { revalidatePath } from 'next/cache';
@@ -5,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminStripePage() {
+  await requireAdminPage();
   let coupons: any[] = [];
   let recentPayments: any[] = [];
   let balance: any = null;
@@ -23,6 +25,7 @@ export default async function AdminStripePage() {
 
   async function handleDeleteCoupon(formData: FormData) {
     'use server';
+    await requireAdmin();
     const id = formData.get('id') as string;
     if (id) {
       await deleteCoupon(id);

@@ -1,3 +1,4 @@
+import { getSession } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { renderToBuffer } from '@react-pdf/renderer';
@@ -10,6 +11,10 @@ import path from 'path';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const { bookingId, sendToClient, clientEmail, invoiceLanguage } = await request.json();
 
@@ -26,8 +31,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Booking not found' }, { status: 404 });
     }
 
-    const checkIn = booking.checkIn.toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' });
-    const checkOut = booking.checkOut.toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' });
+    const checkIn = booking.checkIn.toLocaleDateString('es-MX', { timeZone: 'UTC' });
+    const checkOut = booking.checkOut.toLocaleDateString('es-MX', { timeZone: 'UTC' });
     const date = new Date().toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' });
 
     // Read Logo as base64

@@ -1,3 +1,5 @@
+import { assertAvailability } from '@/lib/reservations';
+import { validGuest, parseCalendarDate } from '@/lib/bookingPolicy';
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
@@ -14,7 +16,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const propertyId = searchParams.get('propertyId');
 
-    const query = propertyId ? { propertyId: parseInt(propertyId) } : {};
+    if (propertyId && (!Number.isSafeInteger(Number(propertyId)) || Number(propertyId) < 1)) return NextResponse.json({ error: 'Invalid propertyId' }, { status: 400 });
+    const query = propertyId ? { propertyId: Number(propertyId) } : {};
 
     // Obtener reservas futuras
     const bookings = await prisma.booking.findMany({
@@ -32,6 +35,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ success: true, bookings });
   } catch (error: any) {
+    if (error?.message === 'DATES_UNAVAILABLE') return NextResponse.json({ error: 'Fechas no disponibles' }, { status: 409 });
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -46,35 +50,24 @@ export async function POST(request: Request) {
 
     const data = await request.json();
     
-    // Validar superposición de fechas antes de crear
-    const conflictingBookings = await prisma.booking.findMany({
-      where: {
-        propertyId: data.propertyId,
-          checkIn: { lte: new Date(data.checkOut) },
-          checkOut: { gte: new Date(data.checkIn) }
-      }
-    });
-
-    if (conflictingBookings.length > 0) {
-      return NextResponse.json({ success: false, error: 'Fechas no disponibles.' }, { status: 400 });
+    const checkIn = parseCalendarDate(data.checkIn);
+    const checkOut = parseCalendarDate(data.checkOut);
+    if (!checkIn || !checkOut || checkOut <= checkIn || !Number.isSafeInteger(data.propertyId) || data.propertyId < 1 ||
+        !validGuest(data.guestName, data.guestEmail, data.guestPhone) || typeof data.totalPrice !== 'number' || !Number.isFinite(data.totalPrice) || data.totalPrice < 0) {
+      return NextResponse.json({ error: 'Invalid booking data' }, { status: 400 });
     }
-
-    const booking = await prisma.booking.create({
-      data: {
-        propertyId: data.propertyId,
-        checkIn: new Date(data.checkIn),
-        checkOut: new Date(data.checkOut),
-        guestName: data.guestName,
-        guestEmail: data.guestEmail,
-        guestPhone: data.guestPhone || '',
-        totalPrice: data.totalPrice,
-        origin: 'WEBSITE',
-        payment_status: 'PENDING',
-      }
+    const booking = await prisma.$transaction(async tx => {
+      await assertAvailability(tx, data.propertyId, checkIn, checkOut);
+      return tx.booking.create({ data: {
+        propertyId: data.propertyId, checkIn, checkOut, guestName: data.guestName,
+        guestEmail: data.guestEmail, guestPhone: data.guestPhone || '',
+        totalPrice: data.totalPrice, origin: 'WEBSITE', payment_status: 'PENDING',
+      } });
     });
 
     return NextResponse.json({ success: true, booking });
   } catch (error: any) {
+    if (error?.message === 'DATES_UNAVAILABLE') return NextResponse.json({ error: 'Fechas no disponibles' }, { status: 409 });
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -1,3 +1,5 @@
+import { revalidatePublicSite } from '@/lib/revalidatePublic';
+import { getSession } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { autoTranslate } from '@/lib/translate';
@@ -21,6 +23,10 @@ const extractPlainText = (str: string | undefined | null): string => {
 };
 
 export async function GET() {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const destinations = await prisma.tourDestination.findMany({
       orderBy: { id: 'asc' }
@@ -40,6 +46,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
     const { id, name, pricePerPax, isActive, description } = body;
@@ -60,6 +70,7 @@ export async function POST(req: Request) {
       description: extractPlainText(updated.description)
     };
 
+    revalidatePublicSite();
     return NextResponse.json(updatedFormatted);
   } catch (error) {
     console.error('Error saving tour destination:', error);

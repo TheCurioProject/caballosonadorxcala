@@ -1,6 +1,7 @@
+import { revalidatePublicSite } from '@/lib/revalidatePublic';
+import { getSession } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
 import { autoTranslate } from '@/lib/translate';
 
 const parseTranslation = (jsonStr: string) => {
@@ -12,6 +13,10 @@ const parseTranslation = (jsonStr: string) => {
 };
 
 export async function GET() {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const amenities = await prisma.stayAmenity.findMany({
       orderBy: { id: 'asc' }
@@ -23,6 +28,10 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const formData = await request.formData();
     const id = parseInt(formData.get('id') as string);
@@ -54,8 +63,7 @@ export async function PUT(request: Request) {
     });
 
     // Revalidate public pages
-    revalidatePath('/es');
-    revalidatePath('/en');
+    revalidatePublicSite();
 
     return NextResponse.json(amenity);
   } catch (error) {

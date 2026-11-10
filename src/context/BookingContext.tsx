@@ -11,20 +11,24 @@ const PremiumBookingModal = dynamic(
 interface BookingContextProps {
   openBookingModal: () => void;
   closeBookingModal: () => void;
+  openLodgingBooking: (lodgingId: string) => void;
 }
 
 const BookingContext = createContext<BookingContextProps | undefined>(undefined);
 
 export function BookingProvider({ children }: { children: ReactNode }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [{ isOpen, openVersion, lodgingId }, setBookingState] = useState({ isOpen: false, openVersion: 0, lodgingId: undefined as string | undefined });
 
-  const openBookingModal = () => setIsOpen(true);
-  const closeBookingModal = () => setIsOpen(false);
+  const openBookingModal = () => setBookingState(current => current.isOpen
+    ? current
+    : { isOpen: true, openVersion: current.openVersion + 1, lodgingId: undefined });
+  const openLodgingBooking = (id: string) => setBookingState(current => ({isOpen:true, openVersion:current.openVersion+1, lodgingId:id}));
+  const closeBookingModal = () => setBookingState(current => ({ ...current, isOpen: false }));
 
   return (
-    <BookingContext.Provider value={{ openBookingModal, closeBookingModal }}>
+    <BookingContext.Provider value={{ openBookingModal, closeBookingModal, openLodgingBooking }}>
       {children}
-      <PremiumBookingModal isOpen={isOpen} onClose={closeBookingModal} />
+      <PremiumBookingModal key={openVersion} isOpen={isOpen} onClose={closeBookingModal} smoobuOpenVersion={openVersion} initialLodgingId={lodgingId} />
     </BookingContext.Provider>
   );
 }

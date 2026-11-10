@@ -1,8 +1,13 @@
+import { getSession } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import { DEFAULT_IMAGES } from '@/lib/siteImages';
 import { v2 as cloudinary } from 'cloudinary';
 
-export async function GET() {
+export async function POST() {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     // Re-upload images that were previously uploaded with old naming convention
     // Old convention: public_id = key.replace(/[\/\\.]/g, '_')  e.g. "_rooms_room1_1_webp"

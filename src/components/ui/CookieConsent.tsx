@@ -62,7 +62,7 @@ export function CookieConsent() {
                   : 'Usamos cookies esenciales para recordar tu idioma preferido y optimizar tu experiencia. '}
                 <button 
                   onClick={() => setExpanded(true)}
-                  className="text-[#9B7E67] font-bold hover:underline inline"
+                  className="tap-zone relative text-[#9B7E67] font-bold hover:underline inline"
                 >
                   {isEn ? 'Read more' : 'Leer más'}
                 </button>
@@ -98,7 +98,7 @@ export function CookieConsent() {
           <div className="flex items-center gap-2 mt-1 pt-2 border-t border-gray-100">
             <button 
               onClick={handleAccept}
-              className="flex-1 bg-[#23211F] text-white text-xs md:text-sm py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#9B7E67] transition-colors"
+              className="flex-1 [@media(pointer:coarse)]:min-h-[44px] bg-[#23211F] text-white text-xs md:text-sm py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#9B7E67] transition-colors"
             >
               {isEn ? 'Accept & Continue' : 'Aceptar y Continuar'}
             </button>

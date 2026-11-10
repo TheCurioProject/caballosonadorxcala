@@ -1,0 +1,1 @@
+-- Intentionally empty. Production and local Supabase start without sample data.

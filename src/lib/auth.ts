@@ -1,39 +1,49 @@
-import { SignJWT, jwtVerify } from 'jose';
-import { cookies } from 'next/headers';
-
-function getSecretKey() {
-  const secretKey = process.env.JWT_SECRET;
-  if (!secretKey) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('CRITICAL: JWT_SECRET environment variable is not set in production');
-    }
-    console.warn('[Auth] WARNING: Using development fallback JWT secret. Set JWT_SECRET in .env for production.');
-  }
-  return new TextEncoder().encode(secretKey || 'dev-only-fallback-secret-caballosonador-2024');
-}
-
-export async function encrypt(payload: any) {
-  return await new SignJWT(payload)
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('24h')
-    .sign(getSecretKey());
-}
-
-export async function decrypt(input: string): Promise<any> {
-  const { payload } = await jwtVerify(input, getSecretKey(), {
-    algorithms: ['HS256'],
-  });
-  return payload;
-}
-
-export async function getSession() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get('admin_session')?.value;
-  if (!session) return null;
+import prisma from "@/lib/prisma";
+import { requireCalaAccess } from "@/lib/cala/access";
+import type { supabaseServerClient } from "@/cala/infrastructure/supabase/server";
+/** Supabase is the only admin identity provider. Legacy admin_session JWTs are ignored. */
+export async function getSession(
+  existingClient?: Awaited<ReturnType<typeof supabaseServerClient>>,
+) {
   try {
-    return await decrypt(session);
-  } catch (error) {
+    const {
+      client,
+      user: identity,
+      member,
+    } = await requireCalaAccess(existingClient);
+    const { data: role } = await client
+      .from("roles")
+      .select("key")
+      .eq("id", member.role_id)
+      .single();
+    if (
+      !member.all_properties ||
+      !role ||
+      !["owner", "admin", "manager"].includes(role.key)
+    )
+      return null;
+    // Parameterized lookup through the private server connection; site is not exposed via PostgREST.
+    const rows = await prisma.$queryRaw<
+      Array<{ id: number; email: string; name: string | null; role: string }>
+    >`SELECT id, email, name, role FROM site."AdminUser" WHERE supabase_user_id=${identity.id}::uuid AND role IN ('ADMIN','SUPERADMIN')`;
+    const user = rows[0];
+    if (!user) return null;
+    return { user, authUserId: identity.id, version: identity.updated_at || "" };
+  } catch {
     return null;
   }
+}
+export async function requireAdmin() {
+  const session = await getSession();
+  if (!session) throw new Error("Unauthorized");
+  return session;
+}
+
+export async function requireAdminPage() {
+  const session = await getSession();
+  if (!session) {
+    const { redirect } = await import("next/navigation");
+    redirect("/admin/login/");
+  }
+  return session;
 }

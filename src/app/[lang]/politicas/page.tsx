@@ -1,6 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import { calaConfiguration } from '@/lib/cala/config';
+import { getLodgings } from '@/lib/lodgings.server';
+import { lodgingText } from '@/lib/lodgings';
+export const dynamic='force-dynamic';
 
 import type { Metadata } from 'next';
 
@@ -29,6 +33,7 @@ export default async function PoliticasPage({ params }: { params: Promise<{ lang
   const { lang } = await params;
   const isEn = lang === 'en';
 
+  const catalog=calaConfiguration().ready ? await getLodgings().catch(()=>[]) : null;
   const texts = {
     title: isEn ? 'Policies and Conditions' : 'Políticas y Condiciones',
     back: isEn ? 'Back to home' : 'Volver al inicio',
@@ -72,19 +77,20 @@ export default async function PoliticasPage({ params }: { params: Promise<{ lang
     <main className="min-h-screen bg-[#F9F7F4] text-[#23211F] pt-16 md:pt-32 pb-24 px-6 md:px-16">
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-          <Link href={`/${lang}`} className="inline-flex items-center gap-2 text-[#23211F] hover:text-[#9B7E67] transition-colors uppercase tracking-widest text-sm md:text-base font-bold">
+          <Link href={`/${lang}`} className="tap-zone relative inline-flex items-center gap-2 text-[#23211F] hover:text-[#9B7E67] transition-colors uppercase tracking-widest text-sm md:text-base font-bold">
             <ArrowLeft size={16} /> {texts.back}
           </Link>
           
           <div className="flex items-center gap-4 text-[#23211F] font-bold tracking-widest text-sm md:text-base">
-            <Link href="/es/politicas" className={`transition-colors ${!isEn ? 'text-[#9B7E67] underline underline-offset-4' : 'hover:text-[#9B7E67]'}`}>ES</Link>
+            <Link href="/es/politicas" className={`tap-zone relative transition-colors ${!isEn ? 'text-[#9B7E67] underline underline-offset-4' : 'hover:text-[#9B7E67]'}`}>ES</Link>
             <span>/</span>
-            <Link href="/en/politicas" className={`transition-colors ${isEn ? 'text-[#9B7E67] underline underline-offset-4' : 'hover:text-[#9B7E67]'}`}>EN</Link>
+            <Link href="/en/politicas" className={`tap-zone relative transition-colors ${isEn ? 'text-[#9B7E67] underline underline-offset-4' : 'hover:text-[#9B7E67]'}`}>EN</Link>
           </div>
         </div>
         
         <h1 className="font-serif text-5xl md:text-6xl mb-16 text-[#23211F] leading-tight">{texts.title}</h1>
         
+        {catalog!==null ? <div className="space-y-10">{catalog.map(l=><section key={l.id} className="bg-white p-6 md:p-10"><h2 className="font-serif text-3xl mb-4">{lodgingText(l.name,lang)}</h2><p className="text-gray-500 mb-6">{l.minStay} {isEn?'nights minimum':'noches mínimo'} · {isEn?'Check-in':'Entrada'} {l.checkInTime} / {isEn?'Check-out':'Salida'} {l.checkOutTime}</p><p className="whitespace-pre-line text-[#524D48] font-light leading-relaxed text-lg">{lodgingText(l.policy,lang)}</p></section>)}</div> : <>
         <div className="space-y-12 text-[#524D48] font-light leading-relaxed text-xl md:text-2xl">
           
           <section>
@@ -125,6 +131,7 @@ export default async function PoliticasPage({ params }: { params: Promise<{ lang
             {texts.contact}<strong>kelli9@telus.net</strong>.
           </p>
         </div>
+        </>}
       </div>
     </main>
   );

@@ -1,12 +1,13 @@
+import { revalidatePublicSite } from '@/lib/revalidatePublic';
+import { requireAdmin, requireAdminPage } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import React from 'react';
 import { createCoupon } from '@/lib/stripe';
 import AdminEmailsEditor from './AdminEmailsEditor';
 import SaveSettingsButton from './SaveSettingsButton';
-import bcrypt from 'bcryptjs';
+import {supabaseServerClient} from '@/cala/infrastructure/supabase/server';
 import { getSession } from '@/lib/auth';
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getServiceBlockedDates } from './service-actions';
 import ServiceAvailabilitySection from './ServiceAvailabilitySection';
@@ -14,6 +15,7 @@ import ServiceAvailabilitySection from './ServiceAvailabilitySection';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminSettingsPage() {
+  await requireAdminPage();
   let property: any = null;
   try {
     const fetchProp = prisma.property.findFirst();
@@ -23,16 +25,7 @@ export default async function AdminSettingsPage() {
     console.warn("Failed to fetch settings property from Prisma:", error);
   }
 
-  if (!property) {
-    property = {
-      id: 1,
-      name: 'Casa Caballo Soñador',
-      baseCapacity: 12,
-      basePrice: 1500,
-      adminEmails: 'kelli9@telus.net',
-      whatsappNumber: '+521234567890'
-    };
-  }
+  if(!property)throw new Error('No se pudo cargar la configuración. Revisa la conexión de Supabase.');
 
   const allServiceBlocks = await getServiceBlockedDates();
   const foodBlocks = allServiceBlocks.filter(b => b.serviceType === 'FOOD');
@@ -41,12 +34,13 @@ export default async function AdminSettingsPage() {
   // Server Actions for this page
   async function updateSettings(formData: FormData) {
     'use server';
+    await requireAdmin();
     const basePrice = parseFloat(formData.get('basePrice') as string);
     const baseCapacity = parseInt(formData.get('baseCapacity') as string, 10);
     const adminEmails = formData.get('adminEmails') as string || 'kelli9@telus.net';
     const whatsappNumber = formData.get('whatsappNumber') as string || '';
     
-    if (!isNaN(basePrice) && !isNaN(baseCapacity)) {
+    if (Number.isFinite(basePrice) && basePrice >= 0 && Number.isSafeInteger(baseCapacity) && baseCapacity >= 1) {
       await prisma.property.update({
         where: { id: property!.id },
         data: { 
@@ -57,27 +51,31 @@ export default async function AdminSettingsPage() {
         }
       });
       revalidatePath('/admin/settings');
+      revalidatePublicSite();
     }
   }
 
   async function handleCreateCoupon(formData: FormData) {
     'use server';
+    await requireAdmin();
     const name = formData.get('name') as string;
     const type = formData.get('type') as string;
     const amount = parseFloat(formData.get('amount') as string);
     
-    if (name && !isNaN(amount)) {
+    if (name && Number.isFinite(amount) && amount > 0 && (type !== 'percent' || amount <= 100)) {
       if (type === 'percent') {
         await createCoupon(name, null, amount);
       } else {
         await createCoupon(name, amount, null);
       }
       revalidatePath('/admin/settings');
+      revalidatePublicSite();
     }
   }
 
   async function updateAdminCredentials(formData: FormData) {
     'use server';
+    await requireAdmin();
     const newUsername = formData.get('newUsername') as string;
     const newPassword = formData.get('newPassword') as string;
     
@@ -87,18 +85,10 @@ export default async function AdminSettingsPage() {
         return;
       }
       
-      const hash = await bcrypt.hash(newPassword, 10);
-      
-      await prisma.adminUser.update({
-        where: { id: session.user.id },
-        data: {
-          email: newUsername,
-          passwordHash: hash
-        }
-      });
-      
-      const cookieStore = await cookies();
-      cookieStore.delete('admin_session');
+      const client=await supabaseServerClient();
+      const {error}=await client.auth.updateUser({email:newUsername,password:newPassword});
+      if(error)throw new Error('No se pudo actualizar el acceso. Reautentícate y revisa la política de Supabase.');
+      await client.auth.signOut();
       redirect('/admin/login');
     }
   }
@@ -182,9 +172,9 @@ export default async function AdminSettingsPage() {
               </div>
             </div>
             <button type="submit" className="w-full sm:w-auto bg-[#9c2b2b] hover:bg-[#7a2222] text-white font-bold text-xs tracking-widest uppercase py-3 px-8 rounded-xl transition-all duration-300 mt-2">
-              UPDATE CREDENTIALS & LOGOUT
+              ACTUALIZAR ACCESO DE SUPABASE
             </button>
-            <p className="text-xs md:text-[10px] text-gray-400 mt-2">You will be logged out immediately upon updating these credentials.</p>
+            <p className="text-xs md:text-[10px] text-gray-400 mt-2">Supabase puede pedir confirmación del nuevo correo. Deberás iniciar sesión de nuevo.</p>
           </form>
         </div>
       </div>

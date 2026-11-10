@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogoCompleto } from './LogoCompleto';
 import dynamic from 'next/dynamic';
 
 const FluidHorseAnimation = dynamic(() => import('../FluidHorseAnimation'), {
@@ -14,13 +13,14 @@ export function LoadingScreen() {
   useEffect(() => {
     const minDuration = 1500; // Garantizar al menos 1.5s para apreciar la animación
     const startTime = Date.now();
+    let timeout: ReturnType<typeof setTimeout> | undefined;
 
     const handleLoad = () => {
       const elapsed = Date.now() - startTime;
       const remaining = minDuration - elapsed;
 
       if (remaining > 0) {
-        setTimeout(() => setIsLoading(false), remaining);
+        timeout = setTimeout(() => setIsLoading(false), remaining);
       } else {
         setIsLoading(false);
       }
@@ -30,8 +30,12 @@ export function LoadingScreen() {
       handleLoad();
     } else {
       window.addEventListener('load', handleLoad);
-      return () => window.removeEventListener('load', handleLoad);
+
     }
+    return () => {
+      window.removeEventListener('load', handleLoad);
+      if (timeout) clearTimeout(timeout);
+    };
   }, []);
 
   return (
@@ -39,6 +43,7 @@ export function LoadingScreen() {
       {isLoading && (
         <motion.div
           key="loading-screen"
+          data-loading-screen
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1.5, ease: "easeInOut" }}

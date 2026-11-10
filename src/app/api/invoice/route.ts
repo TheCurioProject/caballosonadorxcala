@@ -1,3 +1,4 @@
+import { getSession } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import { renderToStream } from '@react-pdf/renderer';
 import prisma from '@/lib/prisma';
@@ -9,6 +10,10 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const bookingIdStr = searchParams.get('bookingId');
 
@@ -31,15 +36,14 @@ export async function GET(request: Request) {
       guestName: booking.guestName,
       guestEmail: booking.guestEmail,
       roomName: booking.property.name,
-      checkIn: booking.checkIn.toLocaleDateString(),
-      checkOut: booking.checkOut.toLocaleDateString(),
+      checkIn: booking.checkIn.toLocaleDateString('es-MX', { timeZone: 'UTC' }),
+      checkOut: booking.checkOut.toLocaleDateString('es-MX', { timeZone: 'UTC' }),
       totalPrice: booking.totalPrice,
       date: new Date().toLocaleDateString(),
     };
 
     // Renderizamos el componente de React PDF a un Node.js Stream
-    // @ts-ignore
-    const stream = await renderToStream(React.createElement(InvoiceDocument, { data }));
+    const stream = await renderToStream(React.createElement(InvoiceDocument, { data }) as unknown as Parameters<typeof renderToStream>[0]);
 
     // Convertimos el Readable Stream de Node a Web ReadableStream para NextResponse
     const webStream = new ReadableStream({

@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { getDictionary } from '@/i18n/dictionaries';
 
@@ -7,7 +8,8 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: 'es' | 'en' }> }): Promise<Metadata> {
   const { lang } = await params;
-  const safeLang = lang || 'es';
+  if (lang !== 'es' && lang !== 'en') notFound();
+  const safeLang = lang;
   const dict = await getDictionary(safeLang);
   
   const siteUrl = 'https://casadelcaballosonador.com';
@@ -17,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: 'es
     : 'boutique hotel Chacala Nayarit, Casa Caballo Sonador, luxury villa rental Mexico, Pacific coast retreat, exclusive accommodation Riviera Nayarit, private hotel Chacala, Nayarit nature lodge';
 
   return {
-    title: `Casa Caballo Soñador | ${dict.hero.reserve}`,
+    title: { absolute: `Casa Caballo Soñador | ${dict.hero.reserve}` },
     description: dict.about.p1,
     keywords,
     alternates: {
@@ -112,7 +114,8 @@ export default async function LangLayout({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
-  const safeLang = (lang as 'es' | 'en') || 'es';
+  if (lang !== 'es' && lang !== 'en') notFound();
+  const safeLang = lang;
   const dict = await getDictionary(safeLang);
 
   return (

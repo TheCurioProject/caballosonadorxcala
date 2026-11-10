@@ -13,7 +13,7 @@ interface RoomModalProps {
 }
 
 export const RoomModal = ({ room, onClose }: RoomModalProps) => {
-  const { openBookingModal } = useBooking();
+  const { openLodgingBooking } = useBooking();
   const [activeTab, setActiveTab] = useState<'suite' | 'cocina'>('suite');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -198,8 +198,9 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
 
                       <div className="pt-6 border-t border-[#E5E0D8] flex flex-col gap-4">
                         {!isCocina && room.price !== undefined && (
-                          <span className="font-serif italic text-2xl text-[#23211F]">{room.price === 0 ? '' : room.price}</span>
+                          <span className="font-serif italic text-2xl text-[#23211F]">{room.price === 0 ? '' : typeof room.price==='number' ? new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(room.price)+' MXN / noche' : room.price}</span>
                         )}
+                        {room.lodgingId&&!isCocina&&<button className="bg-[#23211F] text-white rounded-full px-7 py-4 text-sm uppercase tracking-widest font-semibold" onClick={()=>{onClose();openLodgingBooking(room.lodgingId);}}>{dict.nav?.rooms==='Rooms'?'Book this room':'Reservar esta habitación'}</button>}
                       </div>
                     </div>
                   </div>

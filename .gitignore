@@ -47,6 +47,9 @@ next-env.d.ts
 dev.db
 *.db
 
+# Private booking migration backups and receipts
+/.smoobu-migration/
+
 # archives & large files
 *.zip
 *.MOV
@@ -75,3 +78,8 @@ test-*.tsx
 test-*.html
 casa_del_caballo_so_ador.tsx.txt
 
+
+/src/generated/site-postgres/
+/.supabase-migration/
+/test-results/
+/playwright-report/

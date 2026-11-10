@@ -1,0 +1,1017 @@
+/* Dedicated mobile composition. Desktop selectors and layouts remain in globals.css. */
+.cala-mobile-shell {
+  --m-nav-height: 74px;
+  min-height: 100dvh;
+  background: var(--bg);
+  padding-top: env(safe-area-inset-top);
+}
+.cala-mobile-shell .m-app-header {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px max(16px, env(safe-area-inset-right)) 8px
+    max(16px, env(safe-area-inset-left));
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+.cala-mobile-shell .m-app-header > .row {
+  gap: 1px;
+  flex-shrink: 0;
+}
+.m-property-trigger {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  padding: 4px 0;
+  text-align: left;
+  min-height: 48px;
+}
+.m-property-trigger > span:nth-child(2) {
+  min-width: 0;
+}
+.m-property-trigger small,
+.m-property-trigger strong {
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 142px;
+}
+.m-property-trigger strong {
+  font-size: calc(13px * var(--cala-fs, 1));
+  margin-top: 3px;
+}
+.m-property-trigger small {
+  font-size: calc(10px * var(--cala-fs-dense, 1));
+  color: var(--muted);
+}
+.m-brand-dot {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: var(--cala-shell);
+}
+.m-round-button {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border: 0;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--text);
+  text-decoration: none;
+}
+.m-round-button:hover {
+  background: var(--subtle);
+}
+.cala-mobile-shell .m-app-main {
+  padding: 24px max(16px, env(safe-area-inset-right))
+    calc(32px + var(--m-nav-height) + env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+  max-width: 900px;
+  margin: auto;
+  outline: none;
+  min-width: 0;
+}
+.m-tab-bar {
+  display: grid;
+  position: fixed;
+  bottom: 0;
+  inset-inline: 0;
+  z-index: 45;
+  padding: 7px max(8px, env(safe-area-inset-right))
+    calc(7px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  min-height: var(--m-nav-height);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  gap: 4px;
+}
+.m-tab-bar a,
+.m-tab-bar button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 0;
+  border-radius: 14px;
+  min-width: 0;
+  min-height: 54px;
+  background: transparent;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: calc(10px * var(--cala-fs-dense, 1));
+  font-weight: 550;
+}
+.m-tab-bar .active {
+  background: var(--accent-soft);
+  color: var(--text);
+  font-weight: 750;
+}
+.cala-mobile-shell[data-keyboard-open="true"] .m-tab-bar {
+  display: none;
+}
+.cala-mobile-shell[data-keyboard-open="true"] .m-app-main {
+  padding-bottom: 20px;
+}
+.cala-mobile-shell ~ .toast {
+  bottom: calc(90px + env(safe-area-inset-bottom));
+  left: 14px;
+  right: 14px;
+  font-size: calc(12px * var(--cala-fs, 1));
+  max-width: none;
+}
+.cala-mobile-shell .dialog {
+  margin: auto 0 0;
+  width: 100%;
+  max-width: none;
+  max-height: 96dvh;
+  border-radius: 24px 24px 0 0;
+  padding: 24px max(20px, env(safe-area-inset-right))
+    calc(24px + env(safe-area-inset-bottom))
+    max(20px, env(safe-area-inset-left));
+  overscroll-behavior: contain;
+}
+.cala-mobile-shell .dialog-scroll {
+  max-height: calc(93dvh - 36px - env(safe-area-inset-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.cala-mobile-shell .dialog-head h2 {
+  font-size: calc(25px * var(--cala-fs, 1));
+}
+.cala-mobile-shell .field input,
+.cala-mobile-shell .field select,
+.cala-mobile-shell .field textarea {
+  font-size: calc(16px * var(--cala-fs, 1));
+  min-height: 48px;
+}
+.cala-mobile-shell .button {
+  min-height: 46px;
+  border-radius: 13px;
+  font-size: calc(12px * var(--cala-fs, 1));
+}
+.cala-mobile-shell .section-title {
+  flex-direction: column;
+  align-items: start;
+  gap: 17px;
+}
+.cala-mobile-shell .section-title h1 {
+  font-size: calc(30px * var(--cala-fs, 1));
+  letter-spacing: -1.3px;
+}
+.cala-mobile-shell .section-actions {
+  flex-wrap: wrap;
+  gap: 9px;
+}
+.cala-mobile-shell .table-wrap {
+  max-width: 100%;
+  overflow: auto;
+}
+.cala-mobile-shell .panel {
+  min-width: 0;
+}
+.cala-mobile-shell .inbox {
+  margin-top: 16px;
+  border-radius: 20px;
+}
+.m-inbox-top .m-screen-heading {
+  align-items: center;
+  margin-bottom: 12px;
+}
+.m-inbox-top .m-screen-heading h1 {
+  margin: 0;
+}
+.m-inbox-top[data-conversation-open="true"] {
+  display: none;
+}
+.cala-mobile-shell .inbox.has-conversation {
+  margin-top: 0;
+}
+.m-inbox-status {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--subtle);
+  padding: 12px 14px;
+  color: var(--text);
+  font-size: calc(12px * var(--cala-fs, 1));
+  line-height: 1.6;
+}
+.m-inbox-status summary {
+  cursor: pointer;
+  min-height: 24px;
+}
+.m-inbox-status p {
+  margin: 10px 0 0;
+}
+.cala-mobile-shell .message-timeline {
+  max-height: 52dvh;
+}
+.cala-mobile-shell .inbox-conversation-header .button {
+  min-height: 42px;
+}
+.cala-mobile-shell .message-composer {
+  padding: 16px;
+}
+.cala-mobile-shell .message-composer textarea {
+  min-height: 120px;
+}
+.m-screen-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.m-screen-heading h1 {
+  font-size: calc(34px * var(--cala-fs, 1));
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+  margin: 8px 0 9px;
+}
+.m-screen-heading .eyebrow {
+  font-size: calc(9px * var(--cala-fs-dense, 1));
+  letter-spacing: 1.7px;
+}
+.m-screen-heading p:not(.eyebrow) {
+  margin: 0;
+  color: var(--muted);
+  font-size: calc(12px * var(--cala-fs, 1));
+  line-height: 1.6;
+}
+.m-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 26px 0 15px;
+}
+.m-section-title h2,
+.m-section-label {
+  font-size: calc(19px * var(--cala-fs, 1));
+  letter-spacing: -0.6px;
+  margin: 22px 0 15px;
+}
+.m-section-title h2 {
+  margin: 0;
+}
+.m-section-title a {
+  display: flex;
+  align-items: center;
+  color: var(--text);
+  text-decoration: none;
+  font-size: calc(11px * var(--cala-fs, 1));
+}
+.m-segmented {
+  display: flex;
+  background: var(--subtle);
+  padding: 5px;
+  border-radius: 15px;
+  gap: 3px;
+  margin: 16px 0;
+}
+.m-segmented button {
+  flex: 1;
+  border: 0;
+  min-height: 44px;
+  padding: 9px 4px;
+  background: transparent;
+  color: var(--muted);
+  border-radius: 11px;
+  font-size: calc(11px * var(--cala-fs, 1));
+  font-weight: 600;
+}
+.m-segmented button.active {
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+  color: var(--text);
+}
+.m-today-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.m-today-summary button {
+  padding: 19px 8px;
+  border: 1px solid var(--border);
+  border-radius: 19px;
+  background: var(--surface);
+  color: var(--text);
+  text-align: left;
+}
+.m-today-summary strong {
+  display: block;
+  font-size: calc(31px * var(--cala-fs, 1));
+  letter-spacing: -1px;
+  padding: 0 7px;
+}
+.m-today-summary span {
+  display: block;
+  font-size: calc(11px * var(--cala-fs, 1));
+  color: var(--muted);
+  margin-top: 7px;
+  padding: 0 7px;
+}
+.m-primary-action {
+  width: 100%;
+  margin-top: 15px;
+  justify-content: center;
+}
+.m-welcome-card {
+  padding: 27px 22px;
+  border: 1px solid var(--border);
+  border-radius: 23px;
+  background: var(--surface);
+}
+.m-welcome-card h2 {
+  font-size: calc(24px * var(--cala-fs, 1));
+  letter-spacing: -0.7px;
+  line-height: 1.2;
+}
+.m-welcome-card p {
+  color: var(--muted);
+  font-size: calc(13px * var(--cala-fs, 1));
+  line-height: 1.7;
+  margin-bottom: 22px;
+}
+.m-stay-list {
+  display: grid;
+  gap: 12px;
+}
+.m-stay-card {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.m-stay-open {
+  padding: 18px 15px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  text-align: left;
+}
+.m-stay-open > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.m-stay-open strong {
+  display: block;
+  font-size: calc(15px * var(--cala-fs, 1));
+  line-height: 1.3;
+}
+.m-stay-open small {
+  display: block;
+  margin-top: 6px;
+  font-size: calc(11px * var(--cala-fs, 1));
+  color: var(--muted);
+  line-height: 1.5;
+}
+.m-state-mark {
+  width: 5px;
+  min-height: 44px;
+  border-radius: 5px;
+  background: var(--accent-border);
+  flex-shrink: 0;
+}
+.m-state-mark.checked_in {
+  background: var(--accent);
+}
+.m-state-mark.pending {
+  background: var(--cala-clay);
+}
+.m-state-mark.cancelled,
+.m-state-mark.no_show {
+  background: var(--error);
+}
+.m-stay-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding: 8px 14px;
+  color: var(--muted);
+  font-size: calc(10px * var(--cala-fs-dense, 1));
+}
+.m-stay-footer button {
+  min-height: 36px;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--text);
+  font-size: calc(11px * var(--cala-fs, 1));
+}
+.m-attention-list {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 19px;
+  overflow: hidden;
+}
+.m-attention-list a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 17px;
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+}
+.m-attention-list a:last-child {
+  border-bottom: 0;
+}
+.m-attention-list a > span:nth-child(2) {
+  flex: 1;
+}
+.m-attention-list strong {
+  display: block;
+  font-size: calc(13px * var(--cala-fs, 1));
+}
+.m-attention-list small {
+  display: block;
+  color: var(--muted);
+  font-size: calc(10px * var(--cala-fs-dense, 1));
+  line-height: 1.6;
+  margin-top: 5px;
+}
+.m-finance-summary {
+  padding: 22px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  border-radius: 20px;
+  margin-top: 22px;
+}
+.m-finance-summary > span {
+  display: block;
+  font-size: calc(11px * var(--cala-fs, 1));
+}
+.m-finance-summary > strong {
+  display: block;
+  font-size: calc(31px * var(--cala-fs, 1));
+  letter-spacing: -1px;
+  margin: 10px 0;
+  overflow-wrap: anywhere;
+}
+.m-finance-summary > a {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--text);
+  font-size: calc(12px * var(--cala-fs, 1));
+}
+.m-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  padding: 5px 8px 5px 14px;
+  background: var(--surface);
+}
+.m-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  min-height: 44px;
+  font-size: calc(15px * var(--cala-fs, 1));
+  background: transparent;
+  color: var(--text);
+}
+.m-filter-pills {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 17px 0 5px;
+}
+.m-filter-pills button {
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 9px 15px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  background: var(--surface);
+  font-size: calc(12px * var(--cala-fs, 1));
+}
+.m-filter-pills button.active {
+  color: var(--text);
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+}
+.m-result-count,
+.m-empty-note {
+  color: var(--muted);
+  font-size: calc(12px * var(--cala-fs, 1));
+  line-height: 1.6;
+  margin: 15px 0;
+}
+.m-date-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 16px -4px;
+}
+.m-date-toolbar input {
+  min-width: 0;
+  width: 100%;
+  font-size: calc(15px * var(--cala-fs, 1));
+  min-height: 46px;
+  padding: 8px;
+}
+.m-date-toolbar .button {
+  padding: 10px 14px;
+}
+.m-calendar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.m-calendar-actions select {
+  min-width: 80px;
+  min-height: 46px;
+  font-size: calc(12px * var(--cala-fs, 1));
+  padding: 8px;
+}
+.m-calendar-actions .button {
+  flex: 1;
+  justify-content: center;
+  white-space: nowrap;
+  padding: 10px 12px;
+}
+.m-filter-reset {
+  display: block;
+  margin: 0 0 16px;
+  padding: 9px 12px;
+  border: 1px solid var(--accent-border);
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--text);
+  font-size: calc(12px * var(--cala-fs, 1));
+  min-height: 44px;
+}
+.m-timeline-scroll {
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+}
+.m-room-row {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  min-height: 76px;
+  border-bottom: 1px solid var(--border);
+}
+.m-room-row:last-child {
+  border-bottom: 0;
+}
+.m-room-label {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 12px 10px;
+  gap: 6px;
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+}
+.m-room-label strong {
+  font-size: calc(12px * var(--cala-fs, 1));
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.m-room-label small {
+  color: var(--muted);
+  font-size: calc(9px * var(--cala-fs-dense, 1));
+  line-height: 1.3;
+}
+.m-room-days {
+  display: grid;
+  min-width: 0;
+  align-items: center;
+  position: relative;
+}
+.m-room-header {
+  min-height: 68px;
+}
+.m-room-header .m-room-label {
+  font-size: calc(10px * var(--cala-fs-dense, 1));
+}
+.m-room-header .m-room-days > button {
+  height: 100%;
+  border: 0;
+  border-right: 1px solid var(--border);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 3px;
+  color: var(--text);
+}
+.m-room-header .m-room-days > button.today {
+  background: var(--accent-soft);
+}
+.m-room-header small {
+  font-size: calc(9px * var(--cala-fs-dense, 1));
+}
+.m-room-header strong {
+  font-size: calc(18px * var(--cala-fs, 1));
+}
+.m-room-cell {
+  height: 100%;
+  width: 100%;
+  border: 0;
+  border-right: 1px solid var(--border);
+  color: var(--muted);
+  background: transparent;
+  display: grid;
+  place-items: center;
+}
+.m-room-cell > span {
+  opacity: 0.55;
+}
+.m-room-cell.blocked {
+  background: repeating-linear-gradient(
+    135deg,
+    transparent,
+    transparent 5px,
+    var(--subtle) 5px,
+    var(--subtle) 7px
+  );
+}
+.m-room-stay {
+  margin: 0 2px;
+  z-index: 2;
+  border: 1px solid var(--accent-border);
+  background: var(--accent-soft);
+  color: var(--text);
+  border-radius: 11px;
+  min-width: 0;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.m-room-stay.checked_in {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.m-room-stay.pending {
+  background: var(--warning-bg);
+  border-color: var(--warning-border);
+}
+.m-room-stay.checked_out {
+  background: var(--subtle);
+}
+.m-room-stay-open {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 7px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  overflow: hidden;
+}
+.m-room-stay-open strong,
+.m-room-stay-open small {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.m-room-stay-open strong {
+  font-size: calc(11px * var(--cala-fs, 1));
+}
+.m-room-stay-open small {
+  font-size: calc(9px * var(--cala-fs-dense, 1));
+  margin-top: 5px;
+}
+.m-room-drag {
+  min-width: 44px;
+  width: 44px;
+  height: 48px;
+  flex-shrink: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  font-size: calc(25px * var(--cala-fs, 1));
+  touch-action: none;
+}
+.m-room-days.destination-valid {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.m-room-days.destination-invalid {
+  outline: 2px solid var(--error);
+  outline-offset: -2px;
+}
+.m-calendar-hint {
+  color: var(--muted);
+  font-size: calc(11px * var(--cala-fs, 1));
+  line-height: 1.7;
+  margin: 13px 3px 24px;
+}
+.m-week-strip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+}
+.m-week-strip button {
+  min-height: 64px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 8px 2px;
+}
+.m-week-strip button.active {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}
+.m-week-strip strong,
+.m-week-strip small {
+  display: block;
+}
+.m-week-strip strong {
+  font-size: calc(19px * var(--cala-fs, 1));
+  margin-top: 6px;
+}
+.m-week-strip small {
+  font-size: calc(9px * var(--cala-fs-dense, 1));
+}
+.m-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  padding: 15px 8px;
+  border: 1px solid var(--border);
+  border-radius: 19px;
+  background: var(--surface);
+}
+.m-month-grid > span {
+  text-align: center;
+  font-size: calc(11px * var(--cala-fs, 1));
+  color: var(--muted);
+  padding: 8px 0;
+}
+.m-month-grid button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 57px;
+  min-width: 0;
+  padding: 6px 1px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--text);
+}
+.m-month-grid button strong {
+  font-size: calc(16px * var(--cala-fs, 1));
+}
+.m-month-grid button small {
+  font-size: calc(8px * var(--cala-fs-dense, 1));
+}
+.m-month-grid button.today {
+  border-color: var(--accent-border);
+}
+.m-month-grid button.selected {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.m-month-grid button.outside:not(.selected) {
+  color: var(--muted);
+}
+.m-connection-banner {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--warning-bg);
+  color: var(--warning);
+  border-bottom: 1px solid var(--warning-border);
+}
+.m-connection-banner > span:nth-child(2) {
+  flex: 1;
+}
+.m-connection-banner strong,
+.m-connection-banner small {
+  display: block;
+}
+.m-connection-banner strong {
+  font-size: calc(12px * var(--cala-fs, 1));
+}
+.m-connection-banner small {
+  font-size: calc(10px * var(--cala-fs-dense, 1));
+  line-height: 1.6;
+  margin-top: 3px;
+}
+.m-connection-banner button {
+  min-height: 40px;
+  border: 1px solid var(--warning-border);
+  border-radius: 10px;
+  color: var(--warning);
+  background: var(--surface);
+  font-size: calc(11px * var(--cala-fs, 1));
+  padding: 7px;
+}
+.m-more-account {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 20px;
+}
+.m-more-account > div {
+  flex: 1;
+}
+.m-more-account strong,
+.m-more-account small {
+  display: block;
+}
+.m-more-account small {
+  font-size: calc(11px * var(--cala-fs, 1));
+  color: var(--muted);
+  margin-top: 6px;
+}
+.m-tools-group {
+  margin: 25px 0;
+}
+.m-tools-group h3 {
+  font-size: calc(10px * var(--cala-fs-dense, 1));
+  letter-spacing: 1.4px;
+  color: var(--muted);
+  margin-bottom: 13px;
+}
+.m-tools-grid {
+  display: grid;
+  gap: 8px;
+}
+.m-tools-grid a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--text);
+  min-height: 62px;
+  padding: 10px 13px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: var(--surface);
+}
+.m-tools-grid a strong {
+  flex: 1;
+  font-size: calc(13px * var(--cala-fs, 1));
+}
+.m-tools-grid a[aria-current="page"] {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+}
+.m-tool-icon {
+  display: grid;
+  place-items: center;
+  width: 37px;
+  height: 37px;
+  border-radius: 11px;
+  background: var(--subtle);
+  flex-shrink: 0;
+}
+.mobile-install-card {
+  display: flex;
+  align-items: start;
+  gap: 14px;
+  border: 1px solid var(--accent-border);
+  border-radius: 18px;
+  padding: 20px;
+  background: var(--accent-soft);
+  margin: 20px 0;
+}
+.mobile-install-card strong {
+  font-size: calc(15px * var(--cala-fs, 1));
+}
+.mobile-install-card p {
+  font-size: calc(11px * var(--cala-fs, 1));
+  line-height: 1.7;
+  margin: 8px 0 13px;
+}
+.mobile-install-card .row {
+  flex-wrap: wrap;
+}
+.m-account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.m-account-actions .button {
+  flex: 1;
+}
+.m-property-list {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0;
+}
+.m-property-list button {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  text-align: left;
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text);
+}
+.m-property-list button[aria-pressed="true"] {
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+}
+.m-property-list button > span:nth-child(2) {
+  flex: 1;
+}
+.m-property-list strong,
+.m-property-list small {
+  display: block;
+}
+.m-property-list small {
+  color: var(--muted);
+  font-size: calc(11px * var(--cala-fs, 1));
+  margin-top: 6px;
+}
+.m-help-actions {
+  display: grid;
+  gap: 13px;
+  margin-top: 15px;
+}
+.m-help-actions button {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 18px;
+  border-radius: 16px;
+  text-align: left;
+  color: var(--text);
+}
+.m-help-actions button strong,
+.m-help-actions button small {
+  display: block;
+}
+.m-help-actions button small {
+  color: var(--muted);
+  margin-top: 6px;
+  font-size: calc(11px * var(--cala-fs, 1));
+  line-height: 1.5;
+}
+@media (max-width: 360px) {
+  .m-property-trigger strong,
+  .m-property-trigger small {
+    max-width: 100px;
+  }
+  .m-app-header .m-round-button {
+    width: 40px;
+    min-width: 40px;
+  }
+  .m-screen-heading h1 {
+    font-size: calc(30px * var(--cala-fs, 1));
+  }
+}
+@media (min-width: 600px) {
+  .m-tools-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

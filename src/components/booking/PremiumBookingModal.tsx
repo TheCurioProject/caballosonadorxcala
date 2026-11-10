@@ -5,9 +5,10 @@ import { motion, AnimatePresence, useMotionValue, useTransform, useDragControls 
 import { X, CalendarDays, ArrowRight, Check, ChefHat, CreditCard, User, Map, Utensils, Minus, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 import { ActionLoadingScreen } from '../ui/ActionLoadingScreen';
 import { DayPicker, DateRange } from 'react-day-picker';
-import 'react-day-picker/style.css';
 import dynamic from 'next/dynamic';
 import { CountryCodeDropdown } from './CountryCodeDropdown';
+import { LodgingSelection, type BookingLodging } from './LodgingSelection';
+import { lodgingText } from '@/lib/lodgings';
 
 const FluidHorseAnimation = dynamic(() => import('../FluidHorseAnimation'), {
   ssr: false,
@@ -38,10 +39,11 @@ const ConfettiParticle = ({ delay, index }: { delay: number; index: number }) =>
   const w = typeof window !== 'undefined' ? window.innerWidth : 1000;
   const h = typeof window !== 'undefined' ? window.innerHeight : 800;
   
-  const x = (Math.random() - 0.5) * w;
-  const y = -(Math.random() * (h / 2) + 100);
-  const rotate = Math.random() * 720 - 360;
-  const size = Math.random() * 8 + 6;
+  const random = (offset: number) => { const value = Math.sin((index + 1) * 127.1 + offset * 311.7) * 43758.5453; return value - Math.floor(value); };
+  const x = (random(0) - 0.5) * w;
+  const y = -(random(1) * (h / 2) + 100);
+  const rotate = random(2) * 720 - 360;
+  const size = random(3) * 8 + 6;
 
   return (
     <motion.div
@@ -53,7 +55,7 @@ const ConfettiParticle = ({ delay, index }: { delay: number; index: number }) =>
         width: size,
         height: size * 1.5,
         backgroundColor: color,
-        borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+        borderRadius: random(4) > 0.5 ? '50%' : '2px',
         transform: 'translate(-50%, -50%)',
       }}
     />
@@ -128,6 +130,8 @@ const PremiumInput = ({
         <input
           type={type}
           id={id}
+          aria-label={label}
+          autoComplete={type === 'email' ? 'email' : type === 'tel' ? 'tel-national' : id === 'name' ? 'name' : undefined}
           required
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -183,8 +187,10 @@ const PremiumInput = ({
 };
 
 /* ─── Step Progress Indicator ─── */
-const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; totalSteps: number }) => (
-  <div className="flex items-center justify-between w-full gap-1 md:gap-2 mb-6 md:mb-8">
+const StepIndicator = ({ currentStep, totalSteps, label='Paso' }: { currentStep: number; totalSteps: number; label?:string }) => (
+  <div className="w-full mb-6 md:mb-8" role="progressbar" aria-label={label} aria-valuemin={1} aria-valuemax={totalSteps} aria-valuenow={currentStep}>
+  <div className="sm:hidden"><p className="text-xs text-gray-500 mb-3">{label} {currentStep} / {totalSteps}</p><div className="h-1 rounded-full bg-gray-200 overflow-hidden"><motion.div className="h-full bg-[#9B7E67]" animate={{width:`${currentStep/totalSteps*100}%`}}/></div></div>
+  <div className="hidden sm:flex items-center justify-between w-full gap-1" aria-hidden="true">
     {Array.from({ length: totalSteps }, (_, i) => i + 1).map((step) => (
       <React.Fragment key={step}>
         <motion.div
@@ -195,7 +201,7 @@ const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; total
           transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         >
           <motion.div
-            className="w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] md:text-[11px] font-bold relative overflow-hidden shrink-0"
+            className="w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center text-[10px] md:text-[11px] font-bold relative overflow-hidden shrink-0"
             animate={{
               backgroundColor: currentStep >= step ? '#23211F' : '#E5E7EB',
               color: currentStep >= step ? '#F9F7F4' : '#9CA3AF',
@@ -238,7 +244,7 @@ const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; total
         </motion.div>
         {step < totalSteps && (
           <motion.div
-            className="h-[2px] flex-1 min-w-[8px] max-w-full rounded-full overflow-hidden bg-gray-200"
+            className="h-[2px] flex-1 min-w-0 max-w-full rounded-full overflow-hidden bg-gray-200"
           >
             <motion.div
               className="h-full bg-[#23211F] rounded-full"
@@ -250,6 +256,7 @@ const StepIndicator = ({ currentStep, totalSteps }: { currentStep: number; total
         )}
       </React.Fragment>
     ))}
+  </div>
   </div>
 );
 
@@ -334,7 +341,12 @@ const AnimatedDayButton = (props: any) => {
 };
 
 /* ─── Main Modal ─── */
-export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
+  isOpen: boolean;
+  onClose: () => void;
+  smoobuOpenVersion?: number;
+  initialLodgingId?: string;
+}) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const dragControls = useDragControls();
   const dictContext = useDictionary();
@@ -345,7 +357,17 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const isEn = currentLangCode === 'en';
   const localeObj = currentLangCode === 'en' ? enUS : currentLangCode === 'de' ? de : es;
 
-  const [step, setStep] = useState<string>('dates');
+  const [step, setStep] = useState<string>('stay_type');
+  const [catalog, setCatalog] = useState<BookingLodging[]>([]);
+  const [catalogLoading, setCatalogLoading] = useState(false);
+  const [catalogError, setCatalogError] = useState('');
+  const [stayMode, setStayMode] = useState<'whole_home'|'room'>('whole_home');
+  const [lodgingId, setLodgingId] = useState(initialLodgingId || '');
+  const selectedLodging = catalog.find(l => l.id === lodgingId);
+  const [adults, setAdults] = useState(2), [children, setChildren] = useState(0);
+  const [availabilityFor, setAvailabilityFor] = useState('');
+  const lodgingMinStay = selectedLodging?.minStay || 2;
+  const modalRef = React.useRef<HTMLDivElement>(null);
   const [range, setRange] = useState<DateRange | undefined>(undefined);
   const [disabledRanges, setDisabledRanges] = useState<{from: Date, to: Date}[]>([]);
   const [bookedRanges, setBookedRanges] = useState<{from: Date, to: Date}[]>([]);
@@ -355,7 +377,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const [tourBlockedRanges, setTourBlockedRanges] = useState<DateRange[]>([]);
   const [tourBookedDates, setTourBookedDates] = useState<string[]>([]);
   const [propertySettings, setPropertySettings] = useState<any>(null);
-  const [pricingRules, setPricingRules] = useState<any[]>([]);
+  // Per-night rates & restrictions from CALA (rates grid), keyed by yyyy-MM-dd.
+  const [rateRules, setRateRules] = useState<Record<string, {closed?: boolean; minStay?: number; maxStay?: number; cta?: boolean; ctd?: boolean}>>({});
+  const [availabilityReady,setAvailabilityReady]=useState(false);
+  const [availabilityError,setAvailabilityError]=useState('');
+  const [quote,setQuote]=useState<{key:string;total:number}|null>(null);
+  const [quoteError,setQuoteError]=useState('');
   
   // Form Data
   const [guestName, setGuestName] = useState('');
@@ -489,76 +516,82 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     }).catch(console.error);
   }, []);
 
-  // Fetch blocked dates on open
   useEffect(() => {
-    if (isOpen) {
-      fetch('/api/availability')
-        .then(res => res.json())
-        .then(data => {
-          const parseLocalDate = (dateString: string) => {
-            if (!dateString) return new Date();
-            const [year, month, day] = dateString.split('T')[0].split('-').map(Number);
-            return new Date(year, month - 1, day);
-          };
+    if (!isOpen) return;
+    const controller = new AbortController(); setCatalogLoading(true); setCatalogError('');
+    fetch('/api/lodgings/', {cache:'no-store', signal:controller.signal})
+      .then(async response => {const data=await response.json(); if(!response.ok || !Array.isArray(data.lodgings) || !data.lodgings.length) throw new Error(data.error || 'No hay alojamientos disponibles para reservar.'); return data.lodgings as BookingLodging[];})
+      .then(data => {
+        if(controller.signal.aborted)return;setCatalog(data);
+        const initial=data.find(l=>l.id===initialLodgingId);
+        if(initial){setLodgingId(initial.id);setStayMode(initial.kind);setAdults(Math.min(2,initial.capacity));setStep('dates');}
+      })
+      .catch(reason=>{if(!controller.signal.aborted)setCatalogError(reason.message);})
+      .finally(()=>{if(!controller.signal.aborted)setCatalogLoading(false);});
+    return ()=>controller.abort();
+  },[isOpen,initialLodgingId]);
 
-          if (data.disabledRanges) {
-            setDisabledRanges(data.disabledRanges.map((r: any) => ({ from: parseLocalDate(r.from), to: parseLocalDate(r.to) })));
-          }
-          if (data.bookedRanges) {
-            setBookedRanges(data.bookedRanges.map((r: any) => ({ from: parseLocalDate(r.from), to: parseLocalDate(r.to) })));
-          }
-          setBufferRanges(data.bufferRanges ? data.bufferRanges.map((r: any) => ({ from: parseLocalDate(r.from), to: parseLocalDate(r.to) })) : []);
-          setBlockedRanges(data.blockedRanges ? data.blockedRanges.map((r: any) => ({ from: parseLocalDate(r.from), to: parseLocalDate(r.to) })) : []);
-          if (data.foodBlockedRanges) {
-            setFoodBlockedRanges(data.foodBlockedRanges.map((r: any) => ({ from: parseLocalDate(r.from), to: parseLocalDate(r.to) })));
-          }
-          if (data.tourBlockedRanges) {
-            setTourBlockedRanges(data.tourBlockedRanges.map((r: any) => ({ from: parseLocalDate(r.from), to: parseLocalDate(r.to) })));
-          }
-          setTourBookedDates(data.tourBookedDates || []);
-          if (data.propertySettings) {
-            setPropertySettings(data.propertySettings);
-          }
-          if (data.pricingRules) {
-            setPricingRules(data.pricingRules);
-          }
-        })
-        .catch(console.error);
-    } else {
-      setTimeout(() => {
-        setStep('dates');
-        setRange(undefined);
-        setGuestName('');
-        setGuestEmail('');
-        setGuestPhone('');
-        setWantsCook(null);
-        setSelectedCookService(null);
-        setExpandedDishId(null);
-        setPlanByDate({});
-        setSelectedDateForPlan('');
-        setSelectedDishes([]);
-        setWantsATV(null);
-        setAtvPeople(minTourPax);
-        setAtvByDate({});
-        setHasSelectedAtvPeople(false);
-        setPlanByDate({});
-        setDishesByDate({});
-        setSelectedDateForAtv('');
-        setError(null);
-        setIsSuccess(false);
-        setShowConfetti(false);
-      }, 500);
+  useEffect(() => {
+    if(!isOpen || !lodgingId)return;
+    const controller=new AbortController();setAvailabilityReady(false);setAvailabilityError('');setQuote(null);
+    fetch('/api/availability/?'+new URLSearchParams({lodgingId}),{cache:'no-store',signal:controller.signal})
+      .then(async response=>{const data=await response.json();if(!response.ok)throw new Error(data.error || 'No se pudo consultar la disponibilidad.');return data;})
+      .then(data=>{
+        if(controller.signal.aborted)return;
+        const local=(value:string)=>{const [y,m,d]=value.slice(0,10).split('-').map(Number);return new Date(y,m-1,d);};
+        const ranges=(items:Array<{from:string;to:string}> = [])=>items.map(r=>({from:local(r.from),to:local(r.to)}));
+        setDisabledRanges(ranges(data.disabledRanges));setBookedRanges(ranges(data.bookedRanges));
+        setBufferRanges(ranges(data.bufferRanges));setBlockedRanges(ranges(data.blockedRanges));
+        setFoodBlockedRanges(ranges(data.foodBlockedRanges));setTourBlockedRanges(ranges(data.tourBlockedRanges));
+        setTourBookedDates(data.tourBookedDates || []);setPropertySettings(data.propertySettings);
+        setRateRules(Object.fromEntries((data.pricingRules || []).map((r: {date: string}) => [String(r.date).slice(0,10), r])));
+        setAvailabilityFor(lodgingId);setAvailabilityReady(true);
+      })
+      .catch(reason=>{if(!controller.signal.aborted)setAvailabilityError(reason.message);});
+    return ()=>controller.abort();
+  },[isOpen,lodgingId]);
+
+  useEffect(()=>{
+    if(!isOpen)return;
+    const previousFocus=document.activeElement instanceof HTMLElement?document.activeElement:null;
+    const frame=requestAnimationFrame(()=>modalRef.current?.querySelector<HTMLButtonElement>('button')?.focus());
+    const keyboard=(event:KeyboardEvent)=>{
+      if(event.key==='Escape'){event.preventDefault();onClose();}
+      if(event.key==='Tab'){
+        const elements=Array.from(modalRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex="0"]') || []).filter(el=>el.getClientRects().length>0);
+        const first=elements[0],last=elements[elements.length-1];
+        if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
+        else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
+      }
+    };
+    document.addEventListener('keydown',keyboard);return ()=>{cancelAnimationFrame(frame);document.removeEventListener('keydown',keyboard);if(previousFocus?.isConnected)previousFocus.focus();};
+  },[isOpen,onClose]);
+
+  const selectLodging=(lodging:BookingLodging)=>{
+    setLodgingId(lodging.id);setStayMode(lodging.kind);setRange(undefined);setQuote(null);setQuoteError('');
+    setAdults(a=>Math.min(a,lodging.capacity));setChildren(0);setStep('dates');
+    setWantsCook(null);setSelectedCookService(null);setPlanByDate({});setDishesByDate({});setSelectedDishes([]);setWantsATV(null);setAtvByDate({});
+  };
+  const selectDates=(nextRange:DateRange|undefined)=>{
+    if(nextRange?.from?.getTime()!==range?.from?.getTime()||nextRange?.to?.getTime()!==range?.to?.getTime()){
+      setWantsCook(null);setSelectedCookService(null);setPlanByDate({});setDishesByDate({});setSelectedDishes([]);setWantsATV(null);setAtvByDate({});
     }
-  }, [isOpen]);
+    setRange(nextRange);
+  };
+  const chooseMode=(mode:'whole_home'|'room')=>{
+    setStayMode(mode);
+    if(mode==='whole_home'){const home=catalog.find(l=>l.kind==='whole_home');if(home)selectLodging(home);}
+    else setStep('accommodation');
+  };
 
   const isTourBookedOnSelectedDates = React.useMemo(() => {
     if (!range?.from || !range?.to || !tourBookedDates.length) return false;
-    let current = new Date(range.from);
+    const current = new Date(range.from);
     current.setHours(0,0,0,0);
     const end = new Date(range.to);
     end.setHours(0,0,0,0);
     while (current <= end) {
-      if (tourBookedDates.includes(current.toISOString())) {
+      if (tourBookedDates.some(date => date.slice(0, 10) === format(current, 'yyyy-MM-dd'))) {
         return true;
       }
       current.setDate(current.getDate() + 1);
@@ -602,11 +635,23 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     }
   }, [isFoodBlockedOnSelectedDates, wantsCook]);
 
-  const basePrice = useMemo(() => {
-    return getConvertedPrice(propertySettings?.basePrice || 15000); // Dynamic base price from settings
-  }, [getConvertedPrice, propertySettings]);
+  const basePrice = selectedLodging ? selectedLodging.baseRateMinor / 100 : 0;
 
   const nights = (range?.from && range?.to) ? differenceInDays(range.to, range.from) : 0;
+  // Stay-length bounds for an arrival date: the lodging's own rule plus every
+  // night's min/max stay set in CALA (the quote enforces the same).
+  const stayBounds = (from: Date, nightsCount: number) => {
+    let min = lodgingMinStay, max = selectedLodging?.maxStay || 366;
+    const d = new Date(from);
+    for (let i = 0; i < nightsCount; i++) {
+      const rule = rateRules[format(d, 'yyyy-MM-dd')];
+      if (rule?.minStay) min = Math.max(min, rule.minStay);
+      if (rule?.maxStay) max = Math.min(max, rule.maxStay);
+      d.setDate(d.getDate() + 1);
+    }
+    return {min, max};
+  };
+  const minStay = range?.from ? stayBounds(range.from, Math.max(nights, 1)).min : lodgingMinStay;
   const isDinnerService = (name: string | undefined | null) => name?.toLowerCase().includes('dinner') || name?.toLowerCase().includes('cena');
 
   // Helper to match dinner group size patterns regardless of language
@@ -629,23 +674,39 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     return matchesDinnerSize(name, '6-8') || matchesDinnerSize(name, '10-12');
   };
 
-  const accommodationTotal = useMemo(() => {
-    if (!range?.from || !range?.to || nights === 0) return 0;
-    let total = 0;
-    let current = new Date(range.from);
-    const end = new Date(range.to);
-    while (current < end) {
-      const rule = pricingRules.find(r => {
-        const d = new Date(r.date);
-        return d.getUTCFullYear() === current.getFullYear() && 
-               d.getUTCMonth() === current.getMonth() && 
-               d.getUTCDate() === current.getDate();
-      });
-      total += getConvertedPrice(rule ? rule.priceOverride : (propertySettings?.basePrice || 15000));
-      current.setDate(current.getDate() + 1);
+  const quoteKey=range?.from&&range?.to&&lodgingId ? [lodgingId,format(range.from,'yyyy-MM-dd'),format(range.to,'yyyy-MM-dd'),adults,children].join('/') : '';
+  const quoteReady=Boolean(quote&&quote.key===quoteKey&&availabilityReady&&availabilityFor===lodgingId);
+  useEffect(()=>{
+    if(!isOpen||!quoteKey||nights<minStay||!range?.from||!range?.to){setQuote(null);setQuoteError('');return;}
+    const controller=new AbortController();setQuoteError('');setQuote(null);
+    fetch('/api/quote/?'+new URLSearchParams({lodgingId,checkIn:format(range.from,'yyyy-MM-dd'),checkOut:format(range.to,'yyyy-MM-dd'),adults:String(adults),children:String(children)}),{signal:controller.signal,cache:'no-store'})
+      .then(async response=>{const result=await response.json();if(!response.ok){
+        const en:Record<string,string>={RATE_RESTRICTION:'A night in this stay is closed or does not meet the minimum/maximum stay or arrival rules.',DEPARTURE_CLOSED:'Departures are not allowed on the chosen date. Try another check-out date.',LODGING_SALES_CLOSED:'Sales are closed for those dates.',LODGING_RULES:'These dates do not meet the booking rules (advance notice, minimum or maximum stay).'};
+        throw new Error((isEn&&en[result.code])||(isEn?'This stay could not be quoted. Check the dates or try again.':result.error)||'No se pudo cotizar la estancia.');}return result;})
+      .then(result=>{if(!controller.signal.aborted)setQuote({key:quoteKey,total:result.totalMinor/100});})
+      .catch(reason=>{if(!controller.signal.aborted){setQuote(null);setQuoteError(reason.message);}});
+    return ()=>controller.abort();
+  },[isOpen,quoteKey,nights,minStay]);
+  const accommodationTotal=quoteReady&&quote ? quote.total : 0;
+  const unavailableDay=(day:Date)=>{
+    const local=(value:string)=>{const [y,m,d]=value.slice(0,10).split('-').map(Number);return new Date(y,m-1,d);};
+    const today=propertySettings?.today ? local(propertySettings.today) : new Date(new Date().setHours(0,0,0,0));
+    today.setDate(today.getDate()+(selectedLodging?.leadTimeDays||0));
+    if(day<today)return true;
+    const choosingEnd=Boolean(range?.from&&!range.to&&day>range.from);
+    if(selectedLodging?.openThrough){const end=local(selectedLodging.openThrough);if(choosingEnd)end.setDate(end.getDate()+1);if(day>end)return true;}
+    const rule=rateRules[format(day,'yyyy-MM-dd')];
+    if(choosingEnd&&range?.from){
+      const stay=differenceInDays(day,range.from);
+      if(rule?.ctd)return true; // closed to departure
+      const bounds=stayBounds(range.from,stay);
+      if(stay>bounds.max)return true;
+      if(stay<bounds.min&&stay>=lodgingMinStay)return true;
+      return disabledRanges.some(r=>r.from<day&&r.to>=range.from!);
     }
-    return total;
-  }, [range, nights, propertySettings?.basePrice, pricingRules, getConvertedPrice]);
+    if(rule?.cta)return true; // closed to arrival
+    return disabledRanges.some(r=>day>=r.from&&day<=r.to);
+  };
 
   let cookTotal = 0;
   if (wantsCook) {
@@ -654,6 +715,10 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
       if (service) {
         const selectedDaysCount = Object.keys(dishesByDate).length;
         cookTotal += selectedDaysCount * getConvertedPrice(service.price);
+        for (const dishId of Object.values(dishesByDate)) {
+          const dish = foodServices.find(item => item.id === dishId);
+          if (dish) cookTotal += getConvertedPrice(dish.price || 0);
+        }
       }
     } else {
       Object.entries(planByDate).forEach(([dateStr, id]) => {
@@ -681,7 +746,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const isFormValid = isNameValid && isEmailValid && isPhoneValid;
 
   const handleCheckout = async () => {
-    if (!range?.from || !range?.to || !isFormValid) return;
+    if (!range?.from || !range?.to || !isFormValid || !quoteReady) {setError(quoteError||availabilityError||'Espera a que se confirme la cotización.');return;}
 
     setIsLoading(true);
     setError(null);
@@ -756,6 +821,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          lodgingId, adults, children,
           checkIn: format(range.from, 'yyyy-MM-dd'),
           checkOut: format(range.to, 'yyyy-MM-dd'),
           guestName,
@@ -788,7 +854,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
   const stayDates = useMemo(() => {
     if (!range?.from || !range?.to) return [];
     const dates = [];
-    let currentDate = new Date(range.from);
+    const currentDate = new Date(range.from);
     while (currentDate <= range.to) {
       dates.push(new Date(currentDate));
       currentDate.setDate(currentDate.getDate() + 1);
@@ -802,7 +868,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     : (isDinnerService(selectedCookService?.name) ? stayDates.length : Math.max(1, nights + 1));
 
   const getActiveSteps = useCallback(() => {
-    const steps = ['dates', 'guest_data', 'food_prompt'];
+    // Room and entire-house choices share the first step, so the stay type no longer adds an extra screen.
+    const steps = ['stay_type', 'dates', 'guest_data', 'food_prompt'];
     if (wantsCook) {
       steps.push('food_service');
       if (selectedCookService) {
@@ -816,11 +883,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     }
     steps.push('tours', 'summary');
     return steps;
-  }, [wantsCook, selectedCookService, totalCookServices]);
+  }, [wantsCook, selectedCookService, totalCookServices, stayMode]);
 
   const activeSteps = getActiveSteps();
   const currentStepIndex = activeSteps.indexOf(step) + 1;
-  const totalStepsCount = activeSteps.length - 1; // Exclude success
+  const totalStepsCount = activeSteps.length;
 
   const nextStep = () => setStep(s => {
     const steps = getActiveSteps();
@@ -852,9 +919,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
     return isEn ? 'Back' : 'Volver';
   };
 
-  const showBackButton = () => {
-    return true;
-  };
+  const showBackButton = () => step !== 'stay_type';
 
   const getBackButtonAction = () => {
     if (step === 'food_prompt' && wantsCook !== null) return () => setWantsCook(null);
@@ -929,7 +994,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
           />
 
           {/* Modal Container */}
-          <motion.div
+          <motion.div ref={modalRef} role="dialog" aria-modal="true" aria-label={isEn ? "Book your stay" : "Reserva tu estancia"}
             initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.92, y: 30 }}
             animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
             exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.92, y: 30 }}
@@ -957,6 +1022,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
 
             <button
               onClick={onClose}
+              aria-label={isEn ? "Close booking" : "Cerrar reserva"}
               className={`absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 flex items-center justify-center rounded-full bg-black/10 backdrop-blur-md md:bg-transparent shadow-sm sm:shadow-none sm:hover:bg-gray-200 transition-colors z-[60] text-gray-700 md:text-gray-500`}
             >
               <X size={20} />
@@ -1012,7 +1078,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                     </div>
                     <div>
                       <p className="font-bold text-white mb-1 uppercase tracking-widest text-[10px] md:text-[11px]">{dict.modal?.guests}</p>
-                      <p>{dict.modal?.guestsCount}</p>
+                      <p>{adults} {isEn?'adults':'adultos'}{children>0&&` · ${children} ${isEn?'children':'menores'}`}</p>
                     </div>
                   </div>
 
@@ -1071,7 +1137,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 {currentStepIndex > 1 && showBackButton() && (
                   <PremiumButton variant="back" onClick={getBackButtonAction()} backText={getBackButtonText()} />
                 )}
-                {currentStepIndex <= totalStepsCount && <StepIndicator currentStep={currentStepIndex} totalSteps={totalStepsCount} />}
+                {currentStepIndex <= totalStepsCount && <StepIndicator currentStep={currentStepIndex} totalSteps={totalStepsCount} label={isEn?'Step':'Paso'} />}
               </div>
 
               <div ref={scrollContainerRef} id="scroll-container" className="flex-1 overflow-y-auto overflow-x-hidden p-6 pb-6 md:p-12 md:pb-12 scroll-smooth flex flex-col relative custom-scrollbar overscroll-contain [-webkit-overflow-scrolling:touch]">
@@ -1080,9 +1146,12 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                   {currentStepIndex > 1 && showBackButton() && (
                     <PremiumButton variant="back" onClick={getBackButtonAction()} backText={getBackButtonText()} />
                   )}
-                  {currentStepIndex <= totalStepsCount && <StepIndicator currentStep={currentStepIndex} totalSteps={totalStepsCount} />}
+                  {currentStepIndex <= totalStepsCount && <StepIndicator currentStep={currentStepIndex} totalSteps={totalStepsCount} label={isEn?'Step':'Paso'} />}
                 </div>
                 <AnimatePresence mode="wait">
+                  {(catalogError||availabilityError||quoteError)&&<p role="alert" className="text-red-700 text-sm px-4 py-3">{catalogError||availabilityError||quoteError}</p>}
+                  {catalogLoading&&<p role="status" className="text-gray-500 py-8">{isEn?'Loading accommodation…':'Cargando alojamientos…'}</p>}
+                  {!catalogLoading&&(step==='stay_type'||step==='accommodation')&&<motion.div key={step} initial={{opacity:0,x:15}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-15}}><LodgingSelection step={step} catalog={catalog} isEn={isEn} onMode={chooseMode} onSelect={selectLodging}/></motion.div>}
                   {step === 'dates' && (
                     <motion.div
                       key="step1"
@@ -1093,7 +1162,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       className="min-h-full flex flex-col flex-grow shrink-0 w-full"
                     >
                       <div className="mb-6 shrink-0">
-                        <h3 className="text-2xl font-serif text-[#23211F]">{dict.modal?.selectDates}</h3>
+                        <p className="text-xs uppercase tracking-widest text-[#9B7E67] mb-2">{selectedLodging ? lodgingText(selectedLodging.name,currentLangCode) : ''}</p>
+                        <div className="flex items-center justify-between gap-3"><h3 className="text-2xl font-serif text-[#23211F]">{isEn?'Dates and guests':'Fechas y huéspedes'}</h3><button type="button" className="text-xs underline text-[#9B7E67]" onClick={()=>setStep('stay_type')}>{isEn?'Change accommodation':'Cambiar alojamiento'}</button></div>
+                        <div className="grid grid-cols-2 gap-4 mt-5"><label className="text-sm text-gray-600">{isEn?'Adults':'Adultos'}<input aria-label={isEn?'Adults':'Adultos'} type="number" min={1} max={selectedLodging?.capacity||12} value={adults} onChange={e=>setAdults(Number(e.target.value))} className="w-full mt-2 p-3 border rounded-xl bg-white"/></label><label className="text-sm text-gray-600">{isEn?'Children':'Menores'}<input aria-label={isEn?'Children':'Menores'} type="number" min={0} max={Math.max(0,(selectedLodging?.capacity||12)-adults)} value={children} onChange={e=>setChildren(Number(e.target.value))} className="w-full mt-2 p-3 border rounded-xl bg-white"/></label></div>
+                        <p className="text-xs text-gray-500 mt-3">{isEn?'Up to':'Hasta'} {selectedLodging?.capacity} {isEn?'guests':'personas'} · {isEn?'Minimum stay':'Estancia mínima'}: {minStay} {isEn?'nights':'noches'} · {isEn?'Check-in':'Entrada'} {selectedLodging?.checkInTime} / {isEn?'Check-out':'Salida'} {selectedLodging?.checkOutTime}</p>
+                        {!availabilityReady&&<p role="status" className="text-sm text-gray-500 mt-3">{isEn?'Checking availability…':'Consultando disponibilidad…'}</p>}
                       </div>
                       <div className="flex-none h-fit w-full flex flex-col items-center justify-start md:justify-center bg-white rounded-2xl md:rounded-3xl p-5 md:p-10 shadow-sm border border-gray-100 min-h-[400px] md:min-h-[500px]">
                         {/* Mobile Calendar */}
@@ -1101,8 +1174,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           <DayPicker
                             mode="range"
                             selected={range}
-                            onSelect={setRange}
-                            disabled={[{ before: new Date() }, ...disabledRanges]}
+                            onSelect={selectDates}
+                            min={minStay}
+                            disabled={unavailableDay}
+                            excludeDisabled
+                            locale={localeObj}
                             modifiers={{ booked: bookedRanges, buffer: bufferRanges, blocked: blockedRanges }}
                             modifiersClassNames={{ booked: 'rdp-day_booked', buffer: 'rdp-day_buffer', blocked: 'rdp-day_blocked' }}
                             numberOfMonths={1}
@@ -1117,8 +1193,11 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           <DayPicker
                             mode="range"
                             selected={range}
-                            onSelect={setRange}
-                            disabled={[{ before: new Date() }, ...disabledRanges]}
+                            onSelect={selectDates}
+                            min={minStay}
+                            disabled={unavailableDay}
+                            excludeDisabled
+                            locale={localeObj}
                             modifiers={{ booked: bookedRanges, buffer: bufferRanges, blocked: blockedRanges }}
                             modifiersClassNames={{ booked: 'rdp-day_booked', buffer: 'rdp-day_buffer', blocked: 'rdp-day_blocked' }}
                             numberOfMonths={1}
@@ -1129,7 +1208,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </div>
                         {range?.from && !range?.to && (
                           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#9B7E67] text-[10px] md:text-[11px] mt-6 font-medium animate-pulse text-center w-full">
-                            {dict.modal?.minStay}
+                            {isEn?`Minimum ${minStay} nights`:`Estancia mínima de ${minStay} noches`}
                           </motion.p>
                         )}
                         <div className="flex flex-row flex-wrap items-center justify-center gap-x-4 gap-y-4 md:gap-x-8 mt-10 md:mt-14 pt-8 md:pt-10 border-t border-gray-100 text-[10px] md:text-[11px] font-bold uppercase tracking-widest text-gray-500 w-full max-w-[300px] md:max-w-full mx-auto">
@@ -1147,18 +1226,19 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           </div>
                         </div>
                       </div>
+
                       <div className="mt-8 shrink-0 pb-8 hidden md:block">
                         {(!range?.from || !range?.to) && (
                           <p className="text-amber-600 text-[10px] md:text-[11px] font-bold mb-3 text-center">
                             {isEn ? 'Please select your check-in and check-out dates' : 'Por favor selecciona tus fechas de entrada y salida'}
                           </p>
                         )}
-                        {range?.from && range?.to && nights < 2 && (
+                        {range?.from && range?.to && nights < minStay && (
                           <p className="text-red-500 text-[10px] md:text-[11px] font-bold mb-3 text-center">
-                            {dict.modal?.minStay || (isEn ? 'Minimum 2 nights required' : 'Mínimo 2 noches requeridas')}
+                            {isEn?`Minimum ${minStay} nights`:`Mínimo ${minStay} noches`}
                           </p>
                         )}
-                        <PremiumButton onClick={nextStep} disabled={!range?.from || !range?.to || nights < 2}>
+                        <PremiumButton onClick={nextStep} disabled={!range?.from || !range?.to || nights < minStay || !quoteReady}>
                           {isEn ? 'Proceed' : 'Proceder'} <ArrowRight size={16} />
                         </PremiumButton>
                       </div>
@@ -1314,7 +1394,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                         </p>
                         <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
                           {stayDates.map((date, idx) => {
-                            const dateStr = date.toISOString().split('T')[0];
+                            const dateStr = format(date, 'yyyy-MM-dd');
                             const isSelected = selectedDateForPlan === dateStr;
                             const hasPlan = !!planByDate[dateStr];
                             return (
@@ -1377,7 +1457,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                       }
                                       
                                       if (Object.keys(next).length < stayDates.length) {
-                                        const dates = stayDates.map(d => d.toISOString().split('T')[0]);
+                                        const dates = stayDates.map(d => format(d, 'yyyy-MM-dd'));
                                         const nextEmpty = dates.find(d => !next[d]);
                                         if (nextEmpty) {
                                           setTimeout(() => setSelectedDateForPlan(nextEmpty), 400);
@@ -1498,7 +1578,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                           {isDinnerService(selectedCookService?.name) && (
                             <div className="mb-6 flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
                               {stayDates.map((date, idx) => {
-                                const dateStr = date.toISOString().split('T')[0];
+                                const dateStr = format(date, 'yyyy-MM-dd');
                                 const isSelected = selectedDateForMenu === dateStr;
                                 const hasDish = !!dishesByDate[dateStr];
                                 return (
@@ -1616,7 +1696,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                                       
                                                       // Auto-advance to next empty day if not fully planned
                                                       if (Object.keys(next).length < stayDates.length) {
-                                                        const dates = stayDates.map(d => d.toISOString().split('T')[0]);
+                                                        const dates = stayDates.map(d => format(d, 'yyyy-MM-dd'));
                                                         const nextEmpty = dates.find(d => !next[d]);
                                                         if (nextEmpty) {
                                                           setTimeout(() => {
@@ -1815,7 +1895,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             </p>
                             <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
                               {stayDates.map((date, idx) => {
-                                const dateStr = date.toISOString().split('T')[0];
+                                const dateStr = format(date, 'yyyy-MM-dd');
                                 const isSelected = selectedDateForAtv === dateStr;
                                 const hasPlan = !!atvByDate[dateStr];
                                 return (
@@ -1879,7 +1959,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                                           }
                                           
                                           if (Object.keys(next).length < stayDates.length) {
-                                            const dates = stayDates.map(d => d.toISOString().split('T')[0]);
+                                            const dates = stayDates.map(d => format(d, 'yyyy-MM-dd'));
                                             const nextEmpty = dates.find(d => !next[d]);
                                             if (nextEmpty) {
                                               setTimeout(() => setSelectedDateForAtv(nextEmpty), 400);
@@ -2018,7 +2098,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                       className="min-h-full flex flex-col flex-grow shrink-0 w-full"
                     >
                       {showConfetti && Array.from({ length: 40 }).map((_, i) => (
-                        <ConfettiParticle key={i} index={i} delay={Math.random() * 0.5} />
+                        <ConfettiParticle key={i} index={i} delay={(i % 10) * 0.05} />
                       ))}
 
                       <div className="flex flex-col h-full">
@@ -2033,6 +2113,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                             onMouseDown={handleUserScrollInteraction}
                           >
                           
+                          <div className="pb-5 border-b border-gray-100"><h4 className="font-serif text-xl">{selectedLodging ? lodgingText(selectedLodging.name,currentLangCode) : ''}</h4><p className="text-gray-500 mt-2">{adults} {isEn?'adults':'adultos'} · {children} {isEn?'children':'menores'}</p><p className="text-sm text-gray-500 mt-3 whitespace-pre-line">{selectedLodging ? lodgingText(selectedLodging.policy,currentLangCode) : ''}</p></div>
                           {/* Guest Data Review */}
                           <div className="pb-6 border-b border-gray-100">
                             <h4 className="font-bold text-[#23211F] mb-2">{isEn ? 'Guest Details' : 'Tus Datos'}</h4>
@@ -2168,7 +2249,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                               </p>
                             )}
                             <div className="w-full">
-                              <PremiumButton onClick={handleCheckout} disabled={!isFormValid || isLoading || grandTotal === 0}>
+                              <PremiumButton onClick={handleCheckout} disabled={!isFormValid || !quoteReady || isLoading || grandTotal === 0}>
                                 <CreditCard size={18} />
                                 {isEn ? 'Checkout' : 'Checkout'}
                               </PremiumButton>
@@ -2185,7 +2266,7 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
             </div>
 
             {/* Mobile Fixed Bottom Summary */}
-            {isMobile && currentStepIndex <= totalStepsCount && (
+            {isMobile && step !== 'summary' && step !== 'stay_type' && step !== 'accommodation' && currentStepIndex <= totalStepsCount && (
               <motion.div 
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}
@@ -2197,8 +2278,8 @@ export const PremiumBookingModal = ({ isOpen, onClose }: { isOpen: boolean; onCl
                 </div>
                 {step === 'dates' && (
                   <div className="flex flex-col items-end">
-                    {range?.from && range?.to && nights < 2 && <span className="text-red-500 text-[10px] md:text-[11px] font-bold mb-1 mr-2">{isEn ? 'Min 2 nights' : 'Mínimo 2 noches'}</span>}
-                    <button onClick={nextStep} disabled={!range?.from || !range?.to || nights < 2} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-base md:text-lg font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
+                    {range?.from && range?.to && nights < minStay && <span className="text-red-500 text-[10px] md:text-[11px] font-bold mb-1 mr-2">{isEn?`Min ${minStay} nights`:`Mínimo ${minStay} noches`}</span>}
+                    <button onClick={nextStep} disabled={!range?.from || !range?.to || nights < minStay || !quoteReady} className="bg-[#23211F] text-white px-6 py-3 rounded-full text-base md:text-lg font-bold uppercase tracking-widest disabled:opacity-50 transition-colors">
                       {isEn ? 'Proceed' : 'Proceder'}
                     </button>
                   </div>

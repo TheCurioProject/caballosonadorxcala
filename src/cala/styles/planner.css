@@ -1,0 +1,2783 @@
+/*
+ * CALA · Planner (calendar layouts) and Inbox
+ * -------------------------------------------------------------------------
+ * Styles for the month planner (Múltiple), the Airbnb-style single calendar
+ * (Individual), the Smoobu-style inbox and the OTA connection assistant.
+ * Loaded after cala.css + device-tiers.css; only theme tokens are used so
+ * every theme (shell, sand, ink…) works without extra rules.
+ */
+
+/* ====================================================================== */
+/* Layout switch (Múltiple / Individual)                                   */
+/* ====================================================================== */
+
+.cala-admin .cal-layout-switch {
+  display: inline-flex;
+  gap: 3px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--subtle);
+}
+.cala-admin .cal-layout-switch button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: calc(13px * var(--cala-fs-dense, 1));
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s var(--motion-ease),
+    color 0.2s var(--motion-ease),
+    box-shadow 0.2s var(--motion-ease);
+}
+.cala-admin .cal-layout-switch button.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-soft);
+}
+.cala-admin .cal-layout-switch button:active {
+  transform: scale(0.97);
+}
+.cala-admin .cal-layout-icon {
+  width: 16px;
+  height: 14px;
+  border-radius: 3px;
+  background:
+    linear-gradient(currentColor 0 0) 0 2px / 100% 2px no-repeat,
+    linear-gradient(currentColor 0 0) 0 6px / 70% 2px no-repeat,
+    linear-gradient(currentColor 0 0) 0 10px / 85% 2px no-repeat;
+  opacity: 0.8;
+}
+.cala-admin .cal-layout-icon.single {
+  background:
+    radial-gradient(circle, currentColor 1.2px, transparent 1.6px) 0 0 / 5.33px
+      4.66px;
+}
+.cala-admin .calendar-period-label {
+  align-self: center;
+  margin-inline: 6px auto;
+  font-size: calc(18px * var(--cala-fs-dense, 1));
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+.cala-admin .cala-mobile-shell .cal-layout-switch {
+  display: flex;
+  margin-top: 14px;
+}
+.cala-admin .cala-mobile-shell .cal-layout-switch button {
+  flex: 1;
+  justify-content: center;
+  min-height: 44px;
+}
+
+/* ====================================================================== */
+/* Múltiple · month planner                                                */
+/* ====================================================================== */
+
+.cala-admin .mc-panel {
+  padding: 0;
+  overflow: hidden;
+}
+.cala-admin .mc {
+  --mc-label: 184px;
+  --mc-col: 44px;
+  --mc-row: 56px;
+  position: relative;
+}
+.cala-admin .mc-compact {
+  --mc-label: 92px;
+  --mc-col: 50px;
+  --mc-row: 58px;
+}
+
+/* Gesture guide */
+.cala-admin .mc-guide {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  padding: 12px 44px 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--accent-soft) 55%, var(--surface));
+  font-size: calc(12px * var(--cala-fs-dense, 1));
+  color: var(--muted);
+  animation: mc-fade-down 0.35s var(--motion-ease);
+}
+.cala-admin .mc-guide > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.cala-admin .mc-guide b {
+  color: var(--text);
+  font-weight: 650;
+}
+.cala-admin .mc-guide i {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--accent);
+  font-style: normal;
+  font-size: calc(13px * var(--cala-fs-dense, 1));
+  box-shadow: var(--shadow-soft);
+}
+.cala-admin .mc-guide-hold::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: mc-hold 1.6s var(--motion-ease) infinite;
+}
+.cala-admin .mc-guide-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.cala-admin .mc-compact .mc-guide {
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  flex-direction: column;
+  gap: 7px;
+}
+
+/* Scroller + grid */
+.cala-admin .mc-scroll {
+  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-behavior: auto;
+  touch-action: pan-x pan-y;
+  -webkit-overflow-scrolling: touch;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.cala-admin .mc-scroll:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+.cala-admin .mc-compact .mc-scroll {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+.cala-admin .mc-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--mc-label) minmax(
+      calc(var(--mc-days) * var(--mc-col)),
+      1fr
+    );
+  min-width: calc(var(--mc-label) + var(--mc-days) * var(--mc-col));
+}
+.cala-admin .mc-row {
+  display: contents;
+}
+.cala-admin .mc-label {
+  position: sticky;
+  left: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  min-height: var(--mc-row);
+  padding: 6px 12px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.cala-admin .mc-grid[data-sticky="false"] .mc-label {
+  position: static;
+}
+.cala-admin .mc-label strong,
+.cala-admin .mc-label small {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cala-admin .mc-label strong {
+  font-size: calc(13px * var(--cala-fs-dense, 1));
+}
+.cala-admin .mc-label small {
+  color: var(--muted);
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+}
+.cala-admin .mc-corner {
+  top: 0;
+  z-index: 6;
+  min-height: 52px;
+  font-size: calc(10px * var(--cala-fs-dense, 1));
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--table-head);
+}
+.cala-admin .mc-days,
+.cala-admin .mc-track {
+  display: grid;
+  grid-template-columns: repeat(var(--mc-days), minmax(0, 1fr));
+  border-bottom: 1px solid var(--border);
+}
+.cala-admin .mc-days {
+  background: var(--table-head);
+}
+.cala-admin .mc-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 52px;
+  border-left: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+.cala-admin .mc-day small {
+  font-size: calc(10px * var(--cala-fs-dense, 1));
+  text-transform: capitalize;
+  color: var(--muted);
+}
+.cala-admin .mc-day strong {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: calc(13px * var(--cala-fs-dense, 1));
+}
+.cala-admin .mc-day.is-weekend {
+  background: color-mix(in srgb, var(--subtle) 55%, transparent);
+}
+.cala-admin .mc-day.is-past {
+  opacity: 0.55;
+}
+.cala-admin .mc-day.is-today strong {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.cala-admin .mc-property {
+  grid-column: 1 / -1;
+  position: relative;
+  padding: 9px 12px;
+  background: var(--subtle);
+  border-bottom: 1px solid var(--border);
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.cala-admin .mc-property span {
+  position: sticky;
+  left: 12px;
+}
+.cala-admin .mc-track {
+  position: relative;
+  min-height: var(--mc-row);
+  transition: background 0.2s var(--motion-ease);
+}
+.cala-admin .mc-track.drop-ok {
+  background: color-mix(in srgb, var(--accent-soft) 70%, transparent);
+}
+.cala-admin .mc-track.drop-bad {
+  background: color-mix(in srgb, var(--error-bg) 70%, transparent);
+}
+
+/* Day cells */
+.cala-admin .mc-cell {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: var(--mc-row);
+  padding: 0;
+  border: 0;
+  border-left: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  background: transparent;
+  color: transparent;
+  font: inherit;
+  cursor: cell;
+  transition:
+    background 0.15s var(--motion-ease),
+    transform 0.2s var(--motion-ease);
+}
+.cala-admin .mc-cell.is-weekend {
+  background: color-mix(in srgb, var(--subtle) 35%, transparent);
+}
+.cala-admin .mc-cell.is-today {
+  background: color-mix(in srgb, var(--accent-soft) 45%, transparent);
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.cala-admin .mc-cell.is-past {
+  background-image: linear-gradient(
+    color-mix(in srgb, var(--bg) 40%, transparent),
+    color-mix(in srgb, var(--bg) 40%, transparent)
+  );
+}
+.cala-admin .mc-cell .mc-plus {
+  font-size: calc(16px * var(--cala-fs-dense, 1));
+  font-weight: 500;
+}
+@media (hover: hover) {
+  .cala-admin .mc-cell:not([aria-disabled="true"]):hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+}
+.cala-admin .mc-cell.is-blocked {
+  cursor: pointer;
+  color: var(--muted);
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent 0 5px,
+    color-mix(in srgb, var(--muted) 12%, transparent) 5px 7px
+  );
+}
+.cala-admin .mc-cell.is-busy {
+  cursor: default;
+  color: var(--muted);
+}
+.cala-admin .mc-cell.is-pressing {
+  animation: mc-press 0.38s linear forwards;
+}
+.cala-admin .mc-cell.is-selected {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  color: transparent;
+}
+
+/* Selection overlay */
+.cala-admin .mc-selection {
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 6px 2px;
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+  font-weight: 700;
+  pointer-events: none;
+  animation: mc-pop 0.22s var(--motion-spring);
+}
+.cala-admin .mc-selection span {
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+.cala-admin .mc-selection.is-clipped {
+  border-color: var(--warning);
+  color: var(--warning);
+}
+.cala-admin .mc-selection.is-committed {
+  border-style: solid;
+  background: var(--accent);
+  color: var(--on-accent);
+  animation: mc-commit 0.9s var(--motion-ease) forwards;
+}
+
+/* Stays */
+.cala-admin .mc-stay {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin-block: 7px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--success-bg);
+  color: var(--success);
+  box-shadow: inset 3px 0 0 var(--accent);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  touch-action: pan-x pan-y;
+  transition:
+    transform 0.2s var(--motion-spring),
+    opacity 0.2s var(--motion-ease),
+    box-shadow 0.2s var(--motion-ease);
+}
+.cala-admin .mc-stay.is-movable {
+  cursor: grab;
+}
+.cala-admin .mc-stay.checked_in {
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--on-accent) 60%, transparent);
+}
+.cala-admin .mc-stay.pending {
+  background: var(--warning-bg);
+  color: var(--warning);
+  box-shadow: inset 3px 0 0 var(--warning);
+}
+.cala-admin .mc-stay.checked_out {
+  background: var(--subtle);
+  color: var(--muted);
+  box-shadow: inset 3px 0 0 var(--muted);
+}
+.cala-admin .mc-stay.clip-start {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  box-shadow: none;
+}
+.cala-admin .mc-stay.clip-end {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.cala-admin .mc-stay-text {
+  min-width: 0;
+  flex: 1;
+}
+.cala-admin .mc-stay strong,
+.cala-admin .mc-stay small {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cala-admin .mc-stay strong {
+  font-size: calc(12px * var(--cala-fs-dense, 1));
+}
+.cala-admin .mc-stay small {
+  font-size: calc(10px * var(--cala-fs-dense, 1));
+  opacity: 0.85;
+}
+.cala-admin .mc-grip {
+  opacity: 0.55;
+  font-size: calc(14px * var(--cala-fs-dense, 1));
+}
+@media (hover: hover) {
+  .cala-admin .mc-stay:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-soft);
+  }
+}
+.cala-admin .mc-stay.is-pressing {
+  animation: mc-lift 0.32s var(--motion-ease) forwards;
+}
+.cala-admin .mc-stay.is-source {
+  opacity: 0.35;
+  transform: scale(0.97);
+  cursor: grabbing;
+}
+.cala-admin .mc-stay.is-rejected {
+  animation: mc-shake 0.5s var(--motion-ease);
+}
+.cala-admin .mc-stay.is-moved {
+  animation: mc-moved 1.4s var(--motion-ease);
+}
+.cala-admin .mc.is-dragging .mc-scroll,
+.cala-admin .mc.is-dragging .mc-scroll * {
+  cursor: grabbing;
+}
+.cala-admin .mc.is-selecting .mc-scroll,
+.cala-admin .mc.is-selecting .mc-scroll * {
+  cursor: col-resize;
+}
+
+/* Drag ghost */
+.cala-admin .mc-ghost {
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-block: 6px;
+  border: 2px dashed var(--accent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+  color: var(--accent);
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  pointer-events: none;
+  box-shadow: var(--shadow-lift);
+  animation: mc-pop 0.18s var(--motion-spring);
+}
+.cala-admin .mc-ghost.bad {
+  border-color: var(--error);
+  background: color-mix(in srgb, var(--error-bg) 80%, var(--surface));
+  color: var(--error);
+}
+
+/* Footer */
+.cala-admin .mc-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+}
+.cala-admin .mc-compact .mc-foot {
+  padding: 10px 2px 0;
+  border-top: 0;
+}
+.cala-admin .mc-status {
+  flex: 1 1 320px;
+  margin: 0;
+  min-height: 20px;
+  color: var(--muted);
+  font-size: calc(12px * var(--cala-fs-dense, 1));
+  transition: color 0.2s var(--motion-ease);
+}
+.cala-admin .mc-status.tone-ok {
+  color: var(--success);
+  font-weight: 600;
+}
+.cala-admin .mc-status.tone-error {
+  color: var(--error);
+  font-weight: 600;
+}
+.cala-admin .mc-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+  color: var(--muted);
+}
+.cala-admin .mc-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.cala-admin .mc-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 4px;
+  background: var(--success-bg);
+  border: 1px solid var(--accent);
+}
+.cala-admin .mc-dot.checked_in {
+  background: var(--accent);
+}
+.cala-admin .mc-dot.pending {
+  background: var(--warning-bg);
+  border-color: var(--warning);
+}
+.cala-admin .mc-dot.blocked {
+  border-color: var(--muted);
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent 0 2px,
+    var(--muted) 2px 3px
+  );
+}
+.cala-admin .mc-guide-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 30px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+  cursor: pointer;
+}
+
+/* ====================================================================== */
+/* Individual · Airbnb-style single calendar                               */
+/* ====================================================================== */
+
+.cala-admin .sc-unitbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.cala-admin .sc-unit-select {
+  flex: 1;
+  max-width: 420px;
+}
+.cala-admin .sc-unit-select select {
+  width: 100%;
+  min-height: 44px;
+  font-weight: 600;
+}
+.cala-admin .sc-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 20px;
+  align-items: start;
+}
+.cala-admin .sc-months {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  touch-action: pan-y;
+}
+.cala-admin .sc-month {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+.cala-admin .sc-month.slide-next {
+  animation: sc-slide-next 0.32s var(--motion-ease);
+}
+.cala-admin .sc-month.slide-prev {
+  animation: sc-slide-prev 0.32s var(--motion-ease);
+}
+.cala-admin .sc-month-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.cala-admin .sc-month-head h3 {
+  flex: 1;
+  margin: 0;
+  text-align: center;
+  font-size: calc(16px * var(--cala-fs-dense, 1));
+}
+.cala-admin .sc-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0;
+}
+.cala-admin .sc-weekday {
+  padding: 6px 0;
+  text-align: center;
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+  font-weight: 650;
+  color: var(--muted);
+}
+.cala-admin .sc-day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-width: 0;
+  aspect-ratio: 1 / 1.05;
+  padding: 7px 7px 20px;
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.15s var(--motion-ease),
+    transform 0.2s var(--motion-spring);
+}
+.cala-admin .sc-day.is-outside {
+  border-top-color: transparent;
+}
+.cala-admin .sc-num {
+  display: grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  font-size: calc(13px * var(--cala-fs-dense, 1));
+  font-variant-numeric: tabular-nums;
+}
+.cala-admin .sc-price {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.cala-admin .sc-day.is-today .sc-num {
+  background: var(--text);
+  color: var(--surface);
+}
+.cala-admin .sc-day.is-past {
+  cursor: default;
+  color: var(--muted);
+}
+.cala-admin .sc-day.is-past .sc-price {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+.cala-admin .sc-day.is-blocked,
+.cala-admin .sc-day.is-closed {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent 0 6px,
+    color-mix(in srgb, var(--muted) 10%, transparent) 6px 8px
+  );
+}
+@media (hover: hover) {
+  .cala-admin .sc-day:not(.is-past):not(.is-outside):hover {
+    background-color: var(--subtle);
+  }
+}
+.cala-admin .sc-day.in-range {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.cala-admin .sc-day.is-start,
+.cala-admin .sc-day.is-end {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-radius: 14px;
+  animation: mc-pop 0.22s var(--motion-spring);
+}
+.cala-admin .sc-day.is-start .sc-price,
+.cala-admin .sc-day.is-end .sc-price {
+  color: var(--on-accent);
+}
+.cala-admin .sc-day.is-shake {
+  animation: mc-shake 0.45s var(--motion-ease);
+}
+.cala-admin .sc-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  background: var(--success-bg);
+  border-block: 1px solid var(--accent-border);
+  color: var(--success);
+  font-size: calc(10px * var(--cala-fs-dense, 1));
+  font-weight: 650;
+  overflow: visible;
+  pointer-events: none;
+}
+.cala-admin .sc-bar.is-first {
+  left: 50%;
+  border-left: 1px solid var(--accent-border);
+  border-radius: 99px 0 0 99px;
+}
+.cala-admin .sc-bar.sc-tail {
+  right: 50%;
+  border-right: 1px solid var(--accent-border);
+  border-radius: 0 99px 99px 0;
+}
+.cala-admin .sc-bar.checked_in {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}
+.cala-admin .sc-bar.pending {
+  background: var(--warning-bg);
+  color: var(--warning);
+  border-color: var(--warning-border);
+}
+.cala-admin .sc-bar.related {
+  background: var(--subtle);
+  border-color: var(--border);
+}
+.cala-admin .sc-bar.is-moved {
+  animation: mc-moved 1.4s var(--motion-ease);
+}
+.cala-admin .sc-bar em {
+  position: relative;
+  z-index: 1;
+  padding-left: 7px;
+  font-style: normal;
+  white-space: nowrap;
+  max-width: 260%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cala-admin .sc-notice {
+  grid-column: 1 / -1;
+  animation: mc-fade-down 0.25s var(--motion-ease);
+}
+
+/* Side panel / bottom sheet */
+.cala-admin .sc-panel {
+  position: sticky;
+  top: 90px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+.cala-admin .sc-panel-inner {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  animation: mc-fade-down 0.25s var(--motion-ease);
+}
+.cala-admin .sc-panel h3,
+.cala-admin .sc-panel h4,
+.cala-admin .sc-panel p {
+  margin: 0;
+}
+.cala-admin .sc-dates {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: calc(22px * var(--cala-fs-dense, 1));
+  letter-spacing: -0.02em;
+}
+.cala-admin .sc-dates span {
+  color: var(--muted);
+  font-weight: 400;
+}
+.cala-admin .sc-quote,
+.cala-admin .sc-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0;
+}
+.cala-admin .sc-quote div,
+.cala-admin .sc-stats div {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--subtle);
+}
+.cala-admin .sc-quote dt,
+.cala-admin .sc-stats dt {
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+  color: var(--muted);
+}
+.cala-admin .sc-quote dd,
+.cala-admin .sc-stats dd {
+  margin: 2px 0 0;
+  font-size: calc(16px * var(--cala-fs-dense, 1));
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.cala-admin .sc-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.cala-admin .sc-actions .button {
+  justify-content: center;
+}
+.cala-admin .sc-rates {
+  display: grid;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.cala-admin .sc-meter strong {
+  font-size: calc(28px * var(--cala-fs-dense, 1));
+  letter-spacing: -0.03em;
+}
+.cala-admin .sc-meter-bar {
+  display: block;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 99px;
+  background: linear-gradient(var(--accent) 0 0) 0 0 / var(--sc-fill) 100%
+    no-repeat, var(--subtle);
+  transition: background-size 0.6s var(--motion-ease);
+}
+.cala-admin .sc-next {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cala-admin .sc-next span {
+  display: grid;
+}
+.cala-admin .sc-next small {
+  color: var(--muted);
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+}
+.cala-admin .sc-gaps {
+  display: grid;
+  gap: 8px;
+}
+.cala-admin .sc-gap {
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px dashed var(--warning-border);
+  border-radius: 12px;
+  background: var(--warning-bg);
+  color: var(--warning);
+  font: inherit;
+  font-size: calc(12px * var(--cala-fs-dense, 1));
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.cala-admin .sc-help {
+  font-size: calc(12px * var(--cala-fs-dense, 1));
+  color: var(--muted);
+}
+
+@media (max-width: 1100px) {
+  .cala-admin .sc-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cala-admin .sc-panel {
+    position: static;
+  }
+}
+
+/* Phone: one month, the panel becomes a bottom sheet above the tab bar */
+.cala-admin .sc-compact .sc-month {
+  padding: 12px 8px;
+}
+.cala-admin .sc-compact .sc-day {
+  padding: 5px 4px 18px;
+}
+.cala-admin .sc-compact .sc-price {
+  font-size: calc(9.5px * var(--cala-fs-dense, 1));
+}
+.cala-admin .sc-compact .sc-panel.is-sheet {
+  position: fixed;
+  left: max(8px, env(safe-area-inset-left));
+  right: max(8px, env(safe-area-inset-right));
+  bottom: calc(var(--m-nav-height, 74px) + env(safe-area-inset-bottom) + 8px);
+  z-index: 40;
+  max-height: 62dvh;
+  overflow-y: auto;
+  border-radius: 22px;
+  box-shadow: var(--shadow-lift);
+  animation: sc-sheet 0.32s var(--motion-ease);
+}
+.cala-admin .sc-compact .sc-panel.is-sheet::before {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 4px;
+  margin: 8px auto 0;
+  border-radius: 99px;
+  background: var(--border);
+}
+
+/* ====================================================================== */
+/* Motion                                                                  */
+/* ====================================================================== */
+
+@keyframes mc-fade-down {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+@keyframes mc-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+@keyframes mc-press {
+  0% {
+    background: transparent;
+  }
+  100% {
+    background: color-mix(in srgb, var(--accent) 28%, transparent);
+    transform: scale(0.92);
+  }
+}
+@keyframes mc-lift {
+  to {
+    transform: scale(1.04) translateY(-2px);
+    box-shadow: var(--shadow-lift);
+  }
+}
+@keyframes mc-shake {
+  20% {
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+@keyframes mc-commit {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  30% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+@keyframes mc-moved {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  60% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+@keyframes mc-hold {
+  0%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+@keyframes sc-slide-next {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+@keyframes sc-slide-prev {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+}
+@keyframes sc-sheet {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cala-admin :is(.mc, .sc, .ib, .ota) * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ====================================================================== */
+/* Inbox · Smoobu-style three panes                                        */
+/* ====================================================================== */
+
+.cala-admin .ib-channel {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: hsl(var(--ota-hue, 175) 62% 44%);
+  color: #fff;
+  font-size: calc(12px * var(--cala-fs, 1));
+  font-weight: 800;
+  line-height: 1;
+  flex: none;
+}
+.cala-admin .ib-channel.is-direct {
+  background: var(--accent);
+}
+.cala-admin .ib-channel-sm {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  font-size: calc(9.5px * var(--cala-fs-dense, 1));
+}
+.cala-admin .ib-avatar {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--avatar);
+  color: var(--text);
+  font-size: calc(14px * var(--cala-fs, 1));
+  font-weight: 700;
+}
+.cala-admin .ib-avatar .ib-channel {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.cala-admin .ib-avatar-lg {
+  width: 56px;
+  height: 56px;
+  font-size: calc(18px * var(--cala-fs, 1));
+}
+
+/* Connections strip + onboarding */
+.cala-admin .ib-connections {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin: 0 0 14px;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.cala-admin .ib-connection {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  min-height: 38px;
+  padding: 6px 12px 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: calc(12px * var(--cala-fs, 1));
+  font-weight: 600;
+  cursor: pointer;
+}
+.cala-admin .ib-connection small {
+  color: var(--muted);
+  font-weight: 500;
+}
+.cala-admin .ib-connection.is-add {
+  border-style: dashed;
+  color: var(--accent);
+  padding-left: 12px;
+}
+.cala-admin .ib-onboard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--accent-border);
+  border-radius: 18px;
+  background: linear-gradient(
+    120deg,
+    var(--accent-soft),
+    color-mix(in srgb, var(--accent-soft) 30%, var(--surface))
+  );
+  animation: mc-fade-down 0.35s var(--motion-ease);
+}
+.cala-admin .ib-onboard > div {
+  display: grid;
+  gap: 2px;
+  flex: 1;
+}
+.cala-admin .ib-onboard small {
+  color: var(--muted);
+}
+.cala-admin .ib-onboard-marks {
+  display: flex;
+}
+.cala-admin .ib-onboard-marks .ib-channel {
+  margin-left: -8px;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.cala-admin .ib-onboard-marks .ib-channel:first-child {
+  margin-left: 0;
+}
+
+/* Layout */
+.cala-admin .ib {
+  position: relative;
+  display: grid;
+  grid-template-columns: 330px minmax(0, 1fr) 300px;
+  height: max(560px, calc(100dvh - 270px));
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+.cala-admin .ib-list {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 70%, var(--bg));
+}
+.cala-admin .ib-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 12px 8px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--muted);
+}
+.cala-admin .ib-search input {
+  flex: 1;
+  min-width: 0;
+  min-height: 40px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+  padding: 0;
+}
+.cala-admin .ib-folders {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 2px 12px 8px;
+  scrollbar-width: none;
+}
+.cala-admin .ib-folders button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  min-height: 32px;
+  padding: 4px 11px;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  background: var(--surface);
+  color: var(--muted);
+  font: inherit;
+  font-size: calc(12px * var(--cala-fs, 1));
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s var(--motion-ease);
+}
+.cala-admin .ib-folders button.active {
+  border-color: var(--text);
+  background: var(--text);
+  color: var(--surface);
+}
+.cala-admin .ib-folders button span {
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 99px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: calc(10px * var(--cala-fs-dense, 1));
+  line-height: 18px;
+  text-align: center;
+}
+.cala-admin .ib-source {
+  padding: 0 12px 10px;
+}
+.cala-admin .ib-source select {
+  width: 100%;
+  min-height: 36px;
+  font-size: calc(12px * var(--cala-fs, 1));
+}
+.cala-admin .ib-threads {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border-top: 1px solid var(--border);
+}
+.cala-admin .ib-thread {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 14px;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  animation: mc-fade-down 0.3s var(--motion-ease) both;
+  animation-delay: calc(var(--i, 0) * 18ms);
+  transition: background 0.15s var(--motion-ease);
+}
+@media (hover: hover) {
+  .cala-admin .ib-thread:hover {
+    background: var(--subtle);
+  }
+}
+.cala-admin .ib-thread.active {
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.cala-admin .ib-thread-body {
+  display: grid;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.cala-admin .ib-thread-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.cala-admin .ib-thread-top strong {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: calc(14px * var(--cala-fs, 1));
+}
+.cala-admin .ib-thread-top time {
+  flex: none;
+  color: var(--muted);
+  font-size: calc(11px * var(--cala-fs, 1));
+}
+.cala-admin .ib-thread-stay {
+  color: var(--muted);
+  font-size: calc(11px * var(--cala-fs, 1));
+}
+.cala-admin .ib-thread-preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: calc(12.5px * var(--cala-fs, 1));
+  line-height: 1.35;
+}
+.cala-admin .ib-thread-preview em {
+  color: var(--warning);
+  font-style: normal;
+}
+.cala-admin .ib-thread.is-unread .ib-thread-top strong,
+.cala-admin .ib-thread.is-unread .ib-thread-preview {
+  color: var(--text);
+  font-weight: 700;
+}
+.cala-admin .ib-unread {
+  position: absolute;
+  top: 18px;
+  right: 14px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: mc-pop 0.3s var(--motion-spring);
+}
+.cala-admin .ib-thread.is-unread time {
+  margin-right: 14px;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* Conversation */
+.cala-admin .ib-conversation {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.cala-admin .ib-placeholder {
+  justify-content: center;
+}
+.cala-admin .ib-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.cala-admin .ib-head-text {
+  flex: 1;
+  min-width: 0;
+}
+.cala-admin .ib-head h2 {
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: calc(16px * var(--cala-fs, 1));
+}
+.cala-admin .ib-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: calc(12px * var(--cala-fs, 1));
+}
+.cala-admin .ib-back {
+  display: none;
+}
+.cala-admin .ib-info-toggle {
+  display: none;
+}
+.cala-admin .ib-info-toggle.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.cala-admin .ib-timeline {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 18px 8px;
+  background:
+    radial-gradient(
+      circle at 1px 1px,
+      color-mix(in srgb, var(--border) 55%, transparent) 1px,
+      transparent 0
+    ) 0 0 / 18px 18px,
+    color-mix(in srgb, var(--bg) 45%, var(--surface));
+}
+.cala-admin .ib-item {
+  display: flex;
+  flex-direction: column;
+}
+.cala-admin .ib-day {
+  display: flex;
+  justify-content: center;
+  margin: 12px 0 8px;
+}
+.cala-admin .ib-day span {
+  padding: 3px 12px;
+  border-radius: 99px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: calc(11px * var(--cala-fs, 1));
+  font-weight: 600;
+  text-transform: capitalize;
+  box-shadow: var(--shadow-soft);
+}
+.cala-admin .ib-bubble {
+  max-width: min(76%, 560px);
+  margin: 3px 0;
+  padding: 10px 13px 8px;
+  border-radius: 18px 18px 18px 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  align-self: flex-start;
+  animation: ib-in 0.32s var(--motion-spring) both;
+  animation-delay: calc(max(var(--i, 0), 0) * 25ms);
+}
+.cala-admin .ib-bubble.outbound {
+  align-self: flex-end;
+  border-color: transparent;
+  border-radius: 18px 18px 6px 18px;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.cala-admin .ib-bubble.internal {
+  align-self: flex-end;
+  border: 1px dashed var(--warning-border);
+  border-radius: 18px 18px 6px 18px;
+  background: var(--warning-bg);
+  color: var(--text);
+}
+.cala-admin .ib-bubble.status-draft {
+  background: transparent;
+  color: var(--text);
+  border: 1.5px dashed var(--accent);
+}
+.cala-admin .ib-bubble.status-blocked {
+  background: color-mix(in srgb, var(--accent) 82%, var(--surface));
+}
+.cala-admin .ib-bubble.status-cancelled {
+  opacity: 0.55;
+}
+.cala-admin .ib-bubble.status-cancelled p {
+  text-decoration: line-through;
+}
+.cala-admin .ib-bubble h3 {
+  margin: 0 0 4px;
+  font-size: calc(13px * var(--cala-fs, 1));
+}
+.cala-admin .ib-bubble p {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: calc(14px * var(--cala-fs, 1));
+  line-height: 1.45;
+}
+.cala-admin .ib-bubble footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px 10px;
+  margin-top: 5px;
+  font-size: calc(10.5px * var(--cala-fs, 1));
+  opacity: 0.8;
+}
+.cala-admin .ib-delivery {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.cala-admin .ib-note-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 4px;
+  color: var(--warning);
+  font-size: calc(10.5px * var(--cala-fs, 1));
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.cala-admin .ib-bubble-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.cala-admin .ib-bubble-actions button {
+  min-height: 30px;
+  padding: 3px 10px;
+  border: 1px solid currentColor;
+  border-radius: 99px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: calc(11.5px * var(--cala-fs, 1));
+  font-weight: 600;
+  cursor: pointer;
+}
+.cala-admin .ib-start {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  margin: auto;
+  max-width: 320px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Composer */
+.cala-admin .ib-composer {
+  display: grid;
+  gap: 8px;
+  padding: 10px 14px 12px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  transition: background 0.2s var(--motion-ease);
+}
+.cala-admin .ib-composer.is-note {
+  background: color-mix(in srgb, var(--warning-bg) 70%, var(--surface));
+}
+.cala-admin .ib-composer-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.cala-admin .ib-composer-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 4px 11px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: calc(12.5px * var(--cala-fs, 1));
+  font-weight: 650;
+  cursor: pointer;
+}
+.cala-admin .ib-composer-tabs button.active {
+  background: var(--subtle);
+  color: var(--text);
+}
+.cala-admin .ib-composer.is-note .ib-composer-tabs button.active {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.cala-admin .ib-via {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: calc(11.5px * var(--cala-fs, 1));
+}
+.cala-admin .ib-via.is-off {
+  color: var(--warning);
+}
+.cala-admin .ib-subject {
+  min-height: 38px;
+}
+.cala-admin .ib-composer textarea {
+  width: 100%;
+  min-height: 64px;
+  max-height: 40vh;
+  resize: vertical;
+  border-radius: 14px;
+  font-size: calc(14px * var(--cala-fs, 1));
+  line-height: 1.45;
+  field-sizing: content;
+}
+.cala-admin .ib-schedule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: calc(12.5px * var(--cala-fs, 1));
+  color: var(--muted);
+}
+.cala-admin .ib-composer-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.cala-admin .ib-spacer {
+  flex: 1;
+}
+.cala-admin .ib-tool {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 34px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--muted);
+  font: inherit;
+  font-size: calc(12px * var(--cala-fs, 1));
+  font-weight: 600;
+  cursor: pointer;
+}
+.cala-admin .ib-tool.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.cala-admin label.ib-tool select {
+  min-height: 0;
+  padding: 0 4px 0 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  font-size: calc(12px * var(--cala-fs, 1));
+  cursor: pointer;
+}
+.cala-admin .ib-send {
+  gap: 6px;
+}
+.cala-admin .ib-send.is-sent {
+  animation: ib-sent 0.6s var(--motion-spring);
+}
+
+/* Details */
+.cala-admin .ib-details {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 18px 16px;
+  border-left: 1px solid var(--border);
+}
+.cala-admin .ib-guest {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.cala-admin .ib-guest > div {
+  display: grid;
+  min-width: 0;
+}
+.cala-admin .ib-guest strong {
+  font-size: calc(16px * var(--cala-fs, 1));
+}
+.cala-admin .ib-guest small {
+  color: var(--muted);
+}
+.cala-admin .ib-contact {
+  display: grid;
+  gap: 6px;
+}
+.cala-admin .ib-contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  color: var(--text);
+  font-size: calc(13px * var(--cala-fs, 1));
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cala-admin .ib-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0;
+}
+.cala-admin .ib-facts div {
+  padding: 9px 10px;
+  border-radius: 12px;
+  background: var(--subtle);
+  min-width: 0;
+}
+.cala-admin .ib-facts dt {
+  color: var(--muted);
+  font-size: calc(10.5px * var(--cala-fs, 1));
+}
+.cala-admin .ib-facts dd {
+  margin: 2px 0 0;
+  overflow: hidden;
+  font-size: calc(13px * var(--cala-fs, 1));
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cala-admin .ib-link-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px dashed var(--warning-border);
+  border-radius: 14px;
+  background: var(--warning-bg);
+}
+.cala-admin .ib-link-card.is-on {
+  border: 1px solid var(--accent-border);
+  background: var(--accent-soft);
+}
+.cala-admin .ib-link-card > div {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+.cala-admin .ib-link-card small {
+  color: var(--muted);
+  font-size: calc(11.5px * var(--cala-fs, 1));
+}
+.cala-admin .ib-detail-actions {
+  display: grid;
+  gap: 8px;
+}
+.cala-admin .ib-detail-actions .button {
+  justify-content: center;
+}
+
+/* Tablet: details become a drawer */
+@media (max-width: 1279px) {
+  .cala-admin .ib {
+    grid-template-columns: 300px minmax(0, 1fr);
+  }
+  .cala-admin .ib-info-toggle {
+    display: inline-grid;
+  }
+  .cala-admin .ib-details {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 6;
+    width: min(320px, 86%);
+    background: var(--surface);
+    box-shadow: var(--shadow-lift);
+    transform: translateX(105%);
+    transition: transform 0.3s var(--motion-ease);
+  }
+  .cala-admin .ib.show-info .ib-details {
+    transform: none;
+  }
+}
+/* Narrow desktop shell: one pane at a time */
+@media (max-width: 900px) {
+  .cala-admin .ib {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cala-admin .ib.has-conversation .ib-list,
+  .cala-admin .ib:not(.has-conversation) .ib-conversation {
+    display: none;
+  }
+  .cala-admin .ib-back {
+    display: inline-grid;
+  }
+}
+
+/* Phone (MobileShell): list or chat, composer docked above the tab bar */
+.cala-admin .ib-compact {
+  display: block;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+.cala-admin .ib-compact .ib-list {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.cala-admin .ib-compact .ib-threads {
+  overflow: visible;
+}
+.cala-admin .ib-compact.has-conversation .ib-list,
+.cala-admin .ib-compact:not(.has-conversation) .ib-conversation {
+  display: none;
+}
+.cala-admin .ib-compact .ib-conversation {
+  margin: -8px calc(-1 * max(16px, env(safe-area-inset-left))) 0;
+  animation: ib-push 0.3s var(--motion-ease);
+}
+.cala-admin .ib-compact .ib-head {
+  position: sticky;
+  top: env(safe-area-inset-top);
+  z-index: 5;
+  padding: 10px 12px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.cala-admin .ib-compact .ib-back,
+.cala-admin .ib-compact .ib-info-toggle {
+  display: inline-grid;
+}
+.cala-admin .ib-compact .ib-timeline {
+  overflow: visible;
+  min-height: 50dvh;
+  padding: 12px 14px;
+}
+.cala-admin .ib-compact .ib-bubble {
+  max-width: 86%;
+}
+.cala-admin .ib-compact .ib-composer {
+  position: sticky;
+  bottom: calc(var(--m-nav-height, 74px) + env(safe-area-inset-bottom));
+  z-index: 5;
+  box-shadow: 0 -10px 30px #102a2a10;
+}
+.cala-mobile-shell[data-keyboard-open="true"] .ib-compact .ib-composer {
+  bottom: 0;
+}
+.cala-admin .ib-compact .ib-tool-label {
+  display: none;
+}
+.cala-admin .cala-mobile-shell .ib-onboard {
+  flex-wrap: wrap;
+}
+.cala-admin .cala-mobile-shell .ib-onboard .button {
+  width: 100%;
+  justify-content: center;
+}
+
+@keyframes ib-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+}
+@keyframes ib-sent {
+  40% {
+    transform: scale(0.92);
+  }
+  70% {
+    transform: scale(1.06);
+  }
+}
+@keyframes ib-push {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+/* ====================================================================== */
+/* OTA connection assistant                                                */
+/* ====================================================================== */
+
+.cala-admin .ota {
+  display: grid;
+  gap: 16px;
+  min-height: 420px;
+}
+.cala-admin .ota-steps {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cala-admin .ota-steps li {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+  color: var(--muted);
+}
+.cala-admin .ota-steps li > span {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  font-size: calc(12px * var(--cala-fs, 1));
+  font-weight: 700;
+  transition: all 0.25s var(--motion-ease);
+}
+.cala-admin .ota-steps li small {
+  font-size: calc(10.5px * var(--cala-fs, 1));
+  line-height: 1.2;
+}
+.cala-admin .ota-steps li.is-current > span {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+  transform: scale(1.1);
+}
+.cala-admin .ota-steps li.is-current {
+  color: var(--text);
+  font-weight: 650;
+}
+.cala-admin .ota-steps li.is-done > span {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.cala-admin .ota-progress {
+  height: 3px;
+  margin-top: -8px;
+  border-radius: 99px;
+  background: var(--accent);
+  transition: width 0.4s var(--motion-ease);
+}
+.cala-admin .ota-body {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+.cala-admin .ota-body h3 {
+  margin: 0;
+  font-size: calc(20px * var(--cala-fs, 1));
+}
+.cala-admin .ota-body p {
+  margin: 0;
+}
+.cala-admin .ota-fwd {
+  animation: sc-slide-next 0.3s var(--motion-ease);
+}
+.cala-admin .ota-back {
+  animation: sc-slide-prev 0.3s var(--motion-ease);
+}
+.cala-admin .ota-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.cala-admin .ota-card {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  padding: 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.2s var(--motion-spring),
+    border-color 0.2s var(--motion-ease),
+    box-shadow 0.2s var(--motion-ease);
+}
+.cala-admin .ota-card small {
+  color: var(--muted);
+  font-size: calc(11.5px * var(--cala-fs, 1));
+}
+@media (hover: hover) {
+  .cala-admin .ota-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
+  }
+}
+.cala-admin .ota-card.is-selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.cala-admin .ota-mark {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: hsl(var(--ota-hue, 175) 62% 44%);
+  color: #fff;
+  font-size: calc(17px * var(--cala-fs, 1));
+  font-weight: 800;
+}
+.cala-admin .ota-checklist {
+  display: grid;
+  gap: 8px;
+}
+.cala-admin .ota-check {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s var(--motion-ease);
+}
+.cala-admin .ota-check input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.cala-admin .ota-check-box {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  color: transparent;
+  transition: all 0.2s var(--motion-spring);
+}
+.cala-admin .ota-check.is-checked {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+}
+.cala-admin .ota-check.is-checked .ota-check-box {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+  transform: scale(1.08);
+}
+.cala-admin .ota-check:focus-within {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.cala-admin .ota-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: calc(13px * var(--cala-fs, 1));
+  animation: mc-fade-down 0.2s var(--motion-ease);
+}
+.cala-admin .ota-inline.ok {
+  color: var(--success);
+}
+.cala-admin .ota-inline.bad {
+  color: var(--warning);
+}
+.cala-admin .ota-links {
+  display: grid;
+  gap: 10px;
+}
+.cala-admin .ota-link {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  transition: all 0.2s var(--motion-ease);
+}
+.cala-admin .ota-link.is-on {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow-soft);
+}
+.cala-admin .ota-link-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+.cala-admin .ota-link-toggle span {
+  display: grid;
+}
+.cala-admin .ota-link-toggle small {
+  color: var(--muted);
+}
+.cala-admin .ota-link-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+  padding: 0 14px 14px;
+  animation: mc-fade-down 0.22s var(--motion-ease);
+}
+.cala-admin .ota-link-state {
+  display: grid;
+  place-items: center;
+  height: 44px;
+}
+.cala-admin .ota-link-state.ok {
+  color: var(--success);
+}
+.cala-admin .ota-link-state.bad {
+  color: var(--warning);
+}
+.cala-admin .ota-fieldset {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.cala-admin .ota-fieldset legend {
+  margin-bottom: 8px;
+  font-size: calc(12px * var(--cala-fs, 1));
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.cala-admin .ota-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+}
+.cala-admin .ota-option > span:not(.ota-pill) {
+  display: grid;
+  gap: 2px;
+  flex: 1;
+}
+.cala-admin .ota-option small {
+  color: var(--muted);
+}
+.cala-admin .ota-option.is-selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.cala-admin .ota-option.is-fixed {
+  cursor: default;
+  background: var(--subtle);
+}
+.cala-admin .ota-pill {
+  flex: none;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: calc(11px * var(--cala-fs, 1));
+  font-weight: 700;
+}
+.cala-admin .ota-verify {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cala-admin .ota-verify li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  transition: color 0.2s var(--motion-ease);
+}
+.cala-admin .ota-verify li > span {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+}
+.cala-admin .ota-verify li.is-running > span i {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--accent);
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ota-spin 0.7s linear infinite;
+}
+.cala-admin .ota-verify li.is-ok {
+  color: var(--text);
+}
+.cala-admin .ota-verify li.is-ok > span {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+  animation: mc-pop 0.25s var(--motion-spring);
+}
+.cala-admin .ota-summary {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--subtle);
+}
+.cala-admin .ota-summary div {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 10px;
+}
+.cala-admin .ota-summary dt {
+  color: var(--muted);
+  font-size: calc(12.5px * var(--cala-fs, 1));
+}
+.cala-admin .ota-summary dd {
+  margin: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.cala-admin .ota-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.cala-admin .ota-done {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  text-align: center;
+}
+.cala-admin .ota-done h3,
+.cala-admin .ota-done p {
+  margin: 0;
+}
+.cala-admin .ota-done-mark {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  animation: ota-done 0.7s var(--motion-spring);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.cala-admin .ota-next {
+  display: grid;
+  gap: 8px;
+  max-width: 520px;
+  margin: 0;
+  padding-left: 20px;
+  text-align: left;
+}
+@media (max-width: 640px) {
+  .cala-admin .ota-steps li small {
+    display: none;
+  }
+  .cala-admin .ota-link-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cala-admin .ota-link-state {
+    display: none;
+  }
+  .cala-admin .ota-summary div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+}
+@keyframes ota-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes ota-done {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12);
+    box-shadow: 0 0 0 18px transparent;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Phone single view: slimmer stay bars so they never touch the price. */
+.cala-admin .sc-compact .sc-bar {
+  bottom: 3px;
+  height: 12px;
+  font-size: calc(9px * var(--cala-fs-dense, 1));
+}
+
+/* Phone composer: icon-only tools so "Borrador" and "Enviar" share one row.
+   The template <select> stays native (and 16px, no iOS zoom) but invisible
+   over its icon, so a tap opens the system picker. */
+.cala-admin .ib-compact label.ib-tool {
+  width: 40px;
+  justify-content: center;
+  padding: 0;
+}
+.cala-admin .ib-compact label.ib-tool select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+}
+.cala-admin .ib-compact button.ib-tool {
+  width: 40px;
+  justify-content: center;
+  padding: 0;
+}
+.cala-admin .ib-compact .ib-composer-bar {
+  flex-wrap: nowrap;
+}
+.cala-admin .ib-compact .ib-composer-bar .button {
+  min-height: 40px;
+  padding-inline: 12px;
+  white-space: nowrap;
+}
+
+/* ====================================================================== */
+/* Tarifas · month grid with tap-to-edit prices (Smoobu-style)             */
+/* ====================================================================== */
+.cala-admin .rates-panel {
+  overflow: hidden;
+}
+.cala-admin .rates-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.cala-admin .rates-month {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cala-admin .rates-month strong {
+  min-width: 150px;
+  text-align: center;
+  font-size: calc(16px * var(--cala-fs, 1));
+  font-weight: 600;
+}
+.cala-admin .rates-today {
+  min-height: 34px;
+  padding: 0 14px;
+}
+.cala-admin .rates-plan select {
+  min-height: 38px;
+}
+.cala-admin .rates-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 0 0 0 auto;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+}
+.cala-admin .rates-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.cala-admin .flag {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  flex: none;
+}
+.cala-admin .flag.closed {
+  background: var(--error);
+}
+.cala-admin .flag.cta {
+  background: var(--warning);
+  border-radius: 2px;
+}
+.cala-admin .flag.ctd {
+  background: var(--accent);
+  border-radius: 2px;
+  transform: rotate(45deg) scale(0.85);
+}
+.cala-admin .flag-min {
+  display: inline-block;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--subtle);
+  color: var(--text);
+  font-size: calc(9.5px * var(--cala-fs-dense, 1));
+  font-weight: 600;
+  line-height: 15px;
+}
+
+.cala-admin .rates-scroller {
+  --rates-name-w: 210px;
+  --rates-cell-w: 66px;
+  overflow: auto;
+  overscroll-behavior-x: contain;
+  max-height: min(70vh, 720px);
+  -webkit-overflow-scrolling: touch;
+}
+.cala-admin .rates-grid {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: max-content;
+  min-width: 100%;
+  table-layout: fixed;
+}
+.cala-admin .rates-grid th,
+.cala-admin .rates-grid td {
+  padding: 0;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  background: var(--surface);
+  text-align: center;
+  vertical-align: middle;
+}
+.cala-admin .rates-grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  /* --table-head is translucent: paint it over the surface so columns that
+     scroll underneath the sticky header/corner never show through. */
+  background:
+    linear-gradient(var(--table-head), var(--table-head)),
+    var(--surface);
+}
+.cala-admin .rates-day {
+  width: var(--rates-cell-w);
+  min-width: var(--rates-cell-w);
+  height: 50px;
+  font-weight: 500;
+}
+.cala-admin .rates-day small {
+  display: block;
+  color: var(--muted);
+  font-size: calc(10px * var(--cala-fs-dense, 1));
+  text-transform: capitalize;
+  letter-spacing: 0;
+}
+.cala-admin .rates-day b {
+  display: block;
+  font-size: calc(14px * var(--cala-fs-dense, 1));
+  font-weight: 600;
+  line-height: 1.2;
+}
+.cala-admin .rates-grid .weekend {
+  background: color-mix(in srgb, var(--subtle) 55%, var(--surface));
+}
+.cala-admin .rates-grid thead .weekend {
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--subtle) 80%, var(--table-head)),
+      color-mix(in srgb, var(--subtle) 80%, var(--table-head))
+    ),
+    var(--surface);
+}
+.cala-admin .rates-day.today b {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.cala-admin .rates-grid .past > * {
+  opacity: 0.5;
+}
+
+/* Sticky first column with the space's name. */
+.cala-admin .rates-name {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  width: var(--rates-name-w);
+  min-width: var(--rates-name-w);
+  max-width: var(--rates-name-w);
+  text-align: left !important;
+  box-shadow: 1px 0 0 var(--border), 8px 0 16px -14px #102a2a55;
+}
+.cala-admin thead .rates-corner {
+  z-index: 3;
+  padding: 0 16px !important;
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+  color: var(--muted);
+}
+.cala-admin .rates-corner small {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--subtle);
+  font-size: calc(10px * var(--cala-fs-dense, 1));
+}
+.cala-admin .rates-name > button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 60px;
+  padding: 10px 14px 10px 16px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cala-admin .rates-name > button > span {
+  min-width: 0;
+}
+.cala-admin .rates-name strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: calc(13px * var(--cala-fs, 1));
+}
+.cala-admin .rates-name small {
+  display: block;
+  color: var(--muted);
+  font-size: calc(11px * var(--cala-fs-dense, 1));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cala-admin .rates-name .icon {
+  flex: none;
+  opacity: 0.45;
+  transition: opacity 0.15s;
+}
+.cala-admin .rates-name > button:hover .icon,
+.cala-admin .rates-name > button:focus-visible .icon {
+  opacity: 1;
+}
+@media (hover: hover) {
+  .cala-admin .rates-name > button:hover {
+    background: color-mix(in srgb, var(--accent) 7%, transparent);
+  }
+}
+
+/* Day cells */
+.cala-admin .rates-cell {
+  position: relative;
+  width: var(--rates-cell-w);
+  height: 60px;
+}
+.cala-admin .rates-cell.is-closed {
+  background: repeating-linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--error) 7%, var(--surface)) 0 6px,
+    var(--surface) 6px 12px
+  );
+}
+.cala-admin .rates-price {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: calc(12.5px * var(--cala-fs-dense, 1));
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.cala-admin .rates-cell.is-custom .rates-price {
+  color: var(--text);
+  font-weight: 600;
+}
+.cala-admin .rates-cell.is-closed .rates-price {
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--error) 60%, transparent);
+}
+.cala-admin .rates-price:disabled {
+  cursor: default;
+}
+@media (hover: hover) {
+  .cala-admin .rates-price:not(:disabled):hover {
+    background: color-mix(in srgb, var(--accent) 9%, transparent);
+    color: var(--accent);
+  }
+}
+.cala-admin .rates-price:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -3px;
+  border-radius: 6px;
+}
+.cala-admin .rates-cell.is-saving .rates-price {
+  color: var(--accent);
+  animation: rates-pulse 1s ease-in-out infinite;
+}
+@keyframes rates-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+.cala-admin .rates-input {
+  width: calc(100% - 8px);
+  height: 40px;
+  margin: 0 4px;
+  padding: 0 4px;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  text-align: center;
+  font: inherit;
+  font-size: calc(13px * var(--cala-fs-dense, 1));
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 6px 18px -8px #102a2a66;
+}
+.cala-admin .rates-input:focus {
+  outline: none;
+}
+.cala-admin .rates-flags {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3px;
+  pointer-events: none;
+}
+.cala-admin .rates-flags .flag {
+  width: 6px;
+  height: 6px;
+}
+.cala-admin .rates-flags .flag-min {
+  font-size: calc(8.5px * var(--cala-fs-dense, 1));
+  line-height: 12px;
+  padding: 0 3px;
+}
+.cala-admin .rates-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 12px 20px;
+  color: var(--muted);
+  font-size: calc(11.5px * var(--cala-fs-dense, 1));
+  border-top: 1px solid var(--border);
+}
+
+/* Rules dialog */
+.cala-admin .rates-tabs {
+  margin-bottom: 18px;
+}
+.cala-admin .rates-upcoming {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--subtle);
+}
+.cala-admin .rates-upcoming ul {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: calc(12.5px * var(--cala-fs, 1));
+}
+.cala-admin .rates-upcoming li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.cala-admin .rates-upcoming li span {
+  color: var(--muted);
+  text-align: right;
+}
+
+/* Tablet: slightly narrower name column, finger-sized cells. */
+@media (min-width: 761px) and (max-width: 1199px) {
+  .cala-admin .rates-scroller {
+    --rates-name-w: 170px;
+    --rates-cell-w: 64px;
+    max-height: none;
+  }
+  .cala-admin .rates-legend {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+/* Phone: compact name column, the grid scrolls sideways under it. */
+@media (max-width: 760px) {
+  .cala-admin .rates-toolbar {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+  .cala-admin .rates-month {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .cala-admin .rates-month strong {
+    min-width: 0;
+    flex: 1;
+  }
+  .cala-admin .rates-plan,
+  .cala-admin .rates-plan select {
+    width: 100%;
+  }
+  .cala-admin .rates-legend {
+    margin: 0;
+    gap: 4px 12px;
+  }
+  .cala-admin .rates-scroller {
+    --rates-name-w: 118px;
+    --rates-cell-w: 60px;
+    max-height: none;
+  }
+  .cala-admin .rates-name > button {
+    padding: 8px 8px 8px 12px;
+  }
+  .cala-admin .rates-name > button .icon {
+    display: none;
+  }
+  .cala-admin thead .rates-corner {
+    padding: 0 12px !important;
+  }
+  .cala-admin .rates-corner small {
+    display: none;
+  }
+  .cala-admin .rates-input {
+    font-size: 16px; /* no iOS zoom on focus */
+  }
+  .cala-admin .rates-hint {
+    padding: 10px 14px;
+  }
+}
+@media (pointer: coarse) {
+  .cala-admin .rates-hint {
+    display: none;
+  }
+}
+.cala-admin tbody .rates-name,
+.cala-admin tbody .rates-name strong {
+  color: var(--text);
+  text-transform: none;
+  letter-spacing: normal;
+}

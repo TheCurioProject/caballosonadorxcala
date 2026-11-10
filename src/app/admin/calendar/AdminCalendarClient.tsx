@@ -1,5 +1,7 @@
 'use client';
 
+import { calendarDateToLocal } from '@/lib/dateRanges';
+
 import React, { useState } from 'react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, addDays } from 'date-fns';
 import { enUS } from 'date-fns/locale';
@@ -59,8 +61,8 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
     let guestName: string | undefined = undefined;
 
     const booking = bookings.find(b => {
-      const checkIn = new Date(b.checkIn);
-      const checkOut = new Date(b.checkOut);
+      const checkIn = calendarDateToLocal(b.checkIn);
+      const checkOut = calendarDateToLocal(b.checkOut);
       const isNight = day >= checkIn && day < checkOut;
       const isBuffer = isSameDay(day, checkOut);
       
@@ -81,15 +83,15 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
 
     // Check blocks
     const block = blocks.find(b => {
-      const start = new Date(b.startDate);
-      const end = new Date(b.endDate);
+      const start = calendarDateToLocal(b.startDate);
+      const end = calendarDateToLocal(b.endDate);
       return day >= start && day <= end;
     });
 
     // Check holidays
     const holiday = holidays.find(h => {
-      const start = new Date(h.startDate);
-      const end = new Date(h.endDate);
+      const start = calendarDateToLocal(h.startDate);
+      const end = calendarDateToLocal(h.endDate);
       return day >= start && day < end;
     });
 
@@ -102,9 +104,9 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
     });
 
     const isTour = tourBookings.some(t => {
-      let d = new Date(t.startDate);
+      const d = calendarDateToLocal(t.startDate);
       d.setHours(0,0,0,0);
-      const end = new Date(t.endDate);
+      const end = calendarDateToLocal(t.endDate);
       end.setHours(0,0,0,0);
       const currentDay = new Date(day);
       currentDay.setHours(0,0,0,0);
@@ -168,16 +170,22 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
     if (selectedDates.length === 0) return;
     setIsLoading(true);
     // If all are blocked, we unblock (isBlocking = false). Otherwise we block (isBlocking = true).
-    await toggleBlockDates(roomId, selectedDates, !allSelectedBlocked);
-    setIsLoading(false);
+    try {
+      await toggleBlockDates(roomId, selectedDates.map(date => new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))), !allSelectedBlocked);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSavePrice = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedDates.length === 0) return;
     setIsLoading(true);
-    await setCustomPrices(roomId, selectedDates, parseFloat(customPriceInput));
-    setIsLoading(false);
+    try {
+      await setCustomPrices(roomId, selectedDates.map(date => new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))), parseFloat(customPriceInput));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const days = [];
@@ -242,7 +250,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
                   bgClass = "bg-gray-400 text-white shadow-inner";
                   textClass = "text-white font-bold";
                 } else if (info.isBooked) {
-                  const isAirbnb = info.bookingOrigin === 'AIRBNB' || (info.bookingOrigin === 'ICAL_SYNC' && info.guestName?.toLowerCase().includes('airbnb'));
+                  const isAirbnb = info.bookingOrigin === 'AIRBNB' || (info.bookingOrigin === 'ICAL_SYNC' && String(info.guestName || '').toLowerCase().includes('airbnb'));
                   const isExternal = info.bookingOrigin === 'EXTERNAL' || (info.bookingOrigin === 'ICAL_SYNC' && !isAirbnb);
                   
                   let color = 'bg-red-500';
@@ -343,7 +351,7 @@ export default function AdminCalendarClient({ roomId, basePrice, bookings, tourB
                   textClass = "text-white";
                   label = info.blockReason === 'Bloqueo manual' ? 'Manual Block' : (info.blockReason || "Blocked");
                 } else if (info.isBooked) {
-                  const isAirbnb = info.bookingOrigin === 'AIRBNB' || (info.bookingOrigin === 'ICAL_SYNC' && info.guestName?.toLowerCase().includes('airbnb'));
+                  const isAirbnb = info.bookingOrigin === 'AIRBNB' || (info.bookingOrigin === 'ICAL_SYNC' && String(info.guestName || '').toLowerCase().includes('airbnb'));
                   const isExternal = info.bookingOrigin === 'EXTERNAL' || (info.bookingOrigin === 'ICAL_SYNC' && !isAirbnb);
 
                   let color = 'bg-red-500';

@@ -22,7 +22,7 @@ export default function ClearPendingButton({ all = false, label = 'Clear Expired
       if (res.success) {
         setToastState({
           isOpen: true,
-          message: `Removed ${res.count} temporary date hold(s).`,
+          message: `Released ${res.count} temporary date hold(s); reservation details were kept.`,
           type: 'success',
         });
       } else {
@@ -57,7 +57,7 @@ export default function ClearPendingButton({ all = false, label = 'Clear Expired
       <AdminConfirmModal
         isOpen={isConfirmOpen}
         title={all ? "Clear ALL Pending Holds" : "Clear Expired Holds"}
-        description={all ? "Are you sure you want to delete ALL pending unpaid booking holds?" : "Are you sure you want to clear holds older than 15 minutes?"}
+        description={all ? "Are you sure you want to release ALL pending unpaid booking holds while keeping their reservation details?" : "Are you sure you want to clear holds older than 35 minutes while keeping their reservation details?"}
         confirmText="Clear Holds"
         variant="warning"
         isLoading={isPending}

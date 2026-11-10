@@ -46,7 +46,7 @@ export function BookingSuccessModal({ booking, lang }: BookingSuccessModalProps)
   const nights = Math.round((new Date(booking.checkOut).getTime() - new Date(booking.checkIn).getTime()) / (1000 * 60 * 60 * 24));
   const formattedPrice = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(booking.totalPrice);
 
-  const t = {
+  const translations = {
     es: {
       successTitle: '¡Reserva Confirmada!',
       successMsg: 'Hemos procesado tu pago con éxito. Tu aventura en Casa Caballo Soñador está lista.',
@@ -77,7 +77,8 @@ export function BookingSuccessModal({ booking, lang }: BookingSuccessModalProps)
       error: 'Error sending',
       close: 'Close and Return to Home'
     }
-  }[lang as 'es' | 'en'] || t.es;
+  };
+  const t = translations[lang as 'es' | 'en'] || translations.es;
 
   const handleResendInvoice = async () => {
     setIsResending(true);
@@ -86,7 +87,7 @@ export function BookingSuccessModal({ booking, lang }: BookingSuccessModalProps)
       const res = await fetch('/api/invoice/resend', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId: booking.id })
+        body: JSON.stringify({ bookingId: booking.id, guestEmail: booking.guestEmail })
       });
       if (res.ok) {
         setResendStatus('success');
@@ -146,7 +147,7 @@ export function BookingSuccessModal({ booking, lang }: BookingSuccessModalProps)
               <div>
                 <p className="text-xs text-[#666] uppercase tracking-wider">{t.dates}</p>
                 <p className="text-[#23211F] font-medium">
-                  {new Date(booking.checkIn).toLocaleDateString(lang === 'en' ? 'en-US' : 'es-MX')} {t.to} {new Date(booking.checkOut).toLocaleDateString(lang === 'en' ? 'en-US' : 'es-MX')}
+                  {new Date(booking.checkIn).toLocaleDateString(lang === 'en' ? 'en-US' : 'es-MX', { timeZone: 'UTC' })} {t.to} {new Date(booking.checkOut).toLocaleDateString(lang === 'en' ? 'en-US' : 'es-MX', { timeZone: 'UTC' })}
                 </p>
               </div>
             </div>

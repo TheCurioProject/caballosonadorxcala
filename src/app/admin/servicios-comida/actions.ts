@@ -1,10 +1,14 @@
 'use server';
 
+import { revalidatePublicSite } from '@/lib/revalidatePublic';
+import { requireAdmin } from '@/lib/auth';
+
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
 // Initialize default food services if they don't exist
 export async function initFoodServices() {
+  await requireAdmin();
   const defaultServices = [
     { name: 'Breakfast', description: '8:00 AM - 10:00 AM', price: 25, type: 'FOOD' },
     { name: 'Breakfast & Lunch', description: '8:00 AM - 2:00 PM', price: 45, type: 'FOOD' },
@@ -32,6 +36,7 @@ export async function initFoodServices() {
 }
 
 export async function getFoodServices() {
+  await requireAdmin();
   await initFoodServices(); // Ensure defaults exist
   return await prisma.servicePricing.findMany({
     where: { serviceType: { in: ['FOOD_SERVICE', 'FOOD_PRICE', 'FOOD_DISH', 'FOOD'] } },
@@ -40,6 +45,7 @@ export async function getFoodServices() {
 }
 
 export async function updateServiceDetails(id: number, price: number, name: string, description: string) {
+  await requireAdmin();
   try {
     // Store plain text directly — no JSON translation wrapping
     await prisma.servicePricing.update({
@@ -51,7 +57,7 @@ export async function updateServiceDetails(id: number, price: number, name: stri
       }
     });
     revalidatePath('/admin/servicios-comida');
-    revalidatePath('/[lang]/servicios-de-comida', 'page');
+    revalidatePublicSite();
     return { success: true };
   } catch (error) {
     console.error('Error updating price:', error);
@@ -61,6 +67,7 @@ export async function updateServiceDetails(id: number, price: number, name: stri
 
 
 export async function getFoodBookings() {
+  await requireAdmin();
   return await prisma.serviceBooking.findMany({
     where: { serviceType: 'FOOD' },
     orderBy: { createdAt: 'desc' }

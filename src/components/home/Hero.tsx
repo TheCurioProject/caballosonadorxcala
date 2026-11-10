@@ -8,6 +8,7 @@ import { useDictionary } from '@/i18n/DictionaryContext';
 
 export const Hero = ({ imageSrc }: { imageSrc?: string }) => {
   const dict = useDictionary();
+  const isSpanish = dict.hero.breathe === 'Respira';
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
   // Parallax enhanced: translate Y and Scale for depth
@@ -34,14 +35,15 @@ export const Hero = ({ imageSrc }: { imageSrc?: string }) => {
       </motion.div>
       
       <div className="relative z-10 min-h-[100dvh] flex flex-col pt-32 pb-24 md:pb-32 px-6 md:px-16 text-white w-full max-w-7xl mx-auto drop-shadow-2xl">
-        <RevealText delay={0.2} className="mb-6 md:mb-8 max-w-5xl mt-auto">
-          <h1 className="flex flex-col gap-3 md:gap-5">
+        <RevealText delay={0.2} className="mb-6 md:mb-8 max-w-5xl mt-auto md:translate-y-16">
+          <h1 className="flex flex-col gap-3 md:gap-2">
             <span className="uppercase tracking-[0.2em] md:tracking-[0.4em] text-sm md:text-base md:text-sm font-bold text-[#D5C6B1]">
               {dict.hero.title}
             </span>
-            <span className="font-serif leading-[0.85] tracking-tighter block break-words" style={{ fontSize: 'clamp(4.5rem, min(15vw, 22vh), 14rem)' }}>
-              {dict.hero.breathe} <br className="hidden md:block" />
-              <span className="italic font-light text-[#F9F7F4]">{dict.hero.belong}</span>
+            <span className="font-serif italic font-light leading-[0.85] tracking-tighter block break-words text-[clamp(4.5rem,min(15vw,22vh),14rem)] md:grid md:w-max md:self-start md:grid-cols-1 md:justify-items-start md:text-[clamp(4.25rem,min(14vw,20vh),13rem)]">
+              <span className="block md:w-full md:text-left">{dict.hero.breathe}</span>
+              <span className={`block italic font-light text-[#F9F7F4] ${isSpanish ? 'md:w-full md:text-left' : 'md:justify-self-center md:-translate-x-[0.1em]'}`}>{dict.hero.belong}</span>
+              <span className={`block md:w-full md:text-left ${isSpanish ? 'md:-translate-x-[0.04em]' : 'md:-translate-x-[0.08em]'}`}>{dict.hero.become}</span>
             </span>
           </h1>
         </RevealText>

@@ -1,0 +1,25 @@
+project_id = "casa-caballo-sonador"
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+[db]
+port = 54322
+major_version = 17
+[db.seed]
+enabled = false
+sql_paths = []
+[studio]
+enabled = true
+port = 54323
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://127.0.0.1:3000/admin/login/"]
+jwt_expiry = 3600
+enable_signup = false
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true

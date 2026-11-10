@@ -1,3 +1,4 @@
+import { getSession } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
@@ -5,22 +6,11 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    let property = await prisma.property.findFirst();
+    const property = await prisma.property.findFirst();
     
-    // If no property exists, we return defaults or create one
-    if (!property) {
-      property = await prisma.property.create({
-        data: {
-          name: 'Casa Caballo Soñador',
-          minTourPax: 3,
-          maxTourPax: 10
-        }
-      });
-    }
-
     return NextResponse.json({
-      minTourPax: property.minTourPax ?? 3,
-      maxTourPax: property.maxTourPax ?? 10
+      minTourPax: property?.minTourPax ?? 3,
+      maxTourPax: property?.maxTourPax ?? 10
     });
   } catch (error) {
     console.error('Error fetching tour settings:', error);
@@ -29,8 +19,16 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const { minTourPax, maxTourPax } = await req.json();
+    if (!Number.isInteger(Number(minTourPax)) || !Number.isInteger(Number(maxTourPax)) ||
+        Number(minTourPax) < 1 || Number(maxTourPax) < Number(minTourPax)) {
+      return NextResponse.json({ error: 'Invalid passenger limits' }, { status: 400 });
+    }
 
     let property = await prisma.property.findFirst();
     if (!property) {

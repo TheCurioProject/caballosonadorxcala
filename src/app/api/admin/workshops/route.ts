@@ -1,7 +1,8 @@
+import { revalidatePublicSite } from '@/lib/revalidatePublic';
+import { getSession } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { v2 as cloudinary } from 'cloudinary';
-import { revalidatePath } from 'next/cache';
 import { autoTranslate } from '@/lib/translate';
 
 // Helper to parse translation result
@@ -14,6 +15,10 @@ const parseTranslation = (jsonStr: string) => {
 };
 
 export async function GET() {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const workshops = await prisma.writersWorkshop.findMany({
       orderBy: { createdAt: 'desc' }
@@ -25,6 +30,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const formData = await request.formData();
     const title = formData.get('title') as string;
@@ -105,8 +114,7 @@ export async function POST(request: Request) {
       }
     });
 
-    revalidatePath('/es/writers-group');
-    revalidatePath('/en/writers-group');
+    revalidatePublicSite();
 
     return NextResponse.json(workshop);
   } catch (error) {
@@ -116,6 +124,10 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const formData = await request.formData();
     const id = parseInt(formData.get('id') as string);
@@ -201,8 +213,7 @@ export async function PUT(request: Request) {
       data: updateData
     });
 
-    revalidatePath('/es/writers-group');
-    revalidatePath('/en/writers-group');
+    revalidatePublicSite();
 
     return NextResponse.json(workshop);
   } catch (error) {
@@ -212,6 +223,10 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
@@ -224,8 +239,7 @@ export async function DELETE(request: Request) {
       where: { id: parseInt(id) }
     });
 
-    revalidatePath('/es/writers-group');
-    revalidatePath('/en/writers-group');
+    revalidatePublicSite();
 
     return NextResponse.json({ success: true });
   } catch (error) {

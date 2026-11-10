@@ -1,10 +1,12 @@
+import { requireAdmin, requireAdminPage } from '@/lib/auth';
 import ContentAdminClient from './ContentAdminClient';
 
 export const metadata = {
   title: 'Content Manager - Admin',
 };
 
-export default function ContentAdminPage() {
+export default async function ContentAdminPage() {
+  await requireAdminPage();
   return (
     <div className="flex-1 pt-0 sm:pt-2 bg-gray-50 min-h-screen">
       <div className="flex items-center justify-between mb-4 sm:mb-8">

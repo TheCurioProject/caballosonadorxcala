@@ -21,7 +21,7 @@ export default function ContentAdminClient() {
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
   const [restoringKey, setRestoringKey] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<number>(Date.now());
+  const [lastUpdated, setLastUpdated] = useState<number>(() => Date.now());
 
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 

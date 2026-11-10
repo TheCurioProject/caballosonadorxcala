@@ -1,8 +1,13 @@
+import { revalidatePublicSite } from '@/lib/revalidatePublic';
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 
 export async function GET(req: Request) {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const addons = await prisma.addonPricing.findMany({
       orderBy: { id: 'asc' }
@@ -14,6 +19,10 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const session = await getSession();
     if (!session) {
@@ -41,6 +50,7 @@ export async function POST(req: Request) {
       }
     });
 
+    revalidatePublicSite();
     return NextResponse.json(addon);
   } catch (error) {
     console.error('Error saving addon:', error);

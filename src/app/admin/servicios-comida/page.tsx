@@ -1,8 +1,11 @@
+import { revalidatePublicSite } from '@/lib/revalidatePublic';
+import { requireAdmin, requireAdminPage } from '@/lib/auth';
 import { getFoodServices, getFoodBookings, updateServiceDetails } from './actions';
 import { revalidatePath } from 'next/cache';
 import { Utensils, Calendar as CalendarIcon } from 'lucide-react';
 
 export default async function ServiciosComidaAdminPage() {
+  await requireAdminPage();
   let services: any[] = [];
   let bookings: any[] = [];
   try {
@@ -17,6 +20,7 @@ export default async function ServiciosComidaAdminPage() {
 
   async function handleUpdateService(formData: FormData) {
     'use server';
+    await requireAdmin();
     const id = parseInt(formData.get('id') as string);
     const price = parseFloat(formData.get('price') as string);
     const name = formData.get('name') as string;
@@ -25,6 +29,7 @@ export default async function ServiciosComidaAdminPage() {
     if (!isNaN(id) && !isNaN(price) && name && description) {
       await updateServiceDetails(id, price, name, description);
       revalidatePath('/admin/servicios-comida');
+      revalidatePublicSite();
     }
   }
 
@@ -120,7 +125,7 @@ export default async function ServiciosComidaAdminPage() {
                     <h3 className="font-bold text-gray-800">{booking.guestName}</h3>
                     <p className="text-sm text-gray-600">{booking.guestEmail}</p>
                     <p className="text-xs text-[#9B7E67] mt-1 font-bold">
-                      {new Date(booking.startDate).toLocaleDateString()} - {JSON.parse(booking.serviceDetails || '{}').serviceName || 'Service'}
+                      {new Date(booking.startDate).toLocaleDateString('es-MX', { timeZone: 'UTC' })} - {JSON.parse(booking.serviceDetails || '{}').serviceName || 'Service'}
                     </p>
                   </div>
                   <div className="text-right">

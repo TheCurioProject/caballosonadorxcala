@@ -1,3 +1,5 @@
+import { revalidatePublicSite } from '@/lib/revalidatePublic';
+import { getSession } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { autoTranslate } from '@/lib/translate';
@@ -21,6 +23,10 @@ const extractPlainText = (str: string | undefined | null): string => {
 };
 
 export async function GET() {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const services = await prisma.servicePricing.findMany({
       where: { 
@@ -46,6 +52,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
     const { id, name, description, price, isActive, serviceType } = body;
@@ -68,6 +78,7 @@ export async function POST(req: Request) {
       description: extractPlainText(updated.description)
     };
 
+    revalidatePublicSite();
     return NextResponse.json(updatedFormatted);
   } catch (error) {
     console.error('Error saving food service:', error);
@@ -76,12 +87,17 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const url = new URL(req.url);
     const id = parseInt(url.searchParams.get('id') || '0');
     if (id > 0) {
       await prisma.servicePricing.delete({ where: { id } });
     }
+    revalidatePublicSite();
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting food service:', error);

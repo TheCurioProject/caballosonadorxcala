@@ -13,6 +13,10 @@ const RATE_LIMIT_MAX = 3; // max 3 resend attempts per minute per IP
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
+  if (rateLimitMap.size > 10000) {
+    for (const [key, value] of rateLimitMap) if (value.resetAt <= now) rateLimitMap.delete(key);
+    if (rateLimitMap.size > 10000) return true;
+  }
   const entry = rateLimitMap.get(ip);
   if (!entry || now > entry.resetAt) {
     rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
@@ -34,7 +38,7 @@ export async function POST(req: Request) {
 
     const { bookingId, guestEmail } = await req.json();
 
-    if (!bookingId) {
+    if (!Number.isSafeInteger(Number(bookingId)) || Number(bookingId) < 1 || typeof guestEmail !== 'string' || !guestEmail.trim()) {
       return NextResponse.json({ error: 'Falta el ID de la reserva' }, { status: 400 });
     }
 
@@ -50,11 +54,11 @@ export async function POST(req: Request) {
 
     // VULN-06 FIX: Verify that the requester is the booking owner via email match
     // This prevents arbitrary users from requesting invoices for bookings they don't own
-    if (guestEmail && guestEmail.toLowerCase() !== booking.guestEmail.toLowerCase()) {
+    if (guestEmail.trim().toLowerCase() !== booking.guestEmail.toLowerCase()) {
       return NextResponse.json({ error: 'Reserva no encontrada o datos incorrectos' }, { status: 404 });
     }
 
-    if (booking.payment_status !== 'CONFIRMED') {
+    if (!['CONFIRMED', 'PAID'].includes(booking.payment_status)) {
       return NextResponse.json({ error: 'El pago aún está en proceso de validación por Stripe. Intenta de nuevo en unos segundos.' }, { status: 400 });
     }
 
@@ -70,8 +74,8 @@ export async function POST(req: Request) {
         bookingId: booking.id,
         guestName: booking.guestName,
         roomName: booking.property?.name || 'Casa Caballo Soñador',
-        checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
-        checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
+        checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { timeZone: 'UTC' }),
+        checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { timeZone: 'UTC' }),
         totalPrice: booking.totalPrice,
         depositPaid: booking.depositPaid || 0,
         depositCurrency: booking.depositCurrency || 'MXN',
@@ -87,8 +91,8 @@ export async function POST(req: Request) {
     const emailData = {
       guestName: booking.guestName,
       guestEmail: booking.guestEmail,
-      checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
-      checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+      checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }),
+      checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }),
       totalPrice: booking.totalPrice,
       currency,
       bookingId: booking.id,

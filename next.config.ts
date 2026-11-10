@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const securityHeaders = [
-  { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(self)' },
@@ -11,9 +10,6 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   trailingSlash: true,
   compress: true,
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   allowedDevOrigins: ['localhost', '127.0.0.1'],
   serverExternalPackages: ['@prisma/client', 'prisma', 'node-ical'],
   images: {
@@ -30,6 +26,12 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      {source: '/((?!cala/disponibilidad/).*)', headers: [{key:'X-Frame-Options',value:'SAMEORIGIN'}]},
+      { source: '/admin/:path*', headers: [
+        { key: 'Cache-Control', value: 'private, no-store' },
+        { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+      ] },
+      { source: '/api/:path*', headers: [{ key: 'Cache-Control', value: 'no-store' }] },
       {
         source: '/(.*)',
         headers: securityHeaders,

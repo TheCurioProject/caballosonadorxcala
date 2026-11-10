@@ -1,3 +1,7 @@
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]!));
+}
+
 import { Resend } from 'resend';
 
 const resendApiKey = process.env.RESEND_API_KEY;
@@ -9,6 +13,7 @@ if (!resendApiKey && process.env.NODE_ENV === 'production') {
 export const resend = new Resend(resendApiKey || 're_dummy_key_for_build');
 
 interface BookingEmailData {
+  idempotencyKey?: string;
   guestName: string;
   guestEmail: string;
   checkIn: string;
@@ -22,6 +27,8 @@ interface BookingEmailData {
 }
 
 export interface TourEmailData {
+  serviceType?: 'FOOD' | 'TOUR';
+  idempotencyKey?: string;
   guestName: string;
   guestEmail: string;
   tourDestination: string;
@@ -62,6 +69,7 @@ async function withRetry<T extends { error: any }>(operation: () => Promise<T>, 
 }
 
 export async function sendBookingConfirmation(data: BookingEmailData) {
+  data = { ...data, guestName: escapeHtml(data.guestName), ...('tourDestination' in data && typeof data.tourDestination === 'string' ? { tourDestination: escapeHtml(data.tourDestination) } : {}) };
   try {
     const currencySymbol = data.currency === 'MXN' ? '$' : data.currency === 'USD' ? 'US$' : '€';
     const formattedPrice = `${currencySymbol}${data.totalPrice.toLocaleString()}`;
@@ -125,7 +133,7 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
         </body>
         </html>
       `,
-    }));
+    }, { idempotencyKey: data.idempotencyKey ? `${data.idempotencyKey}:sendBookingConfirmation` : undefined }));
 
     if (error) {
       console.error('[Resend] Error sending booking confirmation:', error);
@@ -141,6 +149,7 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
 }
 
 export async function sendInvoiceEmail(data: BookingEmailData, pdfBuffer?: Buffer) {
+  data = { ...data, guestName: escapeHtml(data.guestName), ...('tourDestination' in data && typeof data.tourDestination === 'string' ? { tourDestination: escapeHtml(data.tourDestination) } : {}) };
   try {
     const currencySymbol = data.currency === 'MXN' ? '$' : data.currency === 'USD' ? 'US$' : '€';
     const formattedPrice = `${currencySymbol}${data.totalPrice.toLocaleString()}`;
@@ -194,7 +203,7 @@ export async function sendInvoiceEmail(data: BookingEmailData, pdfBuffer?: Buffe
         </html>
       `,
       attachments,
-    }));
+    }, { idempotencyKey: data.idempotencyKey ? `${data.idempotencyKey}:sendInvoiceEmail` : undefined }));
 
     if (error) {
       console.error('[Resend] Error sending invoice:', error);
@@ -210,6 +219,7 @@ export async function sendInvoiceEmail(data: BookingEmailData, pdfBuffer?: Buffe
 }
 
 export async function sendTourConfirmation(data: TourEmailData) {
+  data = { ...data, guestName: escapeHtml(data.guestName), ...('tourDestination' in data && typeof data.tourDestination === 'string' ? { tourDestination: escapeHtml(data.tourDestination) } : {}) };
   try {
     const currencySymbol = data.currency === 'MXN' ? '$' : data.currency === 'USD' ? 'US$' : '€';
     const formattedPrice = `${currencySymbol}${data.totalPrice.toLocaleString()}`;
@@ -217,7 +227,7 @@ export async function sendTourConfirmation(data: TourEmailData) {
     const { data: responseData, error } = await withRetry(() => resend.emails.send({
       from: 'Casa Caballo Soñador <reservas@casacaballosonador.com>',
       to: data.toEmails || [data.guestEmail],
-      subject: `Confirmación de Tour #${data.bookingId} — Casa Caballo Soñador`,
+      subject: `Confirmación de ${data.serviceType === 'FOOD' ? 'Servicio de Comida' : 'Tour'} #${data.bookingId} — Casa Caballo Soñador`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -235,17 +245,17 @@ export async function sendTourConfirmation(data: TourEmailData) {
             
             <!-- Content -->
             <div style="background:white;border-radius:16px;padding:32px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
-              <h2 style="font-size:22px;color:#23211F;margin:0 0 8px;font-weight:400;">¡Tour Confirmado!</h2>
-              <p style="color:#666;font-size:14px;margin:0 0 24px;">Hola ${data.guestName}, tu tour está confirmado.</p>
+              <h2 style="font-size:22px;color:#23211F;margin:0 0 8px;font-weight:400;">¡${data.serviceType === 'FOOD' ? 'Servicio de Comida' : 'Tour'} Confirmado!</h2>
+              <p style="color:#666;font-size:14px;margin:0 0 24px;">Hola ${data.guestName}, tu ${data.serviceType === 'FOOD' ? 'servicio de comida' : 'tour'} está confirmado.</p>
               
               <div style="border-top:1px solid #eee;padding-top:20px;">
                 <table style="width:100%;border-collapse:collapse;">
                   <tr>
-                    <td style="padding:12px 0;color:#999;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;">Reserva Tour</td>
+                    <td style="padding:12px 0;color:#999;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;">Reserva ${data.serviceType === 'FOOD' ? 'Servicio' : 'Tour'}</td>
                     <td style="padding:12px 0;text-align:right;color:#23211F;font-weight:500;">#${data.bookingId}</td>
                   </tr>
                   <tr>
-                    <td style="padding:12px 0;color:#999;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;">Destino</td>
+                    <td style="padding:12px 0;color:#999;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;">${data.serviceType === 'FOOD' ? 'Servicio' : 'Destino'}</td>
                     <td style="padding:12px 0;text-align:right;color:#23211F;font-weight:500;">${data.tourDestination}</td>
                   </tr>
                   <tr>
@@ -273,7 +283,7 @@ export async function sendTourConfirmation(data: TourEmailData) {
         </body>
         </html>
       `,
-    }));
+    }, { idempotencyKey: data.idempotencyKey ? `${data.idempotencyKey}:sendTourConfirmation` : undefined }));
 
     if (error) {
       console.error('[Resend] Error sending tour confirmation:', error);
@@ -289,6 +299,7 @@ export async function sendTourConfirmation(data: TourEmailData) {
 }
 
 export async function sendTourInvoiceEmail(data: TourEmailData, pdfBuffer?: Buffer) {
+  data = { ...data, guestName: escapeHtml(data.guestName), ...('tourDestination' in data && typeof data.tourDestination === 'string' ? { tourDestination: escapeHtml(data.tourDestination) } : {}) };
   try {
     const currencySymbol = data.currency === 'MXN' ? '$' : data.currency === 'USD' ? 'US$' : '€';
     const formattedPrice = `${currencySymbol}${data.totalPrice.toLocaleString()}`;
@@ -314,7 +325,12 @@ export async function sendTourInvoiceEmail(data: TourEmailData, pdfBuffer?: Buff
     };
 
     const lang = data.language || 'en';
-    const text = t[lang];
+    const text = { ...t[lang] };
+    if (data.serviceType === 'FOOD') {
+      for (const key of Object.keys(text) as (keyof typeof text)[]) {
+        text[key] = text[key].replace(/tour/gi, lang === 'es' ? 'servicio de comida' : 'food service');
+      }
+    }
 
     const { data: responseData, error } = await withRetry(() => resend.emails.send({
       from: 'Casa Caballo Soñador <facturas@casacaballosonador.com>',
@@ -342,7 +358,7 @@ export async function sendTourInvoiceEmail(data: TourEmailData, pdfBuffer?: Buff
         </html>
       `,
       attachments,
-    }));
+    }, { idempotencyKey: data.idempotencyKey ? `${data.idempotencyKey}:sendTourInvoiceEmail` : undefined }));
 
     if (error) {
       console.error('[Resend] Error sending tour invoice:', error);
@@ -358,6 +374,7 @@ export async function sendTourInvoiceEmail(data: TourEmailData, pdfBuffer?: Buff
 }
 
 export async function sendAdminBookingNotification(adminEmails: string[], data: BookingEmailData | TourEmailData, pdfBuffer?: Buffer) {
+  data = { ...data, guestName: escapeHtml(data.guestName), ...('tourDestination' in data && typeof data.tourDestination === 'string' ? { tourDestination: escapeHtml(data.tourDestination) } : {}) };
   try {
     const currencySymbol = data.currency === 'MXN' ? '$' : data.currency === 'USD' ? 'US$' : '€';
     const formattedPrice = `${currencySymbol}${data.totalPrice.toLocaleString()}`;
@@ -438,7 +455,7 @@ export async function sendAdminBookingNotification(adminEmails: string[], data: 
         </html>
       `,
       attachments,
-    }));
+    }, { idempotencyKey: data.idempotencyKey ? `${data.idempotencyKey}:sendAdminBookingNotification` : undefined }));
 
     if (error) {
       console.error('[Resend] Error sending admin notification:', error);

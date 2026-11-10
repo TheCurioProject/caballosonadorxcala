@@ -1,7 +1,13 @@
+import { revalidatePublicSite } from '@/lib/revalidatePublic';
+import { getSession } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function GET() {
+export async function POST() {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     // 1. Delete all old FOOD services
     await prisma.servicePricing.deleteMany({
@@ -47,6 +53,7 @@ export async function GET() {
       });
     }
 
+    revalidatePublicSite();
     return NextResponse.json({ success: true, message: 'Database seeded successfully.' });
   } catch (error: any) {
     console.error('Error seeding database:', error);

@@ -1,3 +1,4 @@
+import { IMAGE_HISTORY_GROUP } from '@/lib/imageHistory';
 import { DEFAULT_IMAGES, keyToCloudinaryUrl } from '@/lib/siteImages';
 import prisma from '@/lib/prisma';
 
@@ -7,7 +8,7 @@ export async function getSiteImages() {
   // Fetch image overrides from the database
   let dbImages: any[] = [];
   try {
-    dbImages = await prisma.siteImage.findMany();
+    dbImages = await prisma.siteImage.findMany({ where: { group: { not: IMAGE_HISTORY_GROUP } } });
   } catch (error) {
     console.warn("Failed to fetch site images from database", error);
   }

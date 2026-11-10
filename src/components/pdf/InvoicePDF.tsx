@@ -124,6 +124,7 @@ const styles = StyleSheet.create({
 });
 
 interface InvoiceProps {
+  issuedAt?: Date;
   bookingId: number;
   guestName: string;
   roomName: string;
@@ -207,10 +208,10 @@ const translations = {
   }
 };
 
-export const InvoicePDF = ({ bookingId, guestName, roomName, checkIn, checkOut, totalPrice, depositPaid = 0, depositCurrency = 'MXN', date, logoBase64, addons = [], language = 'en' }: InvoiceProps) => {
+export const InvoicePDF = ({ issuedAt, bookingId, guestName, roomName, checkIn, checkOut, totalPrice, depositPaid = 0, depositCurrency = 'MXN', date, logoBase64, addons = [], language = 'en' }: InvoiceProps) => {
   const t = translations[language] || translations.en;
   return (
-  <Document>
+  <Document creationDate={issuedAt} modificationDate={issuedAt}>
     <Page size="A4" style={styles.page}>
       
       {/* HEADER */}

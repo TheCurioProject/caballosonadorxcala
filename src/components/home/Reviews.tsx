@@ -156,7 +156,7 @@ export const Reviews = () => {
                   ))}
                 </div>
                 <p className="font-serif text-xl italic text-gray-300 leading-relaxed flex-grow">
-                  "{review.text}"
+                  &quot;{review.text}&quot;
                 </p>
                 <div>
                   <h4 className="font-bold tracking-widest uppercase text-base md:text-lg">{review.author}</h4>

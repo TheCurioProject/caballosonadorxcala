@@ -1,0 +1,279 @@
+generator client {
+  provider = "prisma-client-js"
+  output = "../../src/generated/site-postgres"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("SUPABASE_DATABASE_URL")
+  directUrl = env("SUPABASE_DIRECT_URL")
+  schemas = ["site"]
+}
+
+model Property {
+  id           Int           @id @default(autoincrement())
+  name         String        @db.VarChar(255)
+  description  String?       @db.Text
+  basePrice    Float         @default(15000) @map("base_price")
+  baseCapacity    Int           @default(12) @map("base_capacity")
+  icalToken       String?       @unique @map("ical_token") @db.VarChar(255)
+  isActive     Boolean       @default(true) @map("is_active")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  blockedDates BlockedDate[]
+  icalSources  IcalSource[]
+  pricingRules PricingRule[]
+  minTourPax    Int           @default(3) @map("min_tour_pax")
+  maxTourPax    Int           @default(10) @map("max_tour_pax")
+  adminEmails   String        @default("") @map("admin_emails") @db.VarChar(500)
+  whatsappNumber String       @default("+521234567890") @map("whatsapp_number") @db.VarChar(50)
+  bookings     Booking[]
+
+  @@map("properties")
+  @@schema("site")
+}
+
+model Booking {
+  id             Int            @id @default(autoincrement())
+  propertyId     Int            @default(1) @map("property_id")
+  checkIn        DateTime       @map("start_date")
+  checkOut       DateTime       @map("end_date")
+  guestName      String         @db.VarChar(255)
+  guestEmail     String         @db.VarChar(255)
+  guestPhone     String?        @db.VarChar(50)
+  payment_status String         @default("PENDING") @db.VarChar(50)
+  origin         String         @db.VarChar(100)
+  totalPrice     Float
+  depositPaid    Float?         @default(0) @map("deposit_paid")
+  depositCurrency String        @default("MXN") @map("deposit_currency")
+  externalId     String?        @unique @db.VarChar(255)
+  idCardUrl      String?        @db.VarChar(500)
+  notes          String?        @db.Text
+  invoiceLanguage String       @default("en") @map("invoice_language")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  addons         BookingAddon[]
+  property       Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([checkIn, checkOut])
+  @@index([propertyId])
+  @@map("reservas")
+  @@schema("site")
+}
+
+model BlockedDate {
+  id         Int      @id @default(autoincrement())
+  propertyId Int      @default(1) @map("property_id")
+  startDate  DateTime @map("start_date")
+  endDate    DateTime @map("end_date")
+  reason     String?  @db.VarChar(500)
+  source     String?  @default("manual") @db.VarChar(50)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([startDate, endDate])
+  @@index([propertyId])
+  @@map("blocked_dates")
+  @@schema("site")
+}
+
+model PricingRule {
+  id            Int      @id @default(autoincrement())
+  propertyId    Int      @default(1) @map("property_id")
+  date          DateTime
+  priceOverride Float    @map("price_override")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  property      Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([propertyId, date])
+  @@map("pricing_rules")
+  @@schema("site")
+}
+
+model IcalSource {
+  id         Int       @id @default(autoincrement())
+  propertyId Int       @default(1) @map("property_id")
+  name       String    @db.VarChar(255)
+  url        String    @db.Text
+  lastSync   DateTime? @map("last_sync")
+  syncStatus String?   @default("pending") @map("sync_status") @db.VarChar(50)
+  syncError  String?   @map("sync_error") @db.Text
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@map("ical_sources")
+  @@schema("site")
+}
+
+model Experience {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(255)
+  description String?  @db.Text
+  price       String?  @db.VarChar(50)
+  imageUrl    String?  @db.VarChar(500)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@schema("site")
+}
+
+model AdminUser {
+  supabaseUserId String? @unique @db.Uuid @map("supabase_user_id")
+  id           Int      @id @default(autoincrement())
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @db.VarChar(255)
+  name         String?  @db.VarChar(255)
+  role         String   @default("ADMIN") @db.VarChar(50)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  @@schema("site")
+}
+
+model BookingAddon {
+  id        Int      @id @default(autoincrement())
+  bookingId Int      @map("booking_id")
+  type      String   @db.VarChar(50)
+  quantity  Int
+  details   String?  @db.Text
+  price     Float
+  createdAt DateTime @default(now()) @map("created_at")
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@map("booking_addons")
+  @@schema("site")
+}
+
+model AddonPricing {
+  id        Int      @id @default(autoincrement())
+  type      String   @unique @db.VarChar(50)
+  name      String   @db.VarChar(255)
+  price     Float
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("addon_pricing")
+  @@schema("site")
+}
+
+model ServicePricing {
+  id          Int      @id @default(autoincrement())
+  serviceType String // 'FOOD' or 'TOUR'
+  name        String   @db.VarChar(255)
+  description String?  @db.Text
+  price       Float
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("service_pricing")
+  @@schema("site")
+}
+
+model TourDestination {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(255)
+  description String?  @db.Text
+  pricePerPax Float    @map("price_per_pax")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("tour_destinations")
+  @@schema("site")
+}
+
+model ServiceBooking {
+  id             Int      @id @default(autoincrement())
+  serviceType    String // 'FOOD' or 'TOUR'
+  serviceDetails String   @db.Text // JSON with specific selection details (e.g. food type, tour destination)
+  startDate      DateTime @map("start_date")
+  endDate        DateTime @map("end_date")
+  pax            Int?
+  guestName      String   @db.VarChar(255)
+  guestEmail     String   @db.VarChar(255)
+  guestPhone     String?  @db.VarChar(50)
+  paymentStatus  String   @default("PENDING") @map("payment_status") @db.VarChar(50)
+  totalPrice     Float    @map("total_price")
+  externalId     String?  @unique @db.VarChar(255)
+  notes          String?  @db.Text
+  invoiceLanguage String  @default("en") @map("invoice_language")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([startDate, endDate])
+  @@map("service_bookings")
+  @@schema("site")
+}
+
+model SiteImage {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique @db.VarChar(255) // e.g., '/rooms/room1/1.webp'
+  group     String   @db.VarChar(50)          // 'HOMEPAGE', 'FOOD', 'TOURS'
+  name      String   @db.VarChar(255)         // e.g., 'Hero Image'
+  url       String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("site_images")
+  @@schema("site")
+}
+
+model WritersWorkshop {
+  id            Int      @id @default(autoincrement())
+  titleEs       String   @db.VarChar(255) @map("title_es")
+  titleEn       String   @db.VarChar(255) @map("title_en")
+  summaryEs     String?  @db.Text @map("summary_es")
+  summaryEn     String?  @db.Text @map("summary_en")
+  descriptionEs String   @db.Text @map("description_es")
+  descriptionEn String   @db.Text @map("description_en")
+  imageUrl      String?  @db.VarChar(500) @map("image_url")
+  instructorName     String?  @db.VarChar(255) @map("instructor_name")
+  instructorBioEs    String?  @db.Text @map("instructor_bio_es")
+  instructorBioEn    String?  @db.Text @map("instructor_bio_en")
+  instructorImageUrl String?  @db.VarChar(500) @map("instructor_image_url")
+  price              String?  @db.VarChar(100)
+  datesEs            String?  @map("dates_es") @db.VarChar(255)
+  datesEn            String?  @map("dates_en") @db.VarChar(255)
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("writers_workshops")
+  @@schema("site")
+}
+
+model ServiceBlockedDate {
+  id          Int      @id @default(autoincrement())
+  serviceType String   @map("service_type") @db.VarChar(50) // 'FOOD' or 'TOUR'
+  startDate   DateTime @map("start_date")
+  endDate     DateTime @map("end_date")
+  reason      String?  @db.VarChar(500)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([startDate, endDate])
+  @@index([serviceType])
+  @@map("service_blocked_dates")
+  @@schema("site")
+}
+
+model StayAmenity {
+  id        Int      @id @default(autoincrement())
+  titleEs   String   @db.VarChar(255) @map("title_es")
+  titleEn   String   @db.VarChar(255) @map("title_en")
+  shortEs   String   @db.VarChar(500) @map("short_es")
+  shortEn   String   @db.VarChar(500) @map("short_en")
+  descEs    String   @db.Text @map("desc_es")
+  descEn    String   @db.Text @map("desc_en")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("stay_amenities")
+  @@schema("site")
+}

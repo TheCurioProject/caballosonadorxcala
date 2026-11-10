@@ -140,7 +140,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
                     router.push(langPrefix);
                   }, 100);
                 }}
-                className="group flex items-center gap-3 hover:opacity-70 transition-opacity duration-300"
+                className="tap-zone relative group flex items-center gap-3 hover:opacity-70 transition-opacity duration-300"
                 aria-label={isEn ? 'BACK TO HOME' : 'VOLVER AL INICIO'}
               >
                 <ArrowLeft strokeWidth={1.5} className="w-5 h-5 md:w-6 md:h-6 transform group-hover:-translate-x-1 transition-transform" />
@@ -170,7 +170,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
                         key={l}
                         href={newPath}
                         prefetch={true}
-                        className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
+                        className={`tap-zone relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
                           isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
                         }`}
                       >
@@ -202,7 +202,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
                   onClick={() => {
                     openBookingModal();
                   }}
-                  className="whitespace-nowrap uppercase tracking-widest text-[10px] md:text-xs font-bold border rounded-full px-4 py-1.5 hover:opacity-70 transition-all border-[#F9F7F4] text-[#F9F7F4]"
+                  className="tap-zone relative whitespace-nowrap uppercase tracking-widest text-[10px] md:text-xs font-bold border rounded-full px-4 py-1.5 hover:opacity-70 transition-all border-[#F9F7F4] text-[#F9F7F4]"
                 >
                   <span className="hidden md:inline">{texts.bookTour}</span>
                   <span className="md:hidden">{texts.bookTourShort}</span>
@@ -228,7 +228,7 @@ export default function ServiciosDeComidaClient({ siteImages }: { siteImages: an
                         key={l}
                         href={newPath}
                         prefetch={true}
-                        className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 px-1 ${
+                        className={`tap-zone relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 px-1 ${
                           isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
                         }`}
                       >

@@ -1,13 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
+import { Loader2 } from 'lucide-react';
 
 const FluidHorseAnimation = dynamic(() => import('../FluidHorseAnimation'), {
   ssr: false,
 });
-import { Loader2 } from 'lucide-react';
 
 interface ActionLoadingScreenProps {
   isOpen: boolean;
@@ -18,17 +19,26 @@ interface ActionLoadingScreenProps {
 
 export function ActionLoadingScreen({ isOpen, message, subMessage, theme = 'light' }: ActionLoadingScreenProps) {
   const isDark = theme === 'dark';
-  return (
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm pointer-events-none"
+          transition={{ duration: 0.25 }}
+          className="fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-black/65 backdrop-blur-md pointer-events-auto"
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, width: '100vw', height: '100vh', margin: 0, padding: '1rem' }}
         >
-          <div className={`flex flex-col items-center pointer-events-auto p-10 md:p-14 rounded-[2rem] shadow-2xl border text-center relative overflow-hidden ${isDark ? 'bg-[#0A0908] shadow-black/80 border-white/10' : 'bg-[#F9F7F4] shadow-black/40 border-white/20'}`}>
+          <div className={`flex flex-col items-center p-8 sm:p-12 md:p-14 rounded-[2rem] shadow-2xl border text-center relative overflow-hidden max-w-lg w-full ${isDark ? 'bg-[#0A0908] shadow-black/80 border-white/10' : 'bg-[#F9F7F4] shadow-black/40 border-white/20'}`}>
             {/* Subtle glow effect */}
             <div className="absolute inset-0 bg-gradient-to-tr from-[#9B7E67]/10 to-transparent pointer-events-none" />
             
@@ -39,10 +49,10 @@ export function ActionLoadingScreen({ isOpen, message, subMessage, theme = 'ligh
             )}
             
             {(subMessage || !message) && (
-              <div className="flex items-center gap-3 relative z-10">
+              <div className="flex items-center gap-3 relative z-10 justify-center">
                 <Loader2 className="w-4 h-4 text-[#9B7E67] animate-spin" />
                 {subMessage && (
-                  <p className="text-[#9B7E67] text-[10px] md:text-xs uppercase tracking-[0.3em] font-bold">
+                  <p className="text-[#9B7E67] text-[10px] md:text-xs uppercase tracking-[0.25em] font-bold">
                     {subMessage}
                   </p>
                 )}
@@ -51,6 +61,7 @@ export function ActionLoadingScreen({ isOpen, message, subMessage, theme = 'ligh
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

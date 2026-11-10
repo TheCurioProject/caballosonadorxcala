@@ -1,50 +1,38 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
+
+let lockCount = 0;
+let restoreBody: (() => void) | undefined;
 
 export const useScrollLock = (lock: boolean) => {
-  const scrollOffset = useRef(0);
-
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (!lock) return;
 
-    if (lock) {
-      // Save current scroll position
-      scrollOffset.current = window.scrollY;
-
-      // Apply styles to lock body and prevent bouncing
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollOffset.current}px`;
-      document.body.style.left = '0';
-      document.body.style.right = '0';
-      document.body.style.width = '100%';
-      document.body.style.overflow = 'hidden';
-    } else {
-      // Remove lock styles
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
-      document.body.style.width = '';
-      document.body.style.overflow = '';
-
-      // Restore scroll position
-      window.scrollTo(0, scrollOffset.current);
+    if (lockCount === 0) {
+      const body = document.body;
+      const scrollY = window.scrollY;
+      const previous = {
+        position: body.style.position,
+        top: body.style.top,
+        left: body.style.left,
+        right: body.style.right,
+        width: body.style.width,
+        overflow: body.style.overflow,
+      };
+      Object.assign(body.style, {
+        position: 'fixed', top: `-${scrollY}px`, left: '0', right: '0', width: '100%', overflow: 'hidden',
+      });
+      restoreBody = () => {
+        Object.assign(body.style, previous);
+        window.scrollTo(0, scrollY);
+      };
     }
+    lockCount += 1;
 
-    // We do not cleanup the lock if `lock` changes to false in the effect, 
-    // because the `else` block already handles restoration. 
-    // We only need cleanup on unmount if it's currently locked.
     return () => {
-      // We check document body style position instead of just `lock` 
-      // to ensure we only clean up if we actually applied the lock and unmounted.
-      // But a simple check works:
-      if (lock && document.body.style.position === 'fixed') {
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.left = '';
-        document.body.style.right = '';
-        document.body.style.width = '';
-        document.body.style.overflow = '';
-        window.scrollTo(0, scrollOffset.current);
+      lockCount -= 1;
+      if (lockCount === 0) {
+        restoreBody?.();
+        restoreBody = undefined;
       }
     };
   }, [lock]);

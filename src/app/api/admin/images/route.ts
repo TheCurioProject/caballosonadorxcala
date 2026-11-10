@@ -1,3 +1,5 @@
+import { IMAGE_HISTORY_GROUP, imageSnapshot, isHistoryOf } from '@/lib/imageHistory';
+import { getSession } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import { DEFAULT_IMAGES, keyToCloudinaryUrl } from '@/lib/siteImages';
 import { v2 as cloudinary } from 'cloudinary';
@@ -5,8 +7,15 @@ import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
 export async function GET() {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
-    const dbImages = await prisma.siteImage.findMany();
+    const [dbImages, snapshots] = await Promise.all([
+      prisma.siteImage.findMany({ where: { group: { not: IMAGE_HISTORY_GROUP } } }),
+      prisma.siteImage.findMany({ where: { group: IMAGE_HISTORY_GROUP }, orderBy: { createdAt: 'desc' } }),
+    ]);
     const dbMap = new Map(dbImages.map(img => [img.key, img]));
 
     // Build image list from DEFAULT_IMAGES + DB override or Cloudinary URL construction
@@ -19,13 +28,14 @@ export async function GET() {
         url = url.includes('?') ? `${url}&t=${dbImg.updatedAt.getTime()}` : `${url}?t=${dbImg.updatedAt.getTime()}`;
       }
 
+      const history = dbImg ? snapshots.filter(snapshot => isHistoryOf(snapshot, dbImg.id)).slice(0, 10).map(snapshot => ({ id: snapshot.id, url: snapshot.url, createdAt: snapshot.createdAt })) : [];
       return {
         key,
         group: defaultData.group,
         name: defaultData.name,
         url,
-        hasHistory: false,
-        history: []
+        hasHistory: history.length > 0,
+        history
       };
     });
 
@@ -45,6 +55,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  if (!(await getSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -54,17 +68,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required file or key' }, { status: 400 });
     }
 
+    if (!(file instanceof File) || !Object.hasOwn(DEFAULT_IMAGES, key) || !['image/jpeg', 'image/png', 'image/webp', 'image/avif'].includes(file.type) || file.size > 10 * 1024 * 1024) {
+      return NextResponse.json({ error: 'Invalid image or file exceeds 10 MB' }, { status: 400 });
+    }
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    // Deterministic public_id: hotelsonador/casaexterior (without extension)
-    const publicId = 'hotelsonador' + key.replace(/\.[^.]+$/, '');
+    // Each replacement has a unique asset ID, so historical URLs remain usable.
+    const publicId = 'hotelsonador' + key.replace(/\.[^.]+$/, '') + '-' + crypto.randomUUID();
 
     try {
       const result = await new Promise<any>((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
             public_id: publicId,
-            overwrite: true,
+            overwrite: false,
             invalidate: true, // Purge CDN cache so new image shows immediately
             resource_type: 'image',
           },
@@ -80,18 +97,17 @@ export async function POST(request: Request) {
       const newUrl = result.secure_url;
       const defaultData = DEFAULT_IMAGES[key];
 
-      await prisma.siteImage.upsert({
-        where: { key },
-        update: {
-          url: newUrl,
-          updatedAt: new Date()
-        },
-        create: {
-          key,
-          group: defaultData?.group || 'HOMEPAGE',
-          name: defaultData?.name || 'Image',
-          url: newUrl
-        }
+      await prisma.$transaction(async (tx) => {
+        const existing = await tx.siteImage.findUnique({ where: { key } });
+        const image = await tx.siteImage.upsert({
+          where: { key },
+          update: { url: newUrl },
+          create: { key, group: defaultData.group, name: defaultData.name, url: newUrl },
+        });
+        await tx.siteImage.create({ data: imageSnapshot({
+          id: image.id, name: image.name,
+          url: existing?.url || defaultData.url || keyToCloudinaryUrl(key),
+        }) });
       });
 
       // Clear Next.js cache so the public site immediately reflects the change

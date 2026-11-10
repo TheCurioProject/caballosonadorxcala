@@ -72,7 +72,7 @@ export default async function WritersGroupPage(props: { params: Promise<{ lang: 
             <div className="flex justify-start pointer-events-auto">
               <Link 
                 href={`/${lang}`}
-                className="group flex items-center gap-3 hover:opacity-70 transition-opacity duration-300"
+                className="tap-zone relative group flex items-center gap-3 hover:opacity-70 transition-opacity duration-300"
                 aria-label={lang === 'en' ? 'BACK TO HOME' : 'VOLVER AL INICIO'}
               >
                 <ArrowLeft strokeWidth={1.5} className="w-5 h-5 md:w-6 md:h-6 text-[#2C2927] transform group-hover:-translate-x-1 transition-transform" />
@@ -96,7 +96,7 @@ export default async function WritersGroupPage(props: { params: Promise<{ lang: 
                       key={l}
                       href={`/${l}/writers-group`}
                       prefetch={true}
-                      className={`relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
+                      className={`tap-zone relative flex flex-col items-center justify-center transition-all duration-300 ease-out py-1 ${
                         isActive ? 'opacity-100 scale-110 font-bold' : 'opacity-40 hover:opacity-100 font-medium'
                       }`}
                     >

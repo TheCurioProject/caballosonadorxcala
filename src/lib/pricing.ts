@@ -54,6 +54,7 @@ export function expandRecurringPricing(rules: PricingRule[], yearsAhead = 2): Pr
           // Create UTC date matching the inherited month/day for this specific year
           const virtualDate = new Date(Date.UTC(year, parseInt(monthStr) - 1, parseInt(dayStr), 0, 0, 0, 0));
           
+          if (virtualDate.getUTCMonth() !== parseInt(monthStr) - 1 || virtualDate.getUTCDate() !== parseInt(dayStr)) continue;
           expandedRules.push({
             ...applicableRule,
             id: virtualIdCounter--,
