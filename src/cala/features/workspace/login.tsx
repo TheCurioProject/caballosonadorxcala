@@ -2,9 +2,11 @@
 import Link from "next/link";
 import { useState } from "react";
 import { CalaLogo } from "@/cala/components/brand/cala-logo";
+import { LanguageToggle } from "@/cala/components/ui/language-toggle";
+import { useI18n } from "@/cala/lib/i18n";
 import { api } from "./context";
 
-type Mode = "signin" | "signup";
+type Mode = "signin" | "signup" | "verify";
 
 /** Eye icon – show/hide password */
 function EyeIcon({ open }: { open: boolean }) {
@@ -36,6 +38,7 @@ function PasswordInput({
   placeholder?: string;
   required?: boolean;
 }) {
+  const { t } = useI18n();
   const [visible, setVisible] = useState(false);
   return (
     <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
@@ -52,7 +55,7 @@ function PasswordInput({
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
-        aria-label={visible ? "Ocultar contraseña" : "Mostrar contraseña"}
+        aria-label={visible ? t("Ocultar contraseña") : t("Mostrar contraseña")}
         style={{
           position: "absolute",
           right: "0.6rem",
@@ -77,10 +80,25 @@ export function WelcomeAuth({
 }: {
   onAuthenticated: () => void;
 }) {
+  const { t } = useI18n();
   const [mode, setMode] = useState<Mode>("signin");
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [success, setSuccess] = useState("");
+  // Kept in memory only while the email is being confirmed: the password is
+  // needed once more to open the session after the code is accepted.
+  const [pending, setPending] = useState<{
+    email: string;
+    password: string;
+  } | null>(null);
+  const [code, setCode] = useState("");
+
+  const fail = (reason: unknown) =>
+    setError(
+      reason instanceof Error
+        ? reason.message
+        : t("No se pudo completar la operación."),
+    );
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -89,43 +107,90 @@ export function WelcomeAuth({
     setSuccess("");
     const form = new FormData(event.currentTarget);
     try {
+      if (mode === "verify" && pending) {
+        await api("/api/session", {
+          method: "POST",
+          body: JSON.stringify({
+            action: "signup_verify",
+            email: pending.email,
+            password: pending.password,
+            code,
+          }),
+        });
+        setPending(null);
+        onAuthenticated();
+        return;
+      }
       if (mode === "signup") {
         const password = form.get("password") as string;
         const confirm = form.get("confirm") as string;
         if (password !== confirm) {
-          setError("Las contraseñas no coinciden.");
+          setError(t("Las contraseñas no coinciden."));
           return;
         }
+        const email = String(form.get("email") ?? "").trim();
         await api("/api/session", {
           method: "POST",
           body: JSON.stringify({
             action: "signup",
-            email: form.get("email"),
+            email,
             password,
             name: form.get("name") || undefined,
           }),
         });
-      } else {
-        await api("/api/session", {
-          method: "POST",
-          body: JSON.stringify({
-            action: "signin",
-            email: form.get("email"),
-            password: form.get("password"),
-          }),
-        });
+        setPending({ email, password });
+        setCode("");
+        setMode("verify");
+        return;
       }
+      await api("/api/session", {
+        method: "POST",
+        body: JSON.stringify({
+          action: "signin",
+          email: form.get("email"),
+          password: form.get("password"),
+        }),
+      });
       onAuthenticated();
     } catch (reason) {
-      setError(
-        reason instanceof Error
-          ? reason.message
-          : "No se pudo completar la operación.",
-      );
+      fail(reason);
     } finally {
       setBusy(false);
     }
   }
+
+  async function resend() {
+    if (!pending) return;
+    setBusy(true);
+    setError("");
+    setSuccess("");
+    try {
+      await api("/api/session", {
+        method: "POST",
+        body: JSON.stringify({ action: "signup_resend", email: pending.email }),
+      });
+      setSuccess(t("Te enviamos un código nuevo."));
+    } catch (reason) {
+      fail(reason);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const heading =
+    mode === "signin"
+      ? t("Accede a tu panel")
+      : mode === "signup"
+        ? t("Crea tu cuenta CALA")
+        : t("Confirma tu correo");
+  const intro =
+    mode === "signin"
+      ? t("Usa la cuenta autorizada para este alojamiento.")
+      : mode === "signup"
+        ? t("Regístrate para acceder al panel de Casa Caballo Soñador.")
+        : t("Enviamos un código de 6 dígitos a {email}. Escríbelo para terminar tu registro.", {
+            email: pending?.email ?? "",
+          });
 
   return (
     <main className="welcome-auth">
@@ -133,73 +198,94 @@ export function WelcomeAuth({
         <CalaLogo inverse />
         <div className="auth-story-copy">
           <p className="eyebrow">CASA CABALLO SOÑADOR</p>
-          <h1>Tu operación, en calma.</h1>
-          <p>Reservas, huéspedes y equipo en un solo espacio.</p>
+          <h1>{t("Tu operación, en calma.")}</h1>
+          <p>{t("Reservas, huéspedes y equipo en un solo espacio.")}</p>
         </div>
       </section>
 
       <section className="auth-panel">
         <form className="auth-form-card" onSubmit={handleSubmit}>
-          <CalaLogo />
+          <div className="auth-form-top">
+            <CalaLogo />
+            <LanguageToggle />
+          </div>
 
-          <h2 style={{ marginBottom: "0.1rem" }}>
-            {mode === "signin" ? "Accede a tu panel" : "Crea tu cuenta CALA"}
-          </h2>
-          <p style={{ marginTop: 0, marginBottom: "1.25rem" }}>
-            {mode === "signin"
-              ? "Usa la cuenta autorizada para este alojamiento."
-              : "Regístrate para acceder al panel de Casa Caballo Soñador."}
-          </p>
+          <h2 style={{ marginBottom: "0.1rem" }}>{heading}</h2>
+          <p style={{ marginTop: 0, marginBottom: "1.25rem" }}>{intro}</p>
 
-          {/* ── Signup-only: nombre ── */}
-          {mode === "signup" && (
+          {mode === "verify" ? (
             <label>
-              Nombre (opcional)
+              {t("Código de confirmación")}
               <input
-                name="name"
-                type="text"
-                autoComplete="name"
-                maxLength={120}
-                placeholder="Tu nombre"
+                name="code"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                required
+                autoFocus
+                className="auth-code-input"
+                placeholder="000000"
+                value={code}
+                onChange={(e) =>
+                  setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+                }
               />
             </label>
-          )}
+          ) : (
+            <>
+              {/* ── Signup-only: nombre ── */}
+              {mode === "signup" && (
+                <label>
+                  {t("Nombre (opcional)")}
+                  <input
+                    name="name"
+                    type="text"
+                    autoComplete="name"
+                    maxLength={120}
+                    placeholder={t("Tu nombre")}
+                  />
+                </label>
+              )}
 
-          {/* ── Correo ── */}
-          <label>
-            Correo electrónico
-            <input
-              name="email"
-              type="email"
-              required
-              autoComplete="username"
-              maxLength={255}
-              placeholder="correo@ejemplo.com"
-            />
-          </label>
+              {/* ── Correo ── */}
+              <label>
+                {t("Correo electrónico")}
+                <input
+                  name="email"
+                  type="email"
+                  required
+                  autoComplete="username"
+                  maxLength={255}
+                  placeholder="correo@ejemplo.com"
+                  defaultValue={pending?.email}
+                />
+              </label>
 
-          {/* ── Contraseña ── */}
-          <label>
-            Contraseña
-            <PasswordInput
-              name="password"
-              autoComplete={mode === "signup" ? "new-password" : "current-password"}
-              minLength={mode === "signup" ? 8 : undefined}
-              placeholder={mode === "signup" ? "Mínimo 8 caracteres" : undefined}
-            />
-          </label>
+              {/* ── Contraseña ── */}
+              <label>
+                {t("Contraseña")}
+                <PasswordInput
+                  name="password"
+                  autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                  minLength={mode === "signup" ? 8 : undefined}
+                  placeholder={mode === "signup" ? t("Mínimo 8 caracteres") : undefined}
+                />
+              </label>
 
-          {/* ── Confirmar contraseña (signup) ── */}
-          {mode === "signup" && (
-            <label>
-              Confirmar contraseña
-              <PasswordInput
-                name="confirm"
-                autoComplete="new-password"
-                minLength={8}
-                placeholder="Repite tu contraseña"
-              />
-            </label>
+              {/* ── Confirmar contraseña (signup) ── */}
+              {mode === "signup" && (
+                <label>
+                  {t("Confirmar contraseña")}
+                  <PasswordInput
+                    name="confirm"
+                    autoComplete="new-password"
+                    minLength={8}
+                    placeholder={t("Repite tu contraseña")}
+                  />
+                </label>
+              )}
+            </>
           )}
 
           {/* ── Mensajes ── */}
@@ -211,47 +297,88 @@ export function WelcomeAuth({
           )}
 
           {/* ── Botón principal ── */}
-          <button className="button primary full" disabled={busy} style={{ marginTop: "0.25rem" }}>
-            {busy
-              ? mode === "signup" ? "Creando cuenta…" : "Entrando…"
-              : mode === "signup" ? "Crear cuenta CALA" : "Iniciar sesión"}
-          </button>
-
-          {/* ── Separador ── */}
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", margin: "0.5rem 0" }}>
-            <hr style={{ flex: 1, border: "none", borderTop: "1px solid #e0d6cc" }} />
-            <span style={{ fontSize: "0.75rem", color: "#b0a89f", whiteSpace: "nowrap" }}>
-              {mode === "signin" ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}
-            </span>
-            <hr style={{ flex: 1, border: "none", borderTop: "1px solid #e0d6cc" }} />
-          </div>
-
-          {/* ── Botón alternativo de modo ── */}
           <button
-            type="button"
-            onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setError(""); setSuccess(""); }}
-            style={{
-              width: "100%",
-              padding: "0.6rem",
-              fontSize: "0.875rem",
-              fontWeight: 500,
-              background: "transparent",
-              color: "#23211F",
-              border: "1px solid #c8bdb5",
-              borderRadius: "0.5rem",
-              cursor: "pointer",
-              transition: "background 0.15s",
-            }}
+            className="button primary full"
+            disabled={busy || (mode === "verify" && code.length !== 6)}
+            style={{ marginTop: "0.25rem" }}
           >
-            {mode === "signin" ? "Crear cuenta CALA" : "Iniciar sesión"}
+            {busy
+              ? mode === "signin"
+                ? t("Entrando…")
+                : mode === "signup"
+                  ? t("Enviando código…")
+                  : t("Confirmando…")
+              : mode === "signin"
+                ? t("Iniciar sesión")
+                : mode === "signup"
+                  ? t("Crear cuenta CALA")
+                  : t("Confirmar y entrar")}
           </button>
+
+          {mode === "verify" ? (
+            <div className="auth-verify-actions">
+              <button
+                type="button"
+                className="button secondary"
+                disabled={busy}
+                onClick={() => void resend()}
+              >
+                {t("Reenviar código")}
+              </button>
+              <button
+                type="button"
+                className="button secondary"
+                disabled={busy}
+                onClick={() => {
+                  setMode("signup");
+                  setError("");
+                  setSuccess("");
+                }}
+              >
+                {t("Usar otro correo")}
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* ── Separador ── */}
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", margin: "0.5rem 0" }}>
+                <hr style={{ flex: 1, border: "none", borderTop: "1px solid #e0d6cc" }} />
+                <span style={{ fontSize: "0.75rem", color: "#b0a89f", whiteSpace: "nowrap" }}>
+                  {mode === "signin" ? t("¿No tienes cuenta?") : t("¿Ya tienes cuenta?")}
+                </span>
+                <hr style={{ flex: 1, border: "none", borderTop: "1px solid #e0d6cc" }} />
+              </div>
+
+              {/* ── Botón alternativo de modo ── */}
+              <button
+                type="button"
+                onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setError(""); setSuccess(""); }}
+                style={{
+                  width: "100%",
+                  padding: "0.6rem",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  background: "transparent",
+                  color: "#23211F",
+                  border: "1px solid #c8bdb5",
+                  borderRadius: "0.5rem",
+                  cursor: "pointer",
+                  transition: "background 0.15s",
+                }}
+              >
+                {mode === "signin" ? t("Crear cuenta CALA") : t("Iniciar sesión")}
+              </button>
+            </>
+          )}
 
           <p className="helper" style={{ marginTop: "0.75rem" }}>
             {mode === "signin"
-              ? "Si necesitas recuperar el acceso, contacta al administrador."
-              : "Al registrarte, tendrás acceso al panel de administración."}
+              ? t("Si necesitas recuperar el acceso, contacta al administrador.")
+              : mode === "signup"
+                ? t("Te enviaremos un código para confirmar tu correo.")
+                : t("El código caduca en 10 minutos. Revisa también la carpeta de spam.")}
           </p>
-          <Link href="/es/">Volver a la web</Link>
+          <Link href="/es/">{t("Volver a la web")}</Link>
         </form>
       </section>
     </main>

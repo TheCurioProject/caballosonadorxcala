@@ -35,24 +35,20 @@ export default async function AdminSettingsPage() {
   async function updateSettings(formData: FormData) {
     'use server';
     await requireAdmin();
-    const basePrice = parseFloat(formData.get('basePrice') as string);
-    const baseCapacity = parseInt(formData.get('baseCapacity') as string, 10);
+    // Nightly price and capacity are managed in CALA (Inventario / Tarifas);
+    // this form only keeps the website's contact and notification details.
     const adminEmails = formData.get('adminEmails') as string || 'kelli9@telus.net';
     const whatsappNumber = formData.get('whatsappNumber') as string || '';
-    
-    if (Number.isFinite(basePrice) && basePrice >= 0 && Number.isSafeInteger(baseCapacity) && baseCapacity >= 1) {
-      await prisma.property.update({
-        where: { id: property!.id },
-        data: { 
-          basePrice, 
-          baseCapacity,
-          adminEmails,
-          whatsappNumber
-        }
-      });
-      revalidatePath('/admin/settings');
-      revalidatePublicSite();
-    }
+
+    await prisma.property.update({
+      where: { id: property!.id },
+      data: {
+        adminEmails,
+        whatsappNumber
+      }
+    });
+    revalidatePath('/admin/settings');
+    revalidatePublicSite();
   }
 
   async function handleCreateCoupon(formData: FormData) {
@@ -96,25 +92,18 @@ export default async function AdminSettingsPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-12">
       <div className="mb-4 sm:mb-8">
-        <h2 className="text-2xl sm:text-4xl font-serif text-[#23211F]">Settings & Rules</h2>
+        <h2 className="text-2xl sm:text-4xl font-serif text-[#23211F]">Website Settings</h2>
         <p className="text-gray-500 font-light mt-1 sm:mt-2 text-sm sm:text-base">
-          Configure the global rules and pricing of the property.
+          Contact details, coupons and service availability for the public website.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Settings Form */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h2 className="text-lg font-serif text-[#23211F] mb-4">Base House Rules</h2>
+          <h2 className="text-lg font-serif text-[#23211F] mb-1">Website Contact & Notifications</h2>
+          <p className="text-xs text-gray-500 mb-4">Prices, capacity and booking rules are managed in CALA (Inventory and Rates).</p>
           <form action={updateSettings} className="space-y-4">
-            <div>
-              <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Base Price per Night (MXN)</label>
-              <input type="number" name="basePrice" defaultValue={property.basePrice} required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
-            </div>
-            <div>
-              <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Base Capacity</label>
-              <input type="number" name="baseCapacity" defaultValue={property.baseCapacity} required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
-            </div>
             <div>
               <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">WhatsApp Number (incl. country code)</label>
               <input type="text" name="whatsappNumber" defaultValue={property.whatsappNumber} placeholder="e.g. +521234567890" className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />

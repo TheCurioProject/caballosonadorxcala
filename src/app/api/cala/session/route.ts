@@ -7,6 +7,46 @@ import { supabaseServerClient } from "@/cala/infrastructure/supabase/server";
 import { supabaseAdminClient } from "@/cala/infrastructure/supabase/admin";
 import { SupabaseAuthAdapter } from "@/cala/infrastructure/supabase/auth";
 import { DomainError, invariant } from "@/cala/domain/shared/errors";
+import {
+  checkCode,
+  confirmEmail,
+  findUserByEmail,
+  issueCode,
+} from "@/lib/cala/signup-verification";
+
+/** Language for the confirmation email: the CALA interface cookie. */
+function requestLocale(request: Request): "es" | "en" {
+  return /(?:^|;\s*)cala-locale=en(?:;|$)/.test(
+    request.headers.get("cookie") ?? "",
+  )
+    ? "en"
+    : "es";
+}
+
+/** Self sign-up only bootstraps an empty organization (its first owner).
+ *  Once anyone belongs to it, new people join by invitation from Equipo;
+ *  otherwise any visitor could make themselves owner of the property. */
+async function assertSignupOpen(
+  admin: ReturnType<typeof supabaseAdminClient>,
+  organizationId: string,
+) {
+  const { count, error } = await admin
+    .from("organization_members")
+    .select("user_id", { count: "exact", head: true })
+    .eq("organization_id", organizationId);
+  invariant(
+    !error,
+    "SIGNUP_FAILED",
+    "No se pudo verificar el registro. Intenta de nuevo.",
+    503,
+  );
+  invariant(
+    !count,
+    "SIGNUP_CLOSED",
+    "El registro está cerrado. Pide a tu equipo que te invite desde Equipo y permisos.",
+    403,
+  );
+}
 export const dynamic = "force-dynamic";
 export async function GET() {
   try {
@@ -48,6 +88,16 @@ export async function POST(request: Request) {
           password: z.string().min(8).max(256),
           name: z.string().min(1).max(120).optional(),
         }),
+        z.object({
+          action: z.literal("signup_verify"),
+          email: z.email().max(255),
+          password: z.string().min(8).max(256),
+          code: z.string().regex(/^\d{6}$/),
+        }),
+        z.object({
+          action: z.literal("signup_resend"),
+          email: z.email().max(255),
+        }),
       ])
       .parse(await body(request));
     const client = await supabaseServerClient();
@@ -78,47 +128,90 @@ export async function POST(request: Request) {
       return NextResponse.json({ authenticated: true });
     }
     if (input.action === "signup") {
+      // Step 1: create the account unconfirmed (no access yet) and email a
+      // 6-digit code through Resend.
       const admin = supabaseAdminClient();
       const organizationId = process.env.CALA_ORGANIZATION_ID!;
-
-      // Self sign-up only bootstraps an empty organization (its first owner).
-      // Once anyone belongs to it, new people join by invitation from Equipo;
-      // otherwise any visitor could make themselves owner of the property.
-      const { count, error: countError } = await admin
-        .from("organization_members")
-        .select("user_id", { count: "exact", head: true })
-        .eq("organization_id", organizationId);
-      invariant(
-        !countError,
-        "SIGNUP_FAILED",
-        "No se pudo verificar el registro. Intenta de nuevo.",
-        503,
-      );
-      invariant(
-        !count,
-        "SIGNUP_CLOSED",
-        "El registro está cerrado. Pide a tu equipo que te invite desde Equipo y permisos.",
-        403,
-      );
-
-      // 1. Create the user via admin (skips email confirmation).
+      await assertSignupOpen(admin, organizationId);
+      const email = input.email.toLowerCase();
+      const name = input.name ?? email.split("@")[0];
       const { data: created, error: createError } =
         await admin.auth.admin.createUser({
-          email: input.email,
+          email,
           password: input.password,
-          email_confirm: true,
-          user_metadata: { name: input.name ?? input.email.split("@")[0] },
+          email_confirm: false,
+          user_metadata: { name },
         });
+      let user = created?.user ?? null;
+      if (createError) {
+        invariant(
+          /already|registered|exists/i.test(createError.message),
+          "SIGNUP_FAILED",
+          "No se pudo crear la cuenta. Intenta de nuevo.",
+          503,
+        );
+        // Same email again: allowed only while it was never confirmed (an
+        // abandoned registration). Confirmed accounts must sign in instead.
+        user = await findUserByEmail(admin, email);
+        invariant(
+          user && !user.email_confirmed_at,
+          "ACCOUNT_EXISTS",
+          "Ya existe una cuenta con ese correo.",
+          409,
+        );
+        const { data: updated, error: updateError } =
+          await admin.auth.admin.updateUserById(user!.id, {
+            password: input.password,
+            user_metadata: { ...user!.user_metadata, name },
+          });
+        invariant(
+          !updateError && updated.user,
+          "SIGNUP_FAILED",
+          "No se pudo crear la cuenta. Intenta de nuevo.",
+          503,
+        );
+        user = updated.user;
+      }
       invariant(
-        !createError && created.user,
+        user,
         "SIGNUP_FAILED",
-        createError?.message?.includes("already registered")
-          ? "Ya existe una cuenta con ese correo."
-          : "No se pudo crear la cuenta. Intenta de nuevo.",
-        createError?.message?.includes("already registered") ? 409 : 503,
+        "No se pudo crear la cuenta. Intenta de nuevo.",
+        503,
       );
+      await issueCode(admin, user!, requestLocale(request));
+      return NextResponse.json({
+        authenticated: false,
+        verification: "pending",
+        email,
+      });
+    }
 
-      // 2. Resolve the 'owner' role for this organization (system role has null org).
+    if (input.action === "signup_resend") {
+      const admin = supabaseAdminClient();
+      await assertSignupOpen(admin, process.env.CALA_ORGANIZATION_ID!);
+      const user = await findUserByEmail(admin, input.email);
+      // Same answer whether or not the email exists (no account probing).
+      if (user && !user.email_confirmed_at)
+        await issueCode(admin, user, requestLocale(request));
+      return NextResponse.json({ authenticated: false, verification: "pending" });
+    }
+
+    if (input.action === "signup_verify") {
+      // Step 2: check the code, confirm the email, then grant ownership.
+      const admin = supabaseAdminClient();
+      const organizationId = process.env.CALA_ORGANIZATION_ID!;
+      const user = await findUserByEmail(admin, input.email);
+      invariant(
+        user && !user.email_confirmed_at,
+        "CODE_MISSING",
+        "Solicita un código nuevo para confirmar tu correo.",
+        400,
+      );
+      await checkCode(admin, user!, input.code);
+      // Re-check: someone may have completed sign-up in the meantime.
+      await assertSignupOpen(admin, organizationId);
+      await confirmEmail(admin, user!);
+
       const { data: role, error: roleError } = await admin
         .from("roles")
         .select("id")
@@ -127,12 +220,11 @@ export async function POST(request: Request) {
         .maybeSingle();
       invariant(!roleError && role, "SETUP_ERROR", "No se encontró el rol de propietario.", 503);
 
-      // 3. Add user to organization_members as owner.
       const { error: memberError } = await admin
         .from("organization_members")
         .insert({
           organization_id: organizationId,
-          user_id: created.user!.id,
+          user_id: user!.id,
           role_id: role!.id,
           status: "active",
           all_properties: true,
@@ -144,7 +236,6 @@ export async function POST(request: Request) {
         503,
       );
 
-      // 4. Sign in the new user so the session cookie is set.
       const { error: signInError } = await client.auth.signInWithPassword({
         email: input.email,
         password: input.password,
@@ -152,10 +243,9 @@ export async function POST(request: Request) {
       invariant(
         !signInError,
         "SIGNIN_AFTER_SIGNUP_FAILED",
-        "Cuenta creada. Inicia sesión manualmente.",
-        200,
+        "Correo confirmado. Inicia sesión con tu contraseña.",
+        401,
       );
-
       return NextResponse.json({ authenticated: true });
     }
 

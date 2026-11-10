@@ -307,12 +307,10 @@ function subscribeLocale(listener: () => void) {
 }
 function detectLocale(): Locale {
   if (typeof window === "undefined") return "es";
+  if (memoryLocale) return memoryLocale;
   const saved = browserPreferences.getItem("cala-locale");
   if (saved === "es" || saved === "en") return saved;
-  return (
-    memoryLocale ??
-    (window.navigator.language.toLowerCase().startsWith("es") ? "es" : "en")
-  );
+  return window.navigator.language.toLowerCase().startsWith("es") ? "es" : "en";
 }
 
 interface I18nValue {
@@ -323,11 +321,19 @@ interface I18nValue {
 
 const I18nContext = createContext<I18nValue | null>(null);
 
-export function LocaleProvider({ children }: { children: ReactNode }) {
+export function LocaleProvider({
+  children,
+  initialLocale,
+}: {
+  children: ReactNode;
+  /** Read by the server from the cala-locale cookie: the first paint (and
+   *  hydration) already uses the chosen language. */
+  initialLocale?: Locale;
+}) {
   const locale = useSyncExternalStore(
     subscribeLocale,
     detectLocale,
-    () => "es" as const,
+    () => initialLocale ?? ("es" as const),
   );
 
   const setLocale = useCallback((next: Locale) => {

@@ -12,7 +12,7 @@ import {
 } from "@/cala/domain/calendar/layout";
 import { priceStay } from "@/cala/domain/reservations/pricing";
 import { Icon } from "@/cala/components/ui/primitives";
-import { money, shortDate, statusLabels } from "@/cala/lib/format";
+import { money, shortDate, statusLabels, uiLocale } from "@/cala/lib/format";
 import { guestName } from "./components";
 import type { CalendarRange } from "./calendar-actions";
 import { haptic, monthDays, monthLabel } from "./calendar-shared";
@@ -89,6 +89,16 @@ export function SingleCalendar({
       version: d?.version ?? 0,
     };
   };
+  // Day cells are narrow (≈38px on a 320px phone): whole amounts with the
+  // narrow symbol, and 10k+ in compact notation, so the price never clips.
+  const cellPrice = (minor: number) =>
+    new Intl.NumberFormat(uiLocale(), {
+      style: "currency",
+      currency,
+      currencyDisplay: "narrowSymbol",
+      maximumFractionDigits: 0,
+      notation: minor >= 1_000_000 ? "compact" : "standard",
+    }).format(minor / 100);
   const occupancyOf = (day: string) =>
     unitOccupancy(data, unit.id, day, addDays(day, 1));
   const heldNight = (day: string) => {
@@ -595,7 +605,27 @@ export function SingleCalendar({
                   const past = day < data.today;
                   const start = sel?.start === day;
                   const endDay = previewEnd === day;
-                  const startsHere = stay && (stay.arrival === day || new Date(day + "T12:00:00Z").getUTCDay() === 1);
+                  // The guest label runs along the nights of this week row
+                  // (the bar is one absolutely-positioned piece per cell).
+                  const nextMonday = addDays(
+                    day,
+                    7 - ((new Date(day + "T12:00:00Z").getUTCDay() + 6) % 7),
+                  );
+                  const nextMonth = shiftMonth(m, 1);
+                  const segmentEnd = stay
+                    ? [stay.departure, nextMonday, nextMonth].sort()[0]
+                    : day;
+                  const rowNights = stay ? dayDistance(day, segmentEnd) : 0;
+                  const isArrival = Boolean(stay && stay.arrival === day);
+                  // Bar width units: the arrival cell's bar is half a cell.
+                  const labelSpan = isArrival ? rowNights * 2 - 1 : rowNights;
+                  const startsHere =
+                    stay &&
+                    ((isArrival &&
+                      (rowNights > 1 || stay.departure === segmentEnd)) ||
+                      (!isArrival &&
+                        (new Date(day + "T12:00:00Z").getUTCDay() === 1 ||
+                          day === m)));
                   return (
                     <button
                       key={day}
@@ -620,7 +650,7 @@ export function SingleCalendar({
                       <strong className="sc-num">{Number(day.slice(8))}</strong>
                       {!stay && !block && (
                         <small className="sc-price">
-                          {r.closed ? "Cerrado" : money(r.amount, currency).replace(/\.00$/, "")}
+                          {r.closed ? "Cerrado" : cellPrice(r.amount)}
                         </small>
                       )}
                       {block && !stay && (
@@ -637,7 +667,13 @@ export function SingleCalendar({
                           aria-hidden="true"
                         >
                           {startsHere && own && (
-                            <em>{guestName(data.guests, stay.guestId)}</em>
+                            <em
+                              style={
+                                { "--label-span": labelSpan } as CSSProperties
+                              }
+                            >
+                              {guestName(data.guests, stay.guestId)}
+                            </em>
                           )}
                         </span>
                       )}

@@ -65,9 +65,9 @@ export default function AdminEmailsEditor({ initialEmails }: Props) {
             {emails.map(email => (
               <div 
                 key={email} 
-                className="flex items-center gap-1 bg-[#F5F5F5] border border-gray-200 px-3 py-1.5 rounded-full text-sm text-[#23211F] transition-all duration-300 animate-in fade-in slide-in-from-bottom-2"
+                className="flex max-w-full items-center gap-1 bg-[#F5F5F5] border border-gray-200 px-3 py-1.5 rounded-full text-sm text-[#23211F] transition-all duration-300 animate-in fade-in slide-in-from-bottom-2"
               >
-                <span>{email}</span>
+                <span className="min-w-0 break-all">{email}</span>
                 <button 
                   type="button" 
                   onClick={() => removeEmail(email)}
@@ -88,13 +88,13 @@ export default function AdminEmailsEditor({ initialEmails }: Props) {
             onChange={(e) => setNewEmail(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="new.admin@example.com" 
-            className="flex-1 border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67] transition-all"
+            className="flex-1 min-w-0 border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67] transition-all"
           />
           <button 
             type="button"
             onClick={addEmail}
             disabled={!newEmail && !justAdded}
-            className={`px-4 rounded-xl flex items-center justify-center transition-all duration-300 ${
+            className={`shrink-0 px-4 rounded-xl flex items-center justify-center transition-all duration-300 ${
               justAdded 
                 ? 'bg-green-600 text-white' 
                 : 'bg-[#23211F] hover:bg-[#9B7E67] disabled:opacity-50 disabled:hover:bg-[#23211F] text-white'

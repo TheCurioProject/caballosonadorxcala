@@ -1,10 +1,16 @@
 "use client";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { LocaleProvider } from "@/cala/lib/i18n";
+import { LocaleProvider, type Locale } from "@/cala/lib/i18n";
 import { PwaProvider } from "@/cala/features/pwa/provider";
 import { WorkspaceApp } from "@/cala/features/workspace/app";
-export function SiteAdmin({ children }: { children: ReactNode }) {
+export function SiteAdmin({
+  children,
+  locale,
+}: {
+  children: ReactNode;
+  locale?: Locale;
+}) {
   const section = usePathname().split("/")[2] || "inicio";
   const legacy = [
     "content",
@@ -19,7 +25,7 @@ export function SiteAdmin({ children }: { children: ReactNode }) {
     "alojamientos",
   ].includes(section);
   return (
-    <LocaleProvider>
+    <LocaleProvider initialLocale={locale}>
       <PwaProvider>
         <WorkspaceApp section={section === "login" ? "inicio" : section}>
           {legacy ? children : undefined}

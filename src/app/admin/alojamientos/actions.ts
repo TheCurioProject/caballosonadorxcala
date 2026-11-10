@@ -3,6 +3,7 @@ import { revalidatePublicSite } from "@/lib/revalidatePublic";
 import { requireAdmin } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { lodgingUpdateSchema } from "@/lib/lodgings";
+import { getLodgings } from "@/lib/lodgings.server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -41,7 +42,19 @@ function failure(error: unknown) {
 export async function saveLodging(input: unknown) {
   try {
     const session = await requireAdmin();
-    const value = lodgingUpdateSchema.parse(input);
+    const parsed = lodgingUpdateSchema.parse(input);
+    // Capacity, base rate and check-in/out times belong to CALA (Inventario,
+    // Tarifas, Configuración). site.save_lodging still writes them, so always
+    // send the values CALA holds right now: this form can never revert them.
+    const current = (await getLodgings(true)).find((l) => l.id === parsed.id);
+    if (!current) throw new Error("NOT_FOUND");
+    const { checkInTime: _in, checkOutTime: _out, ...value } = {
+      ...parsed,
+      capacity: current.capacity,
+      baseRateMinor: current.baseRateMinor,
+    };
+    void _in;
+    void _out;
     await prisma.$queryRaw`SELECT site.save_lodging(${value.id}::uuid,${value.version}::bigint,${JSON.stringify({ ...value, actorId: session.authUserId })}::jsonb,${process.env.CALA_ORGANIZATION_ID}::uuid)`;
     invalidate();
     return { ok: true as const };

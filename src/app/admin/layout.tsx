@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
+import { cookies } from "next/headers";
 import "@fontsource-variable/instrument-sans";
 import "@/cala/styles/cala.css";
 import "@/cala/styles/device-tiers.css";
@@ -26,7 +27,15 @@ export const viewport: Viewport = {
   themeColor: "#f5f2ea",
   interactiveWidget: "resizes-content",
 };
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  // Interface language chosen on the sign-in screen or in Configuración
+  // (cookie only; never stored in the database).
+  const saved = (await cookies()).get("cala-locale")?.value;
+  const locale = saved === "en" || saved === "es" ? saved : undefined;
   const config = calaConfiguration();
   if (!config.ready)
     return (
@@ -59,7 +68,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     );
   return (
     <Suspense fallback={<p className="setup-card">Abriendo CALA…</p>}>
-      <SiteAdmin>{children}</SiteAdmin>
+      <SiteAdmin locale={locale}>{children}</SiteAdmin>
     </Suspense>
   );
 }

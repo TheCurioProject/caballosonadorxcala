@@ -237,7 +237,6 @@ function LodgingForm({
       {translations("description", "Descripción", true)}
       {translations("beds", "Camas")}
       <div className="lodging-form-grid">
-        {numberField("capacity", "Capacidad máxima", 1, 100)}
         {numberField("bathrooms", "Baños", 0, 100)}
         <label className="field">
           <span>Servicios incluidos</span>
@@ -256,25 +255,15 @@ function LodgingForm({
           <small>Separa los servicios con comas.</small>
         </label>
       </div>
-      <h3>Tarifa y condiciones de reserva</h3>
+      <h3>Condiciones de reserva en la web</h3>
+      <p className="muted">
+        Capacidad, tarifa base y horarios de entrada y salida se gestionan en
+        CALA: <Link href="/admin/inventario/">Inventario</Link>,{" "}
+        <Link href="/admin/tarifas/">Tarifas y restricciones</Link> y{" "}
+        <Link href="/admin/ajustes/">Configuración</Link>. Aquí solo se
+        configura lo que aplica a las reservas de la página pública.
+      </p>
       <div className="lodging-form-grid">
-        <label className="field">
-          <span>Tarifa base por noche · {lodging.currency}</span>
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            required
-            value={draft.baseRateMinor / 100}
-            onChange={(e) =>
-              set("baseRateMinor", Math.round(Number(e.target.value) * 100))
-            }
-          />
-          <small>
-            Las tarifas por fecha tienen prioridad. Puedes editarlas en{" "}
-            <Link href="/admin/tarifas/">Tarifas y restricciones</Link>.
-          </small>
-        </label>
         {numberField("minStay", "Estancia mínima · noches", 1, 365)}
         {numberField("maxStay", "Estancia máxima · noches", 1, 366)}
         {numberField(
@@ -296,28 +285,6 @@ function LodgingForm({
             específica.
           </small>
         </label>
-        {lodging.kind === "whole_home" && (
-          <>
-            <label className="field">
-              <span>Entrada · horario para todos los alojamientos</span>
-              <input
-                type="time"
-                required
-                value={draft.checkInTime}
-                onChange={(e) => set("checkInTime", e.target.value)}
-              />
-            </label>
-            <label className="field">
-              <span>Salida · horario para todos los alojamientos</span>
-              <input
-                type="time"
-                required
-                value={draft.checkOutTime}
-                onChange={(e) => set("checkOutTime", e.target.value)}
-              />
-            </label>
-          </>
-        )}
       </div>
       {translations(
         "policy",
