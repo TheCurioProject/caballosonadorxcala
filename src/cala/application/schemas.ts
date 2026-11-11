@@ -309,6 +309,42 @@ export const commandSchema = z.discriminatedUnion("type", [
     version: version.optional(),
   }),
   z.object({
+    type: z.literal("room.create"),
+    ...base,
+    name,
+    parentUnitId: id.nullable(),
+    maxOccupancy: z.number().int().min(1).max(100),
+    baseRateMinor: money,
+  }),
+  z.object({
+    type: z.literal("room.update"),
+    ...base,
+    id,
+    name,
+    maxOccupancy: z.number().int().min(1).max(100),
+    baseRateMinor: money,
+    active: z.boolean(),
+    attributes: z
+      .object({
+        bedrooms: z.number().int().min(0).max(50),
+        beds: z.number().int().min(0).max(100),
+        bathrooms: z.number().int().min(0).max(50),
+      })
+      .optional(),
+    version,
+  }),
+  z.object({
+    type: z.literal("room.delete"),
+    ...base,
+    id,
+    version,
+  }),
+  z.object({
+    type: z.literal("property.rentalMode"),
+    ...base,
+    mode: z.enum(["whole", "rooms", "both"]),
+  }),
+  z.object({
     type: z.literal("unit.clean"),
     ...base,
     id,

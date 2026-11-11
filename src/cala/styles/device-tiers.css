@@ -1827,3 +1827,261 @@ html:is([data-font-size="medium"], [data-font-size="large"]) .cala-admin
     margin-left: auto;
   }
 }
+
+/* Inventario → gestor de propiedades (casas → habitaciones → ajustes). */
+.cala-admin .pm-list {
+  display: grid;
+  gap: 14px;
+}
+.cala-admin .pm-property {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.cala-admin .pm-property.is-open {
+  box-shadow: var(--shadow-soft);
+}
+.cala-admin .pm-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-right: 12px;
+}
+.cala-admin .pm-toggle {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 12px 18px 20px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cala-admin .pm-toggle > .icon {
+  flex: none;
+  color: var(--accent);
+}
+.cala-admin .pm-toggle > .icon:last-child {
+  margin-left: auto;
+  opacity: 0.6;
+  transition: transform 0.2s var(--motion-ease);
+}
+.cala-admin .pm-toggle[aria-expanded="true"] > .icon:last-child {
+  transform: rotate(180deg);
+}
+.cala-admin .pm-toggle:focus-visible,
+.cala-admin .pm-row:focus-visible,
+.cala-admin .pm-segments button:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
+}
+.cala-admin .pm-title {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+.cala-admin .pm-title strong {
+  font-size: calc(18px * var(--cala-fs, 1));
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.cala-admin .pm-title small,
+.cala-admin .pm-row-name small {
+  color: var(--muted);
+  font-size: calc(12.5px * var(--cala-fs, 1));
+}
+.cala-admin .pm-pill {
+  flex: none;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--subtle);
+  color: var(--muted);
+  font-size: calc(11.5px * var(--cala-fs, 1));
+  font-weight: 600;
+  white-space: nowrap;
+}
+.cala-admin .pm-pill.is-on {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+  color: var(--success);
+}
+.cala-admin .pm-pill.is-web {
+  border-color: var(--accent-border);
+  background: var(--info-bg);
+  color: var(--info);
+}
+.cala-admin .pm-body {
+  display: grid;
+  gap: 16px;
+  padding: 4px 20px 20px;
+  border-top: 1px solid var(--border);
+}
+.cala-admin .pm-mode {
+  display: grid;
+  gap: 8px;
+  padding-top: 14px;
+}
+.cala-admin .pm-segments {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.cala-admin .pm-segments button {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cala-admin .pm-segments button small {
+  color: var(--muted);
+  font-size: calc(12px * var(--cala-fs, 1));
+}
+.cala-admin .pm-segments button.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.cala-admin .pm-segments button:disabled {
+  cursor: default;
+}
+.cala-admin .pm-note {
+  margin: 0;
+  font-size: calc(12.5px * var(--cala-fs, 1));
+}
+.cala-admin .pm-group {
+  display: grid;
+  gap: 6px;
+}
+.cala-admin .pm-rooms {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0 0 0 22px;
+  border-left: 2px solid var(--subtle);
+  margin-left: 22px;
+  list-style: none;
+}
+.cala-admin .pm-rooms.pm-standalone {
+  padding-left: 0;
+  border-left: 0;
+  margin-left: 0;
+}
+.cala-admin .pm-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cala-admin .pm-row.is-house {
+  background: var(--table-head);
+}
+.cala-admin .pm-row.is-off .pm-row-name,
+.cala-admin .pm-row.is-off > .icon:first-child {
+  opacity: 0.6;
+}
+@media (hover: hover) {
+  .cala-admin .pm-row:hover,
+  .cala-admin .pm-segments button:not(:disabled):hover {
+    border-color: var(--accent-border);
+  }
+}
+.cala-admin .pm-row > .icon:first-child {
+  flex: none;
+  color: var(--accent);
+}
+.cala-admin .pm-row > .icon:last-child {
+  flex: none;
+  opacity: 0.5;
+}
+.cala-admin .pm-row-name {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+}
+.cala-admin .pm-row-name strong {
+  overflow-wrap: anywhere;
+}
+.cala-admin .pm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.cala-admin .pm-link {
+  color: var(--accent);
+  font-size: calc(13px * var(--cala-fs, 1));
+  font-weight: 600;
+  text-decoration: none;
+}
+.cala-admin .pm-section {
+  margin: 18px 0 10px;
+  font-size: calc(15px * var(--cala-fs, 1));
+}
+.cala-admin .pm-danger {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 22px;
+  padding: 14px 16px;
+  border: 1px solid var(--error-border);
+  border-radius: 14px;
+  background: var(--error-bg);
+}
+.cala-admin .pm-danger p {
+  margin: 2px 0 0;
+}
+@media (max-width: 760px) {
+  .cala-admin .pm-segments {
+    grid-template-columns: 1fr;
+  }
+  .cala-admin .pm-toggle {
+    padding: 14px 8px 14px 14px;
+  }
+  .cala-admin .pm-body {
+    padding: 4px 14px 16px;
+  }
+  .cala-admin .pm-rooms {
+    margin-left: 8px;
+    padding-left: 10px;
+  }
+  .cala-admin .pm-row {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+  .cala-admin .pm-row-name {
+    flex-basis: calc(100% - 70px);
+  }
+  .cala-admin .pm-row .badge {
+    margin-left: 36px;
+  }
+  .cala-admin .pm-row > .icon:last-child {
+    margin-left: auto;
+  }
+  .cala-admin .pm-pill.is-web {
+    display: none;
+  }
+}

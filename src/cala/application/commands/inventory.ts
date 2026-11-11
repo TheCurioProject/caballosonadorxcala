@@ -275,6 +275,160 @@ export function inventoryCommand(c: Context, cmd: Command) {
       );
       return result(cmd.ratePlanId, "Tarifas y restricciones actualizadas");
     }
+    case "room.create": {
+      permit(c, cmd.organizationId, "inventory.write", cmd.propertyId);
+      if (cmd.parentUnitId)
+        invariant(
+          s.units.some(
+            (u) =>
+              u.id === cmd.parentUnitId &&
+              u.propertyId === cmd.propertyId &&
+              !u.parentUnitId,
+          ),
+          "INVALID_PARENT",
+          "Elige una casa de esta propiedad.",
+        );
+      invariant(
+        !s.units.some(
+          (u) => u.propertyId === cmd.propertyId && u.name === cmd.name,
+        ),
+        "DUPLICATE_UNIT",
+        "El nombre de la unidad ya existe.",
+      );
+      const mode =
+        s.properties.find((p) => p.id === cmd.propertyId)?.rentalMode ?? "both";
+      const typeId = c.id(),
+        id = c.id();
+      s.inventoryTypes.push({
+        id: typeId,
+        propertyId: cmd.propertyId,
+        name: cmd.name,
+        sellMode: "unit",
+        maxOccupancy: cmd.maxOccupancy,
+        baseRateMinor: cmd.baseRateMinor,
+        amenities: [],
+        active: !(cmd.parentUnitId && mode === "whole"),
+      });
+      s.units.push({
+        id,
+        propertyId: cmd.propertyId,
+        inventoryTypeId: typeId,
+        name: cmd.name,
+        parentUnitId: cmd.parentUnitId,
+        active: true,
+        housekeeping: "clean",
+        version: 1,
+      });
+      audit(c, cmd.organizationId, cmd.propertyId, cmd.type, id);
+      event(c, cmd.organizationId, cmd.propertyId, "inventory.changed", id);
+      return result(id, "Habitación registrada");
+    }
+    case "room.update": {
+      permit(c, cmd.organizationId, "inventory.write", cmd.propertyId);
+      const u = s.units.find(
+        (u) => u.id === cmd.id && u.propertyId === cmd.propertyId,
+      );
+      invariant(u, "NOT_FOUND", "Unidad no encontrada.", 404);
+      checkVersion(u.version, cmd.version);
+      invariant(
+        !s.units.some(
+          (x) =>
+            x.propertyId === cmd.propertyId &&
+            x.name === cmd.name &&
+            x.id !== u.id,
+        ),
+        "DUPLICATE_UNIT",
+        "El nombre de la unidad ya existe.",
+      );
+      const t = s.inventoryTypes.find((t) => t.id === u.inventoryTypeId)!;
+      const shared = s.units.filter((x) => x.inventoryTypeId === t.id).length;
+      Object.assign(u, {
+        name: cmd.name,
+        active: cmd.active,
+        attributes: cmd.attributes ?? u.attributes,
+        version: u.version + 1,
+      });
+      Object.assign(t, {
+        name: shared === 1 ? cmd.name : t.name,
+        maxOccupancy: cmd.maxOccupancy,
+        baseRateMinor: cmd.baseRateMinor,
+      });
+      audit(c, cmd.organizationId, cmd.propertyId, cmd.type, u.id);
+      event(c, cmd.organizationId, cmd.propertyId, "inventory.changed", u.id);
+      return result(u.id, "Cambios guardados");
+    }
+    case "room.delete": {
+      permit(c, cmd.organizationId, "inventory.write", cmd.propertyId);
+      const u = s.units.find(
+        (u) => u.id === cmd.id && u.propertyId === cmd.propertyId,
+      );
+      invariant(u, "NOT_FOUND", "Unidad no encontrada.", 404);
+      checkVersion(u.version, cmd.version);
+      invariant(
+        !s.units.some((x) => x.parentUnitId === u.id),
+        "ROOM_HAS_ROOMS",
+        "Esta casa tiene habitaciones registradas.",
+        409,
+      );
+      const shared =
+        s.units.filter((x) => x.inventoryTypeId === u.inventoryTypeId)
+          .length === 1;
+      invariant(
+        !s.reservations.some(
+          (r) =>
+            r.unitId === u.id ||
+            (shared && r.inventoryTypeId === u.inventoryTypeId),
+        ),
+        "ROOM_HAS_RESERVATIONS",
+        "Tiene reservas en su historial; déjala fuera de servicio.",
+        409,
+      );
+      s.blocks = s.blocks.filter((b) => b.unitId !== u.id);
+      for (const task of s.tasks) if (task.unitId === u.id) task.unitId = null;
+      s.units = s.units.filter((x) => x.id !== u.id);
+      if (shared) {
+        s.rateDays = s.rateDays.filter(
+          (d) => d.inventoryTypeId !== u.inventoryTypeId,
+        );
+        s.inventoryTypes = s.inventoryTypes.filter(
+          (t) => t.id !== u.inventoryTypeId,
+        );
+      }
+      audit(c, cmd.organizationId, cmd.propertyId, cmd.type, u.id);
+      event(c, cmd.organizationId, cmd.propertyId, "inventory.changed", u.id);
+      return result(u.id, "Habitación eliminada");
+    }
+    case "property.rentalMode": {
+      permit(c, cmd.organizationId, "inventory.write", cmd.propertyId);
+      const p = s.properties.find(
+        (p) =>
+          p.id === cmd.propertyId && p.organizationId === cmd.organizationId,
+      );
+      invariant(p, "NOT_FOUND", "Propiedad no encontrada.", 404);
+      const house = s.units.find(
+        (u) =>
+          u.propertyId === p.id &&
+          !u.parentUnitId &&
+          s.units.some((x) => x.parentUnitId === u.id),
+      );
+      invariant(
+        house,
+        "RENTAL_MODE_NEEDS_ROOMS",
+        "Registra al menos una habitación dentro de la casa.",
+      );
+      for (const t of s.inventoryTypes) {
+        const roomType = s.units.some(
+          (u) => u.inventoryTypeId === t.id && u.parentUnitId === house.id,
+        );
+        if (roomType) t.active = cmd.mode !== "whole";
+        else if (t.id === house.inventoryTypeId && !p.websiteLinked)
+          t.active = cmd.mode !== "rooms";
+      }
+      p.rentalMode = cmd.mode;
+      audit(c, cmd.organizationId, cmd.propertyId, cmd.type, p.id);
+      event(c, cmd.organizationId, cmd.propertyId, "inventory.changed", p.id);
+      return result(p.id, "Modo de renta actualizado");
+    }
     case "unit.clean": {
       permit(c, cmd.organizationId, "operations.write", cmd.propertyId);
       const u = s.units.find(

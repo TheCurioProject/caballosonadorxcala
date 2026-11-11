@@ -1164,3 +1164,98 @@ test("SQL workspace management: inventory, units, property and ranked team comma
     ).rows,
   ).toEqual([{ n: 0 }]);
 });
+test("SQL property manager: houses, rooms, rental mode and safe deletion", async () => {
+  const pm = "30000000-0000-0000-0000-0000000000f1";
+  await db.exec(
+    `reset role;insert into public.properties(id,organization_id,name,concept) values('${pm}','${ids.org}','Casa Gestor','boutique_hotel');insert into public.property_settings(organization_id,property_id) values('${ids.org}','${pm}');`,
+  );
+  await as(ids.user);
+  const scope = { organizationId: ids.org, propertyId: pm };
+  const run = async (command: Record<string, unknown>, key: string) =>
+    (
+      await db.query<{ r: { id: string } }>(
+        "select public.pms_command($1::jsonb,$2) r",
+        [JSON.stringify({ ...scope, ...command }), key],
+      )
+    ).rows[0].r;
+  const room = (name: string, parentUnitId: string | null, key: string) =>
+    run(
+      { type: "room.create", name, parentUnitId, maxOccupancy: 2, baseRateMinor: 150000 },
+      key,
+    );
+  await expect(
+    run({ type: "property.rentalMode", mode: "rooms" }, "pm-mode-empty"),
+  ).rejects.toThrow("RENTAL_MODE_NEEDS_ROOMS");
+  const house = (await room("Casa", null, "pm-house")).id;
+  const first = (await room("Cuarto 1", house, "pm-room-1")).id;
+  const second = (await room("Cuarto 2", house, "pm-room-2")).id;
+  await expect(room("Cuarto 1", house, "pm-room-dup")).rejects.toThrow("DUPLICATE_UNIT");
+  const active = async () =>
+    Object.fromEntries(
+      (
+        await db.query<{ name: string; active: boolean }>(
+          "select u.name,t.active from public.units u join public.inventory_types t on t.id=u.inventory_type_id where u.property_id=$1",
+          [pm],
+        )
+      ).rows.map((r) => [r.name, r.active]),
+    );
+  await run({ type: "property.rentalMode", mode: "whole" }, "pm-mode-whole");
+  expect(await active()).toEqual({ Casa: true, "Cuarto 1": false, "Cuarto 2": false });
+  await run({ type: "property.rentalMode", mode: "rooms" }, "pm-mode-rooms");
+  expect(await active()).toEqual({ Casa: false, "Cuarto 1": true, "Cuarto 2": true });
+  expect(
+    (
+      await db.query<{ mode: string }>(
+        "select settings_json->>'rentalMode' mode from public.property_settings where property_id=$1",
+        [pm],
+      )
+    ).rows,
+  ).toEqual([{ mode: "rooms" }]);
+  await run(
+    {
+      type: "room.update",
+      id: first,
+      name: "Cuarto Mar",
+      maxOccupancy: 3,
+      baseRateMinor: 210000,
+      active: true,
+      attributes: { bedrooms: 1, beds: 2, bathrooms: 1 },
+      version: 1,
+    },
+    "pm-update",
+  );
+  expect(
+    (
+      await db.query(
+        "select u.name,u.version::int,t.name type_name,t.max_occupancy,t.base_rate_minor::int rate,(select value_json from public.unit_attributes a where a.unit_id=u.id and a.key='beds') beds from public.units u join public.inventory_types t on t.id=u.inventory_type_id where u.id=$1",
+        [first],
+      )
+    ).rows,
+  ).toEqual([
+    { name: "Cuarto Mar", version: 2, type_name: "Cuarto Mar", max_occupancy: 3, rate: 210000, beds: 2 },
+  ]);
+  await expect(
+    run({ type: "room.delete", id: house, version: 1 }, "pm-delete-house"),
+  ).rejects.toThrow("ROOM_HAS_ROOMS");
+  await db.exec(
+    `reset role;insert into public.reservations(id,organization_id,property_id,guest_id,confirmation_code,arrival_date,departure_date,adults,status,currency,total_minor) values('80000000-0000-0000-0000-0000000000f1','${ids.org}','${pm}','${ids.guest}','PM-1','2030-01-01','2030-01-03',1,'confirmed','MXN',0);insert into public.reservation_units(organization_id,property_id,reservation_id,inventory_type_id,unit_id,rate_plan_id,arrival_date,departure_date,guests_count) select '${ids.org}','${pm}','80000000-0000-0000-0000-0000000000f1',inventory_type_id,id,(select id from public.rate_plans where property_id='${pm}'),'2030-01-01','2030-01-03',1 from public.units where id='${first}';`,
+  );
+  await as(ids.user);
+  await expect(
+    run({ type: "room.delete", id: first, version: 2 }, "pm-delete-booked"),
+  ).rejects.toThrow("ROOM_HAS_RESERVATIONS");
+  await run({ type: "room.delete", id: second, version: 1 }, "pm-delete-free");
+  expect(
+    (
+      await db.query<{ units: number; types: number }>(
+        "select (select count(*)::int from public.units where property_id=$1) units,(select count(*)::int from public.inventory_types where property_id=$1) types",
+        [pm],
+      )
+    ).rows,
+  ).toEqual([{ units: 2, types: 2 }]);
+  await as(ids.house);
+  await expect(
+    run({ type: "room.create", name: "Ajeno", parentUnitId: null, maxOccupancy: 1, baseRateMinor: 0 }, "pm-forbidden"),
+  ).rejects.toThrow();
+  await db.exec("reset role");
+});

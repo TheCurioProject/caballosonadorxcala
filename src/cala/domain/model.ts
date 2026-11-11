@@ -68,6 +68,7 @@ export interface Membership {
   propertyIds: string[];
   status: "active" | "suspended";
 }
+export type RentalMode = "whole" | "rooms" | "both";
 export interface Property {
   id: string;
   organizationId: string;
@@ -83,6 +84,10 @@ export interface Property {
   policy: string;
   taxBps: number;
   allowedOverbooking: number;
+  /** How a house with rooms is sold. Absent means both. */
+  rentalMode?: RentalMode;
+  /** True for the property published on the public website. */
+  websiteLinked?: boolean;
   onboardingComplete: boolean;
   version: number;
 }

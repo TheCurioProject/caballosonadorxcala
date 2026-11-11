@@ -53,6 +53,20 @@ const commandErrors: Record<string, string> = {
   INVALID_ROLE: "Elige un rol válido.",
   INVALID_SCOPE: "Elige propiedades de esta organización.",
   DUPLICATE_UNIT: "Ya existe una unidad con ese nombre en la propiedad.",
+  INVALID_PARENT: "Elige una casa de esta propiedad.",
+  ROOM_HAS_ROOMS:
+    "Esta casa tiene habitaciones registradas. Elimínalas primero o deja la casa fuera de servicio.",
+  ROOM_HAS_RESERVATIONS:
+    "Tiene reservas en su historial, así que no se puede borrar. Déjala fuera de servicio para dejar de venderla.",
+  ROOM_ON_WEBSITE:
+    "Se publica en la página web. Déjala fuera de servicio en lugar de borrarla.",
+  ROOM_HAS_CALENDAR_SYNC:
+    "Tiene un calendario iCal conectado. Desconéctalo antes de borrarla.",
+  ROOM_HAS_CHANNEL:
+    "Está vinculada a un canal de venta. Quita el vínculo antes de borrarla.",
+  INVALID_RENTAL_MODE: "Elige cómo se renta la casa.",
+  RENTAL_MODE_NEEDS_ROOMS:
+    "Registra al menos una habitación dentro de la casa para elegir cómo se renta.",
   INVALID_INVENTORY: "Elige un tipo de alojamiento de esta propiedad.",
   NOT_FOUND: "El registro ya no existe. Recarga la vista.",
   DUPLICATE_MAPPING:

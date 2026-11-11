@@ -1,7 +1,10 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { useWorkspace } from "@/cala/features/workspace/context";
+import {
+  PropertyWorkspace,
+  useWorkspace,
+} from "@/cala/features/workspace/context";
 import {
   SectionTitle,
   Icon,
@@ -14,23 +17,28 @@ import { money, shortDate } from "@/cala/lib/format";
 import { addDays } from "@/cala/domain/shared/dates";
 import { useI18n } from "@/cala/lib/i18n";
 import { conceptLabels } from "@/cala/features/onboarding/screen";
-import type { InventoryType, Unit } from "@/cala/domain/model";
+import type {
+  InventoryType,
+  Property,
+  RentalMode,
+  Unit,
+} from "@/cala/domain/model";
+
+/**
+ * Inventory is the property manager: every house of the portfolio, its rooms,
+ * and each room's own settings. Prices per night live in Tarifas; reservations
+ * in the calendar. Nothing here repeats those screens.
+ */
 export function Inventory() {
-  const { data, can, command } = useWorkspace();
+  const { data, can } = useWorkspace();
   const { t: tr } = useI18n();
-  const [dialog, setDialog] = useState<"type" | "unit" | "block" | null>(null);
-  const [tab, setTab] = useState("property");
-  const [openUnit, setOpenUnit] = useState<string | null>(null);
-  const [openType, setOpenType] = useState<string | null>(null);
-  const [blockUnit, setBlockUnit] = useState<string | null>(null);
-  const types = data.inventoryTypes.filter(
-    (t) => t.propertyId === data.currentPropertyId,
+  const [open, setOpen] = useState<string[]>(() =>
+    data.currentPropertyId ? [data.currentPropertyId] : [],
   );
-  const units = data.units.filter(
-    (u) => u.propertyId === data.currentPropertyId,
-  );
-  const blocks = data.blocks.filter(
-    (b) => b.propertyId === data.currentPropertyId && b.active,
+  const properties = [...data.properties].sort(
+    (a, b) =>
+      Number(b.id === data.currentPropertyId) -
+        Number(a.id === data.currentPropertyId) || a.name.localeCompare(b.name),
   );
   return (
     <>
@@ -38,565 +46,482 @@ export function Inventory() {
         eyebrow={tr("CADA ESPACIO TIENE SU LUGAR")}
         title={tr("Inventario")}
         description={tr(
-          "Gestiona la propiedad, sus alojamientos, unidades y bloqueos. Pulsa cualquier tarjeta para ver y cambiar sus opciones.",
+          "Tus casas y sus habitaciones. Abre una casa para ver sus habitaciones y pulsa una habitación para cambiar sus ajustes.",
         )}
       >
-        {can("inventory.write") && (
-          <>
-            <button
-              className="button secondary"
-              onClick={() => setDialog("block")}
-            >
-              <Icon name="block-room" />
-              {tr("Bloquear unidad")}
-            </button>
-            <button
-              className="button primary"
-              onClick={() => setDialog("type")}
-            >
-              <Icon name="plus" />
-              {tr("Nuevo tipo")}
-            </button>
-          </>
+        {can("property.write") && (
+          <Link className="button secondary" href="/admin/onboarding">
+            <Icon name="plus" />
+            {tr("Nueva propiedad")}
+          </Link>
         )}
       </SectionTitle>
-      <div className="tabs" role="tablist" aria-label={tr("Inventario")}>
-        {[
-          ["property", "Propiedad"],
-          ["units", "Unidades"],
-          ["types", "Tipos de inventario"],
-          ["blocks", "Bloqueos"],
-        ].map(([id, label]) => (
-          <button
-            role="tab"
-            aria-selected={tab === id}
-            key={id}
-            className={tab === id ? "active" : ""}
-            onClick={() => setTab(id)}
-          >
-            {tr(label)}
-            {id !== "property" && (
-              <span>
-                {id === "units"
-                  ? units.length
-                  : id === "types"
-                    ? types.length
-                    : blocks.length}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
-      <div style={{ marginTop: 22 }}>
-        {tab === "property" ? (
-          <PropertyManager
-            onTab={setTab}
-            unitCount={units.length}
-            typeCount={types.length}
-          />
-        ) : tab === "types" ? (
-          <div className="card-grid">
-            {types.map((t) => (
-              <button
-                type="button"
-                className="card card-action"
-                key={t.id}
-                onClick={() => setOpenType(t.id)}
-                aria-label={tr("Opciones de {name}", { name: t.name })}
-              >
-                <Icon
-                  name={t.sellMode === "bed" ? "bunk-bed" : "bed"}
-                  size={30}
-                />
-                <h3>{t.name}</h3>
-                <p>
-                  {t.sellMode === "bed"
-                    ? tr("Venta por cama")
-                    : tr("Venta por unidad")}{" "}
-                  · {tr("hasta {count} personas", { count: t.maxOccupancy })}
-                </p>
-                <strong>
-                  {money(t.baseRateMinor)}{" "}
-                  <small className="muted">/ {tr("noche base")}</small>
-                </strong>
-                <p>
-                  {t.amenities.join(" · ") || tr("Sin amenities configuradas")}
-                </p>
-                <span className="card-foot">
-                  <span className="muted">
-                    {units.filter((u) => u.inventoryTypeId === t.id).length}{" "}
-                    {tr("unidades")}
-                    {!t.active && <> · {tr("Fuera de venta")}</>}
-                  </span>
-                  <Icon name="chevron-right" size={16} />
-                </span>
-              </button>
-            ))}
-          </div>
-        ) : tab === "blocks" ? (
-          <div className="panel">
-            {blocks.length ? (
-              blocks.map((b) => (
-                <div className="list-row" key={b.id}>
-                  <div>
-                    <strong>
-                      {units.find((u) => u.id === b.unitId)?.name} · {b.reason}
-                    </strong>
-                    <p>
-                      {shortDate(b.arrival)} — {shortDate(b.departure)} ·{" "}
-                      {tr("salida exclusiva")}
-                    </p>
-                  </div>
-                  {can("inventory.write") && (
-                    <button
-                      className="button secondary"
-                      onClick={() =>
-                        void command({ type: "block.release", id: b.id }).catch(
-                          () => {},
-                        )
-                      }
-                    >
-                      {tr("Liberar bloqueo")}
-                    </button>
-                  )}
-                </div>
-              ))
-            ) : (
-              <Empty
-                title={tr("Todos los espacios, disponibles para operar")}
-                description={tr("No hay bloqueos activos.")}
+      {properties.length ? (
+        <div className="pm-list">
+          {properties.map((p) => (
+            <PropertyWorkspace key={p.id} propertyId={p.id}>
+              <PropertyCard
+                property={p}
+                expanded={open.includes(p.id)}
+                onToggle={() =>
+                  setOpen((ids) =>
+                    ids.includes(p.id)
+                      ? ids.filter((id) => id !== p.id)
+                      : [...ids, p.id],
+                  )
+                }
               />
-            )}
-          </div>
-        ) : (
-          <>
-            <div className="row between" style={{ marginBottom: 18 }}>
-              <span className="muted">
-                {tr("La limpieza no cambia la disponibilidad de venta.")}
-              </span>
-              {can("inventory.write") && (
-                <button
-                  className="button secondary"
-                  onClick={() => setDialog("unit")}
-                >
-                  <Icon name="plus" />
-                  {tr("Agregar unidad")}
-                </button>
-              )}
-            </div>
-            <div className="card-grid">
-              {units.map((u) => (
-                <button
-                  type="button"
-                  className={
-                    "card card-action" + (u.active ? "" : " is-inactive")
-                  }
-                  key={u.id}
-                  onClick={() => setOpenUnit(u.id)}
-                  aria-label={tr("Opciones de {name}", { name: u.name })}
-                >
-                  <div className="row between">
-                    <Icon
-                      name={u.parentUnitId ? "bed-single" : "door"}
-                      size={26}
-                    />
-                    <Badge status={u.housekeeping} />
-                  </div>
-                  <h3>{u.name}</h3>
-                  <p>{types.find((t) => t.id === u.inventoryTypeId)?.name}</p>
-                  {u.parentUnitId && (
-                    <small className="muted">
-                      {tr("Dentro de")}{" "}
-                      {units.find((p) => p.id === u.parentUnitId)?.name}
-                    </small>
-                  )}
-                  <span className="card-foot">
-                    <span className="muted">
-                      {!u.active
-                        ? tr("Fuera de servicio")
-                        : blocks.some((b) => b.unitId === u.id)
-                          ? tr("Tiene bloqueos programados")
-                          : tr("Sin bloqueos programados")}
-                    </span>
-                    <Icon name="chevron-right" size={16} />
-                  </span>
-                </button>
-              ))}
-            </div>
-            {!units.length && (
-              <Empty
-                title={tr("Crea tus primeros espacios")}
-                description={tr(
-                  "Añade un tipo de inventario con sus unidades.",
-                )}
-              />
-            )}
-          </>
-        )}
-      </div>
-      {openUnit && units.some((u) => u.id === openUnit) && (
-        <UnitDialog
-          unit={units.find((u) => u.id === openUnit)!}
-          types={types}
-          onBlock={() => {
-            setBlockUnit(openUnit);
-            setOpenUnit(null);
-            setDialog("block");
-          }}
-          onClose={() => setOpenUnit(null)}
+            </PropertyWorkspace>
+          ))}
+        </div>
+      ) : (
+        <Empty
+          title={tr("Configura tu primera propiedad")}
+          description={tr("Usa «Nueva propiedad» para registrarla.")}
         />
-      )}
-      {openType && types.some((t) => t.id === openType) && (
-        <TypeDialog
-          type={types.find((t) => t.id === openType)!}
-          onClose={() => setOpenType(null)}
-        />
-      )}
-      {dialog && (
-        <Modal
-          title={
-            dialog === "type"
-              ? tr("Nuevo tipo de inventario")
-              : dialog === "unit"
-                ? tr("Agregar unidad")
-                : tr("Bloquear unidad")
-          }
-          onClose={() => {
-            setDialog(null);
-            setBlockUnit(null);
-          }}
-        >
-          {dialog === "type" ? (
-            <Form
-              fields={[
-                { name: "name", label: tr("Nombre del tipo") },
-                {
-                  name: "sellMode",
-                  label: tr("Se vende por"),
-                  type: "select",
-                  value: "unit",
-                  options: [
-                    { value: "unit", label: tr("Unidad completa") },
-                    { value: "bed", label: tr("Cama") },
-                  ],
-                },
-                {
-                  name: "maxOccupancy",
-                  label: tr("Capacidad máxima"),
-                  type: "number",
-                  value: 2,
-                  min: 1,
-                },
-                {
-                  name: "baseRateMinor",
-                  label: tr("Tarifa base"),
-                  type: "money",
-                  value: 240000,
-                  min: 0,
-                  help: tr("Precio por noche, por ejemplo 2400.00"),
-                },
-                {
-                  name: "unitCount",
-                  label: tr("Unidades a crear"),
-                  type: "number",
-                  value: 1,
-                  min: 1,
-                  max: 100,
-                },
-                {
-                  name: "parentUnitId",
-                  label: tr("Habitación contenedora (camas)"),
-                  type: "select",
-                  value: "",
-                  options: [
-                    { value: "", label: tr("Sin habitación contenedora") },
-                    ...units
-                      .filter((u) => !u.parentUnitId)
-                      .map((u) => ({ value: u.id, label: u.name })),
-                  ],
-                  required: false,
-                },
-                {
-                  name: "amenities",
-                  label: tr("Amenities"),
-                  required: false,
-                  help: tr("Separadas por coma"),
-                },
-              ]}
-              onCancel={() => setDialog(null)}
-              onSubmit={async (v) => {
-                await command({
-                  type: "inventory.create",
-                  ...v,
-                  parentUnitId: v.parentUnitId || null,
-                  amenities: String(v.amenities)
-                    .split(",")
-                    .map((s) => s.trim())
-                    .filter(Boolean),
-                });
-                setDialog(null);
-              }}
-            />
-          ) : dialog === "unit" ? (
-            <Form
-              fields={[
-                { name: "name", label: tr("Nombre de la unidad") },
-                {
-                  name: "inventoryTypeId",
-                  label: tr("Tipo"),
-                  type: "select",
-                  value: types[0]?.id,
-                  options: types.map((t) => ({ value: t.id, label: t.name })),
-                },
-                {
-                  name: "parentUnitId",
-                  label: tr("Habitación contenedora"),
-                  type: "select",
-                  value: "",
-                  required: false,
-                  options: [
-                    { value: "", label: tr("Ninguna") },
-                    ...units
-                      .filter((u) => !u.parentUnitId)
-                      .map((u) => ({ value: u.id, label: u.name })),
-                  ],
-                },
-              ]}
-              onCancel={() => setDialog(null)}
-              onSubmit={async (v) => {
-                await command({
-                  type: "unit.create",
-                  ...v,
-                  parentUnitId: v.parentUnitId || null,
-                });
-                setDialog(null);
-              }}
-            />
-          ) : (
-            <Form
-              fields={[
-                {
-                  name: "unitId",
-                  label: tr("Unidad"),
-                  type: "select",
-                  value: blockUnit ?? units[0]?.id,
-                  options: units.map((u) => ({ value: u.id, label: u.name })),
-                },
-                {
-                  name: "reason",
-                  label: tr("Motivo"),
-                  value: tr("Mantenimiento"),
-                },
-                {
-                  name: "arrival",
-                  label: tr("Desde"),
-                  type: "date",
-                  value: data.today,
-                },
-                {
-                  name: "departure",
-                  label: tr("Hasta (exclusivo)"),
-                  type: "date",
-                  value: addDays(data.today, 1),
-                },
-              ]}
-              onCancel={() => setDialog(null)}
-              onSubmit={async (v) => {
-                await command({ type: "block.create", ...v });
-                setDialog(null);
-              }}
-            />
-          )}
-        </Modal>
       )}
     </>
   );
 }
 
-/** Everything the "Nueva propiedad" wizard registers, editable in place. */
-function PropertyManager({
-  onTab,
-  unitCount,
-  typeCount,
+/** A house is a top-level unit that contains rooms. */
+function structure(units: Unit[], propertyId: string) {
+  const own = units
+    .filter((u) => u.propertyId === propertyId)
+    .sort((a, b) => a.name.localeCompare(b.name));
+  const houses = own.filter(
+    (u) => !u.parentUnitId && own.some((r) => r.parentUnitId === u.id),
+  );
+  const standalone = own.filter((u) => !u.parentUnitId && !houses.includes(u));
+  return { own, houses, standalone };
+}
+
+function PropertyCard({
+  property: p,
+  expanded,
+  onToggle,
 }: {
-  onTab: (tab: string) => void;
-  unitCount: number;
-  typeCount: number;
+  property: Property;
+  expanded: boolean;
+  onToggle: () => void;
 }) {
-  const { data, can, command } = useWorkspace();
+  const { data, can } = useWorkspace();
   const { t: tr } = useI18n();
-  const p = data.properties.find((x) => x.id === data.currentPropertyId);
-  if (!p)
-    return (
-      <Empty
-        title={tr("Configura tu primera propiedad")}
-        description={tr("Usa «Nueva propiedad» para registrarla.")}
-      />
-    );
-  const capacity = data.inventoryTypes
-    .filter((t) => t.propertyId === p.id && t.active)
-    .reduce(
-      (sum, t) =>
-        sum +
-        t.maxOccupancy *
-          data.units.filter((u) => u.inventoryTypeId === t.id && u.active)
-            .length,
-      0,
-    );
+  const [settings, setSettings] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [openUnit, setOpenUnit] = useState<string | null>(null);
+  const { own, houses, standalone } = structure(data.units, p.id);
+  const types = data.inventoryTypes.filter((t) => t.propertyId === p.id);
+  const mode: RentalMode = p.rentalMode ?? "both";
+  const roomCount = own.filter((u) => u.parentUnitId).length;
+  const bodyId = "pm-body-" + p.id;
+  const opened = own.find((u) => u.id === openUnit);
   return (
-    <div className="property-manager">
-      <div className="property-summary">
-        <button type="button" onClick={() => onTab("units")}>
-          <strong>{unitCount}</strong>
-          <span>{tr("Unidades")}</span>
+    <section className={"pm-property" + (expanded ? " is-open" : "")}>
+      <div className="pm-head">
+        <button
+          type="button"
+          className="pm-toggle"
+          aria-expanded={expanded}
+          aria-controls={bodyId}
+          onClick={onToggle}
+        >
+          <Icon name={houses.length ? "entire-home" : "property"} size={28} />
+          <span className="pm-title">
+            <strong>{p.name}</strong>
+            <small>
+              {[
+                p.city,
+                houses.length
+                  ? tr("{count} habitaciones", { count: roomCount })
+                  : tr("{count} unidades", { count: own.length }),
+                houses.length ? modeLabel(mode, tr) : "",
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </small>
+          </span>
+          {p.websiteLinked && (
+            <span className="pm-pill is-web">{tr("En la web")}</span>
+          )}
+          <Icon name="chevron-down" size={18} />
         </button>
-        <button type="button" onClick={() => onTab("types")}>
-          <strong>{typeCount}</strong>
-          <span>{tr("Tipos de alojamiento")}</span>
+        <button
+          type="button"
+          className="icon-button"
+          onClick={() => setSettings(true)}
+          aria-label={tr("Ajustes de {name}", { name: p.name })}
+          title={tr("Ajustes de la propiedad")}
+        >
+          <Icon name="settings" />
         </button>
-        <div>
-          <strong>{capacity}</strong>
-          <span>{tr("Huéspedes máximos")}</span>
-        </div>
-        <div>
-          <strong>
-            {p.checkIn} · {p.checkOut}
-          </strong>
-          <span>{tr("Llegada · salida")}</span>
-        </div>
       </div>
-      <section className="panel padded">
-        <h2>{tr("Datos de la propiedad")}</h2>
-        <p className="muted">
+      {expanded && (
+        <div className="pm-body" id={bodyId}>
+          {houses.length > 0 && <RentalModeControl property={p} mode={mode} />}
+          {houses.map((house) => (
+            <div className="pm-group" key={house.id}>
+              <UnitRow
+                unit={house}
+                type={types.find((t) => t.id === house.inventoryTypeId)}
+                property={p}
+                house
+                onOpen={() => setOpenUnit(house.id)}
+              />
+              <ul className="pm-rooms" aria-label={tr("Habitaciones")}>
+                {own
+                  .filter((u) => u.parentUnitId === house.id)
+                  .map((room) => (
+                    <li key={room.id}>
+                      <UnitRow
+                        unit={room}
+                        type={types.find((t) => t.id === room.inventoryTypeId)}
+                        property={p}
+                        onOpen={() => setOpenUnit(room.id)}
+                      />
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          ))}
+          {standalone.length > 0 && (
+            <ul className="pm-rooms pm-standalone">
+              {standalone.map((u) => (
+                <li key={u.id}>
+                  <UnitRow
+                    unit={u}
+                    type={types.find((t) => t.id === u.inventoryTypeId)}
+                    property={p}
+                    onOpen={() => setOpenUnit(u.id)}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+          {!own.length && (
+            <p className="muted">
+              {tr("Esta propiedad aún no tiene espacios.")}
+            </p>
+          )}
+          {can("inventory.write") && (
+            <div className="pm-actions">
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => setAdding(true)}
+              >
+                <Icon name="plus" />
+                {houses.length || standalone.length
+                  ? tr("Registrar habitación")
+                  : tr("Registrar casa o habitación")}
+              </button>
+              <Link className="pm-link" href="/admin/tarifas">
+                {tr("Precios por noche en Tarifas")} →
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
+      {settings && (
+        <Modal
+          title={tr("Ajustes de {name}", { name: p.name })}
+          onClose={() => setSettings(false)}
+          wide
+        >
+          <PropertySettings property={p} onDone={() => setSettings(false)} />
+        </Modal>
+      )}
+      {adding && (
+        <AddRoomDialog
+          property={p}
+          parents={[...houses, ...standalone]}
+          defaultParent={houses[0]?.id ?? ""}
+          onClose={() => setAdding(false)}
+        />
+      )}
+      {opened && (
+        <RoomDialog
+          unit={opened}
+          type={types.find((t) => t.id === opened.inventoryTypeId)}
+          isHouse={houses.includes(opened)}
+          onClose={() => setOpenUnit(null)}
+        />
+      )}
+    </section>
+  );
+}
+
+function modeLabel(mode: RentalMode, tr: (s: string) => string) {
+  return mode === "whole"
+    ? tr("Solo casa completa")
+    : mode === "rooms"
+      ? tr("Solo por habitaciones")
+      : tr("Casa completa y por habitaciones");
+}
+
+function RentalModeControl({
+  property,
+  mode,
+}: {
+  property: Property;
+  mode: RentalMode;
+}) {
+  const { can, command } = useWorkspace();
+  const { t: tr } = useI18n();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const options: { value: RentalMode; label: string; hint: string }[] = [
+    {
+      value: "whole",
+      label: tr("Solo casa completa"),
+      hint: tr("Las habitaciones no se venden por separado."),
+    },
+    {
+      value: "rooms",
+      label: tr("Solo habitaciones"),
+      hint: tr("La casa completa no se vende."),
+    },
+    {
+      value: "both",
+      label: tr("Casa y habitaciones"),
+      hint: tr("Se vende la casa entera o cada habitación."),
+    },
+  ];
+  return (
+    <div className="pm-mode">
+      <span className="eyebrow" id={"mode-" + property.id}>
+        {tr("¿CÓMO SE RENTA?")}
+      </span>
+      <div
+        className="pm-segments"
+        role="radiogroup"
+        aria-labelledby={"mode-" + property.id}
+      >
+        {options.map((o) => (
+          <button
+            key={o.value}
+            type="button"
+            role="radio"
+            aria-checked={mode === o.value}
+            className={mode === o.value ? "active" : ""}
+            disabled={busy || !can("inventory.write")}
+            onClick={async () => {
+              if (mode === o.value) return;
+              setBusy(true);
+              setError("");
+              try {
+                await command({ type: "property.rentalMode", mode: o.value });
+              } catch (e) {
+                setError(
+                  e instanceof Error ? e.message : tr("No se pudo guardar."),
+                );
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            <strong>{o.label}</strong>
+            <small>{o.hint}</small>
+          </button>
+        ))}
+      </div>
+      {property.websiteLinked && (
+        <p className="muted pm-note">
           {tr(
-            "Lo mismo que registras al crear una propiedad. Los cambios se guardan en la base de datos de CALA.",
+            "Esta casa se publica en la página web: lo que dejes de vender aquí también deja de ofrecerse allí.",
           )}
         </p>
-        {can("property.write") ? (
-          <Form
-            key={p.id + ":" + p.version}
-            submit={tr("Guardar propiedad")}
-            fields={[
-              { name: "name", label: tr("Nombre"), value: p.name },
-              {
-                name: "concept",
-                label: tr("Tipo de alojamiento"),
-                type: "select",
-                value: p.concept,
-                options: Object.entries(conceptLabels).map(
-                  ([value, label]) => ({ value, label: tr(label) }),
-                ),
-              },
-              { name: "city", label: tr("Ciudad"), value: p.city },
-              {
-                name: "address",
-                label: tr("Dirección"),
-                value: p.address,
-                required: false,
-              },
-              {
-                name: "checkIn",
-                label: tr("Llegada desde"),
-                type: "time",
-                value: p.checkIn,
-              },
-              {
-                name: "checkOut",
-                label: tr("Salida hasta"),
-                type: "time",
-                value: p.checkOut,
-              },
-              {
-                name: "taxPercent",
-                label: tr("Impuestos (%)"),
-                type: "number",
-                min: 0,
-                max: 100,
-                step: 0.01,
-                value: p.taxBps / 100,
-              },
-              {
-                name: "allowedOverbooking",
-                label: tr("Sobreventa agrupada permitida"),
-                type: "number",
-                min: 0,
-                max: 10,
-                value: p.allowedOverbooking,
-                help: tr(
-                  "No autoriza solapamientos de una misma unidad física.",
-                ),
-              },
-              {
-                name: "policy",
-                label: tr("Política de cancelación y casa"),
-                type: "textarea",
-                value: p.policy,
-                required: false,
-              },
-            ]}
-            onSubmit={async (v) => {
-              await command({
-                type: "property.update",
-                name: v.name,
-                concept: v.concept,
-                city: v.city,
-                address: v.address,
-                checkIn: String(v.checkIn).slice(0, 5),
-                checkOut: String(v.checkOut).slice(0, 5),
-                taxBps: Math.round(Number(v.taxPercent) * 100),
-                allowedOverbooking: v.allowedOverbooking,
-                policy: v.policy,
-                version: p.version,
-              });
-            }}
-          />
-        ) : (
-          <dl className="details">
-            <div>
-              <dt>{tr("Nombre")}</dt>
-              <dd>{p.name}</dd>
-            </div>
-            <div>
-              <dt>{tr("Ciudad")}</dt>
-              <dd>{p.city}</dd>
-            </div>
-            <div>
-              <dt>{tr("Dirección")}</dt>
-              <dd>{p.address || "—"}</dd>
-            </div>
-          </dl>
-        )}
-      </section>
+      )}
+      {error && (
+        <p className="notice error" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
 
-function UnitDialog({
+/** Whether a room or house is currently offered for sale, and why not. */
+function saleState(
+  unit: Unit,
+  type: InventoryType | undefined,
+  property: Property,
+  house: boolean,
+  tr: (s: string) => string,
+) {
+  const mode = property.rentalMode ?? "both";
+  if (!unit.active) return { on: false, label: tr("Fuera de servicio") };
+  if (house && mode === "rooms")
+    return { on: false, label: tr("No se renta completa") };
+  if (unit.parentUnitId && mode === "whole")
+    return { on: false, label: tr("Solo casa completa") };
+  if (type && !type.active) return { on: false, label: tr("Fuera de venta") };
+  return { on: true, label: tr("En venta") };
+}
+
+function UnitRow({
   unit,
-  types,
-  onBlock,
+  type,
+  property,
+  house = false,
+  onOpen,
+}: {
+  unit: Unit;
+  type?: InventoryType;
+  property: Property;
+  house?: boolean;
+  onOpen: () => void;
+}) {
+  const { t: tr } = useI18n();
+  const sale = saleState(unit, type, property, house, tr);
+  return (
+    <button
+      type="button"
+      className={
+        "pm-row" + (house ? " is-house" : "") + (sale.on ? "" : " is-off")
+      }
+      onClick={onOpen}
+      aria-label={tr("Ajustes de {name}", { name: unit.name })}
+    >
+      <Icon
+        name={house ? "entire-home" : unit.parentUnitId ? "bed" : "door"}
+        size={24}
+      />
+      <span className="pm-row-name">
+        <strong>
+          {house ? tr("Casa completa") + " · " + unit.name : unit.name}
+        </strong>
+        <small>
+          {type
+            ? tr("hasta {count} personas", { count: type.maxOccupancy }) +
+              " · " +
+              money(type.baseRateMinor) +
+              " / " +
+              tr("noche base")
+            : ""}
+        </small>
+      </span>
+      <Badge status={unit.housekeeping} />
+      <span className={"pm-pill" + (sale.on ? " is-on" : "")}>
+        {sale.label}
+      </span>
+      <Icon name="chevron-right" size={16} />
+    </button>
+  );
+}
+
+function AddRoomDialog({
+  property,
+  parents,
+  defaultParent,
+  onClose,
+}: {
+  property: Property;
+  parents: Unit[];
+  defaultParent: string;
+  onClose: () => void;
+}) {
+  const { command } = useWorkspace();
+  const { t: tr } = useI18n();
+  return (
+    <Modal
+      title={tr("Registrar en {name}", { name: property.name })}
+      onClose={onClose}
+    >
+      <Form
+        submit={tr("Registrar")}
+        onCancel={onClose}
+        fields={[
+          { name: "name", label: tr("Nombre"), maxLength: 160 },
+          {
+            name: "parentUnitId",
+            label: tr("Dentro de"),
+            type: "select",
+            value: defaultParent,
+            required: false,
+            options: [
+              ...parents.map((u) => ({
+                value: u.id,
+                label: tr("Habitación de {name}", { name: u.name }),
+              })),
+              {
+                value: "",
+                label: tr("Ninguna: es una casa o unidad independiente"),
+              },
+            ],
+            help: tr(
+              "Para rentar una casa entera y también por habitaciones, registra primero la casa y después sus habitaciones dentro de ella.",
+            ),
+          },
+          {
+            name: "maxOccupancy",
+            label: tr("Huéspedes máximos"),
+            type: "number",
+            value: 2,
+            min: 1,
+            max: 100,
+          },
+          {
+            name: "baseRateMinor",
+            label: tr("Tarifa base por noche"),
+            type: "money",
+            value: 0,
+            min: 0,
+            help: tr("Se usa en las noches sin precio propio en Tarifas."),
+          },
+        ]}
+        onSubmit={async (v) => {
+          await command({
+            type: "room.create",
+            name: String(v.name).trim(),
+            parentUnitId: String(v.parentUnitId) || null,
+            maxOccupancy: Number(v.maxOccupancy),
+            baseRateMinor: Number(v.baseRateMinor),
+          });
+          onClose();
+        }}
+      />
+    </Modal>
+  );
+}
+
+function RoomDialog({
+  unit,
+  type,
+  isHouse,
   onClose,
 }: {
   unit: Unit;
-  types: InventoryType[];
-  onBlock: () => void;
+  type?: InventoryType;
+  isHouse: boolean;
   onClose: () => void;
 }) {
   const { data, can, command } = useWorkspace();
   const { t: tr } = useI18n();
-  const type = types.find((t) => t.id === unit.inventoryTypeId);
+  const [blocking, setBlocking] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [error, setError] = useState("");
+  const shared = data.units.filter(
+    (u) => u.inventoryTypeId === unit.inventoryTypeId,
+  ).length;
   const blocks = data.blocks.filter((b) => b.unitId === unit.id && b.active);
-  const next = data.reservations
+  const stays = data.reservations.filter((r) => r.unitId === unit.id);
+  const next = stays
     .filter(
       (r) =>
-        r.unitId === unit.id &&
         r.departure >= data.today &&
         ["pending", "confirmed", "checked_in"].includes(r.status),
     )
     .sort((a, b) => a.arrival.localeCompare(b.arrival))
     .slice(0, 3);
+  const deletable = !isHouse && !stays.length;
+  const write = can("inventory.write");
   return (
-    <Modal title={unit.name} onClose={onClose} wide>
+    <Modal
+      title={isHouse ? tr("Casa completa") + " · " + unit.name : unit.name}
+      onClose={onClose}
+      wide
+    >
       <div className="unit-overview">
         <div>
           <span className="eyebrow">{tr("LIMPIEZA")}</span>
@@ -641,23 +566,50 @@ function UnitDialog({
           )}
         </div>
       </div>
-      {can("inventory.write") ? (
+
+      <h3 className="pm-section">{tr("Datos")}</h3>
+      {write && type ? (
         <Form
-          key={unit.id + ":" + unit.version}
-          submit={tr("Guardar unidad")}
-          onCancel={onClose}
+          key={
+            unit.id +
+            ":" +
+            unit.version +
+            ":" +
+            type.baseRateMinor +
+            ":" +
+            type.maxOccupancy
+          }
+          submit={tr("Guardar cambios")}
           fields={[
             {
               name: "name",
-              label: tr("Nombre de la unidad"),
+              label: tr("Nombre"),
               value: unit.name,
+              maxLength: 160,
             },
             {
-              name: "inventoryTypeId",
-              label: tr("Tipo de alojamiento"),
-              type: "select",
-              value: unit.inventoryTypeId,
-              options: types.map((t) => ({ value: t.id, label: t.name })),
+              name: "maxOccupancy",
+              label: tr("Huéspedes máximos"),
+              type: "number",
+              min: 1,
+              max: 100,
+              value: type.maxOccupancy,
+              help:
+                shared > 1
+                  ? tr("Se aplica a las {count} unidades de este tipo.", {
+                      count: shared,
+                    })
+                  : undefined,
+            },
+            {
+              name: "baseRateMinor",
+              label: tr("Tarifa base por noche"),
+              type: "money",
+              min: 0,
+              value: type.baseRateMinor,
+              help: tr(
+                "Se usa en las noches sin precio propio. Ajusta precios por día en Tarifas.",
+              ),
             },
             {
               name: "bedrooms",
@@ -692,11 +644,12 @@ function UnitDialog({
           ]}
           onSubmit={async (v) => {
             await command({
-              type: "unit.update",
+              type: "room.update",
               id: unit.id,
-              name: v.name,
-              inventoryTypeId: v.inventoryTypeId,
-              active: v.active,
+              name: String(v.name).trim(),
+              maxOccupancy: Number(v.maxOccupancy),
+              baseRateMinor: Number(v.baseRateMinor),
+              active: Boolean(v.active),
               attributes: {
                 bedrooms: Number(v.bedrooms),
                 beds: Number(v.beds),
@@ -709,114 +662,259 @@ function UnitDialog({
         />
       ) : (
         <p className="muted">
-          {type?.name} · {tr("Tu rol permite consultar esta unidad.")}
+          {type
+            ? tr("hasta {count} personas", { count: type.maxOccupancy }) +
+              " · " +
+              money(type.baseRateMinor)
+            : ""}{" "}
+          · {tr("Tu rol permite consultar esta unidad.")}
         </p>
       )}
+
       <div className="unit-blocks">
         <div className="row between">
-          <h3>{tr("Bloqueos")}</h3>
-          {can("inventory.write") && (
-            <button className="button secondary" onClick={onBlock}>
+          <h3 className="pm-section">{tr("Bloqueos")}</h3>
+          {write && !blocking && (
+            <button
+              className="button secondary"
+              onClick={() => setBlocking(true)}
+            >
               <Icon name="block-room" />
               {tr("Bloquear fechas")}
             </button>
           )}
         </div>
-        {blocks.length ? (
-          blocks.map((b) => (
-            <div className="list-row" key={b.id}>
-              <div>
-                <strong>{b.reason}</strong>
-                <p>
-                  {shortDate(b.arrival)} — {shortDate(b.departure)}
-                </p>
+        {blocking && (
+          <Form
+            submit={tr("Bloquear")}
+            onCancel={() => setBlocking(false)}
+            fields={[
+              {
+                name: "reason",
+                label: tr("Motivo"),
+                value: tr("Mantenimiento"),
+              },
+              {
+                name: "arrival",
+                label: tr("Desde"),
+                type: "date",
+                value: data.today,
+              },
+              {
+                name: "departure",
+                label: tr("Hasta (exclusivo)"),
+                type: "date",
+                value: addDays(data.today, 1),
+              },
+            ]}
+            onSubmit={async (v) => {
+              await command({ type: "block.create", unitId: unit.id, ...v });
+              setBlocking(false);
+            }}
+          />
+        )}
+        {blocks.length
+          ? blocks.map((b) => (
+              <div className="list-row" key={b.id}>
+                <div>
+                  <strong>{b.reason}</strong>
+                  <p>
+                    {shortDate(b.arrival)} — {shortDate(b.departure)}
+                  </p>
+                </div>
+                {write && (
+                  <button
+                    className="button secondary"
+                    onClick={() =>
+                      void command({ type: "block.release", id: b.id }).catch(
+                        () => {},
+                      )
+                    }
+                  >
+                    {tr("Liberar")}
+                  </button>
+                )}
               </div>
-              {can("inventory.write") && (
+            ))
+          : !blocking && (
+              <p className="muted">{tr("No hay bloqueos activos.")}</p>
+            )}
+      </div>
+
+      {write && !isHouse && (
+        <div className="pm-danger">
+          <div>
+            <strong>{tr("Eliminar habitación")}</strong>
+            <p className="muted">
+              {deletable
+                ? tr(
+                    "Se borra junto con sus precios y bloqueos. No se puede deshacer.",
+                  )
+                : tr(
+                    "Tiene reservas en su historial, así que no se puede borrar. Desmarca «En servicio» para dejar de venderla.",
+                  )}
+            </p>
+          </div>
+          {deletable &&
+            (confirmDelete ? (
+              <div className="row">
                 <button
                   className="button secondary"
-                  onClick={() =>
-                    void command({ type: "block.release", id: b.id }).catch(
-                      () => {},
-                    )
-                  }
+                  onClick={() => setConfirmDelete(false)}
                 >
-                  {tr("Liberar")}
+                  {tr("Cancelar")}
                 </button>
-              )}
-            </div>
-          ))
-        ) : (
-          <p className="muted">{tr("No hay bloqueos activos.")}</p>
-        )}
-      </div>
+                <button
+                  className="button danger"
+                  onClick={async () => {
+                    setError("");
+                    try {
+                      await command({
+                        type: "room.delete",
+                        id: unit.id,
+                        version: unit.version,
+                      });
+                      onClose();
+                    } catch (e) {
+                      setError(
+                        e instanceof Error
+                          ? e.message
+                          : tr("No se pudo guardar."),
+                      );
+                    }
+                  }}
+                >
+                  <Icon name="trash" />
+                  {tr("Sí, eliminar")}
+                </button>
+              </div>
+            ) : (
+              <button
+                className="button secondary"
+                onClick={() => setConfirmDelete(true)}
+              >
+                <Icon name="trash" />
+                {tr("Eliminar")}
+              </button>
+            ))}
+        </div>
+      )}
+      {error && (
+        <p className="notice error" role="alert">
+          {error}
+        </p>
+      )}
     </Modal>
   );
 }
 
-function TypeDialog({
-  type,
-  onClose,
+/** Everything the "Nueva propiedad" wizard registers, editable in place. */
+function PropertySettings({
+  property: p,
+  onDone,
 }: {
-  type: InventoryType;
-  onClose: () => void;
+  property: Property;
+  onDone: () => void;
 }) {
   const { can, command } = useWorkspace();
   const { t: tr } = useI18n();
+  if (!can("property.write"))
+    return (
+      <dl className="details">
+        <div>
+          <dt>{tr("Ciudad")}</dt>
+          <dd>{p.city || "—"}</dd>
+        </div>
+        <div>
+          <dt>{tr("Llegada · salida")}</dt>
+          <dd>
+            {p.checkIn} · {p.checkOut}
+          </dd>
+        </div>
+        <div>
+          <dt>{tr("Reglas de la casa y cancelación")}</dt>
+          <dd>{p.policy || "—"}</dd>
+        </div>
+      </dl>
+    );
   return (
-    <Modal title={type.name} onClose={onClose}>
-      {can("inventory.write") ? (
-        <Form
-          key={type.id + type.baseRateMinor + type.maxOccupancy + type.name}
-          submit={tr("Guardar alojamiento")}
-          onCancel={onClose}
-          fields={[
-            { name: "name", label: tr("Nombre"), value: type.name },
-            {
-              name: "baseRateMinor",
-              label: tr("Tarifa base por noche"),
-              type: "money",
-              value: type.baseRateMinor,
-              help: tr(
-                "Se usa en las noches sin precio propio. Ajusta precios por día en Tarifas.",
-              ),
-            },
-            {
-              name: "maxOccupancy",
-              label: tr("Huéspedes máximos"),
-              type: "number",
-              min: 1,
-              max: 100,
-              value: type.maxOccupancy,
-            },
-            {
-              name: "active",
-              label: tr("Disponible para la venta"),
-              type: "checkbox",
-              value: type.active,
-            },
-          ]}
-          onSubmit={async (v) => {
-            await command({
-              type: "inventory.update",
-              id: type.id,
-              name: v.name,
-              baseRateMinor: v.baseRateMinor,
-              maxOccupancy: v.maxOccupancy,
-              active: v.active,
-            });
-            onClose();
-          }}
-        />
-      ) : (
-        <p className="muted">
-          {tr("Tu rol permite consultar este alojamiento.")}
-        </p>
-      )}
-      <p className="muted" style={{ marginTop: 14 }}>
-        <Link href="/admin/tarifas">
-          {tr("Abrir el calendario de tarifas")} →
-        </Link>
-      </p>
-    </Modal>
+    <Form
+      key={p.id + ":" + p.version}
+      submit={tr("Guardar propiedad")}
+      onCancel={onDone}
+      fields={[
+        { name: "name", label: tr("Nombre"), value: p.name },
+        {
+          name: "concept",
+          label: tr("Tipo de alojamiento"),
+          type: "select",
+          value: p.concept,
+          options: Object.entries(conceptLabels).map(([value, label]) => ({
+            value,
+            label: tr(label),
+          })),
+        },
+        { name: "city", label: tr("Ciudad"), value: p.city },
+        {
+          name: "address",
+          label: tr("Dirección"),
+          value: p.address,
+          required: false,
+        },
+        {
+          name: "checkIn",
+          label: tr("Llegada desde"),
+          type: "time",
+          value: p.checkIn,
+        },
+        {
+          name: "checkOut",
+          label: tr("Salida hasta"),
+          type: "time",
+          value: p.checkOut,
+        },
+        {
+          name: "taxPercent",
+          label: tr("Impuestos (%)"),
+          type: "number",
+          min: 0,
+          max: 100,
+          step: 0.01,
+          value: p.taxBps / 100,
+        },
+        {
+          name: "allowedOverbooking",
+          label: tr("Sobreventa agrupada permitida"),
+          type: "number",
+          min: 0,
+          max: 10,
+          value: p.allowedOverbooking,
+          help: tr("No autoriza solapamientos de una misma unidad física."),
+        },
+        {
+          name: "policy",
+          label: tr("Reglas de la casa y cancelación"),
+          type: "textarea",
+          value: p.policy,
+          required: false,
+        },
+      ]}
+      onSubmit={async (v) => {
+        await command({
+          type: "property.update",
+          name: v.name,
+          concept: v.concept,
+          city: v.city,
+          address: v.address,
+          checkIn: String(v.checkIn).slice(0, 5),
+          checkOut: String(v.checkOut).slice(0, 5),
+          taxBps: Math.round(Number(v.taxPercent) * 100),
+          allowedOverbooking: v.allowedOverbooking,
+          policy: v.policy,
+          version: p.version,
+        });
+        onDone();
+      }}
+    />
   );
 }

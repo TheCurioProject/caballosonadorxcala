@@ -6,6 +6,7 @@ import type {
   Concept,
   JobStatus,
   Permission,
+  RentalMode,
   ReservationStatus,
   Role,
   Snapshot,
@@ -380,6 +381,7 @@ export async function supabaseSnapshot(
       policy: configuration?.policy ?? "",
       taxBps: configuration?.tax_bps ?? 0,
       allowedOverbooking: configuration?.allowed_overbooking ?? 0,
+      ...rentalSettings(configuration?.settings_json),
       onboardingComplete: onboarding.complete === true,
       version: property.version,
     };
@@ -740,5 +742,21 @@ export async function supabaseSnapshot(
     currentPropertyId,
     development: false,
     today: today(selectedProperty?.timezone),
+  };
+}
+
+/** Rental mode and website link kept in property_settings.settings_json. */
+function rentalSettings(raw: unknown): {
+  rentalMode?: RentalMode;
+  websiteLinked?: boolean;
+} {
+  const json =
+    raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  const mode = json.rentalMode;
+  return {
+    ...(mode === "whole" || mode === "rooms" || mode === "both"
+      ? { rentalMode: mode }
+      : {}),
+    ...(json.websiteLinked === true ? { websiteLinked: true } : {}),
   };
 }
