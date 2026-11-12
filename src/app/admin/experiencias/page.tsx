@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Save, Loader2, AlertCircle, Utensils, Map, Trash2 } from 'lucide-react';
+import { Save, AlertCircle, Utensils, Map, Trash2 } from 'lucide-react';
+import { CalaSpinner as Loader2 } from "@/cala/components/ui/cala-loader";
 import { translateDB } from '@/lib/translations';
 
 export default function AdminExperiencias() {

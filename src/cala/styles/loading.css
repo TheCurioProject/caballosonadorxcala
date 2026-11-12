@@ -1,0 +1,415 @@
+/* ============================================================
+   CALA loading system
+   Mark (isotype traced + tide filling the cove), section/route
+   loaders, boot splash, top tide bar, status pill and the pressed
+   button state. Components: src/cala/components/ui/cala-loader.tsx
+   and loading-layer.tsx. Colors come from the theme tokens, so every
+   CALA theme (shell, sand, ink, pacific…) is covered.
+   ============================================================ */
+
+/* ---------- 1. The mark ---------- */
+.cala-mark {
+  display: block;
+  flex: none;
+  overflow: visible;
+  color: inherit;
+}
+.cala-mark-base {
+  fill: currentColor;
+  opacity: 0.16;
+}
+.cala-mark-tide {
+  animation: cala-tide 2.6s cubic-bezier(0.45, 0, 0.25, 1) infinite alternate;
+}
+.cala-mark-wave {
+  fill: currentColor;
+  opacity: 0.92;
+  animation: cala-wave 1.5s linear infinite;
+}
+.cala-mark-trace {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 24 76;
+  animation: cala-trace 2.2s linear infinite;
+}
+/* Small marks (buttons, pill, inline icons) need a bolder trace. */
+.icon-cala-loading .cala-mark-trace,
+.cala-spinner .cala-mark-trace,
+.cala-activity-pill .cala-mark-trace,
+.cala-loader-sm .cala-mark-trace {
+  stroke-width: 20;
+}
+@keyframes cala-wave {
+  to {
+    transform: translateX(226px);
+  }
+}
+@keyframes cala-tide {
+  from {
+    transform: translateY(430px);
+  }
+  to {
+    transform: translateY(118px);
+  }
+}
+@keyframes cala-trace {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Inline variants */
+.icon-cala-loading,
+.cala-spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  vertical-align: middle;
+  line-height: 0;
+}
+.icon-cala-loading {
+  color: inherit;
+}
+
+/* ---------- 2. Section / route loader ---------- */
+.cala-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 28px 16px;
+  margin-inline: auto;
+  max-width: 100%;
+  color: var(--accent, #2f7773);
+  text-align: center;
+  animation: cala-loader-in 0.4s var(--motion-ease, ease) 0.12s both;
+}
+.cala-loader-label {
+  margin: 0;
+  max-width: 34ch;
+  color: var(--muted, #69645b);
+  font-size: calc(13px * var(--cala-fs, 1));
+  font-weight: 550;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.cala-loader-hint {
+  margin: -6px 0 0;
+  max-width: 40ch;
+  color: var(--muted, #69645b);
+  font-size: calc(12px * var(--cala-fs, 1));
+  opacity: 0.8;
+}
+.cala-loader-sm {
+  gap: 8px;
+  padding: 14px 10px;
+}
+.cala-loader-lg {
+  gap: 16px;
+  padding: 40px 16px;
+}
+.cala-loader-lg .cala-loader-label {
+  font-size: calc(14px * var(--cala-fs, 1));
+}
+.cala-route-loader {
+  min-height: min(56vh, 520px);
+}
+@keyframes cala-loader-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Skeleton page: structure in the back, the CALA loader in front. */
+.skeleton-page {
+  position: relative;
+}
+.skeleton-veil {
+  opacity: 0.6;
+}
+.skeleton-page > .skeleton-loader {
+  position: absolute;
+  top: min(26vh, 220px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 32px);
+  padding: 22px 28px;
+  border: 1px solid var(--border, #ded8cc);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface, #fffdf8) 88%, transparent);
+  box-shadow: var(--shadow-soft, 0 8px 30px #102a2a0d);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  animation-name: cala-skeleton-card-in;
+}
+@keyframes cala-skeleton-card-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* ---------- 3. Boot splash ---------- */
+.cala-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: max(24px, env(safe-area-inset-top)) 16px
+    max(24px, env(safe-area-inset-bottom));
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      color-mix(in srgb, var(--accent, #2f7773) 10%, transparent),
+      transparent 55%
+    ),
+    var(--bg, #f5f2ea);
+  color: var(--accent, #2f7773);
+  text-align: center;
+  animation: cala-loader-in 0.35s var(--motion-ease, ease) both;
+}
+.cala-splash-mark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.cala-splash-word {
+  padding-left: 0.34em;
+  color: var(--logo-color, var(--text, #102a2a));
+  font-size: 28px;
+  font-weight: 650;
+  letter-spacing: 0.34em;
+  line-height: 1;
+  animation: cala-word 2.6s ease-in-out infinite alternate;
+}
+@keyframes cala-word {
+  from {
+    letter-spacing: 0.3em;
+    opacity: 0.78;
+  }
+  to {
+    letter-spacing: 0.38em;
+    opacity: 1;
+  }
+}
+@media (max-width: 760px) {
+  .cala-splash .cala-mark {
+    width: 84px;
+    height: 74px;
+  }
+  .cala-splash-word {
+    font-size: 23px;
+  }
+}
+
+/* ---------- 4. Top tide bar ---------- */
+.cala-tide-bar {
+  position: fixed;
+  top: env(safe-area-inset-top, 0px);
+  left: 0;
+  right: 0;
+  z-index: 1300;
+  height: 3px;
+  overflow: hidden;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--accent, #2f7773) 14%, transparent);
+  opacity: 0;
+  transition: opacity 0.28s var(--motion-ease, ease);
+}
+.cala-tide-bar[data-visible="true"] {
+  opacity: 1;
+}
+.cala-tide-bar > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 42%;
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent, #2f7773) 35%,
+    var(--cala-clay, #c97352) 75%,
+    transparent
+  );
+  animation: cala-bar 1.3s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+}
+@keyframes cala-bar {
+  from {
+    transform: translateX(-105%);
+  }
+  to {
+    transform: translateX(245%);
+  }
+}
+
+/* ---------- 5. Status pill ---------- */
+.cala-activity-pill {
+  position: fixed;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: max-content;
+  max-width: min(440px, calc(100vw - 32px));
+  padding: 9px 18px 9px 12px;
+  border: 1px solid var(--border, #ded8cc);
+  border-radius: 24px;
+  background: var(--surface, #fffdf8);
+  color: var(--text, #102a2a);
+  box-shadow: var(--shadow-lift, 0 18px 50px #102a2a16);
+  font-size: calc(12.5px * var(--cala-fs, 1));
+  font-weight: 600;
+  line-height: 1.35;
+  pointer-events: none;
+  transform: translateX(-50%);
+  animation: cala-pill-in 0.45s var(--motion-spring, ease) both;
+}
+.cala-activity-pill .cala-mark {
+  color: var(--accent, #2f7773);
+}
+.cala-activity-pill > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+@keyframes cala-pill-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+/* Phones: above the MobileShell tab bar (same lane as the toast). */
+@media (max-width: 760px) {
+  .cala-activity-pill {
+    bottom: calc(92px + env(safe-area-inset-bottom));
+    font-size: calc(12px * var(--cala-fs, 1));
+  }
+}
+
+/* ---------- 6. The pressed control ---------- */
+.cala-admin [data-cala-loading="true"] {
+  pointer-events: none;
+  cursor: progress;
+}
+.cala-admin [data-cala-loading="true"]::before {
+  content: "";
+  display: inline-block;
+  flex: none;
+  width: 1.3em;
+  height: 1.15em;
+  margin-inline-end: 0.45em;
+  vertical-align: -0.22em;
+  background: linear-gradient(
+      to top,
+      currentColor 50%,
+      color-mix(in srgb, currentColor 30%, transparent) 50%
+    )
+    0 0 / 100% 200%;
+  -webkit-mask: url("/cala/assets/brand/cala-mark.svg") center / contain
+    no-repeat;
+  mask: url("/cala/assets/brand/cala-mark.svg") center / contain no-repeat;
+  animation:
+    cala-press-in 0.2s var(--motion-ease, ease) 0.14s both,
+    cala-press-tide 1.3s ease-in-out infinite alternate;
+}
+/* Flex buttons already space their children. */
+.cala-admin .button[data-cala-loading="true"]::before,
+.cala-admin .icon-button[data-cala-loading="true"]::before {
+  margin-inline-end: 0;
+}
+/* The mark takes the icon's place instead of pushing the label. */
+.cala-admin [data-cala-loading="true"] > .icon {
+  display: none;
+}
+/* Controls that already render their own loader keep just that one. */
+.cala-admin [data-cala-loading="true"]:has(.icon-cala-loading, .cala-spinner)::before {
+  display: none;
+}
+@keyframes cala-press-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes cala-press-tide {
+  from {
+    background-position: 0 0%;
+  }
+  to {
+    background-position: 0 100%;
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  html[data-cala-activity="true"] body.cala-admin {
+    cursor: progress;
+  }
+}
+
+/* ---------- 7. Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .cala-mark-wave,
+  .cala-mark-trace,
+  .cala-splash-word,
+  .cala-tide-bar > span {
+    animation: none;
+  }
+  .cala-mark-trace {
+    stroke-dasharray: none;
+    opacity: 0.35;
+  }
+  .cala-mark-tide {
+    animation: none;
+    transform: translateY(270px);
+  }
+  .cala-mark {
+    animation: cala-calm 1.8s ease-in-out infinite alternate;
+  }
+  .cala-tide-bar > span {
+    width: 100%;
+    opacity: 0.7;
+  }
+  .cala-admin [data-cala-loading="true"]::before {
+    animation: cala-calm 1.8s ease-in-out infinite alternate;
+    background: currentColor;
+  }
+}
+@keyframes cala-calm {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+  }
+}

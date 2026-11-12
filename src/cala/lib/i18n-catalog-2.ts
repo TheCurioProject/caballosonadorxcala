@@ -948,4 +948,13 @@ export const catalog2: Record<string, string> = {
   "Tus casas y sus habitaciones. Abre una casa para ver sus habitaciones y pulsa una habitación para cambiar sus ajustes.": "Your houses and their rooms. Open a house to see its rooms and tap a room to change its settings.",
   "{count} habitaciones": "{count} rooms",
   "¿CÓMO SE RENTA?": "HOW IS IT RENTED?",
+  "Guardando cambios…": "Saving changes…",
+  "Cargando…": "Loading…",
+  "Abriendo sección…": "Opening section…",
+  "Abriendo CALA…": "Opening CALA…",
+  "Procesando…": "Processing…",
+  "Cambiando de propiedad…": "Switching property…",
+  "Cargando espacio de trabajo…": "Loading workspace…",
+  "Sigue en proceso, gracias por esperar…": "Still working on it, thanks for waiting…",
+  "La conexión va lenta. Seguimos trabajando, no cierres esta ventana.": "The connection is slow. We're still working — please don't close this window.",
 };

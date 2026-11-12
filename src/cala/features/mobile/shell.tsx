@@ -1,4 +1,5 @@
 "use client";
+import { startNavigation } from "@/cala/components/ui/loading-layer";
 import { useState, useEffect, type ReactNode } from "react";
 import { uiLocale } from "@/cala/lib/format";
 import { useI18n } from "@/cala/lib/i18n";
@@ -43,6 +44,10 @@ export function MobileShell({
   } = useWorkspace();
   const { locale } = useI18n();
   const router = useRouter();
+  const navigate = (href: string) => {
+    startNavigation(href);
+    router.push(href);
+  };
   const params = useSearchParams();
   const [help, setHelp] = useState(false);
   const online = useOnline(),
@@ -86,7 +91,7 @@ export function MobileShell({
   const choose = (path: string) => {
     setMore(false);
     setSearching(false);
-    router.push("/admin/" + path);
+    navigate("/admin/" + path);
   };
   let screen: ReactNode;
   if (children) screen = <div className="site-module">{children}</div>;
@@ -252,7 +257,7 @@ export function MobileShell({
               role="menuitem"
               onClick={() => {
                 setHelp(false);
-                router.push("/admin/onboarding");
+                navigate("/admin/onboarding");
               }}
             >
               <Icon name="property" />
@@ -440,8 +445,7 @@ export function MobileShell({
                     key={r.id}
                     onClick={() => {
                       setSearching(false);
-                      router.push(
-                        `/admin/reservas?reservation=${encodeURIComponent(r.id)}`,
+                      navigate(`/admin/reservas?reservation=${encodeURIComponent(r.id)}`,
                       );
                     }}
                   >

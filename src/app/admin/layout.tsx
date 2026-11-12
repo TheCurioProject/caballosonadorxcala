@@ -6,7 +6,9 @@ import "@fontsource-variable/instrument-sans";
 import "@/cala/styles/cala.css";
 import "@/cala/styles/device-tiers.css";
 import "@/cala/styles/planner.css";
+import "@/cala/styles/loading.css";
 import { SiteAdmin } from "@/cala/site-admin";
+import { CalaSplash } from "@/cala/components/ui/cala-loader";
 import { calaConfiguration } from "@/lib/cala/config";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -67,7 +69,7 @@ export default async function Layout({
       </main>
     );
   return (
-    <Suspense fallback={<p className="setup-card">Abriendo CALA…</p>}>
+    <Suspense fallback={<CalaSplash />}>
       <SiteAdmin locale={locale}>{children}</SiteAdmin>
     </Suspense>
   );

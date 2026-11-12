@@ -5,7 +5,7 @@ import { calendarDateToLocal } from '@/lib/dateRanges';
 import React, { useState } from 'react';
 import { DayPicker, DateRange } from 'react-day-picker';
 import { toggleServiceBlockDates } from './service-actions';
-import { Loader2 } from 'lucide-react';
+import { CalaSpinner as Loader2 } from "@/cala/components/ui/cala-loader";
 import { format, isSameDay, addDays } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 

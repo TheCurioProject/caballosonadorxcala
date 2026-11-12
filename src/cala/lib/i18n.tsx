@@ -364,6 +364,15 @@ export function LocaleProvider({
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 
+/** `t()` for components that may render outside LocaleProvider (loaders). */
+export function useOptionalT() {
+  const context = useContext(I18nContext);
+  return (
+    context?.t ??
+    ((source: string, values?: Values) => translate("es", source, values))
+  );
+}
+
 export function useI18n() {
   const context = useContext(I18nContext);
   if (!context) throw new Error("I18n context missing");

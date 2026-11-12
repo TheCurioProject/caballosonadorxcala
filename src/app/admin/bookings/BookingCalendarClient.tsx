@@ -5,7 +5,8 @@ import { calendarDateToLocal } from '@/lib/dateRanges';
 import React, { useState, useEffect, useTransition } from 'react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, addDays, differenceInDays } from 'date-fns';
 import { enUS } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, Calculator, CalendarDays, User, Mail, Phone, Image as ImageIcon, Loader2, Send, CheckCircle, Download, Lock, DollarSign } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calculator, CalendarDays, User, Mail, Phone, Image as ImageIcon, Send, CheckCircle, Download, Lock, DollarSign } from 'lucide-react';
+import { CalaSpinner as Loader2 } from "@/cala/components/ui/cala-loader";
 import { motion, AnimatePresence } from 'framer-motion';
 import { AdminToast } from '@/components/admin/AdminToast';
 

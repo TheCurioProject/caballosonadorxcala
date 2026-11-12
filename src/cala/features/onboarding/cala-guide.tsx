@@ -1,4 +1,5 @@
 "use client";
+import { startNavigation } from "@/cala/components/ui/loading-layer";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon, Modal } from "@/cala/components/ui/primitives";
@@ -15,6 +16,10 @@ export function CalaGuide({
 }) {
   const { locale } = useI18n();
   const router = useRouter();
+  const navigate = (href: string) => {
+    startNavigation(href);
+    router.push(href);
+  };
   const en = locale === "en";
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState<string | null>(
@@ -130,7 +135,7 @@ export function CalaGuide({
                             className="button secondary"
                             onClick={() => {
                               onClose();
-                              router.push("/admin/" + topic.path);
+                              navigate("/admin/" + topic.path);
                             }}
                           >
                             {en ? "Open" : "Abrir"} {c.title}

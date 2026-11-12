@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MoreVertical, Download, Mail, Check, X, Loader2 } from 'lucide-react';
+import { MoreVertical, Download, Mail, Check, X } from 'lucide-react';
+import { CalaSpinner as Loader2 } from "@/cala/components/ui/cala-loader";
 
 export default function TourBookingActions({ booking }: { booking: any }) {
   const [isOpen, setIsOpen] = useState(false);

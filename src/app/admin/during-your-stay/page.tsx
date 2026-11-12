@@ -1,5 +1,6 @@
 'use client';
 
+import { CalaSpinner } from "@/cala/components/ui/cala-loader";
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit2, Save, X, Plus } from 'lucide-react';
@@ -93,7 +94,7 @@ export default function DuringYourStayAdmin() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-8 h-8 border-4 border-[#9B7E67] border-t-transparent rounded-full animate-spin"></div>
+        <CalaSpinner className="w-12 h-12 text-[#9B7E67]" />
       </div>
     );
   }
@@ -206,7 +207,7 @@ export default function DuringYourStayAdmin() {
                   className="px-6 py-2.5 bg-[#9B7E67] hover:bg-[#8A6D56] text-white font-medium rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSaving ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <CalaSpinner className="w-5 h-5 text-white" />
                   ) : (
                     <Save className="w-5 h-5" />
                   )}

@@ -4,6 +4,7 @@ import { assets, type AssetId } from "@/cala/assets/registry";
 import { parseMoney, moneyInput } from "@/cala/domain/shared/money";
 import { statusLabels } from "@/cala/lib/format";
 import { useI18n } from "@/cala/lib/i18n";
+import { CalaLoader, CalaMark } from "./cala-loader";
 /** Lets CSS shrink a KPI figure to fit its tile (see device-tiers.css §5). */
 export function fitChars(value: unknown): React.CSSProperties {
   return {
@@ -11,6 +12,16 @@ export function fitChars(value: unknown): React.CSSProperties {
   } as React.CSSProperties;
 }
 export function Icon({ name, size = 20 }: { name: AssetId; size?: number }) {
+  if (name === "spinner")
+    return (
+      <span
+        aria-hidden="true"
+        className="icon-cala-loading"
+        data-icon="spinner"
+      >
+        <CalaMark size={size} />
+      </span>
+    );
   return (
     <span
       aria-hidden="true"
@@ -333,22 +344,25 @@ export function SectionTitle({
     </div>
   );
 }
-export function Skeleton() {
+export function Skeleton({ label = "Cargando espacio de trabajo" }: { label?: string }) {
   const { t } = useI18n();
   return (
     <div
       aria-busy="true"
-      aria-label={t("Cargando espacio de trabajo")}
+      aria-label={t(label)}
       className="skeleton-page"
       role="status"
     >
-      <div className="skeleton" style={{ width: "40%", height: 48 }} />
-      <div className="stats">
-        {[1, 2, 3, 4].map((i) => (
-          <div className="skeleton" key={i} style={{ height: 130 }} />
-        ))}
+      <div className="skeleton-veil" aria-hidden="true">
+        <div className="skeleton" style={{ width: "40%", height: 48 }} />
+        <div className="stats">
+          {[1, 2, 3, 4].map((i) => (
+            <div className="skeleton" key={i} style={{ height: 130 }} />
+          ))}
+        </div>
+        <div className="skeleton" style={{ height: 360 }} />
       </div>
-      <div className="skeleton" style={{ height: 360 }} />
+      <CalaLoader className="skeleton-loader" label={label + "…"} />
     </div>
   );
 }

@@ -11,6 +11,7 @@ import {
 import type { Snapshot, CommandResult, Permission } from "@/cala/domain/model";
 import { browserPreferences } from "@/cala/lib/browser-preferences";
 import { today } from "@/cala/domain/shared/dates";
+import { beginActivity, type ActivityKind } from "@/cala/lib/activity";
 export type SyncStatus = "synced" | "refreshing" | "offline" | "error";
 interface Workspace {
   data: Snapshot;
@@ -63,7 +64,31 @@ export function PropertyWorkspace({
     </WorkspaceContext.Provider>
   );
 }
-export async function api<T>(url: string, options?: RequestInit): Promise<T> {
+/**
+ * Calls the CALA API. Writes always register as pending work (loader + busy
+ * button); reads only when `activity` is given, so background polling stays
+ * silent. Pass `activity: false` to opt a write out.
+ */
+export async function api<T>(
+  url: string,
+  options?: RequestInit,
+  activity?: { kind?: ActivityKind; label?: string } | false,
+): Promise<T> {
+  const method = (options?.method ?? "GET").toUpperCase();
+  const end =
+    activity === false || (!activity && method === "GET")
+      ? null
+      : beginActivity(
+          activity?.kind ?? (method === "GET" ? "load" : "save"),
+          activity?.label ?? (method === "GET" ? undefined : "Procesando…"),
+        );
+  try {
+    return await request<T>(url, options);
+  } finally {
+    end?.();
+  }
+}
+async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url.replace(/^\/api\//, "/api/cala/"), {
     ...options,
     cache: "no-store",
@@ -203,6 +228,8 @@ export function WorkspaceProvider({
       throw Error(message);
     }
     begin();
+    // Covers the write and the view refresh that follows it.
+    const endActivity = beginActivity("save", "Guardando cambios…");
     const body = JSON.stringify({
       organizationId: scope.current.organizationId,
       propertyId: scope.current.propertyId,
@@ -211,11 +238,15 @@ export function WorkspaceProvider({
     const key = pending.current.get(body) ?? crypto.randomUUID();
     pending.current.set(body, key);
     try {
-      const result = await api<CommandResult>("/api/commands", {
-        method: "POST",
-        headers: { "Idempotency-Key": key },
-        body,
-      });
+      const result = await api<CommandResult>(
+        "/api/commands",
+        {
+          method: "POST",
+          headers: { "Idempotency-Key": key },
+          body,
+        },
+        false,
+      );
       pending.current.delete(body);
       // Invalidate reads started before this commit without waiting for a slow response.
       // A property selection owns its ticket until it finishes.
@@ -244,6 +275,7 @@ export function WorkspaceProvider({
       notify(message, "error");
       throw e;
     } finally {
+      endActivity();
       finish();
     }
   }
@@ -261,6 +293,8 @@ export function WorkspaceProvider({
     try {
       const next = await api<Snapshot>(
         `/api/workspace?organizationId=${encodeURIComponent(organizationId)}${propertyId ? "&propertyId=" + encodeURIComponent(propertyId) : ""}`,
+        undefined,
+        { kind: "load", label: "Cambiando de propiedad…" },
       );
       if (scope.current.epoch !== ticket) return;
       scope.current = {

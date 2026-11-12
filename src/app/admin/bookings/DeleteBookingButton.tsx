@@ -2,7 +2,7 @@
 
 import React, { useTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
+import { CalaSpinner as Loader2 } from "@/cala/components/ui/cala-loader";
 import dynamic from 'next/dynamic';
 
 const FluidHorseAnimation = dynamic(() => import('@/components/FluidHorseAnimation'), {

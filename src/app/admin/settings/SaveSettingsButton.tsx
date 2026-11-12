@@ -1,5 +1,6 @@
 'use client';
 
+import { CalaSpinner } from "@/cala/components/ui/cala-loader";
 import React, { useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Check } from 'lucide-react';
@@ -35,7 +36,7 @@ export default function SaveSettingsButton() {
     >
       {pending ? (
         <>
-          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+          <CalaSpinner className="w-4 h-4 text-white" />
           SAVING...
         </>
       ) : showSuccess ? (

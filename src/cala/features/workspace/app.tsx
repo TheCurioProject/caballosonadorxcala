@@ -1,4 +1,5 @@
 "use client";
+import { startNavigation } from "@/cala/components/ui/loading-layer";
 import {
   useState,
   useEffect,
@@ -16,6 +17,7 @@ import { WelcomeAuth } from "./login";
 import { navigation } from "./navigation";
 import { Icon, Modal, Skeleton } from "@/cala/components/ui/primitives";
 import { CalaLogo } from "@/cala/components/brand/cala-logo";
+import { CalaSplash } from "@/cala/components/ui/cala-loader";
 import { CalaAssistant } from "@/cala/features/onboarding/cala-assistant";
 import { CalaGuide } from "@/cala/features/onboarding/cala-guide";
 import { roleLabels } from "@/cala/domain/identity/permissions";
@@ -47,6 +49,10 @@ function WorkspaceRoot({
 }) {
   const { t } = useI18n();
   const router = useRouter();
+  const navigate = (href: string) => {
+    startNavigation(href);
+    router.push(href);
+  };
   const [data, setData] = useState<Snapshot | null>(null);
   const [account, setAccount] = useState<{
     authenticated: boolean;
@@ -123,7 +129,7 @@ function WorkspaceRoot({
     const timer = setTimeout(() => void load(), 0);
     return () => clearTimeout(timer);
   }, [load]);
-  if (loading) return <Skeleton />;
+  if (loading) return <CalaSplash />;
   if (!account?.authenticated)
     return (
       <WelcomeAuth
@@ -138,7 +144,7 @@ function WorkspaceRoot({
         onComplete={async () => {
           const firstSetup = !account.hasOrganization;
           await load();
-          if (firstSetup) router.push("/admin/onboarding");
+          if (firstSetup) navigate("/admin/onboarding");
         }}
       />
     );
@@ -174,6 +180,10 @@ function Shell({
   const mobile = useMobileLayout();
   const { data, can, select, busy } = useWorkspace();
   const router = useRouter();
+  const navigate = (href: string) => {
+    startNavigation(href);
+    router.push(href);
+  };
   const [menu, setMenu] = useState(false);
   const [palette, setPalette] = useState(false);
   const [assistant, setAssistant] = useState(false);
@@ -430,7 +440,7 @@ function Shell({
                     role="menuitem"
                     onClick={() => {
                       setAssistantMenu(false);
-                      router.push("/admin/onboarding");
+                      navigate("/admin/onboarding");
                     }}
                   >
                     <span className="assistant-menu-icon">
@@ -613,7 +623,7 @@ function Shell({
                 <button
                   key={i.path}
                   onClick={() => {
-                    router.push("/admin/" + i.path);
+                    navigate("/admin/" + i.path);
                     setPalette(false);
                   }}
                 >
@@ -634,7 +644,7 @@ function Shell({
                   <button
                     key={r.id}
                     onClick={() => {
-                      router.push("/admin/reservas?reservation=" + r.id);
+                      navigate("/admin/reservas?reservation=" + r.id);
                       setPalette(false);
                     }}
                   >

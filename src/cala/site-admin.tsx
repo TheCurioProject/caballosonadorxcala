@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { LocaleProvider, type Locale } from "@/cala/lib/i18n";
 import { PwaProvider } from "@/cala/features/pwa/provider";
 import { WorkspaceApp } from "@/cala/features/workspace/app";
+import { CalaLoadingLayer } from "@/cala/components/ui/loading-layer";
 export function SiteAdmin({
   children,
   locale,
@@ -27,6 +28,7 @@ export function SiteAdmin({
   return (
     <LocaleProvider initialLocale={locale}>
       <PwaProvider>
+        <CalaLoadingLayer />
         <WorkspaceApp section={section === "login" ? "inicio" : section}>
           {legacy ? children : undefined}
         </WorkspaceApp>

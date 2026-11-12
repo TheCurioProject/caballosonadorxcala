@@ -2,7 +2,8 @@
 
 import React, { useState, useTransition } from 'react';
 import { clearPendingBookings } from './actions';
-import { Loader2, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
+import { CalaSpinner as Loader2 } from "@/cala/components/ui/cala-loader";
 import { AdminConfirmModal } from '@/components/admin/AdminConfirmModal';
 import { AdminToast } from '@/components/admin/AdminToast';
 

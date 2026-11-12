@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Edit2, Trash2, X, Image as ImageIcon, Loader2, BookOpen, Sparkles } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Image as ImageIcon, BookOpen, Sparkles } from 'lucide-react';
+import { CalaSpinner as Loader2 } from "@/cala/components/ui/cala-loader";
 import Image from 'next/image';
 
 interface Workshop {

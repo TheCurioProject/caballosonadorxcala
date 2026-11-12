@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-import { X, Loader2, Save, Printer, Send } from 'lucide-react';
+import { X, Save, Printer, Send } from 'lucide-react';
+import { CalaSpinner as Loader2 } from "@/cala/components/ui/cala-loader";
 import { motion, AnimatePresence } from 'framer-motion';
 import { updateBooking } from './actions';
 import { format, differenceInDays } from 'date-fns';

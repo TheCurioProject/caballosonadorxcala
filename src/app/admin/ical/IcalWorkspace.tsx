@@ -2,18 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { saveIcalFeeds, verifyAndSyncIcalSources } from '@/lib/actions';
-import {
-  Loader2,
-  Link2,
-  Plus,
-  Trash2,
-  Copy,
-  Check,
-  RefreshCw,
-  AlertCircle,
-  Wifi,
-  WifiOff
-} from 'lucide-react';
+import { Link2, Plus, Trash2, Copy, Check, RefreshCw, AlertCircle, Wifi, WifiOff } from 'lucide-react';
+import { CalaSpinner as Loader2 } from "@/cala/components/ui/cala-loader";
 import { ActionLoadingScreen } from '@/components/ui/ActionLoadingScreen';
 import { ActionResultModal } from '@/components/ui/ActionResultModal';
 import { motion, AnimatePresence } from 'framer-motion';
