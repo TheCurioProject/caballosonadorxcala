@@ -354,4 +354,12 @@ export const catalog3: Record<string, string> = {
   "Usa las plantillas al responder en Mensajes. Las reglas de fecha se guardan como configuración; el envío automático aún no está activo.":
     "Use templates when replying in Messages. Date rules are saved as settings; automatic sending isn't active yet.",
   "tu@correo.com": "you@email.com",
+  "{n} habitaciones": "{n} rooms",
+  "1 habitación": "1 room",
+  "{n} camas": "{n} beds",
+  "1 cama": "1 bed",
+  "{name} · {n} habitaciones": "{name} · {n} rooms",
+  "{name} · 1 habitación": "{name} · 1 room",
+  "{name} · {n} camas": "{name} · {n} beds",
+  Habitación: "Room",
 };

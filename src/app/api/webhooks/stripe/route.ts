@@ -38,7 +38,8 @@ export async function POST(request: Request) {
 
   if (event.type === 'checkout.session.expired') {
     const session = event.data.object as Stripe.Checkout.Session;
-    await prisma.booking.updateMany({ where: { externalId: session.id, payment_status: 'PENDING' }, data: { payment_status: 'EXPIRED' } });
+    // Multi-room checkouts store "<session>#<booking>" on every extra room.
+    await prisma.booking.updateMany({ where: { OR: [{ externalId: session.id }, { externalId: { startsWith: `${session.id}#` } }], payment_status: 'PENDING' }, data: { payment_status: 'EXPIRED' } });
     await prisma.serviceBooking.updateMany({ where: { externalId: session.id, paymentStatus: 'PENDING' }, data: { paymentStatus: 'EXPIRED' } });
   }
 
@@ -46,6 +47,9 @@ export async function POST(request: Request) {
     const session = event.data.object as Stripe.Checkout.Session;
     if (!['paid', 'no_payment_required'].includes(session.payment_status)) return NextResponse.json({ received: true });
     const bookingId = session.metadata?.bookingId;
+    // Several rooms paid in one checkout: the first id is `bookingId`.
+    const groupIds = (session.metadata?.groupBookingIds || '').split(',').map(Number).filter(id => Number.isSafeInteger(id) && id > 0);
+    const isGroup = groupIds.length > 1 && groupIds[0] === Number(bookingId);
     const serviceBookingId = session.metadata?.serviceBookingId;
     const type = session.metadata?.type;
     const currency = (session.currency || 'mxn').toUpperCase();
@@ -70,7 +74,9 @@ export async function POST(request: Request) {
         let booking;
         if(process.env.DATA_BACKEND==='supabase') {
           if(session.amount_total==null)return NextResponse.json({error:'Payment amount missing'}, {status:409});
-          const accepted=await prisma.$queryRaw<Array<{accepted:boolean}>>`SELECT site.accept_stripe_payment(${Number(bookingId)}::integer,${event.id}::text,${session.id}::text,${BigInt(session.amount_total)}::bigint,${currency}::text) AS accepted`;
+          const accepted=isGroup
+            ? await prisma.$queryRaw<Array<{accepted:boolean}>>`SELECT site.accept_stripe_group_payment(${groupIds}::integer[],${event.id}::text,${session.id}::text,${BigInt(session.amount_total)}::bigint,${currency}::text) AS accepted`
+            : await prisma.$queryRaw<Array<{accepted:boolean}>>`SELECT site.accept_stripe_payment(${Number(bookingId)}::integer,${event.id}::text,${session.id}::text,${BigInt(session.amount_total)}::bigint,${currency}::text) AS accepted`;
           if(!accepted[0]?.accepted)return NextResponse.json({received:true,reviewRequired:true});
           booking=await prisma.booking.findUniqueOrThrow({where:{id:Number(bookingId)},include:{property:true,addons:true}});
         }else{
@@ -81,12 +87,18 @@ export async function POST(request: Request) {
             externalId: session.id,
             depositPaid: amountTotal,
             depositCurrency: currency,
-            ...(amountTotal !== undefined ? { totalPrice: amountTotal } : {})
+            ...(amountTotal !== undefined && !isGroup ? { totalPrice: amountTotal } : {})
           },
           include: { property: true, addons: true },
         });
-
+        if (isGroup) await prisma.booking.updateMany({ where: { id: { in: groupIds.slice(1) } }, data: { payment_status: 'PAID', depositCurrency: currency } });
         }
+        // A group is announced once, with the whole amount and every room.
+        const groupRooms = isGroup ? await prisma.booking.findMany({ where: { id: { in: groupIds } }, orderBy: { id: 'asc' }, select: { id: true, notes: true } }) : [];
+        const groupTotal = isGroup && amountTotal !== undefined ? amountTotal : booking.totalPrice;
+        const roomName = isGroup
+          ? groupRooms.map(r => /^Alojamiento: (.+?)\. Huéspedes/.exec(r.notes || '')?.[1]).filter(Boolean).join(' + ') || `${groupIds.length} habitaciones`
+          : booking.property?.name || 'Casa Caballo Soñador';
 
         console.log('[Webhook] Booking confirmed:', bookingId);
 
@@ -99,7 +111,7 @@ export async function POST(request: Request) {
           guestEmail: booking.guestEmail,
           checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }),
           checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }),
-          totalPrice: booking.totalPrice,
+          totalPrice: groupTotal,
           currency,
           bookingId: booking.id,
           nights,
@@ -118,11 +130,11 @@ export async function POST(request: Request) {
             issuedAt: booking.createdAt,
             bookingId: booking.id,
             guestName: booking.guestName,
-            roomName: booking.property?.name || 'Casa Caballo Soñador',
+            roomName,
             checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { timeZone: 'UTC' }),
             checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { timeZone: 'UTC' }),
-            totalPrice: booking.totalPrice,
-            depositPaid: booking.depositPaid || 0,
+            totalPrice: groupTotal,
+            depositPaid: isGroup && amountTotal !== undefined ? amountTotal : booking.depositPaid || 0,
             depositCurrency: booking.depositCurrency || 'MXN',
             date: booking.createdAt.toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
             logoBase64: logoBase64,
@@ -139,7 +151,7 @@ export async function POST(request: Request) {
           guestEmail: booking.guestEmail,
           checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }),
           checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }),
-          totalPrice: booking.totalPrice,
+          totalPrice: groupTotal,
           currency,
           bookingId: booking.id,
           nights,
@@ -153,7 +165,7 @@ export async function POST(request: Request) {
         // Send invoice email to guest
         await ensureEmail(sendInvoiceEmail(emailData, pdfBuffer));
         await prisma.$transaction(async tx=>{
-          await tx.booking.update({where:{id:booking.id},data:{payment_status:'CONFIRMED'}});
+          await tx.booking.updateMany({where:{id:{in:isGroup?groupIds:[booking.id]}},data:{payment_status:'CONFIRMED'}});
           if(process.env.DATA_BACKEND==='supabase')await tx.$executeRaw`INSERT INTO site.stripe_receipts(session_id,booking_id) VALUES(${session.id}::text,${booking.id}::integer) ON CONFLICT(session_id) DO NOTHING`;
         });
 

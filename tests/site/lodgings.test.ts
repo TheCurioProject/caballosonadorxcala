@@ -359,3 +359,42 @@ test("CALA rates & restrictions for Casa Caballo Soñador reach the website; oth
   ).rows[0].data;
   expect(catalog.map((l) => l.id).sort()).toEqual(products.map((p) => p.id).sort());
 });
+test("one Stripe checkout pays several rooms, each with its own CALA reservation", async () => {
+  await db.exec("begin");
+  const ids: number[] = [];
+  for (const [i, total] of [[0, 2000], [1, 3000]] as const) {
+    const id = (
+      await db.query<{ id: number }>(
+        `insert into site.reservas(property_id,start_date,end_date,"guestName","guestEmail",payment_status,origin,"totalPrice","externalId",updated_at) values(1,'2033-06-01','2033-06-03','Grupo de prueba','group@example.test','PENDING','WEBSITE',$1,$2,now()) returning id`,
+        [total, i === 0 ? "cs_group" : "cs_group#pending"],
+      )
+    ).rows[0].id;
+    await db.query("insert into site.booking_lodging values($1,$2,$3,$4)", [id, room(i).id, 2, 0]);
+    if (i > 0) await db.query(`update site.reservas set "externalId"='cs_group#'||id where id=$1`, [id]);
+    ids.push(id);
+  }
+  await db.exec("commit");
+  await expect(quote(whole().id, "2033-06-01", "2033-06-03")).rejects.toThrow();
+  // A 10% promotion: 4,500 paid for 5,000 booked, split 1,800 / 2,700.
+  for (let attempt = 0; attempt < 2; attempt++)
+    expect(
+      (
+        await db.query<{ ok: boolean }>(
+          "select site.accept_stripe_group_payment($1,$2,$3,$4,$5) as ok",
+          [ids, "evt_group", "cs_group", 450000, "MXN"],
+        )
+      ).rows[0].ok,
+    ).toBe(true);
+  const rows = (
+    await db.query<{ status: string; unit_id: string; amount: number; total: number }>(
+      `select r.status,ru.unit_id,p.amount_minor as amount,r.total_minor as total from pms_private.site_booking_map m join public.reservations r on r.id=m.reservation_id join public.reservation_units ru on ru.reservation_id=r.id join public.payments p on p.reservation_id=r.id where m.site_booking_id=any($1) order by m.site_booking_id`,
+      [ids],
+    )
+  ).rows;
+  expect(rows.map((r) => r.status)).toEqual(["confirmed", "confirmed"]);
+  expect(rows.map((r) => r.unit_id)).toEqual([room(0).unit_id, room(1).unit_id]);
+  expect(rows.map((r) => Number(r.amount))).toEqual([180000, 270000]);
+  await expect(
+    db.query("select site.accept_stripe_group_payment($1,$2,$3,$4,$5)", [ids, "evt_bad", "cs_other", 450000, "MXN"]),
+  ).rejects.toThrow(/PAYMENT_MISMATCH/);
+});

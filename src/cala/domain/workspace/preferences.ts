@@ -35,7 +35,7 @@ export type WorkspacePreferences = z.infer<typeof workspacePreferencesSchema>;
 export const defaultWorkspacePreferences: WorkspacePreferences = {
   calendar: {
     view: "timeline",
-    scope: "property",
+    scope: "organization",
     days: 14,
     stickyUnits: true,
     guest: true,

@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useDragControls } from 'framer-motion';
-import { X, CalendarDays, ArrowRight, Check, ChefHat, CreditCard, User, Map, Utensils, Minus, Plus, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, CalendarDays, ArrowRight, Check, ChefHat, CreditCard, User, Map, Utensils, Minus, Plus, ChevronDown, ChevronUp, BedDouble } from 'lucide-react';
 import { ActionLoadingScreen } from '../ui/ActionLoadingScreen';
 import { DayPicker, DateRange } from 'react-day-picker';
 import dynamic from 'next/dynamic';
 import { CountryCodeDropdown } from './CountryCodeDropdown';
-import { LodgingSelection, type BookingLodging } from './LodgingSelection';
+import { AvailabilityOverview, localDate, type AvailabilityOverviewData, type BookingLodging, type Device } from './AvailabilityOverview';
+import { StaySearchForm, StayResults, type StaySearchResult } from './StaySearch';
 import { lodgingText } from '@/lib/lodgings';
+import type { PlannedRoom } from '@/lib/stayPlanner';
 
 const FluidHorseAnimation = dynamic(() => import('../FluidHorseAnimation'), {
   ssr: false,
@@ -19,7 +21,9 @@ import { useDictionary } from '@/i18n/DictionaryContext';
 import { useScrollLock } from '@/hooks/useScrollLock';
 /* ─── Hook: useMediaQuery ─── */
 function useMediaQuery(query: string) {
-  const [matches, setMatches] = useState(false);
+  // The modal renders client-only, so read the real value on the first render:
+  // starting from `false` made phones begin the desktop fade and stop halfway.
+  const [matches, setMatches] = useState(() => typeof window !== 'undefined' && window.matchMedia(query).matches);
   useEffect(() => {
     const media = window.matchMedia(query);
     if (media.matches !== matches) setMatches(media.matches);
@@ -348,6 +352,8 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
   initialLodgingId?: string;
 }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
+  const device: Device = isMobile ? 'mobile' : isDesktop ? 'desktop' : 'tablet';
   const dragControls = useDragControls();
   const dictContext = useDictionary();
   const dict = dictContext as any; // Cast for dynamic additions
@@ -357,7 +363,17 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
   const isEn = currentLangCode === 'en';
   const localeObj = currentLangCode === 'en' ? enUS : currentLangCode === 'de' ? de : es;
 
-  const [step, setStep] = useState<string>('stay_type');
+  // The header button opens an availability overview, then the group search
+  // (multi-room). A room's own "Book" button goes straight to its calendar.
+  const [step, setStep] = useState<string>(initialLodgingId ? 'dates' : 'overview');
+  const [flow, setFlow] = useState<'multi'|'single'>(initialLodgingId ? 'single' : 'multi');
+  const [overview, setOverview] = useState<AvailabilityOverviewData|null>(null);
+  const [overviewError, setOverviewError] = useState('');
+  const [searchNights, setSearchNights] = useState(2);
+  const [stayResult, setStayResult] = useState<StaySearchResult|null>(null);
+  const [stayLoading, setStayLoading] = useState(false);
+  const [stayError, setStayError] = useState('');
+  const [stayRooms, setStayRooms] = useState<PlannedRoom[]>([]);
   const [catalog, setCatalog] = useState<BookingLodging[]>([]);
   const [catalogLoading, setCatalogLoading] = useState(false);
   const [catalogError, setCatalogError] = useState('');
@@ -524,12 +540,32 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
       .then(data => {
         if(controller.signal.aborted)return;setCatalog(data);
         const initial=data.find(l=>l.id===initialLodgingId);
-        if(initial){setLodgingId(initial.id);setStayMode(initial.kind);setAdults(Math.min(2,initial.capacity));setStep('dates');}
+        if(initial){setLodgingId(initial.id);setStayMode(initial.kind);setAdults(Math.min(2,initial.capacity));setFlow('single');setStep('dates');}
+        else {const shortest=Math.min(...data.map(l=>l.minStay));setSearchNights(n=>Math.max(n,shortest));}
       })
       .catch(reason=>{if(!controller.signal.aborted)setCatalogError(reason.message);})
       .finally(()=>{if(!controller.signal.aborted)setCatalogLoading(false);});
     return ()=>controller.abort();
   },[isOpen,initialLodgingId]);
+
+  useEffect(() => {
+    if(!isOpen)return;
+    const controller=new AbortController();setOverviewError('');
+    fetch('/api/availability/overview/',{cache:'no-store',signal:controller.signal})
+      .then(async response=>{const data=await response.json();if(!response.ok)throw new Error(data.error||'No se pudo consultar la disponibilidad.');return data as AvailabilityOverviewData;})
+      .then(data=>{if(!controller.signal.aborted)setOverview(data);})
+      .catch(reason=>{if(!controller.signal.aborted)setOverviewError(isEn?'Availability could not be loaded. Please try again.':reason.message);});
+    return ()=>controller.abort();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[isOpen]);
+
+  // Food and tour closures for the group flow (the single-room flow gets them
+  // from that room's availability below).
+  useEffect(()=>{
+    if(!overview||flow!=='multi')return;
+    const ranges=(items:Array<{from:string;to:string}> = [])=>items.map(r=>({from:localDate(r.from),to:localDate(r.to)}));
+    setFoodBlockedRanges(ranges(overview.foodBlockedRanges));setTourBlockedRanges(ranges(overview.tourBlockedRanges));setTourBookedDates(overview.tourBookedDates||[]);
+  },[overview,flow]);
 
   useEffect(() => {
     if(!isOpen || !lodgingId)return;
@@ -567,21 +603,39 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
     document.addEventListener('keydown',keyboard);return ()=>{cancelAnimationFrame(frame);document.removeEventListener('keydown',keyboard);if(previousFocus?.isConnected)previousFocus.focus();};
   },[isOpen,onClose]);
 
-  const selectLodging=(lodging:BookingLodging)=>{
-    setLodgingId(lodging.id);setStayMode(lodging.kind);setRange(undefined);setQuote(null);setQuoteError('');
-    setAdults(a=>Math.min(a,lodging.capacity));setChildren(0);setStep('dates');
-    setWantsCook(null);setSelectedCookService(null);setPlanByDate({});setDishesByDate({});setSelectedDishes([]);setWantsATV(null);setAtvByDate({});
-  };
   const selectDates=(nextRange:DateRange|undefined)=>{
     if(nextRange?.from?.getTime()!==range?.from?.getTime()||nextRange?.to?.getTime()!==range?.to?.getTime()){
       setWantsCook(null);setSelectedCookService(null);setPlanByDate({});setDishesByDate({});setSelectedDishes([]);setWantsATV(null);setAtvByDate({});
     }
     setRange(nextRange);
   };
-  const chooseMode=(mode:'whole_home'|'room')=>{
-    setStayMode(mode);
-    if(mode==='whole_home'){const home=catalog.find(l=>l.kind==='whole_home');if(home)selectLodging(home);}
-    else setStep('accommodation');
+  const resetExtras=()=>{setWantsCook(null);setSelectedCookService(null);setPlanByDate({});setDishesByDate({});setSelectedDishes([]);setWantsATV(null);setAtvByDate({});};
+  // Group search: arrival + nights + guests → CALA quotes every lodging.
+  const setSearchArrival=(day:Date|undefined)=>{
+    if(!day){selectDates(undefined);return;}
+    const to=new Date(day);to.setDate(to.getDate()+searchNights);selectDates({from:day,to});
+  };
+  const setSearchNightsValue=(value:number)=>{
+    setSearchNights(value);
+    if(range?.from){const to=new Date(range.from);to.setDate(to.getDate()+value);selectDates({from:range.from,to});}
+  };
+  const searchStay=()=>{
+    if(!range?.from||!range?.to)return;
+    setStayResult(null);setStayError('');setStayLoading(true);setStep('results');
+    fetch('/api/stay-options/?'+new URLSearchParams({checkIn:format(range.from,'yyyy-MM-dd'),checkOut:format(range.to,'yyyy-MM-dd'),adults:String(adults),children:String(children)}),{cache:'no-store'})
+      .then(async response=>{const data=await response.json();if(!response.ok)throw new Error(isEn?'We could not search those dates. Please try again.':data.error||'No se pudo buscar disponibilidad.');return data as StaySearchResult;})
+      .then(data=>setStayResult(data))
+      .catch(reason=>setStayError(reason.message))
+      .finally(()=>setStayLoading(false));
+  };
+  const chooseRooms=(rooms:PlannedRoom[])=>{
+    setStayRooms(rooms);setFlow('multi');setLodgingId('');resetExtras();
+    setStep('guest_data');
+  };
+  const startGroupSearch=()=>{
+    setFlow('multi');setLodgingId('');setStayRooms([]);setQuote(null);setQuoteError('');
+    if(range?.from&&range?.to)setSearchNights(Math.max(1,differenceInDays(range.to,range.from)));
+    setStep('search');
   };
 
   const isTourBookedOnSelectedDates = React.useMemo(() => {
@@ -687,7 +741,11 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
       .catch(reason=>{if(!controller.signal.aborted){setQuote(null);setQuoteError(reason.message);}});
     return ()=>controller.abort();
   },[isOpen,quoteKey,nights,minStay]);
-  const accommodationTotal=quoteReady&&quote ? quote.total : 0;
+  const multiReady=flow==='multi'&&stayRooms.length>0&&Boolean(stayResult)&&stayResult?.checkIn===(range?.from?format(range.from,'yyyy-MM-dd'):'')&&stayResult?.checkOut===(range?.to?format(range.to,'yyyy-MM-dd'):'');
+  const stayReady=flow==='multi' ? multiReady : quoteReady;
+  const accommodationTotal=flow==='multi' ? (multiReady ? stayRooms.reduce((sum,r)=>sum+r.totalMinor,0)/100 : 0) : quoteReady&&quote ? quote.total : 0;
+  // Rooms in this booking (one for a single room or the whole house).
+  const bookingRooms:PlannedRoom[]=flow==='multi' ? stayRooms : selectedLodging ? [{lodgingId:selectedLodging.id,adults,children,totalMinor:Math.round(accommodationTotal*100)}] : [];
   const unavailableDay=(day:Date)=>{
     const local=(value:string)=>{const [y,m,d]=value.slice(0,10).split('-').map(Number);return new Date(y,m-1,d);};
     const today=propertySettings?.today ? local(propertySettings.today) : new Date(new Date().setHours(0,0,0,0));
@@ -746,7 +804,7 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
   const isFormValid = isNameValid && isEmailValid && isPhoneValid;
 
   const handleCheckout = async () => {
-    if (!range?.from || !range?.to || !isFormValid || !quoteReady) {setError(quoteError||availabilityError||'Espera a que se confirme la cotización.');return;}
+    if (!range?.from || !range?.to || !isFormValid || !stayReady) {setError(quoteError||availabilityError||(isEn?'Please wait until the price is confirmed.':'Espera a que se confirme la cotización.'));return;}
 
     setIsLoading(true);
     setError(null);
@@ -821,7 +879,7 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          lodgingId, adults, children,
+          ...(flow==='multi' ? {rooms: stayRooms.map(({lodgingId,adults,children})=>({lodgingId,adults,children}))} : {lodgingId, adults, children}),
           checkIn: format(range.from, 'yyyy-MM-dd'),
           checkOut: format(range.to, 'yyyy-MM-dd'),
           guestName,
@@ -869,7 +927,7 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
 
   const getActiveSteps = useCallback(() => {
     // Room and entire-house choices share the first step, so the stay type no longer adds an extra screen.
-    const steps = ['stay_type', 'dates', 'guest_data', 'food_prompt'];
+    const steps = [...(flow === 'single' ? ['dates'] : ['search', 'results']), 'guest_data', 'food_prompt'];
     if (wantsCook) {
       steps.push('food_service');
       if (selectedCookService) {
@@ -883,7 +941,7 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
     }
     steps.push('tours', 'summary');
     return steps;
-  }, [wantsCook, selectedCookService, totalCookServices, stayMode]);
+  }, [wantsCook, selectedCookService, totalCookServices, stayMode, flow]);
 
   const activeSteps = getActiveSteps();
   const currentStepIndex = activeSteps.indexOf(step) + 1;
@@ -919,9 +977,10 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
     return isEn ? 'Back' : 'Volver';
   };
 
-  const showBackButton = () => step !== 'stay_type';
+  const showBackButton = () => step !== 'overview';
 
   const getBackButtonAction = () => {
+    if (step === 'search' || step === 'dates') return () => setStep('overview');
     if (step === 'food_prompt' && wantsCook !== null) return () => setWantsCook(null);
     if (step === 'tours' && wantsATV !== null) return () => setWantsATV(null);
     return prevStep;
@@ -999,7 +1058,7 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
           {/* Modal Container */}
           <motion.div ref={modalRef} role="dialog" aria-modal="true" aria-label={isEn ? "Book your stay" : "Reserva tu estancia"}
             initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.92, y: 30 }}
-            animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+            animate={isMobile ? { y: 0, opacity: 1, scale: 1 } : { opacity: 1, scale: 1, y: 0 }}
             exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.92, y: 30 }}
             transition={{ type: 'spring', stiffness: 350, damping: 30 }}
             drag={isMobile ? 'y' : false}
@@ -1032,7 +1091,7 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
             </button>
 
             {/* Left Panel */}
-            <div className="hidden md:flex w-5/12 bg-[#23211F] text-[#F9F7F4] flex-col justify-between p-12 relative overflow-hidden shrink-0 min-h-0">
+            <div className={`hidden ${step === 'overview' ? '' : 'md:flex'} w-5/12 bg-[#23211F] text-[#F9F7F4] flex-col justify-between p-8 lg:p-12 relative overflow-hidden shrink-0 min-h-0`}>
               <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 <svg viewBox="0 0 800 1200" preserveAspectRatio="xMidYMid slice" className="w-full h-full opacity-10">
                   <path d="M-100,200 C200,0 600,400 900,200" fill="none" stroke="#F9F7F4" strokeWidth="2" />
@@ -1075,6 +1134,18 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
                     </div>
                   </div>
                   
+                  {bookingRooms.length > 0 && (
+                    <div className="flex items-start gap-4 text-base md:text-lg font-light text-gray-300">
+                      <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                        <BedDouble size={16} className="text-[#9B7E67]" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-white mb-1 uppercase tracking-widest text-[10px] md:text-[11px]">{bookingRooms.length > 1 ? (isEn ? `${bookingRooms.length} rooms` : `${bookingRooms.length} habitaciones`) : (isEn ? 'Accommodation' : 'Alojamiento')}</p>
+                        <ul className="space-y-0.5">{bookingRooms.map(r => { const l = catalog.find(c => c.id === r.lodgingId); return l ? <li key={r.lodgingId} className="leading-snug">{lodgingText(l.name, currentLangCode)}{bookingRooms.length > 1 && <span className="text-gray-500 text-sm"> · {r.adults + r.children}</span>}</li> : null; })}</ul>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex items-start gap-4 text-base md:text-lg font-light text-gray-300">
                     <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
                       <User size={16} className="text-[#9B7E67]" />
@@ -1134,27 +1205,29 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
             </div>
 
             {/* Right Panel */}
-            <div className="w-full md:w-7/12 flex flex-col h-full bg-[#F9F7F4] text-[#23211F] relative min-h-0">
+            <div className={`w-full ${step === 'overview' ? '' : 'md:w-7/12'} flex flex-col h-full bg-[#F9F7F4] text-[#23211F] relative min-h-0`}>
               {/* Mobile Fixed Header */}
               <div className="shrink-0 z-20 p-6 pb-2 md:hidden relative bg-[#F9F7F4]">
-                {currentStepIndex > 1 && showBackButton() && (
+                {currentStepIndex >= 1 && showBackButton() && (
                   <PremiumButton variant="back" onClick={getBackButtonAction()} backText={getBackButtonText()} />
                 )}
-                {currentStepIndex <= totalStepsCount && <StepIndicator currentStep={currentStepIndex} totalSteps={totalStepsCount} label={isEn?'Step':'Paso'} />}
+                {currentStepIndex >= 1 && currentStepIndex <= totalStepsCount && <StepIndicator currentStep={currentStepIndex} totalSteps={totalStepsCount} label={isEn?'Step':'Paso'} />}
               </div>
 
               <div ref={scrollContainerRef} id="scroll-container" className="flex-1 overflow-y-auto overflow-x-hidden p-6 pb-6 md:p-12 md:pb-12 scroll-smooth flex flex-col relative custom-scrollbar overscroll-contain [-webkit-overflow-scrolling:touch]">
                 {/* Desktop Header */}
                 <div className="shrink-0 z-10 hidden md:block">
-                  {currentStepIndex > 1 && showBackButton() && (
+                  {currentStepIndex >= 1 && showBackButton() && (
                     <PremiumButton variant="back" onClick={getBackButtonAction()} backText={getBackButtonText()} />
                   )}
-                  {currentStepIndex <= totalStepsCount && <StepIndicator currentStep={currentStepIndex} totalSteps={totalStepsCount} label={isEn?'Step':'Paso'} />}
+                  {currentStepIndex >= 1 && currentStepIndex <= totalStepsCount && <StepIndicator currentStep={currentStepIndex} totalSteps={totalStepsCount} label={isEn?'Step':'Paso'} />}
                 </div>
                 <AnimatePresence mode="wait">
                   {(catalogError||availabilityError||quoteError)&&<p role="alert" className="text-red-700 text-sm px-4 py-3">{catalogError||availabilityError||quoteError}</p>}
-                  {catalogLoading&&<p role="status" className="text-gray-500 py-8">{isEn?'Loading accommodation…':'Cargando alojamientos…'}</p>}
-                  {!catalogLoading&&(step==='stay_type'||step==='accommodation')&&<motion.div key={step} initial={{opacity:0,x:15}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-15}}><LodgingSelection step={step} catalog={catalog} isEn={isEn} onMode={chooseMode} onSelect={selectLodging}/></motion.div>}
+                  {catalogLoading&&step!=='overview'&&<p role="status" className="text-gray-500 py-8">{isEn?'Loading accommodation…':'Cargando alojamientos…'}</p>}
+                  {step==='overview'&&<motion.div key="overview" initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} exit={{opacity:0,x:-15}}><AvailabilityOverview catalog={catalog} data={overview} error={overviewError} isEn={isEn} locale={localeObj} device={device} onContinue={startGroupSearch}/></motion.div>}
+                  {!catalogLoading&&step==='search'&&<motion.div key="search" initial={{opacity:0,x:15}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-15}}><StaySearchForm catalog={catalog} overview={overview} isEn={isEn} locale={localeObj} device={device} arrival={range?.from} nights={searchNights} adults={adults} minors={children} onArrival={setSearchArrival} onNights={setSearchNightsValue} onAdults={setAdults} onChildren={setChildren} onSearch={searchStay}/></motion.div>}
+                  {step==='results'&&<motion.div key="results" initial={{opacity:0,x:15}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-15}}><StayResults catalog={catalog} result={stayResult} loading={stayLoading} error={stayError} isEn={isEn} locale={localeObj} device={device} onChoose={chooseRooms} onEdit={()=>setStep('search')}/></motion.div>}
                   {step === 'dates' && (
                     <motion.div
                       key="step1"
@@ -1166,7 +1239,7 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
                     >
                       <div className="mb-6 shrink-0">
                         <p className="text-xs uppercase tracking-widest text-[#9B7E67] mb-2">{selectedLodging ? lodgingText(selectedLodging.name,currentLangCode) : ''}</p>
-                        <div className="flex items-center justify-between gap-3"><h3 className="text-2xl font-serif text-[#23211F]">{isEn?'Dates and guests':'Fechas y huéspedes'}</h3><button type="button" className="text-xs underline text-[#9B7E67]" onClick={()=>setStep('stay_type')}>{isEn?'Change accommodation':'Cambiar alojamiento'}</button></div>
+                        <div className="flex items-center justify-between gap-3"><h3 className="text-2xl font-serif text-[#23211F]">{isEn?'Dates and guests':'Fechas y huéspedes'}</h3><button type="button" className="text-xs underline text-[#9B7E67]" onClick={startGroupSearch}>{isEn?'Book several rooms':'Reservar varias habitaciones'}</button></div>
                         <div className="grid grid-cols-2 gap-4 mt-5"><label className="text-sm text-gray-600">{isEn?'Adults':'Adultos'}<input aria-label={isEn?'Adults':'Adultos'} type="number" min={1} max={selectedLodging?.capacity||12} value={adults} onChange={e=>setAdults(Number(e.target.value))} className="w-full mt-2 p-3 border rounded-xl bg-white"/></label><label className="text-sm text-gray-600">{isEn?'Children':'Menores'}<input aria-label={isEn?'Children':'Menores'} type="number" min={0} max={Math.max(0,(selectedLodging?.capacity||12)-adults)} value={children} onChange={e=>setChildren(Number(e.target.value))} className="w-full mt-2 p-3 border rounded-xl bg-white"/></label></div>
                         <p className="text-xs text-gray-500 mt-3">{isEn?'Up to':'Hasta'} {selectedLodging?.capacity} {isEn?'guests':'personas'} · {isEn?'Minimum stay':'Estancia mínima'}: {minStay} {isEn?'nights':'noches'} · {isEn?'Check-in':'Entrada'} {selectedLodging?.checkInTime} / {isEn?'Check-out':'Salida'} {selectedLodging?.checkOutTime}</p>
                         {!availabilityReady&&<p role="status" className="text-sm text-gray-500 mt-3">{isEn?'Checking availability…':'Consultando disponibilidad…'}</p>}
@@ -2116,7 +2189,14 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
                             onMouseDown={handleUserScrollInteraction}
                           >
                           
-                          <div className="pb-5 border-b border-gray-100"><h4 className="font-serif text-xl">{selectedLodging ? lodgingText(selectedLodging.name,currentLangCode) : ''}</h4><p className="text-gray-500 mt-2">{adults} {isEn?'adults':'adultos'} · {children} {isEn?'children':'menores'}</p><p className="text-sm text-gray-500 mt-3 whitespace-pre-line">{selectedLodging ? lodgingText(selectedLodging.policy,currentLangCode) : ''}</p></div>
+                          <div className="pb-5 border-b border-gray-100 space-y-3">
+                            {bookingRooms.map(r => { const l = catalog.find(c => c.id === r.lodgingId); return l ? (
+                              <div key={r.lodgingId} className="flex justify-between gap-3">
+                                <div><h4 className="font-serif text-xl">{lodgingText(l.name,currentLangCode)}</h4><p className="text-gray-500 mt-1">{r.adults} {isEn?'adults':'adultos'} · {r.children} {isEn?'children':'menores'}</p></div>
+                                {bookingRooms.length > 1 && <span className="font-serif text-lg text-[#9B7E67] shrink-0">${(r.totalMinor/100).toLocaleString('en-US')}</span>}
+                              </div>) : null; })}
+                            {Array.from(new Set(bookingRooms.map(r => { const l = catalog.find(c => c.id === r.lodgingId); return l ? lodgingText(l.policy,currentLangCode) : ''; }).filter(Boolean))).map(text => <p key={text} className="text-sm text-gray-500 whitespace-pre-line">{text}</p>)}
+                          </div>
                           {/* Guest Data Review */}
                           <div className="pb-6 border-b border-gray-100">
                             <h4 className="font-bold text-[#23211F] mb-2">{isEn ? 'Guest Details' : 'Tus Datos'}</h4>
@@ -2252,7 +2332,7 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
                               </p>
                             )}
                             <div className="w-full">
-                              <PremiumButton onClick={handleCheckout} disabled={!isFormValid || !quoteReady || isLoading || grandTotal === 0}>
+                              <PremiumButton onClick={handleCheckout} disabled={!isFormValid || !stayReady || isLoading || grandTotal === 0}>
                                 <CreditCard size={18} />
                                 {isEn ? 'Checkout' : 'Checkout'}
                               </PremiumButton>
@@ -2269,7 +2349,7 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
             </div>
 
             {/* Mobile Fixed Bottom Summary */}
-            {isMobile && step !== 'summary' && step !== 'stay_type' && step !== 'accommodation' && currentStepIndex <= totalStepsCount && (
+            {isMobile && !['summary','overview','search','results'].includes(step) && currentStepIndex >= 1 && currentStepIndex <= totalStepsCount && (
               <motion.div 
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}

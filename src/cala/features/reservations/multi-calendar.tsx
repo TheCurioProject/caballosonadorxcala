@@ -22,6 +22,7 @@ import { guestName } from "./components";
 import type { CalendarRange } from "./calendar-actions";
 import type { Move } from "./calendar";
 import {
+  calendarRows,
   haptic,
   isWeekend,
   monthDays,
@@ -203,6 +204,19 @@ export function MultiCalendar({
     return Boolean(c.block || c.related || c.reserved);
   };
   const unitName = (id: string) => units.find((u) => u.id === id)?.name ?? "";
+  const rows = calendarRows(units, data.properties);
+  const bedUnit = (u: Unit) =>
+    data.inventoryTypes.find((i) => i.id === u.inventoryTypeId)?.sellMode ===
+    "bed";
+  /** "4 habitaciones" under a house ("4 camas" under a dorm). */
+  const rooms = (houseId: string) => {
+    const kids = rows.filter((r) => r.unit.parentUnitId === houseId);
+    const beds = kids.length > 0 && kids.every((r) => bedUnit(r.unit));
+    const n = kids.length;
+    return beds
+      ? `${n} ${n === 1 ? "cama" : "camas"}`
+      : `${n} ${n === 1 ? "habitación" : "habitaciones"}`;
+  };
 
   // ---- geometry ----------------------------------------------------------
   function hit(x: number, y: number) {
@@ -706,27 +720,49 @@ export function MultiCalendar({
               ))}
             </div>
           </div>
-          {units.map((u, index) => (
+          {rows.map(({ unit: u, depth, house, lastChild }, index) => (
             <Fragment key={u.id}>
               {showProperty &&
                 (index === 0 ||
-                  units[index - 1].propertyId !== u.propertyId) && (
+                  rows[index - 1].unit.propertyId !== u.propertyId) &&
+                // A house that heads its property already names it.
+                !(house && depth === 0) && (
                   <div className="mc-property">
                     <span>
                       {data.properties.find((p) => p.id === u.propertyId)?.name}
                     </span>
                   </div>
                 )}
-              <div className="mc-row">
-                <div className="mc-label">
-                  <strong>{u.name}</strong>
-                  <small>
-                    {
-                      data.inventoryTypes.find(
-                        (i) => i.id === u.inventoryTypeId,
-                      )?.name
-                    }
-                  </small>
+              <div
+                className={`mc-row${house ? " is-house" : ""}${depth > 0 ? " is-room" : ""}${lastChild ? " is-last-room" : ""}${index > 0 && depth === 0 ? " is-group-start" : ""}`}
+              >
+                <div
+                  className="mc-label"
+                  title={house ? `${u.name} · ${rooms(u.id)}` : u.name}
+                >
+                  {depth > 0 ? (
+                    <span className="mc-branch" aria-hidden="true">
+                      ↳
+                    </span>
+                  ) : house ? (
+                    <span className="mc-house-icon" aria-hidden="true">
+                      <Icon name="entire-home" size={15} />
+                    </span>
+                  ) : null}
+                  <span className="mc-label-text">
+                    <strong>{u.name}</strong>
+                    <small>
+                      {house
+                        ? rooms(u.id)
+                        : depth > 0
+                          ? bedUnit(u)
+                            ? "Cama"
+                            : "Habitación"
+                          : data.inventoryTypes.find(
+                              (i) => i.id === u.inventoryTypeId,
+                            )?.name}
+                    </small>
+                  </span>
                 </div>
                 <div
                   className={`mc-track${ghost?.unitId === u.id ? (ghost.valid ? " drop-ok" : " drop-bad") : ""}`}
@@ -746,7 +782,7 @@ export function MultiCalendar({
                         type="button"
                         tabIndex={-1}
                         data-mc-cell
-                        className={`mc-cell${day === data.today ? " is-today" : ""}${isWeekend(day) ? " is-weekend" : ""}${day < data.today ? " is-past" : ""}${c.block ? " is-blocked" : ""}${busy ? " is-busy" : ""}${inSelection ? " is-selected" : ""}${pressing === `cell:${u.id}:${day}` ? " is-pressing" : ""}`}
+                        className={`mc-cell${day === data.today ? " is-today" : ""}${c.related && !c.reserved ? " is-related" : ""}${isWeekend(day) ? " is-weekend" : ""}${day < data.today ? " is-past" : ""}${c.block ? " is-blocked" : ""}${busy ? " is-busy" : ""}${inSelection ? " is-selected" : ""}${pressing === `cell:${u.id}:${day}` ? " is-pressing" : ""}`}
                         style={{ gridColumn: i + 1, gridRow: 1 }}
                         aria-disabled={busy || (!c.block && !writable)}
                         aria-label={`${c.block ? "Bloqueada" : busy ? "Ocupada" : "Libre"} · ${u.name} · ${day}`}

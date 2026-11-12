@@ -11,6 +11,7 @@ import {
 } from "@/cala/domain/calendar/layout";
 import { addDays } from "@/cala/domain/shared/dates";
 import { guestName } from "./components";
+import { calendarRows } from "./calendar-shared";
 import type { CalendarRange } from "./calendar-actions";
 import { shortDate } from "@/cala/lib/format";
 
@@ -62,10 +63,11 @@ export function CalendarOverview({
           value={unit.id}
           onChange={(e) => setUnitId(e.target.value)}
         >
-          {units.map((u) => (
+          {calendarRows(units, data.properties).map(({ unit: u, depth }) => (
             <option key={u.id} value={u.id}>
-              {data.properties.find((p) => p.id === u.propertyId)?.name} ·{" "}
-              {u.name}
+              {depth > 0
+                ? `\u00a0\u00a0↳ ${u.name}`
+                : `${data.properties.find((p) => p.id === u.propertyId)?.name} · ${u.name}`}
             </option>
           ))}
         </select>

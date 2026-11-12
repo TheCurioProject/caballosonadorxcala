@@ -237,8 +237,17 @@
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
 }
 
-/* Custom Modifiers */
+/* Nights of the searched stay (arrival is the selected day). */
+.rdp-day_stay:not(.rdp-selected) .rdp-day_button {
+  background-color: rgba(212, 165, 116, 0.35) !important;
+  border-color: transparent !important;
+}
 
+/* Booking overview: lodging closed / not on sale on that night. */
+.cala-unavailable {
+  background-color: #F1EEEA;
+  background-image: repeating-linear-gradient(135deg, rgba(155, 126, 103, 0.18) 0 2px, transparent 2px 7px);
+}
 
 /* Month navigation and text layout */
 .rdp-month_caption {

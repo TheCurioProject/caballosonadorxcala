@@ -15,7 +15,7 @@ import { Icon } from "@/cala/components/ui/primitives";
 import { money, shortDate, statusLabels, uiLocale } from "@/cala/lib/format";
 import { guestName } from "./components";
 import type { CalendarRange } from "./calendar-actions";
-import { haptic, monthDays, monthLabel } from "./calendar-shared";
+import { calendarRows, haptic, monthDays, monthLabel } from "./calendar-shared";
 
 type Selection = { start: string; end: string | null };
 
@@ -514,8 +514,9 @@ export function SingleCalendar({
               setSel(null);
             }}
           >
-            {units.map((u) => (
+            {calendarRows(units, data.properties).map(({ unit: u, depth }) => (
               <option key={u.id} value={u.id}>
+                {depth > 0 ? "\u00a0\u00a0↳ " : ""}
                 {u.name}
                 {data.inventoryTypes.find((t) => t.id === u.inventoryTypeId)
                   ? ` · ${data.inventoryTypes.find((t) => t.id === u.inventoryTypeId)?.name}`

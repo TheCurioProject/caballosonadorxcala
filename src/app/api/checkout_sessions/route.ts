@@ -63,12 +63,27 @@ export async function POST(req: Request) {
 
     if(!calaConfiguration().ready)return NextResponse.json({error:"Las reservas están en preparación. Contacta al alojamiento."},{status:503});
     const catalog = await getLodgings();
-    let selection: LodgingSelection | null = null;
-    const selectedLodging = catalog.find(l => l.id === body.lodgingId);
-    if (catalog.length || body.lodgingId !== undefined) {
-      const parsed = lodgingSelectionSchema.safeParse({lodgingId: body.lodgingId, adults: body.adults, children: body.children});
-      if (!parsed.success || !selectedLodging) return NextResponse.json({error: 'Selecciona un alojamiento y un número válido de huéspedes.'}, {status: 400});
-      selection = parsed.data;
+    // One or more lodgings: `rooms` (several rooms in one checkout) or the
+    // single `lodgingId` older clients send.
+    const requested: unknown[] = Array.isArray(body.rooms) ? body.rooms
+      : body.lodgingId !== undefined ? [{lodgingId: body.lodgingId, adults: body.adults, children: body.children}] : [];
+    const selections: LodgingSelection[] = [];
+    if (catalog.length || requested.length) {
+      for (const item of requested) {
+        const parsed = lodgingSelectionSchema.safeParse(item);
+        if (!parsed.success || !catalog.some(l => l.id === parsed.data.lodgingId)) return NextResponse.json({error: 'Selecciona un alojamiento y un número válido de huéspedes.'}, {status: 400});
+        selections.push(parsed.data);
+      }
+      const kinds = selections.map(s => catalog.find(l => l.id === s.lodgingId)!.kind);
+      if (!selections.length || selections.length > 12 || new Set(selections.map(s => s.lodgingId)).size !== selections.length || (selections.length > 1 && kinds.includes('whole_home')))
+        return NextResponse.json({error: 'La combinación de habitaciones no es válida.'}, {status: 400});
+    }
+    const selection: LodgingSelection | null = selections[0] ?? null;
+    const selectedLodging = selection ? catalog.find(l => l.id === selection.lodgingId) : undefined;
+    const group = selections.length > 1;
+    if (group && process.env.DATA_BACKEND === 'supabase') {
+      const ready = await prisma.$queryRaw<Array<{ok: boolean}>>`SELECT to_regprocedure('site.accept_stripe_group_payment(integer[],text,text,bigint,text)') IS NOT NULL AS ok`;
+      if (!ready[0]?.ok) return NextResponse.json({error: 'La reserva de varias habitaciones en un solo pago aún no está activa. Reserva cada habitación por separado o contacta al alojamiento.'}, {status: 503});
     }
     if (!process.env.STRIPE_SECRET_KEY?.trim()) return NextResponse.json({error: 'Los pagos están en preparación. Contacta al alojamiento para confirmar tu estancia.'}, {status: 503});
     let booking;
@@ -100,8 +115,10 @@ export async function POST(req: Request) {
         current.setUTCDate(current.getUTCDate() + 1);
       }
 
+      let roomTotalsMinor: number[] = [];
       if (selection) {
-        serverAccommodationTotal = (await quoteLodging(selection, checkInDate, checkOutDate)) / 100;
+        roomTotalsMinor = await Promise.all(selections.map(s => quoteLodging(s, checkInDate, checkOutDate)));
+        serverAccommodationTotal = roomTotalsMinor.reduce((sum, value) => sum + value, 0) / 100;
       } else if(process.env.DATA_BACKEND==='supabase') {
         const quoted=await prisma.$queryRaw<Array<{total:bigint}>>`SELECT site.cala_quote(${property.id}::integer,${checkInDate}::date,${checkOutDate}::date) AS total`;
         if(!quoted[0])throw new Error('CALA_MAPPING_MISSING');
@@ -151,7 +168,8 @@ export async function POST(req: Request) {
         else await tx.$queryRaw`SELECT id FROM properties WHERE id = ${property.id} FOR UPDATE`;
 
         if (selection) {
-          if ((await quoteLodging(selection, checkInDate, checkOutDate, tx)) / 100 !== verifiedAccommodationTotal) throw new Error('PRICE_CHANGED');
+          for (const [i, s] of selections.entries())
+            if ((await quoteLodging(s, checkInDate, checkOutDate, tx)) !== roomTotalsMinor[i]) throw new Error('PRICE_CHANGED');
         } else if(process.env.DATA_BACKEND==='supabase') {
           const quoted=await tx.$queryRaw<Array<{total:bigint}>>`SELECT site.cala_quote(${property.id}::integer,${checkInDate}::date,${checkOutDate}::date) AS total`;
           if(Number(quoted[0]?.total)/100!==verifiedAccommodationTotal)throw new Error('PRICE_CHANGED');
@@ -178,6 +196,7 @@ export async function POST(req: Request) {
           throw new Error('DATES_UNAVAILABLE');
         }
 
+        const groupNote = group ? `Reserva web de ${selections.length} habitaciones (un solo pago): ${selections.map(s => `${lodgingText(catalog.find(l => l.id === s.lodgingId)!.name, 'es')} (${s.adults} adultos, ${s.children} menores)`).join('; ')}.` : '';
         const created = await tx.booking.create({
           data: {
             propertyId: property.id,
@@ -186,10 +205,11 @@ export async function POST(req: Request) {
             guestName,
             guestEmail,
             guestPhone,
-            totalPrice: serverGrandTotal, // Use server-calculated grand total
+            // Each room is its own booking; extras stay with the first one.
+            totalPrice: group ? roomTotalsMinor[0] / 100 + serverAddonTotal : serverGrandTotal,
             payment_status: 'PENDING',
             origin: 'WEBSITE',
-            ...(selectedLodging ? {notes: `Alojamiento: ${lodgingText(selectedLodging.name, lang)}. Huéspedes: ${selection!.adults} adultos, ${selection!.children} menores.`} : {}),
+            ...(selectedLodging ? {notes: [`Alojamiento: ${lodgingText(selectedLodging.name, lang)}. Huéspedes: ${selection!.adults} adultos, ${selection!.children} menores.`, groupNote].filter(Boolean).join('\n')} : {}),
             addons: {
               create: verifiedAddons.map((a: any) => ({
                 type: a.type,
@@ -201,7 +221,19 @@ export async function POST(req: Request) {
           }
         });
         if (selection) await tx.$executeRaw`INSERT INTO site.booking_lodging(booking_id,lodging_id,adults,children) VALUES(${created.id}::integer,${selection.lodgingId}::uuid,${selection.adults}::integer,${selection.children}::integer)`;
-        return created;
+        const linked: number[] = [];
+        for (const [i, s] of selections.entries()) {
+          if (i === 0) continue;
+          const lodging = catalog.find(l => l.id === s.lodgingId)!;
+          const room = await tx.booking.create({data: {
+            propertyId: property.id, checkIn: checkInDate, checkOut: checkOutDate, guestName, guestEmail, guestPhone,
+            totalPrice: roomTotalsMinor[i] / 100, payment_status: 'PENDING', origin: 'WEBSITE',
+            notes: `Alojamiento: ${lodgingText(lodging.name, lang)}. Huéspedes: ${s.adults} adultos, ${s.children} menores.\nParte de la reserva web #${created.id}. ${groupNote}`,
+          }});
+          await tx.$executeRaw`INSERT INTO site.booking_lodging(booking_id,lodging_id,adults,children) VALUES(${room.id}::integer,${s.lodgingId}::uuid,${s.adults}::integer,${s.children}::integer)`;
+          linked.push(room.id);
+        }
+        return {...created, linked};
       }, { isolationLevel: process.env.DATA_BACKEND==='supabase' ? Prisma.TransactionIsolationLevel.ReadCommitted : Prisma.TransactionIsolationLevel.Serializable });
 
       // 2. Create Stripe Checkout Session
@@ -213,17 +245,17 @@ export async function POST(req: Request) {
           expires_at: Math.floor(Date.now() / 1000) + CHECKOUT_SECONDS,
           payment_method_types: ['card'],
           line_items: [
-            {
+            ...(selections.length ? selections.map((s, i) => ({ lodging: catalog.find(l => l.id === s.lodgingId)!, amount: roomTotalsMinor[i] })) : [{ lodging: undefined, amount: Math.round(verifiedAccommodationTotal * 100) }]).map(({ lodging, amount }) => ({
               price_data: {
                 currency: currency.toLowerCase(),
                 product_data: {
-                  name: selectedLodging ? `${lodgingText(selectedLodging.name, lang)} · Casa Caballo Soñador` : 'Reserva / Booking - Casa Caballo Soñador',
+                  name: lodging ? `${lodgingText(lodging.name, lang)} · Casa Caballo Soñador` : 'Reserva / Booking - Casa Caballo Soñador',
                   description: `Fechas / Dates: ${checkInDate.toLocaleDateString('es-MX', { timeZone: 'UTC' })} al / to ${checkOutDate.toLocaleDateString('es-MX', { timeZone: 'UTC' })}`,
                 },
-                unit_amount: Math.round(verifiedAccommodationTotal * 100), // Stripe expects cents
+                unit_amount: amount, // Stripe expects cents
               },
               quantity: 1,
-            },
+            })),
             ...verifiedAddons.filter(a => a.unitPrice > 0).map((a) => ({
               price_data: {
                 currency: currency.toLowerCase(),
@@ -242,10 +274,17 @@ export async function POST(req: Request) {
           metadata: {
             bookingId: booking.id.toString(),
             ...(selection ? {lodgingId: selection.lodgingId} : {}),
+            ...(booking.linked.length ? {groupBookingIds: [booking.id, ...booking.linked].join(',')} : {}),
           },
         });
 
-        try {
+        if (booking.linked.length) {
+          // The group payment matches every room by its external id; without them it could not be confirmed.
+          await prisma.$transaction([
+            prisma.booking.update({ where: { id: booking.id }, data: { externalId: session.id } }),
+            ...booking.linked.map(id => prisma.booking.update({ where: { id }, data: { externalId: `${session.id}#${id}` } })),
+          ]);
+        } else try {
           await prisma.booking.update({ where: { id: booking.id }, data: { externalId: session.id } });
         } catch (error) {
           console.error('[Checkout] Could not persist session identifier; webhook metadata will reconcile it', error);
@@ -255,7 +294,7 @@ export async function POST(req: Request) {
         console.error('[Checkout Stripe Error]:', stripeError);
         // Retain failed checkout details for the administrator.
         try {
-          await prisma.booking.updateMany({ where: { id: booking.id, payment_status: 'PENDING' }, data: { payment_status: 'FAILED' } });
+          await prisma.booking.updateMany({ where: { id: { in: [booking.id, ...booking.linked] }, payment_status: 'PENDING' }, data: { payment_status: 'FAILED' } });
         } catch (e) {
           console.error('Failed to cleanup booking after stripe error', e);
         }

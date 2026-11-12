@@ -226,6 +226,108 @@
   color: var(--muted);
   font-size: calc(11px * var(--cala-fs-dense, 1));
 }
+
+/* House → rooms tree (house row on top, its rooms indented below it) */
+.cala-admin .mc-label:has(.mc-label-text) {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+.cala-admin .mc-label-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.cala-admin .mc-house-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.cala-admin .mc-row.is-house .mc-label {
+  background: color-mix(in srgb, var(--subtle) 70%, var(--surface));
+}
+.cala-admin .mc-row.is-house .mc-label strong {
+  font-size: calc(13.5px * var(--cala-fs-dense, 1));
+  font-weight: 700;
+}
+.cala-admin .mc-row.is-house .mc-track {
+  background: color-mix(in srgb, var(--subtle) 45%, transparent);
+}
+.cala-admin .mc-row.is-group-start .mc-label,
+.cala-admin .mc-row.is-group-start .mc-track {
+  border-top: 2px solid var(--border);
+}
+.cala-admin .mc-row.is-room .mc-label {
+  padding-left: 22px;
+}
+/* Vertical guide joining every room to its house. */
+.cala-admin .mc-row.is-room .mc-label::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  left: 24px;
+  width: 1.5px;
+  background: color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+.cala-admin .mc-row.is-room.is-last-room .mc-label::before {
+  bottom: 50%;
+}
+.cala-admin .mc-branch {
+  position: relative;
+  flex: none;
+  width: 14px;
+  margin-left: 2px;
+  color: color-mix(in srgb, var(--accent) 60%, var(--muted));
+  font-size: calc(15px * var(--cala-fs-dense, 1));
+  line-height: 1;
+  background: var(--surface);
+}
+.cala-admin .mc-row.is-room .mc-label strong {
+  font-weight: 560;
+}
+/* Nights taken by the house or by a sibling room: greyed like Smoobu. */
+.cala-admin .mc-track .mc-cell.is-related {
+  background-color: color-mix(in srgb, var(--muted) 16%, var(--surface));
+}
+.cala-admin .mc-compact .mc-house-icon {
+  display: none;
+}
+.cala-admin .mc-compact .mc-row.is-room .mc-label {
+  padding-left: 8px;
+}
+.cala-admin .mc-compact .mc-row.is-room .mc-label::before {
+  left: 10px;
+}
+.cala-admin .mc-compact .mc-label:has(.mc-label-text) {
+  gap: 4px;
+}
+.cala-admin .mc-compact .mc-branch {
+  width: 10px;
+  margin-left: 0;
+}
+.cala-admin .mc-compact:has(.mc-row.is-room) {
+  --mc-label: 118px;
+}
+.cala-admin .mc-compact .mc-row:is(.is-house, .is-room) .mc-label strong {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: calc(12px * var(--cala-fs-dense, 1));
+  line-height: 1.2;
+}
+.cala-admin .mc-compact .mc-row.is-room .mc-label small {
+  display: none;
+}
 .cala-admin .mc-corner {
   top: 0;
   z-index: 6;

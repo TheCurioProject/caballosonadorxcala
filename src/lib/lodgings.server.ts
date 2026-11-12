@@ -43,3 +43,13 @@ export async function quoteLodging(
     throw new Error("LODGING_UNAVAILABLE");
   return total;
 }
+
+/** Which CALA rule rejected a quote (rates grid, lodging rules, closures, inventory). */
+export function quoteErrorCode(error: unknown) {
+  const e = error as { meta?: { message?: string }; message?: string } | null;
+  const text = `${e?.meta?.message ?? ""} ${e?.message ?? ""}`;
+  return (
+    ["RATE_RESTRICTION", "DEPARTURE_CLOSED", "LODGING_SALES_CLOSED", "LODGING_RULES", "OCCUPANCY", "INVENTORY", "UNAVAILABLE", "NO_AVAILABILITY", "UNIT_CONFLICT"].find((c) => text.includes(c)) ??
+    "UNAVAILABLE"
+  );
+}
