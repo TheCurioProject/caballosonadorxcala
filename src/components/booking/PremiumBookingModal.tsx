@@ -982,14 +982,17 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[200] flex items-end justify-center md:items-center p-0 md:p-2 lg:p-6 perspective-[1000px]">
-          {/* Backdrop */}
+        <div className="fixed inset-0 z-[200] isolate flex items-end justify-center md:items-center p-0 md:p-2 lg:p-6">
+          {/* Backdrop. No `perspective` on the wrapper and no animated
+              backdrop-filter: on iOS WebKit (Safari and Chrome) that combination
+              paints the blurred backdrop OVER the sheet, washing it out. The blur
+              is a static class, only on larger screens. */}
           <motion.div
-            initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
-            animate={{ opacity: 1, backdropFilter: 'blur(12px)' }}
-            exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
-            transition={{ duration: 0.5, ease: 'easeInOut' }}
-            className="absolute inset-0 bg-[#23211F]/60"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: 'easeInOut' }}
+            className="absolute inset-0 z-0 bg-[#23211F]/70 md:backdrop-blur-md"
             onClick={onClose}
           />
 
@@ -2270,7 +2273,7 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
               <motion.div 
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}
-                className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-8 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-20"
+                className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-[max(2rem,env(safe-area-inset-bottom))] flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-20"
               >
                 <div>
                   <p className="text-[10px] md:text-[11px] uppercase tracking-widest font-bold text-gray-400 mb-1">{isEn ? 'Subtotal' : 'Total Parcial'}</p>
