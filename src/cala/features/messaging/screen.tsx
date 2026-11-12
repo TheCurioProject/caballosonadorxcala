@@ -16,6 +16,7 @@ import { dateTime, shortDate } from "@/cala/lib/format";
 import { renderMessage } from "@/cala/domain/messaging/templates";
 import { providerForSource } from "@/cala/domain/messaging/ota";
 import { connector, otaGuides, type ConnectorProvider } from "@/cala/features/integrations/connectors";
+import { copyText } from "@/cala/features/integrations/calendar-assistant";
 import { MessageAssistant } from "./message-assistant";
 import { useI18n } from "@/cala/lib/i18n";
 
@@ -28,6 +29,7 @@ type Thread = {
   provider: ConnectorProvider;
   guestName: string;
   canReply: boolean;
+  externalUrl: string | null;
   externalCode: string | null;
   reservationId: string | null;
   status: "open" | "archived";
@@ -143,6 +145,8 @@ function deliveryLabel(m: Message, via: string) {
       return "No entregado";
     case "cancelled":
       return "Cancelado";
+    case "recorded":
+      return `Copiado para enviar en ${via}`;
     default:
       return "";
   }
@@ -265,6 +269,17 @@ function PropertyInbox({ compact }: { compact: boolean }) {
   }
   async function send() {
     if (!thread || !body.trim()) return;
+    if (mode === "guest") {
+      // Airbnb and Booking.com only accept replies in their own chat: copy the
+      // text and open that conversation (inside the click, so it isn't blocked).
+      const target = thread.externalUrl ?? otaGuides[thread.provider].inbox;
+      const copying = copyText(body.trim()); // needs focus: start before opening
+      if (target) window.open(target, "_blank", "noopener");
+      if (!(await copying)) {
+        setError("No se pudo copiar el texto. Selecciónalo y cópialo a mano.");
+        return;
+      }
+    }
     const ok = await run(() =>
       connector(mode === "note" ? "thread.note" : "thread.reply", { propertyId, threadId: thread.id, body: body.trim() }),
     );
@@ -438,12 +453,18 @@ function PropertyInbox({ compact }: { compact: boolean }) {
           </select>
         </label>
       )}
-      <div className={`ib-link-card${thread.canReply ? " is-on" : ""}`}>
+      <div className="ib-link-card is-on">
         <ChannelMark provider={thread.provider} />
         <div>
           <strong>{via}</strong>
-          <small>{thread.canReply ? "Las respuestas llegan al chat de la OTA" : "Sin dirección de respuesta: llegará con el próximo mensaje del huésped"}</small>
+          <small>{thread.externalUrl ? "Respondes en el chat de la OTA: CALA abre esta conversación" : "Respondes en el chat de la OTA: CALA abre tu bandeja de la OTA"}</small>
         </div>
+        {(thread.externalUrl ?? otaGuides[thread.provider].inbox) && (
+          <a className="button secondary" href={thread.externalUrl ?? otaGuides[thread.provider].inbox} target="_blank" rel="noreferrer">
+            <Icon name="external-link" size={16} />
+            Abrir
+          </a>
+        )}
       </div>
       <div className="ib-detail-actions">
         {reservation && (
@@ -545,21 +566,18 @@ function PropertyInbox({ compact }: { compact: boolean }) {
               <Icon name="eye-off" size={14} />
               Nota interna
             </button>
-            {mode === "guest" && <span className={`ib-via${thread.canReply ? "" : " is-off"}`}>Vía {via}{!thread.canReply && " · sin dirección de respuesta"}</span>}
+            {mode === "guest" && <span className="ib-via">Se envía desde {via}</span>}
           </div>
           <textarea
             ref={textarea}
             maxLength={10000}
             rows={compact ? 2 : 3}
             value={body}
-            disabled={mode === "guest" && !thread.canReply}
             aria-label={tr(mode === "note" ? "Nota para el equipo" : "Mensaje")}
             placeholder={
               mode === "note"
                 ? tr("Escribe una nota que solo verá tu equipo…")
-                : thread.canReply
-                  ? tr("Escribe a {name}…", { name: thread.guestName.split(" ")[0] })
-                  : tr("Responde desde {label}: este aviso no trae dirección de respuesta.", { label: via })
+                : tr("Escribe a {name}…", { name: thread.guestName.split(" ")[0] })
             }
             onChange={(e) => setDrafts((d) => ({ ...d, [thread.id]: e.target.value }))}
             onKeyDown={(e) => {
@@ -592,9 +610,9 @@ function PropertyInbox({ compact }: { compact: boolean }) {
               </label>
             )}
             <span className="ib-spacer" />
-            <button className={`button primary ib-send${sent ? " is-sent" : ""}`} disabled={busy || !body.trim() || (mode === "guest" && !thread.canReply)}>
-              {sent ? <Icon name="check" size={16} /> : <Icon name={mode === "note" ? "edit" : "message"} size={16} />}
-              {busy ? "Enviando…" : mode === "note" ? "Guardar nota" : "Enviar"}
+            <button className={`button primary ib-send${sent ? " is-sent" : ""}`} disabled={busy || !body.trim()}>
+              {sent ? <Icon name="check" size={16} /> : <Icon name={mode === "note" ? "edit" : "external-link"} size={16} />}
+              {busy ? "Guardando…" : mode === "note" ? "Guardar nota" : `Copiar y abrir en ${via}`}
             </button>
           </div>
         </form>

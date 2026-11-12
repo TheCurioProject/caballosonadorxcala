@@ -52,7 +52,7 @@ function PropertyChannels() {
     feed: state?.feeds.find((f) => f.unitId === l.unitId && f.provider === l.provider),
   }));
   const orphanFeeds = (state?.feeds ?? []).filter((f) => !state?.links.some((l) => l.unitId === f.unitId && l.provider === f.provider));
-  const mailReady = Boolean(state?.mail.receiving && state.mail.webhook && state.mail.sending);
+  const mailReady = Boolean(state?.mail.apiKey && state.mail.receiving && state.mail.webhook);
   const lastMessage = state?.emails.find((e) => e.kind === "message");
 
   return (
@@ -197,21 +197,17 @@ function PropertyChannels() {
                 <strong>Mensajes de OTAs por correo</strong>
               </span>
               <span className={`cx-pill ${state.inbox && mailReady && lastMessage ? "ok" : "warn"}`}>
-                {!mailReady ? "Servidor sin configurar" : !state.inbox ? "Sin conectar" : lastMessage ? "Recibiendo" : "Esperando el primer correo"}
+                {!mailReady ? "Resend sin conectar" : !state.inbox ? "Sin conectar" : lastMessage ? "Recibiendo" : "Esperando el primer correo"}
               </span>
             </div>
             <ul className="ota-verify">
               <li className={mailReady ? "is-ok" : "is-bad"}>
                 <span>{mailReady ? <Icon name="check" size={13} /> : <Icon name="warning" size={13} />}</span>
-                {mailReady ? "Recepción y envío de correo activos" : "Falta configurar la recepción de correo en el servidor"}
+                {mailReady ? `Resend conectado (@${state.mail.domain})` : "Conecta Resend desde el asistente (un solo paso)"}
               </li>
               <li className={lastMessage ? "is-ok" : "is-bad"}>
                 <span>{lastMessage ? <Icon name="check" size={13} /> : <Icon name="warning" size={13} />}</span>
                 {lastMessage ? `Último mensaje recibido ${timeAgo(lastMessage.receivedAt)}` : "Aún no llega ningún mensaje de una OTA"}
-              </li>
-              <li className={state.outbound.failed ? "is-bad" : "is-ok"}>
-                <span>{state.outbound.failed ? <Icon name="warning" size={13} /> : <Icon name="check" size={13} />}</span>
-                {`${state.outbound.sent} respuestas entregadas${state.outbound.failed ? ` · ${state.outbound.failed} rechazadas` : ""}`}
               </li>
             </ul>
             {state.inbox?.address && <small className="muted">Dirección de reenvío: {state.inbox.address}</small>}

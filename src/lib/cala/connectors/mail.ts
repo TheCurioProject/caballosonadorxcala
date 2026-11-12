@@ -1,39 +1,114 @@
 import { Resend } from "resend";
 import { supabaseAdminClient } from "@/cala/infrastructure/supabase/admin";
 import { providerForSource } from "@/cala/domain/messaging/ota";
+import { DomainError } from "@/cala/domain/shared/errors";
 import { untyped } from "./calendar-sync";
 import { matchReservation, parseInbound } from "./mail-parse";
 
-/** What the server needs for the e-mail relay; the assistant shows it as checks. */
-export function mailSetup() {
-  const domain = (process.env.CALA_INBOUND_DOMAIN ?? "").trim().toLowerCase();
-  return {
-    domain,
-    receiving: Boolean(domain),
-    webhook: Boolean(process.env.RESEND_WEBHOOK_SECRET?.trim()),
-    sending: Boolean(process.env.RESEND_API_KEY?.trim()),
-  };
-}
-export const mailReady = () => {
-  const s = mailSetup();
-  return s.receiving && s.webhook && s.sending;
-};
-export const inboxAddress = (localPart: string) => `${localPart}@${mailSetup().domain}`;
+type MailSettings = { domain?: string | null; webhookId?: string | null; webhookSecret?: string | null };
 
 const resend = () => new Resend(process.env.RESEND_API_KEY);
+const admin = () => untyped(supabaseAdminClient());
+
+async function storedSettings(): Promise<MailSettings> {
+  const { data } = await admin().rpc("pms_service_mail_settings");
+  return (data ?? {}) as MailSettings;
+}
+
+/**
+ * The relay only needs RESEND_API_KEY (already used for sign-up codes). The
+ * receiving domain and the webhook secret are saved by the assistant in the
+ * database; env vars still override them if present.
+ */
+export async function mailSetup() {
+  const saved = await storedSettings().catch(() => ({}) as MailSettings);
+  const domain = (process.env.CALA_INBOUND_DOMAIN || saved.domain || "").trim().toLowerCase();
+  const secret = (process.env.RESEND_WEBHOOK_SECRET || saved.webhookSecret || "").trim();
+  return {
+    apiKey: Boolean(process.env.RESEND_API_KEY?.trim()),
+    domain,
+    secret,
+    receiving: Boolean(domain),
+    webhook: Boolean(secret),
+  };
+}
+export async function mailReady() {
+  const s = await mailSetup();
+  return s.apiKey && s.receiving && s.webhook;
+}
+
+/** Domains of the Resend account that can receive e-mail (custom MX domains). */
+export async function receivingDomains() {
+  const { data, error } = await resend().domains.list();
+  if (error) throw keyError(error.message);
+  return (data?.data ?? [])
+    .filter((d) => d.capabilities?.receiving === "enabled")
+    .map((d) => d.name.toLowerCase());
+}
+
+function keyError(message: string) {
+  return new DomainError(
+    "RESEND_KEY",
+    /restricted|permission|not allowed|sending access/i.test(message)
+      ? "La clave de Resend solo permite enviar. En Resend → API Keys crea una con «Full access» y ponla en RESEND_API_KEY."
+      : "Resend no aceptó la clave (RESEND_API_KEY). Revísala en Resend → API Keys.",
+    422,
+  );
+}
+
+/**
+ * One-click setup: saves the receiving domain and creates (or recreates) the
+ * webhook that points to this site, keeping its signing secret.
+ */
+export async function configureMail(rawDomain: string, endpoint: string) {
+  if (!process.env.RESEND_API_KEY?.trim())
+    throw new DomainError("RESEND_KEY", "Falta RESEND_API_KEY en Vercel.", 422);
+  const domain = rawDomain.trim().toLowerCase().replace(/^.*@/, "").replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+  if (!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(domain))
+    throw new DomainError("INVALID_DOMAIN", "Pega la dirección de recepción de Resend, por ejemplo algo@abcd1234.resend.app.", 422);
+  if (!domain.endsWith(".resend.app")) {
+    const domains = await receivingDomains();
+    if (!domains.includes(domain))
+      throw new DomainError(
+        "DOMAIN_NOT_RECEIVING",
+        `«${domain}» no tiene la recepción activada en Resend. Usa tu dirección .resend.app o activa Receiving en ese dominio.`,
+        422,
+      );
+  }
+  const r = resend();
+  const { data: hooks, error: listError } = await r.webhooks.list();
+  if (listError) throw keyError(listError.message);
+  for (const hook of hooks?.data ?? [])
+    if ((hook as { endpoint?: string }).endpoint === endpoint) await r.webhooks.remove(hook.id);
+  const { data: created, error } = await r.webhooks.create({
+    endpoint,
+    events: ["email.received"],
+  });
+  if (error || !created) throw keyError(error?.message ?? "");
+  const { error: saveError } = await admin().rpc("pms_service_mail_settings_save", {
+    new_domain: domain,
+    new_webhook: created.id,
+    new_secret: created.signing_secret,
+  });
+  if (saveError) throw new DomainError("SAVE_FAILED", "No se pudo guardar la configuración. Inténtalo de nuevo.", 503);
+  return { domain };
+}
+
+export const inboxAddress = (localPart: string, domain: string) => `${localPart}@${domain}`;
 
 /** Handles one `email.received` event for any CALA relay address. */
 export async function receiveEmail(event: { email_id: string; to: string[]; received_for?: string[] }) {
-  const { domain } = mailSetup();
+  const { domain } = await mailSetup();
   const locals = [...(event.received_for ?? []), ...event.to]
     .map((a) => (/<([^>]+)>/.exec(a)?.[1] ?? a).trim().toLowerCase())
     .filter((a) => a.endsWith("@" + domain))
     .map((a) => a.split("@")[0].split("+")[0]);
-  const admin = untyped(supabaseAdminClient());
+  const db = admin();
   const results = [];
   for (const localPart of [...new Set(locals)]) {
-    const { data: owner } = await admin.rpc("pms_service_inbox_owner", { local: localPart });
+    const { data: owner } = await db.rpc("pms_service_inbox_owner", { local: localPart });
     if (!owner) continue;
+    // Fetching it from Resend also proves the event refers to a real e-mail of this account.
     const { data: email, error } = await resend().emails.receiving.get(event.email_id);
     if (error || !email) throw new Error("received e-mail unavailable");
     const parsed = parseInbound({
@@ -45,10 +120,8 @@ export async function receiveEmail(event: { email_id: string; to: string[]; rece
       headers: email.headers,
     });
     const reservationId =
-      parsed.kind === "message"
-        ? matchReservation(parsed, owner.reservations ?? [], providerForSource)
-        : null;
-    const { data } = await admin.rpc("pms_service_inbound", {
+      parsed.kind === "message" ? matchReservation(parsed, owner.reservations ?? [], providerForSource) : null;
+    const { data } = await db.rpc("pms_service_inbound", {
       payload: {
         localPart,
         resendId: event.email_id,
@@ -57,6 +130,7 @@ export async function receiveEmail(event: { email_id: string; to: string[]; rece
         replyTo: parsed.replyTo,
         guestName: parsed.guestName,
         externalCode: parsed.externalCode,
+        externalUrl: parsed.threadUrl,
         reservationId,
         subject: parsed.subject,
         body: parsed.body,
@@ -67,58 +141,4 @@ export async function receiveEmail(event: { email_id: string; to: string[]; rece
     results.push(data);
   }
   return results;
-}
-
-/** Sends queued replies to the OTA relay addresses. */
-export async function deliverOutbox(max = 20) {
-  if (!mailReady()) return { sent: 0, failed: 0, skipped: true };
-  const admin = untyped(supabaseAdminClient());
-  const { data, error } = await admin.rpc("pms_service_outbox_claim", { max_items: max });
-  if (error) throw new Error("outbox unavailable");
-  let sent = 0,
-    failed = 0;
-  for (const m of (data ?? []) as {
-    id: string;
-    subject: string | null;
-    body: string;
-    replyTo: string | null;
-    propertyName: string;
-    localPart: string;
-  }[]) {
-    if (!m.replyTo) {
-      await admin.rpc("pms_service_outbox_done", { message: m.id, ok: false, failure: "Esta conversación no tiene dirección de respuesta.", external: null });
-      failed++;
-      continue;
-    }
-    const inbox = inboxAddress(m.localPart);
-    const fromInbox = !mailSetup().domain.endsWith(".resend.app");
-    const fallback = process.env.CALA_EMAIL_FROM || "no-reply@casacaballosonador.com";
-    const name = m.propertyName.replace(/["<>]/g, "");
-    const { data: result, error: sendError } = await resend().emails.send(
-      {
-        from: `${name} <${fromInbox ? inbox : fallback}>`,
-        to: [m.replyTo],
-        replyTo: inbox,
-        subject: m.subject || `Re: ${name}`,
-        text: m.body,
-      },
-      { idempotencyKey: `cala-ota-${m.id}` },
-    );
-    await admin.rpc("pms_service_outbox_done", {
-      message: m.id,
-      ok: !sendError,
-      failure: sendError ? `No se pudo enviar: ${sendError.message}` : null,
-      external: result?.id ?? null,
-    });
-    if (sendError) failed++;
-    else sent++;
-  }
-  return { sent, failed };
-}
-
-export async function markBounced(emailId: string, reason: string) {
-  await untyped(supabaseAdminClient()).rpc("pms_service_message_bounced", {
-    external: emailId,
-    reason: `El canal rechazó la respuesta: ${reason}`.slice(0, 500),
-  });
 }

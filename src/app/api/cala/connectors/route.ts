@@ -12,7 +12,7 @@ import {
   providerForUrl,
 } from "@/lib/cala/connectors/ical-feed";
 import { syncCalendarLink, untyped } from "@/lib/cala/connectors/calendar-sync";
-import { deliverOutbox, inboxAddress, mailSetup } from "@/lib/cala/connectors/mail";
+import { configureMail, inboxAddress, mailSetup, receivingDomains } from "@/lib/cala/connectors/mail";
 import { isWebsiteProperty, revalidatePublicSite } from "@/lib/revalidatePublic";
 import { retireLegacySource } from "@/lib/cala/connectors/legacy";
 
@@ -29,8 +29,9 @@ const input = z.discriminatedUnion("action", [
   z.object({ action: z.literal("calendar.unlink"), propertyId: id, linkId: id }),
   z.object({ action: z.literal("calendar.export"), propertyId: id, unitId: id, provider, rotate: z.boolean().optional() }),
   z.object({ action: z.literal("inbox.enable"), propertyId: id }),
+  z.object({ action: z.literal("mail.configure"), propertyId: id, domain: z.string().min(3).max(320) }),
   z.object({ action: z.literal("inbox.list"), propertyId: id }),
-  z.object({ action: z.literal("thread.reply"), propertyId: id, threadId: id, body: z.string().min(1).max(20000) }),
+  z.object({ action: z.literal("thread.reply"), propertyId: id, threadId: id, body: z.string().min(1).max(20000), manual: z.boolean().optional() }),
   z.object({ action: z.literal("thread.note"), propertyId: id, threadId: id, body: z.string().min(1).max(20000) }),
   z.object({ action: z.literal("thread.cancel"), propertyId: id, messageId: id }),
   z.object({
@@ -82,14 +83,21 @@ export async function POST(request: Request) {
     switch (cmd.action) {
       case "state": {
         const state = await rpc("state");
-        const setup = mailSetup();
+        const setup = await mailSetup();
         const inbox = state.inbox as { localPart: string } | null;
+        let suggestions: string[] = [];
+        if (setup.apiKey && !setup.receiving) suggestions = await receivingDomains().catch(() => []);
         return NextResponse.json({
           ...state,
-          inbox: inbox && setup.domain ? { ...inbox, address: inboxAddress(inbox.localPart) } : inbox,
-          mail: { receiving: setup.receiving, webhook: setup.webhook, sending: setup.sending, domain: setup.domain || null },
+          inbox: inbox && setup.domain ? { ...inbox, address: inboxAddress(inbox.localPart, setup.domain) } : inbox,
+          mail: { apiKey: setup.apiKey, receiving: setup.receiving, webhook: setup.webhook, domain: setup.domain || null, suggestions },
           webhookUrl: `${origin}/api/cala/inbound-email/`,
         });
+      }
+      case "mail.configure": {
+        await rpc("state"); // channel.manage required
+        const r = await configureMail(cmd.domain, `${origin}/api/cala/inbound-email/`);
+        return NextResponse.json({ ok: true, domain: r.domain });
       }
       case "calendar.inspect": {
         await rpc("state"); // permission gate before the server fetches anything
@@ -154,21 +162,14 @@ export async function POST(request: Request) {
       }
       case "inbox.enable": {
         const r = await rpc("inbox.enable");
-        const setup = mailSetup();
-        return NextResponse.json({ localPart: r.localPart, address: setup.domain ? inboxAddress(String(r.localPart)) : null });
+        const setup = await mailSetup();
+        return NextResponse.json({ localPart: r.localPart, address: setup.domain ? inboxAddress(String(r.localPart), setup.domain) : null });
       }
       case "inbox.list":
         return NextResponse.json(await rpc("inbox.list"));
-      case "thread.reply": {
-        const r = await rpc("thread.reply", { threadId: cmd.threadId, body: cmd.body });
-        let delivery: unknown = null;
-        try {
-          delivery = await deliverOutbox(5);
-        } catch {
-          /* stays queued; the cron retries */
-        }
-        return NextResponse.json({ ...r, delivery });
-      }
+      case "thread.reply":
+        // Replies are sent inside the OTA (copy + open); CALA records them.
+        return NextResponse.json(await rpc("thread.reply", { threadId: cmd.threadId, body: cmd.body, manual: true }));
       case "thread.note":
         return NextResponse.json(await rpc("thread.note", { threadId: cmd.threadId, body: cmd.body }));
       case "thread.cancel":

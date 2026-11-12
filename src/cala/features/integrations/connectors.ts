@@ -41,7 +41,7 @@ export interface ConnectorState {
   inbox: { localPart: string; address?: string; createdAt: string } | null;
   emails: InboundEmail[];
   outbound: { sent: number; failed: number; lastSentAt: string | null };
-  mail: { receiving: boolean; webhook: boolean; sending: boolean; domain: string | null };
+  mail: { apiKey: boolean; receiving: boolean; webhook: boolean; domain: string | null; suggestions: string[] };
   webhookUrl: string;
 }
 
@@ -131,6 +131,8 @@ export interface OtaGuide {
   note?: string;
   /** Domains that send this OTA's guest-message e-mails. */
   mailDomain: string;
+  /** Where the host answers guests when the e-mail has no direct thread link. */
+  inbox: string;
 }
 
 export const otaGuides: Record<ConnectorProvider, OtaGuide> = {
@@ -153,6 +155,7 @@ export const otaGuides: Record<ConnectorProvider, OtaGuide> = {
     ],
     urlExample: "https://www.airbnb.com/calendar/ical/12345678.ics?s=…",
     mailDomain: "airbnb.com",
+    inbox: "https://www.airbnb.com/hosting/inbox",
   },
   booking: {
     id: "booking",
@@ -173,6 +176,7 @@ export const otaGuides: Record<ConnectorProvider, OtaGuide> = {
     urlExample: "https://ical.booking.com/v1/export?t=…",
     note: "Booking.com solo permite sincronizar por iCal en habitaciones con una unidad disponible.",
     mailDomain: "booking.com",
+    inbox: "https://admin.booking.com",
   },
   vrbo: {
     id: "vrbo",
@@ -191,6 +195,7 @@ export const otaGuides: Record<ConnectorProvider, OtaGuide> = {
     ],
     urlExample: "https://www.vrbo.com/icalendar/…ics",
     mailDomain: "vrbo.com",
+    inbox: "https://www.vrbo.com/p",
   },
   expedia: {
     id: "expedia",
@@ -207,6 +212,7 @@ export const otaGuides: Record<ConnectorProvider, OtaGuide> = {
     urlExample: "https://…expedia…/calendar.ics",
     note: "Expedia solo ofrece iCal en alquileres vacacionales; los hoteles necesitan un channel manager certificado.",
     mailDomain: "expedia.com",
+    inbox: "https://apps.expediapartnercentral.com",
   },
   other: {
     id: "other",
@@ -221,6 +227,7 @@ export const otaGuides: Record<ConnectorProvider, OtaGuide> = {
     importSteps: ["En la misma plataforma, busca «Importar calendario» y pega el enlace de CALA."],
     urlExample: "https://…/calendar.ics",
     mailDomain: "",
+    inbox: "",
   },
 };
 export const otaOrder: ConnectorProvider[] = ["airbnb", "booking", "vrbo", "expedia", "other"];

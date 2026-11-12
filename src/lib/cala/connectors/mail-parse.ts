@@ -7,6 +7,8 @@ export interface ParsedMail {
   replyTo: string | null;
   guestName: string | null;
   externalCode: string | null;
+  /** Link that opens this conversation inside the OTA. */
+  threadUrl: string | null;
   subject: string;
   body: string;
   summary: string;
@@ -72,6 +74,25 @@ function guestFrom(fromName: string, subject: string): string | null {
   return null;
 }
 
+const threadLinks: Record<CalendarProvider, RegExp | null> = {
+  airbnb: /^https:\/\/(www\.)?airbnb\.[a-z.]+\/(hosting\/(inbox|thread|messages)|messaging|z\/q|guest\/messages)[^\s"'<>)]*/i,
+  booking: /^https:\/\/admin\.booking\.com\/[^\s"'<>)]*(messag|inbox|reservation)[^\s"'<>)]*/i,
+  vrbo: /^https:\/\/(www\.)?vrbo\.com\/(p\/|supply\/|traveler\/)?[^\s"'<>)]*(inbox|conversation|messag)[^\s"'<>)]*/i,
+  expedia: /^https:\/\/apps\.expediapartnercentral\.com\/[^\s"'<>)]*(messag|inbox|conversation)[^\s"'<>)]*/i,
+  other: null,
+};
+/** The OTA link that opens the conversation (from the e-mail's buttons). */
+export function threadUrlFrom(provider: CalendarProvider | null, html: string | null, text: string) {
+  const re = provider ? threadLinks[provider] : null;
+  if (!re) return null;
+  const urls = [
+    ...(html?.match(/href\s*=\s*["']([^"']+)["']/gi) ?? []).map((h) => h.replace(/^href\s*=\s*["']|["']$/gi, "")),
+    ...(text.match(/https:\/\/[^\s"'<>)\]]+/g) ?? []),
+  ].map((u) => u.replace(/&amp;/g, "&"));
+  const hit = urls.find((u) => re.test(u));
+  return hit && hit.length <= 1000 ? hit : null;
+}
+
 function codeFrom(provider: CalendarProvider | null, text: string): string | null {
   if (provider === "airbnb") return /\bHM[A-Z0-9]{8}\b/.exec(text)?.[0] ?? null;
   if (provider === "booking")
@@ -108,7 +129,7 @@ export function parseInbound(mail: IncomingMail): ParsedMail {
   const from = mail.from ?? "";
   const fromAddress = address(from);
   const subject = (mail.subject ?? "").trim().slice(0, 300);
-  const base = { subject, replyTo: null, guestName: null, externalCode: null, body: "", provider: null };
+  const base = { subject, replyTo: null, guestName: null, externalCode: null, threadUrl: null, body: "", provider: null };
 
   if (/forwarding-noreply@google\.com/i.test(fromAddress) || /(forwarding confirmation|confirmación de reenvío|confirmar el reenvío)/i.test(subject)) {
     const code = /(?:confirmation code|código de confirmación)\D{0,12}(\d{6,12})/i.exec(text)?.[1] ?? /\b(\d{9})\b/.exec(text)?.[1] ?? "";
@@ -134,6 +155,7 @@ export function parseInbound(mail: IncomingMail): ParsedMail {
     replyTo: replies[0] ?? null,
     guestName: guestFrom(fromName, subject),
     externalCode: codeFrom(provider, `${subject}\n${text}`),
+    threadUrl: threadUrlFrom(provider, mail.html, text),
     subject,
     body: body || subject || "(Mensaje sin texto)",
     summary: (body || subject).slice(0, 200),

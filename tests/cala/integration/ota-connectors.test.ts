@@ -214,3 +214,32 @@ test("e-mail relay threads inbound messages, queues replies and records bounces"
   await as(ids.house);
   await expect(connector({ type: "inbox.list" })).rejects.toThrow();
 });
+
+test("simplified relay: settings stored, threads keyed by OTA link, replies recorded as sent from the OTA", async () => {
+  await as(null);
+  await db.query("select public.pms_service_mail_settings_save('abcd.resend.app','wh_1','whsec_x')");
+  expect((await db.query<{ r: Record<string, string> }>("select public.pms_service_mail_settings() r")).rows[0].r).toEqual({
+    domain: "abcd.resend.app",
+    webhookId: "wh_1",
+    webhookSecret: "whsec_x",
+  });
+  await as(ids.user);
+  const { localPart } = await connector({ type: "inbox.enable" });
+  await as(null);
+  const link = "https://www.airbnb.com/hosting/inbox/folder/all/thread/987";
+  const send = (resendId: string, guestName: string) =>
+    db.query<{ r: Record<string, string> }>("select public.pms_service_inbound($1::jsonb) r", [
+      JSON.stringify({ localPart, kind: "message", provider: "airbnb", guestName, externalUrl: link, resendId, body: "Hola" }),
+    ]);
+  const a = (await send("s1", "Marta")).rows[0].r;
+  const b = (await send("s2", "Marta R.")).rows[0].r;
+  expect(b.threadId).toBe(a.threadId);
+  await as(ids.user);
+  const r = await connector({ type: "thread.reply", threadId: a.threadId, body: "¡Claro!", manual: true });
+  expect(r.status).toBe("recorded");
+  const list = await connector({ type: "inbox.list" });
+  const thread = (list.threads as Array<Record<string, unknown>>).find((t) => t.id === a.threadId);
+  expect(thread?.externalUrl).toBe(link);
+  // Settings are never readable by operators.
+  await expect(db.query("select public.pms_service_mail_settings()")).rejects.toThrow();
+});

@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { markBounced, receiveEmail } from "@/lib/cala/connectors/mail";
+import { mailSetup, receiveEmail } from "@/lib/cala/connectors/mail";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 /**
- * Resend webhook: `email.received` for the CALA relay addresses and
- * `email.bounced` for replies an OTA refused. Signed with RESEND_WEBHOOK_SECRET.
+ * Resend webhook (`email.received`) for the CALA relay addresses. The webhook
+ * and its signing secret are created by the message assistant.
  */
 export async function POST(request: Request) {
-  const secret = process.env.RESEND_WEBHOOK_SECRET?.trim();
+  const { secret } = await mailSetup();
   if (!secret) return NextResponse.json({ error: "not configured" }, { status: 503 });
   const payload = await request.text();
   let event;
@@ -29,8 +29,6 @@ export async function POST(request: Request) {
   }
   try {
     if (event.type === "email.received") await receiveEmail(event.data);
-    else if (event.type === "email.bounced")
-      await markBounced(event.data.email_id, event.data.bounce?.message ?? "rebote");
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("[inbound-email]", error);

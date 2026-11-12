@@ -13,7 +13,7 @@ import {
 } from "@/cala/features/integrations/connectors";
 import { copyText, OtaMark } from "@/cala/features/integrations/calendar-assistant";
 
-const steps = ["Servidor", "Tu dirección", "Reenvío", "Prueba real", "Respuestas"] as const;
+const steps = ["Conectar", "Reenvío", "Prueba real", "Responder"] as const;
 const mailOtas: ConnectorProvider[] = ["airbnb", "booking", "vrbo", "expedia"];
 type MailApp = "gmail" | "outlook" | "other";
 
@@ -27,27 +27,29 @@ function mailAppFor(email: string): MailApp | null {
 
 /**
  * Connects only OTA guest messages, through e-mail forwarding. Every step is
- * proven with real data: server checks, the forwarding confirmation and a real
- * OTA e-mail arriving at the CALA address.
+ * proven with real data: Resend configured by CALA itself, the forwarding
+ * confirmation and a real OTA e-mail arriving at the CALA address.
  */
 export function MessageAssistant({ onClose }: { onClose: () => void }) {
   const { data, can } = useWorkspace();
   const propertyId = data.currentPropertyId;
   const [step, setStep] = useState(0);
   const [otas, setOtas] = useState<ConnectorProvider[]>(["airbnb", "booking"]);
+  const [receiving, setReceiving] = useState("");
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState("");
   const [testSince, setTestSince] = useState<string | null>(null);
   const [forwardSince] = useState(() => new Date(Date.now() - 30 * 60000).toISOString());
-  const { state, refresh } = useConnectorState(propertyId, step === 2 || step === 3 ? 4000 : 0);
+  const { state, refresh } = useConnectorState(propertyId, step === 1 || step === 2 ? 4000 : 0);
   const mail = state?.mail;
-  const serverReady = Boolean(mail?.receiving && mail.webhook && mail.sending);
+  const ready = Boolean(mail?.apiKey && mail.receiving && mail.webhook);
   const address = state?.inbox?.address ?? null;
   const app = mailAppFor(email);
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
-  const filter = `from:(${otas.map((o) => otaGuides[o].mailDomain).filter(Boolean).join(" OR ")})`;
+  const domains = otas.map((o) => otaGuides[o].mailDomain).filter(Boolean);
+  const filter = `from:(${domains.join(" OR ")})`;
   const forwarding = state?.emails.find((e) => e.kind === "forwarding" && e.receivedAt >= forwardSince);
   const forwardingInfo = (() => {
     try {
@@ -58,19 +60,25 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
   })();
   const testEmails = testSince ? (state?.emails ?? []).filter((e) => e.receivedAt >= testSince) : [];
   const testOk = testEmails.find((e) => e.kind === "message");
+  const receivingFormat = /^([^\s@]+@)?[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(receiving.trim());
 
-  async function enable() {
+  async function run(work: () => Promise<unknown>) {
     setBusy(true);
     setError("");
     try {
-      await connector("inbox.enable", { propertyId });
+      await work();
       await refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "No se pudo crear la dirección.");
+      setError(e instanceof Error ? e.message : "No se pudo completar. Inténtalo de nuevo.");
     } finally {
       setBusy(false);
     }
   }
+  const connect = () =>
+    run(async () => {
+      if (!ready) await connector("mail.configure", { propertyId, domain: receiving.trim() });
+      if (!state?.inbox) await connector("inbox.enable", { propertyId });
+    });
   async function copy(key: string, text: string) {
     if (await copyText(text)) {
       setCopied(key);
@@ -79,8 +87,7 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
   }
   function go(next: number) {
     setError("");
-    if (next === 1 && !state?.inbox) void enable();
-    if (next === 3 && !testSince) setTestSince(new Date(Date.now() - 5000).toISOString());
+    if (next === 2 && !testSince) setTestSince(new Date(Date.now() - 5000).toISOString());
     setStep(next);
   }
   const copyButton = (key: string, text: string, label = "Copiar") => (
@@ -95,6 +102,12 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
       {text}
     </li>
   );
+  const addressBox = address && (
+    <div className="cx-copy">
+      <input readOnly value={address} aria-label="Dirección de CALA" onFocus={(e) => e.currentTarget.select()} />
+      {copyButton("address", address)}
+    </div>
+  );
 
   if (!can("channel.manage"))
     return (
@@ -103,13 +116,7 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
       </Modal>
     );
 
-  const canNext = [
-    serverReady,
-    Boolean(address),
-    emailOk,
-    Boolean(testOk),
-    true,
-  ][step];
+  const canNext = [ready && Boolean(address), emailOk, Boolean(testOk), true][step];
 
   return (
     <Modal title="Asistente de mensajes de OTAs" onClose={onClose} wide>
@@ -128,7 +135,7 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
             <>
               <h3>Mensajes de tus OTAs en CALA</h3>
               <p className="muted">
-                Airbnb, Booking.com, Vrbo y Expedia te avisan por correo cuando un huésped escribe. Reenviaremos esos avisos a una dirección privada de CALA: el mensaje aparece en la bandeja y tu respuesta vuelve al chat de la OTA. Solo conecta mensajes; no toca calendarios ni precios.
+                Airbnb, Booking.com, Vrbo y Expedia te avisan por correo cuando un huésped escribe. Reenvías esos avisos a una dirección de CALA y cada mensaje aparece en la bandeja, unido a su reserva. Solo conecta mensajes.
               </p>
               <fieldset className="ota-fieldset">
                 <legend>¿De qué OTAs recibes mensajes?</legend>
@@ -147,55 +154,77 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
                   ))}
                 </div>
               </fieldset>
-              <h4>Comprobación del servidor</h4>
               {!state ? (
                 <p className="ota-inline" role="status">
                   <Icon name="spinner" size={16} /> Comprobando…
                 </p>
-              ) : (
-                <ul className="ota-verify">
-                  {check(Boolean(mail?.receiving), mail?.receiving ? `Recepción de correo activa (@${mail.domain})` : "Falta el dominio de recepción (CALA_INBOUND_DOMAIN)")}
-                  {check(Boolean(mail?.webhook), mail?.webhook ? "Aviso de correo entrante protegido" : "Falta la clave del webhook (RESEND_WEBHOOK_SECRET)")}
-                  {check(Boolean(mail?.sending), mail?.sending ? "Envío de respuestas activo" : "Falta la clave de envío (RESEND_API_KEY)")}
-                </ul>
-              )}
-              {state && !serverReady && (
+              ) : !mail?.apiKey ? (
                 <div className="notice warning">
-                  <p>
-                    <strong>Esto lo configura una sola vez quien administra el sitio:</strong>
-                  </p>
-                  <ol className="cx-steps">
-                    <li>En Resend → Domains, añade un dominio de recepción (por ejemplo inbox.casacaballosonador.com) y crea su registro MX; o usa el dominio .resend.app que Resend te da.</li>
-                    <li>
-                      En Resend → Webhooks, crea uno con la URL <code>{state.webhookUrl}</code> y los eventos «email.received» y «email.bounced».
-                    </li>
-                    <li>En Vercel → Settings → Environment Variables añade CALA_INBOUND_DOMAIN, RESEND_WEBHOOK_SECRET (la clave del webhook) y RESEND_API_KEY, y vuelve a desplegar.</li>
-                  </ol>
+                  <p>Falta la clave de Resend en el servidor (RESEND_API_KEY). Agrégala en Vercel → Settings → Environment Variables y vuelve a desplegar.</p>
                   <button type="button" className="button secondary" onClick={() => void refresh()}>
                     <Icon name="sync" size={16} /> Volver a comprobar
                   </button>
                 </div>
-              )}
-            </>
-          )}
-          {step === 1 && (
-            <>
-              <h3>Tu dirección privada de CALA</h3>
-              <p className="muted">Todo lo que llegue aquí se guarda en la bandeja de esta propiedad. No la publiques: úsala solo para reenviar los avisos de las OTAs.</p>
-              {address ? (
-                <div className="cx-copy">
-                  <input readOnly value={address} aria-label="Dirección de CALA" onFocus={(e) => e.currentTarget.select()} />
-                  {copyButton("address", address)}
-                </div>
+              ) : ready && address ? (
+                <>
+                  <ul className="ota-verify">
+                    {check(true, `Resend conectado (@${mail.domain})`)}
+                    {check(true, "Tu dirección privada de CALA está lista")}
+                  </ul>
+                  {addressBox}
+                </>
               ) : (
-                <p className="ota-inline" role="status">
-                  <Icon name="spinner" size={16} /> Creando tu dirección…
+                <>
+                  {!ready && (<>
+                  <h4>Conecta Resend (una sola vez)</h4>
+                  <ol className="cx-steps">
+                    <li>
+                      Abre <a href="https://resend.com/emails/receiving" target="_blank" rel="noreferrer">Resend → Emails → Receiving</a>.
+                    </li>
+                    <li>Pulsa los tres puntos (⋯) → «Receiving address» y copia la dirección (termina en .resend.app).</li>
+                    <li>Pégala aquí y pulsa «Conectar». CALA crea el webhook en Resend por ti.</li>
+                  </ol>
+                  <label className="field">
+                    <span>Dirección de recepción de Resend</span>
+                    <input
+                      inputMode="email"
+                      spellCheck={false}
+                      value={receiving}
+                      placeholder="algo@abcd1234.resend.app"
+                      aria-invalid={Boolean(receiving) && !receivingFormat}
+                      onChange={(e) => setReceiving(e.target.value)}
+                    />
+                  </label>
+                  {mail?.suggestions?.length ? (
+                    <p className="muted">
+                      También puedes usar tu dominio con recepción activa:{" "}
+                      {mail.suggestions.map((d) => (
+                        <button key={d} type="button" className="button secondary" onClick={() => setReceiving(d)}>
+                          {d}
+                        </button>
+                      ))}
+                    </p>
+                  ) : null}
+                  {receiving && !receivingFormat && (
+                    <p className="ota-inline bad">
+                      <Icon name="warning" size={16} /> Pega la dirección completa, por ejemplo algo@abcd1234.resend.app.
+                    </p>
+                  )}
+                  </>)}
+                  <button type="button" className="button primary" disabled={busy || (!mail?.receiving && !receivingFormat)} onClick={() => void connect()}>
+                    {busy ? <Icon name="spinner" size={16} /> : <Icon name="webhook" size={16} />}
+                    {busy ? "Conectando…" : "Conectar"}
+                  </button>
+                </>
+              )}
+              {error && (
+                <p className="notice error" role="alert">
+                  {error}
                 </p>
               )}
-              {error && <p className="notice error">{error}</p>}
             </>
           )}
-          {step === 2 && address && (
+          {step === 1 && address && (
             <>
               <h3>Reenvía los avisos a CALA</h3>
               <label className="field">
@@ -216,15 +245,14 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
                     <li>Pulsa «Añadir una dirección de reenvío», pega tu dirección de CALA y pulsa «Siguiente» → «Continuar».</li>
                     <li>Gmail enviará un código a CALA. Aparecerá aquí abajo en unos segundos.</li>
                   </ol>
-                  <div className="cx-copy">
-                    <input readOnly value={address} aria-label="Dirección de CALA" />
-                    {copyButton("address", address)}
-                  </div>
+                  {addressBox}
                   <ul className="ota-verify" aria-live="polite">
                     {check(
                       Boolean(forwardingInfo),
                       forwardingInfo
-                        ? `Gmail envió la confirmación ${timeAgo(forwarding!.receivedAt)}${forwardingInfo.code ? `. Código: ${forwardingInfo.code}` : ""}`
+                        ? forwardingInfo.code
+                          ? `Gmail envió la confirmación ${timeAgo(forwarding!.receivedAt)}. Código: ${forwardingInfo.code}`
+                          : `Gmail envió la confirmación ${timeAgo(forwarding!.receivedAt)}`
                         : "Esperando el código de confirmación de Gmail…",
                       !forwardingInfo,
                     )}
@@ -264,13 +292,10 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
                     <li>
                       Abre <a href="https://outlook.live.com/mail/0/options/mail/rules" target="_blank" rel="noreferrer">Outlook → Configuración → Correo → Reglas</a> y pulsa «Agregar nueva regla».
                     </li>
-                    <li>Nombre: «CALA». Condición: «De» → escribe {otas.map((o) => otaGuides[o].mailDomain).join(", ")}.</li>
+                    <li>Nombre: «CALA». Condición: «De» → escribe {domains.join(", ")}.</li>
                     <li>Acción: «Reenviar a» → pega tu dirección de CALA. Guarda.</li>
                   </ol>
-                  <div className="cx-copy">
-                    <input readOnly value={address} aria-label="Dirección de CALA" />
-                    {copyButton("address", address)}
-                  </div>
+                  {addressBox}
                   <p className="muted">Si Outlook avisa que el reenvío externo está bloqueado, actívalo en Configuración → Correo → Reenvío.</p>
                 </>
               )}
@@ -278,31 +303,23 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
                 <>
                   <ol className="cx-steps">
                     <li>En la configuración de tu correo busca «Reglas», «Filtros» o «Reenvío».</li>
-                    <li>Crea una regla: si el remitente contiene {listOf(otas.map((o) => otaGuides[o].mailDomain), "disjunction")}, reenviar a tu dirección de CALA.</li>
+                    <li>Crea una regla: si el remitente contiene {listOf(domains, "disjunction")}, reenviar a tu dirección de CALA.</li>
                     <li>Si tu correo pide confirmar la dirección, el aviso llegará a CALA y lo verás en el siguiente paso.</li>
                   </ol>
-                  <div className="cx-copy">
-                    <input readOnly value={address} aria-label="Dirección de CALA" />
-                    {copyButton("address", address)}
-                  </div>
+                  {addressBox}
                 </>
               )}
             </>
           )}
-          {step === 3 && (
+          {step === 2 && (
             <>
               <h3>Prueba con un correo real</h3>
               <p className="muted">
                 Reenvía a tu dirección de CALA un aviso de mensaje que ya tengas de {listOf(otas.map((o) => otaGuides[o].label), "disjunction")} (por ejemplo «Nuevo mensaje de…»). Con el filtro activo, los siguientes llegarán solos.
               </p>
-              {address && (
-                <div className="cx-copy">
-                  <input readOnly value={address} aria-label="Dirección de CALA" />
-                  {copyButton("address", address)}
-                </div>
-              )}
+              {addressBox}
               <ul className="ota-verify" aria-live="polite">
-                {check(testEmails.length > 0, testEmails.length ? `Llegaron ${testEmails.length} ${testEmails.length === 1 ? "correo" : "correos"} a CALA` : "Esperando un correo…", !testEmails.length)}
+                {check(testEmails.length > 0, testEmails.length ? (testEmails.length === 1 ? `Llegaron ${testEmails.length} correo a CALA` : `Llegaron ${testEmails.length} correos a CALA`) : "Esperando un correo…", !testEmails.length)}
                 {testEmails.length > 0 &&
                   check(
                     Boolean(testOk),
@@ -318,7 +335,7 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
                       <strong>{e.subject || "(sin asunto)"}</strong>
                       <small>
                         {e.from} · {dateTime(e.receivedAt)} ·{" "}
-                        {e.kind === "message" ? (e.threadId ? "en la bandeja" : "mensaje") : e.kind === "forwarding" ? "confirmación de reenvío" : e.kind === "bounce" ? "rebote" : "no es de una OTA"}
+                        {e.kind === "message" ? "en la bandeja" : e.kind === "forwarding" ? "confirmación de reenvío" : "no es de una OTA"}
                       </small>
                     </li>
                   ))}
@@ -326,25 +343,16 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
               )}
             </>
           )}
-          {step === 4 && (
+          {step === 3 && (
             <div className="ota-done">
               <span className="ota-done-mark" aria-hidden="true">
                 <Icon name="check" size={34} />
               </span>
               <h3>Los mensajes de tus OTAs ya llegan a CALA</h3>
-              <ul className="ota-verify cx-final">
-                {check(true, "Correos de OTAs recibidos y vinculados a la bandeja")}
-                {check(
-                  Boolean(state?.outbound.sent),
-                  state?.outbound.sent
-                    ? `Respuestas enviadas: ${state.outbound.sent}${state.outbound.failed ? ` · ${state.outbound.failed} rechazadas` : ""}`
-                    : "Respuestas: aún no envías ninguna. Responde una conversación para probarlo.",
-                )}
-              </ul>
               <ol className="ota-next">
-                <li>Al responder desde CALA, el correo sale hacia la dirección de respuesta de la OTA y aparece en su chat con el huésped.</li>
-                <li>Si la OTA rechaza una respuesta, el mensaje se marca «No entregado» con el motivo, para que respondas desde la OTA.</li>
-                <li>Las conversaciones solo pueden responderse cuando el huésped escribió primero (la OTA da la dirección de respuesta en su aviso).</li>
+                <li>Cada mensaje aparece en Mensajes, unido a su reserva cuando CALA la reconoce.</li>
+                <li>Para responder, escribe en CALA (con plantillas si quieres) y pulsa «Copiar y abrir en Airbnb» (o la OTA que sea): se abre esa conversación con tu texto copiado; solo pegas y envías.</li>
+                <li>Así la respuesta sale por el chat oficial de la OTA, que es lo que Airbnb y Booking.com exigen, y queda registrada en CALA.</li>
               </ol>
               <button type="button" className="button primary" onClick={onClose}>
                 Ir a la bandeja
@@ -352,7 +360,7 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
             </div>
           )}
         </section>
-        {step < 4 && (
+        {step < 3 && (
           <footer className="ota-foot">
             {step > 0 ? (
               <button type="button" className="button secondary" disabled={busy} onClick={() => go(step - 1)}>
@@ -363,7 +371,7 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
               <span />
             )}
             <button type="button" className="button primary" disabled={!canNext || busy} onClick={() => go(step + 1)}>
-              {step === 3 ? (testOk ? "Verificado, continuar" : "Esperando el correo…") : "Continuar"}
+              {step === 2 ? (testOk ? "Verificado, continuar" : "Esperando el correo…") : "Continuar"}
               <Icon name="chevron-right" size={16} />
             </button>
           </footer>

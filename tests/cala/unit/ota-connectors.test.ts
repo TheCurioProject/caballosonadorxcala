@@ -49,7 +49,7 @@ test("an auto-forwarded Airbnb message keeps the relay reply address and the gue
     replyTo: ["4f1c2a9b@reply.airbnb.com"],
     subject: "RE: Reserva en Casa Caballo para 2–5 ene 2027",
     text: "Hola, ¿a qué hora podemos llegar?\n\nResponder\nhttps://www.airbnb.com/messaging/1\nAirbnb, Inc. 888 Brannan St",
-    html: null,
+    html: '<a href="https://www.airbnb.com/hosting/inbox/folder/all/thread/123?c=x&amp;euid=1">Responder</a>',
   });
   expect(parsed).toMatchObject({
     kind: "message",
@@ -57,6 +57,7 @@ test("an auto-forwarded Airbnb message keeps the relay reply address and the gue
     replyTo: "4f1c2a9b@reply.airbnb.com",
     guestName: "Ana",
     body: "Hola, ¿a qué hora podemos llegar?",
+    threadUrl: "https://www.airbnb.com/hosting/inbox/folder/all/thread/123?c=x&euid=1",
   });
 });
 
