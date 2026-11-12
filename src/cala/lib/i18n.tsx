@@ -12,6 +12,7 @@ import {
 import { browserPreferences } from "@/cala/lib/browser-preferences";
 import { catalog } from "@/cala/lib/i18n-catalog";
 import { catalog2 } from "@/cala/lib/i18n-catalog-2";
+import { catalog3 } from "@/cala/lib/i18n-catalog-3";
 import { advisorEnglish } from "@/cala/domain/analytics/advisor";
 
 export type Locale = "es" | "en";
@@ -276,6 +277,7 @@ const base: Record<string, string> = {
 const english: Record<string, string> = {
   ...catalog,
   ...catalog2,
+  ...catalog3,
   ...advisorEnglish,
   ...base,
 };
@@ -289,10 +291,17 @@ function interpolate(message: string, values?: Values) {
 }
 
 export function translate(locale: Locale, source: string, values?: Values) {
-  return interpolate(
-    locale === "en" ? (english[source] ?? source) : source,
-    values,
-  );
+  if (locale !== "en") return interpolate(source, values);
+  // Values are often Spanish labels themselves (niches, statuses, stored text).
+  const translated = values
+    ? (Object.fromEntries(
+        Object.entries(values).map(([k, v]) => [
+          k,
+          typeof v === "string" ? (english[v] ?? v) : v,
+        ]),
+      ) as Values)
+    : values;
+  return interpolate(english[source] ?? source, translated);
 }
 
 let memoryLocale: Locale | undefined;
@@ -389,6 +398,8 @@ export function intlLocale(locale: Locale) {
 /* ------------------------------------------------------------------------ */
 const ATTRIBUTES = ["placeholder", "title", "aria-label", "alt"] as const;
 const SKIP = "script,style,textarea,code,pre,[contenteditable],[data-no-translate],[translate='no']";
+// A textarea's typed content is never touched, but its placeholder/label are UI.
+const ATTR_SKIP = "script,style,code,pre,[contenteditable],[data-no-translate],[translate='no']";
 let patterns: Array<[RegExp, string, string[]]> | null = null;
 function compiledPatterns() {
   if (patterns) return patterns;
@@ -415,7 +426,7 @@ function compiledPatterns() {
     });
   return patterns;
 }
-export function translateLoose(text: string): string | null {
+export function translateLoose(text: string, depth = 0): string | null {
   const trimmed = text.replace(/\s+/g, " ").trim();
   if (!trimmed || !/[A-Za-zÁÉÍÓÚÑáéíóúñ¿¡]/.test(trimmed)) return null;
   const direct = english[trimmed];
@@ -426,21 +437,68 @@ export function translateLoose(text: string): string | null {
     if (!match) continue;
     let out = value;
     names.forEach((name, i) => {
-      out = out.replaceAll(`{${name}}`, match[i + 1]);
+      // A value can itself be a catalog sentence (e.g. a stored server error).
+      const value = match[i + 1];
+      const inner = depth < 2 ? translateLoose(value, depth + 1) : null;
+      out = out.replaceAll(`{${name}}`, inner ?? value);
     });
     return text.replace(text.trim(), out);
   }
   return null;
 }
-const textOriginal = new Map<Text, { source: string; shown: string }>();
+const textOriginal = new Map<Text, { source: string; shown: string; joined?: boolean }>();
 const attrOriginal = new Map<Element, Record<string, { source: string; shown: string }>>();
 let observer: MutationObserver | null = null;
 
+/** Current source text of a node: what React rendered, not what we displayed. */
+function sourceOf(node: Text) {
+  const known = textOriginal.get(node);
+  const value = node.nodeValue ?? "";
+  return known && known.shown === value ? known.source : value;
+}
+/**
+ * JSX such as `{n} fechas coinciden con…` renders one sentence as several
+ * sibling text nodes, which never match a catalog key on their own. When an
+ * element holds only text nodes, translate the joined sentence and show it in
+ * the first node (the others are emptied; their sources are kept to restore
+ * them and to re-translate when React updates any part).
+ */
+function translateJoined(parent: Element): boolean {
+  const nodes = parent.childNodes;
+  if (nodes.length < 2 || nodes.length > 16) return false;
+  const texts: Text[] = [];
+  for (const n of nodes) {
+    if (n.nodeType === Node.TEXT_NODE) texts.push(n as Text);
+    // Icons and other text-less elements may sit around the sentence.
+    else if (n.nodeType !== Node.ELEMENT_NODE || (n.textContent ?? "").trim()) return false;
+  }
+  if (texts.length < 2) return false;
+  const sources = texts.map(sourceOf);
+  const out = translateLoose(sources.join(""));
+  if (out === null) {
+    // Undo only a previous joined rendering; single-node translations stay.
+    texts.forEach((t, i) => {
+      const known = textOriginal.get(t);
+      if (!known?.joined) return;
+      textOriginal.delete(t);
+      if (t.nodeValue !== sources[i]) t.nodeValue = sources[i];
+    });
+    return false;
+  }
+  texts.forEach((t, i) => {
+    const shown = i === 0 ? out : "";
+    textOriginal.set(t, { source: sources[i], shown, joined: true });
+    if (t.nodeValue !== shown) t.nodeValue = shown;
+  });
+  return true;
+}
 function translateTextNode(node: Text) {
   const value = node.nodeValue ?? "";
   const known = textOriginal.get(node);
   if (known && known.shown === value) return;
   if (node.parentElement?.closest(SKIP)) return;
+  if (node.parentElement && translateJoined(node.parentElement)) return;
+  if (node.nodeValue !== value) return; // restored; its own mutation re-runs this
   const out = translateLoose(value);
   if (out === null || out === value) {
     if (known) textOriginal.delete(node);
@@ -450,7 +508,7 @@ function translateTextNode(node: Text) {
   node.nodeValue = out;
 }
 function translateAttributes(element: Element) {
-  if (element.closest(SKIP)) return;
+  if (element.closest(ATTR_SKIP)) return;
   for (const name of ATTRIBUTES) {
     const value = element.getAttribute(name);
     if (!value) continue;

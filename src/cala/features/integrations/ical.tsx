@@ -36,8 +36,8 @@ function PropertyIcalPanel() {
     <section className="panel padded" style={{ marginTop: 24 }}>
       <h3>Compartir disponibilidad</h3>
       <p className="muted">
-        Calendario público para tu web y enlace iCal por unidad, sin nombres de
-        huéspedes ni tarifas.{" "}
+        Calendario público para tu web y enlace iCal general por unidad, sin
+        nombres de huéspedes ni tarifas.{" "}
         {data.development &&
           "En desarrollo, los enlaces funcionan sólo en este equipo. "}
         La importación acepta archivos de día completo, sin recurrencias.
@@ -94,20 +94,21 @@ function PropertyIcalPanel() {
         >
           Revocar enlace
         </button>
-        <button
-          className="button primary"
-          disabled={!unitId || !data.development}
-          onClick={() => setOpen(true)}
-        >
-          Importar iCal
-        </button>
+        {data.development && (
+          <button
+            className="button secondary"
+            disabled={!unitId}
+            onClick={() => setOpen(true)}
+          >
+            Importar archivo iCal (desarrollo)
+          </button>
+        )}
       </div>
-      {!data.development && (
-        <p className="muted">
-          Los calendarios externos (iCal) de cada unidad se importan aquí. Los
-          enlaces que ya existían siguen sincronizando automáticamente.
-        </p>
-      )}
+      <p className="muted">
+        Para sincronizar con Airbnb, Booking.com o Vrbo usa «Conectar
+        calendario»: cada OTA recibe su propio enlace y CALA comprueba que lo
+        lea.
+      </p>
       {importId && (
         <div
           className={`notice ${importJob?.status === "dead_letter" ? "error" : ""}`}

@@ -1,13 +1,14 @@
 import { failure } from "@/cala/infrastructure/http/server";
 import { publicCalendar } from "@/cala/infrastructure/public-calendar";
 import { exportCalendar } from "@/cala/domain/distribution/ical";
+import { recordFeedFetch } from "@/lib/cala/connectors/calendar-sync";
 
 export async function GET(request: Request) {
   try {
-    const calendar = await publicCalendar(
-      request,
-      new URL(request.url).searchParams.get("token") ?? "",
-    );
+    const token = new URL(request.url).searchParams.get("token") ?? "";
+    const calendar = await publicCalendar(request, token);
+    // Proof for the connection assistant that the OTA really reads this feed.
+    await recordFeedFetch(token, request.headers.get("user-agent") ?? "");
     const stamp = new Date()
       .toISOString()
       .replace(/[-:]/g, "")

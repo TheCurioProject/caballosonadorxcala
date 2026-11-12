@@ -40,8 +40,8 @@ function PropertyTemplates() {
         )}
       </SectionTitle>
       <div className="notice">
-        Las reglas de fecha se guardan como configuración. Para activar su envío
-        automático hace falta conectar y validar un proveedor de mensajería.
+        Usa las plantillas al responder en Mensajes. Las reglas de fecha se
+        guardan como configuración; el envío automático aún no está activo.
       </div>
       <div className="card-grid">
         {templates.map((x) => (
