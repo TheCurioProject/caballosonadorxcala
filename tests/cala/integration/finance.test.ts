@@ -65,3 +65,58 @@ test("decimal money conversion is exact and rejects fractional cents", () => {
   expect(() => parseMoney("0.001")).toThrow();
   expect(() => parseMoney("1e2")).toThrow();
 });
+
+test("manual payments: record, edit and delete with permission and stripe lock", () => {
+  const store = new LocalPersistenceAdapter(":memory:", seedState),
+    app = new ApplicationService(store);
+  const actor = {
+    userId: "user-owner",
+    stepUpUntil: new Date(Date.now() + 300000).toISOString(),
+  };
+  const base = { organizationId: "org-estancia", propertyId: "property-hotel" };
+  const r = store
+    .read()
+    .reservations.find((r) => r.propertyId === base.propertyId)!;
+  const fields = {
+    concept: "prepayment",
+    method: "transfer",
+    amountMinor: 159000,
+    status: "succeeded",
+    paidOn: "2026-11-01",
+    note: "SPEI",
+  };
+  const created = app.execute(
+    actor,
+    { ...base, type: "payment.record", reservationId: r.id, ...fields },
+    "manual-pay-1",
+  );
+  let p = store.read().payments.find((x) => x.id === created.id)!;
+  expect(p).toMatchObject({ concept: "prepayment", method: "transfer", provider: "manual", amountMinor: 159000 });
+  expect(store.read().audits.some((a) => a.entityId === r.id && a.action === "payment.record")).toBe(true);
+  app.execute(
+    actor,
+    { ...base, type: "payment.update", id: created.id, ...fields, amountMinor: 100000, status: "pending" },
+    "manual-pay-2",
+  );
+  p = store.read().payments.find((x) => x.id === created.id)!;
+  expect([p.amountMinor, p.status]).toEqual([100000, "pending"]);
+  store.transaction((s) => {
+    s.payments.find((x) => x.id === created.id)!.provider = "stripe";
+  });
+  expect(() =>
+    app.execute(actor, { ...base, type: "payment.delete", id: created.id }, "manual-pay-3"),
+  ).toThrow();
+  store.transaction((s) => {
+    s.payments.find((x) => x.id === created.id)!.provider = "manual";
+  });
+  app.execute(actor, { ...base, type: "payment.delete", id: created.id }, "manual-pay-4");
+  expect(store.read().payments.some((x) => x.id === created.id)).toBe(false);
+  expect(() =>
+    app.execute(
+      { userId: "user-housekeeping", stepUpUntil: actor.stepUpUntil },
+      { ...base, type: "payment.record", reservationId: r.id, ...fields },
+      "manual-pay-5",
+    ),
+  ).toThrow();
+  store.close();
+});

@@ -1,5 +1,6 @@
 "use client";
 import { SetupScore } from "@/cala/components/ui/setup-score";
+import { netPaid } from "@/cala/domain/reservations/payments";
 import { useEffect, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { conceptLabels } from "@/cala/features/onboarding/screen";
@@ -69,9 +70,7 @@ export function Dashboard() {
   const total = data.folioItems
     .filter((i) => i.propertyId === p?.id)
     .reduce((a, b) => a + b.amountMinor, 0);
-  const paid = data.payments
-    .filter((i) => i.propertyId === p?.id && i.status === "succeeded")
-    .reduce((a, b) => a + b.amountMinor, 0);
+  const paid = netPaid(data.payments.filter((i) => i.propertyId === p?.id));
   return (
     <>
       <SectionTitle
@@ -497,9 +496,7 @@ function PropertyDetails({ id, onClose }: { id: string; onClose: () => void }) {
     data.folioItems
       .filter((i) => i.propertyId === id)
       .reduce((a, b) => a + b.amountMinor, 0) -
-    data.payments
-      .filter((i) => i.propertyId === id && i.status === "succeeded")
-      .reduce((a, b) => a + b.amountMinor, 0);
+    netPaid(data.payments.filter((i) => i.propertyId === id));
   const go = async (path: string) => {
     if (busy) return;
     setBusy(true);

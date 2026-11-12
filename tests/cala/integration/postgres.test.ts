@@ -1259,3 +1259,84 @@ test("SQL property manager: houses, rooms, rental mode and safe deletion", async
   ).rejects.toThrow();
   await db.exec("reset role");
 });
+test("SQL reservation payments: prepayment, deposit, edit, delete and stripe lock", async () => {
+  await as(ids.user);
+  const run = async (body: Record<string, unknown>, key: string) =>
+    (
+      await db.query<{ r: { id: string } }>(
+        "select public.pms_command($1::jsonb,$2) r",
+        [
+          JSON.stringify({ organizationId: ids.org, propertyId: ids.prop, ...body }),
+          key,
+        ],
+      )
+    ).rows[0].r;
+  const rid = (
+    await run(
+      { ...command, arrival: "2031-03-01", departure: "2031-03-04" },
+      "sql-pay-res",
+    )
+  ).id;
+  const pay = {
+    type: "payment.record",
+    reservationId: rid,
+    concept: "prepayment",
+    method: "transfer",
+    amountMinor: 159000,
+    status: "succeeded",
+    paidOn: "2026-11-01",
+    note: "SPEI 123",
+  };
+  const first = await run(pay, "sql-pay-1");
+  expect((await run(pay, "sql-pay-1")).id).toBe(first.id);
+  await run({ ...pay, concept: "deposit", amountMinor: 200000 }, "sql-pay-deposit");
+  await expect(run({ ...pay, amountMinor: 0 }, "sql-pay-zero")).rejects.toThrow();
+  await expect(run({ ...pay, concept: "gift" }, "sql-pay-bad")).rejects.toThrow(
+    "INVALID_PAYMENT",
+  );
+  await run(
+    { ...pay, type: "payment.update", id: first.id, amountMinor: 100000, note: "" },
+    "sql-pay-edit",
+  );
+  await db.exec("reset role");
+  const rows = async () =>
+    (
+      await db.query<{ concept: string; amount: number; note: string; method: string }>(
+        "select concept,amount_minor::int amount,note,method_type method from public.payments where reservation_id=$1 order by concept",
+        [rid],
+      )
+    ).rows;
+  expect(await rows()).toEqual([
+    { concept: "deposit", amount: 200000, note: "SPEI 123", method: "transfer" },
+    { concept: "prepayment", amount: 100000, note: "", method: "transfer" },
+  ]);
+  expect(
+    (
+      await db.query<{ n: number }>(
+        "select pms_private.reservation_net_paid($1)::int n",
+        [rid],
+      )
+    ).rows[0].n,
+  ).toBe(100000);
+  expect(
+    (
+      await db.query<{ n: number }>(
+        "select count(*)::int n from public.audit_logs where entity_id=$1 and action like 'payment.%'",
+        [rid],
+      )
+    ).rows[0].n,
+  ).toBe(3);
+  const stripe = "90000000-0000-0000-0000-0000000000a1";
+  await db.exec(
+    `insert into public.payments(id,organization_id,property_id,reservation_id,provider,provider_payment_id,amount_minor,currency,status) values('${stripe}','${ids.org}','${ids.prop}','${rid}','stripe','cs_test',5000,'MXN','succeeded')`,
+  );
+  await as(ids.user);
+  await expect(
+    run({ type: "payment.delete", id: stripe }, "sql-pay-stripe"),
+  ).rejects.toThrow("PAYMENT_PROVIDER_LOCKED");
+  await run({ type: "payment.delete", id: first.id }, "sql-pay-del");
+  await as(ids.house);
+  await expect(run(pay, "sql-pay-forbidden")).rejects.toThrow();
+  await db.exec("reset role");
+  expect((await rows()).map((r) => r.concept)).toEqual(["deposit", "payment"]);
+});

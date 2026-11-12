@@ -205,7 +205,14 @@ export interface Payment {
   externalId: string;
   status: "pending" | "succeeded" | "failed";
   createdAt: string;
+  /** What the money is for. Security deposits never count towards the stay price. */
+  concept?: PaymentConcept;
+  /** How it was received: cash, transfer, card, stripe, paypal, ota, other. */
+  method?: string;
+  note?: string;
 }
+export type PaymentConcept =
+  "prepayment" | "payment" | "refund" | "deposit" | "deposit_return";
 export interface Task {
   id: string;
   propertyId: string;

@@ -6,6 +6,7 @@ import "@fontsource-variable/instrument-sans";
 import "@/cala/styles/cala.css";
 import "@/cala/styles/device-tiers.css";
 import "@/cala/styles/planner.css";
+import "@/cala/styles/finance.css";
 import "@/cala/styles/loading.css";
 import { SiteAdmin } from "@/cala/site-admin";
 import { CalaSplash } from "@/cala/components/ui/cala-loader";

@@ -9,6 +9,20 @@ const id = z.string().min(1).max(100),
   date = z.string().refine(isDate, "Fecha inválida"),
   money = z.number().int().min(0).max(100000000000),
   version = z.number().int().positive();
+const paymentFields = {
+  concept: z.enum([
+    "prepayment",
+    "payment",
+    "refund",
+    "deposit",
+    "deposit_return",
+  ]),
+  method: z.enum(["cash", "transfer", "card", "stripe", "paypal", "ota", "other"]),
+  amountMinor: money.positive(),
+  status: z.enum(["succeeded", "pending"]),
+  paidOn: date,
+  note: z.string().trim().max(500),
+};
 /** OTAs the connection assistant can register (see domain/messaging/ota.ts). */
 export const otaProviders = [
   "airbnb",
@@ -365,6 +379,19 @@ export const commandSchema = z.discriminatedUnion("type", [
     amountMinor: money.positive(),
     simulateFailure: z.boolean(),
   }),
+  z.object({
+    type: z.literal("payment.record"),
+    ...base,
+    reservationId: id,
+    ...paymentFields,
+  }),
+  z.object({
+    type: z.literal("payment.update"),
+    ...base,
+    id,
+    ...paymentFields,
+  }),
+  z.object({ type: z.literal("payment.delete"), ...base, id }),
   z.object({ type: z.literal("channel.create"), ...base, name }),
   z.object({
     type: z.literal("channel.update"),

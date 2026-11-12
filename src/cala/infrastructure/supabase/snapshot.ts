@@ -5,6 +5,7 @@ import type { Database, Json } from "@/cala/infrastructure/db/database.types";
 import type {
   Concept,
   JobStatus,
+  Payment,
   Permission,
   RentalMode,
   ReservationStatus,
@@ -629,6 +630,9 @@ export async function supabaseSnapshot(
       externalId: payment.provider_payment_id,
       status: payment.status as "pending" | "succeeded" | "failed",
       createdAt: payment.received_at,
+      concept: (payment.concept ?? "payment") as Payment["concept"],
+      method: payment.method_type,
+      note: payment.note ?? "",
     })),
     tasks: tasks.map((task) => ({
       id: task.id,
@@ -694,10 +698,7 @@ export async function supabaseSnapshot(
       entityId: entry.entity_id,
       requestId: entry.request_id,
       createdAt: entry.created_at,
-      detail:
-        entry.after_json === null
-          ? "Operación registrada"
-          : JSON.stringify(entry.after_json),
+      detail: auditDetail(entry.after_json),
     })),
     outbox: [],
     automations: automations.map((automation) => ({
@@ -759,4 +760,15 @@ function rentalSettings(raw: unknown): {
       : {}),
     ...(json.websiteLinked === true ? { websiteLinked: true } : {}),
   };
+}
+
+/** Readable audit text: a `message` written by the command, else the raw JSON. */
+function auditDetail(value: unknown) {
+  if (value === null || value === undefined) return "Operación registrada";
+  if (typeof value === "object" && !Array.isArray(value)) {
+    const message = (value as Record<string, unknown>).message;
+    if (typeof message === "string" && message) return message;
+    if (!Object.keys(value).length) return "Operación registrada";
+  }
+  return JSON.stringify(value);
 }

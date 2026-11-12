@@ -69,6 +69,10 @@ const commandErrors: Record<string, string> = {
     "Registra al menos una habitación dentro de la casa para elegir cómo se renta.",
   INVALID_INVENTORY: "Elige un tipo de alojamiento de esta propiedad.",
   NOT_FOUND: "El registro ya no existe. Recarga la vista.",
+  PAYMENT_PROVIDER_LOCKED:
+    "Los pagos cobrados con Stripe no se editan ni se borran desde CALA.",
+  INVALID_PAYMENT: "Revisa el concepto, el método, el estado y el importe del pago.",
+  INVALID_AMOUNT: "El importe debe ser mayor que cero.",
   DUPLICATE_MAPPING:
     "Cada alojamiento y cada ID del canal solo puede vincularse una vez.",
 };

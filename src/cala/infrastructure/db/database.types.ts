@@ -543,6 +543,8 @@ export interface Database {
           status: string;
           method_type: string;
           received_at: string;
+          concept?: string;
+          note?: string;
         };
         Insert: Partial<Database["public"]["Tables"]["payments"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["payments"]["Row"]>;

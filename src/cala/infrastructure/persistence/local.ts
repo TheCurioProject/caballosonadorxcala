@@ -48,6 +48,14 @@ function migrateState(
       delete next.kind;
       delete next.parentPaymentId;
       return next;
+    })
+    .map((payment) => {
+      if (!payment || typeof payment !== "object") return payment;
+      const next = payment as Record<string, unknown>;
+      next.concept ??= "payment";
+      next.method ??= "";
+      next.note ??= "";
+      return next;
     });
   state.jobs = state.jobs.filter((job) => {
     if (!job || typeof job !== "object") return true;

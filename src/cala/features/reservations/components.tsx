@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { ReservationPayments } from "@/cala/features/finance/payments";
 import Link from "next/link";
 import { useWorkspace } from "@/cala/features/workspace/context";
 import {
@@ -739,12 +740,6 @@ export function ReservationInspector({
       />
     );
   const unit = data.units.find((u) => u.id === r.unitId);
-  const total = data.folioItems
-    .filter((i) => i.reservationId === r.id)
-    .reduce((a, b) => a + b.amountMinor, 0);
-  const paid = data.payments
-    .filter((p) => p.reservationId === r.id && p.status === "succeeded")
-    .reduce((a, b) => a + b.amountMinor, 0);
   const options: rstatus[] = [];
   type rstatus =
     "confirmed" | "checked_in" | "checked_out" | "cancelled" | "no_show";
@@ -802,21 +797,8 @@ export function ReservationInspector({
             {r.source === "direct" ? t("Directo") : t("Importación / canal")}
           </dd>
         </div>
-        {can("finance.read") && (
-          <>
-            <div>
-              <dt>{t("Total del folio")}</dt>
-              <dd>{money(total, r.currency)}</dd>
-            </div>
-            <div>
-              <dt>{t("Saldo pendiente")}</dt>
-              <dd className={total - paid > 0 ? "text-warning" : ""}>
-                {money(total - paid, r.currency)}
-              </dd>
-            </div>
-          </>
-        )}
       </dl>
+      {can("finance.read") && <ReservationPayments reservation={r} compact />}
       {r.notes && <div className="notice">{r.notes}</div>}
       <div className="action-grid">
         {can("reservation.write") &&

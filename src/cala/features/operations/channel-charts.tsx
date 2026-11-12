@@ -8,7 +8,7 @@ const colors = [
   "var(--muted)",
   "var(--accent-border)",
 ];
-function Distribution({
+export function Distribution({
   title,
   entries,
   format = (n) => String(n),

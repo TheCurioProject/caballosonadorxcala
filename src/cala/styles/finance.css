@@ -1,0 +1,355 @@
+/* Finance: reservation payments ledger + Smoobu-style financial overview.
+   Imported after planner.css in src/app/admin/layout.tsx. Tokens only, so every theme
+   (shell, sand, ink/dark) gets its own colors. */
+
+.cala-admin .text-success { color: var(--success); }
+.cala-admin .text-danger { color: var(--error); }
+.cala-admin .button.ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--muted);
+}
+.cala-admin .button.ghost:hover { color: var(--text); background: var(--subtle); }
+.cala-admin .button.small {
+  min-height: 32px;
+  padding: 4px 12px;
+  font-size: calc(12px * var(--cala-fs, 1));
+}
+
+/* ---------- Reservation payments ---------- */
+.cala-admin .payments-panel {
+  display: grid;
+  gap: 12px;
+  margin: 16px 0;
+}
+.cala-admin .payments-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cala-admin .payments-head .subheading { margin: 0; }
+.cala-admin .payment-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: calc(12px * var(--cala-fs, 1));
+  font-weight: 600;
+  border: 1px solid var(--border);
+}
+.cala-admin .payment-chip.is-paid { background: var(--success-bg); color: var(--success); border-color: transparent; }
+.cala-admin .payment-chip.is-due { background: var(--warning-bg); color: var(--warning); border-color: var(--warning-border); }
+.cala-admin .payment-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+.cala-admin .payment-tile {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--subtle);
+}
+.cala-admin .payment-tile small { color: var(--muted); font-size: calc(11px * var(--cala-fs, 1)); }
+.cala-admin .payment-tile strong { font-size: calc(17px * var(--cala-fs, 1)); overflow-wrap: anywhere; }
+.cala-admin .payment-tiles.compact .payment-tile strong { font-size: calc(15px * var(--cala-fs, 1)); }
+.cala-admin .payments-note { margin: 0; font-size: calc(12px * var(--cala-fs, 1)); }
+.cala-admin .payment-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.cala-admin .payment-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.cala-admin .payment-row:last-child { border-bottom: 0; }
+.cala-admin .payment-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.cala-admin .payment-icon.concept-refund,
+.cala-admin .payment-icon.concept-deposit_return { background: var(--subtle); color: var(--muted); }
+.cala-admin .payment-icon.concept-deposit { background: var(--subtle); color: var(--text); }
+.cala-admin .payment-main { display: grid; gap: 2px; min-width: 0; }
+.cala-admin .payment-main small { color: var(--muted); font-size: calc(12px * var(--cala-fs, 1)); }
+.cala-admin .payment-main .payment-note { color: var(--text); overflow-wrap: anywhere; }
+.cala-admin .payment-amount { white-space: nowrap; }
+.cala-admin .payment-actions { display: flex; gap: 2px; }
+.cala-admin .payment-actions .icon-button { width: 32px; height: 32px; }
+.cala-admin .payment-confirm { grid-column: 1 / -1; margin: 4px 0 0; }
+.cala-admin .payment-quick { display: flex; flex-wrap: wrap; gap: 8px; }
+.cala-admin .payment-form {
+  padding: 14px;
+  border: 1px solid var(--accent-border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.cala-admin .payment-form h4 { margin: 0 0 10px; }
+@media (max-width: 520px) {
+  .cala-admin .payment-row { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .cala-admin .payment-actions { grid-column: 2 / -1; justify-content: flex-end; }
+  .cala-admin .payment-quick .button { flex: 1 1 100%; justify-content: center; }
+}
+
+/* ---------- Folios list ---------- */
+.cala-admin .finance-tabs { margin-bottom: 20px; padding: 0; }
+.cala-admin .folio-search {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 1;
+}
+.cala-admin .folio-search .field { margin: 0; }
+.cala-admin .folio-search select,
+.cala-admin .folio-search input { width: 100%; }
+
+/* ---------- Overview ---------- */
+.cala-admin .finance-overview { display: grid; gap: 20px; min-width: 0; }
+.cala-admin .finance-filters { align-items: flex-end; flex-wrap: wrap; }
+.cala-admin .finance-scope select { min-width: 220px; max-width: 100%; }
+.cala-admin .segmented {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--subtle);
+}
+.cala-admin .segmented button {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 600;
+}
+.cala-admin .segmented button.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-soft); }
+
+.cala-admin .finance-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.cala-admin .finance-kpi {
+  display: grid;
+  gap: 2px;
+  padding: 18px 18px 0;
+  overflow: hidden;
+  min-width: 0;
+}
+.cala-admin .finance-kpi-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--muted);
+}
+.cala-admin .finance-kpi-head svg { align-self: center; }
+.cala-admin .finance-kpi-head strong {
+  color: var(--text);
+  font-size: calc(22px * var(--cala-fs, 1));
+  font-variant-numeric: tabular-nums;
+}
+.cala-admin .sparkline { position: relative; height: 72px; margin: 8px -18px 0; }
+.cala-admin .sparkline svg { position: absolute; top: 4px; left: 18px; width: calc(100% - 36px); height: calc(100% - 12px); overflow: visible; }
+.cala-admin .sparkline polyline { stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.cala-admin .tone-clay .sparkline polyline { stroke: var(--cala-clay); }
+.cala-admin .finance-kpi::after {
+  content: "";
+  display: block;
+  height: 3px;
+  margin: 0 -18px;
+  background: var(--accent);
+}
+.cala-admin .finance-kpi.tone-clay::after { background: var(--cala-clay); }
+.cala-admin .sparkline-layer {
+  position: absolute;
+  inset: 4px 18px 8px;
+  pointer-events: none;
+}
+.cala-admin .spark-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--accent);
+}
+.cala-admin .tone-clay .spark-dot { border-color: var(--cala-clay); }
+.cala-admin .sparkline-hits { position: absolute; inset: 0; display: flex; }
+.cala-admin .sparkline-hits button { flex: 1; border: 0; background: transparent; padding: 0; }
+
+.cala-admin .chart-tip {
+  position: absolute;
+  top: 0;
+  right: 8px;
+  display: grid;
+  gap: 2px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+  pointer-events: none;
+  font-size: calc(12px * var(--cala-fs, 1));
+  z-index: 2;
+}
+.cala-admin .chart-tip small { color: var(--muted); }
+.cala-admin .chart-tip strong { font-variant-numeric: tabular-nums; }
+
+.cala-admin .finance-money { margin: 0; }
+
+.cala-admin .finance-charts {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.6fr) minmax(0, 1.6fr);
+  gap: 16px;
+}
+.cala-admin .finance-charts > section { min-width: 0; }
+.cala-admin .finance-charts h3 { margin: 0 0 12px; }
+.cala-admin .finance-gauge { display: grid; justify-items: center; gap: 4px; }
+.cala-admin .finance-gauge svg { width: 100%; max-width: 240px; }
+.cala-admin .finance-gauge path { fill: none; stroke-width: 16; stroke-linecap: round; }
+.cala-admin .finance-gauge .gauge-track { stroke: var(--subtle); }
+.cala-admin .finance-gauge .gauge-value { stroke: var(--accent); }
+.cala-admin .finance-gauge .gauge-needle { stroke: var(--text); stroke-width: 3; stroke-linecap: round; }
+.cala-admin .finance-gauge .gauge-hub { fill: var(--text); }
+.cala-admin .finance-gauge text { fill: var(--muted); font-size: 10px; }
+.cala-admin .finance-gauge strong { font-size: calc(24px * var(--cala-fs, 1)); font-variant-numeric: tabular-nums; }
+
+.cala-admin .finance-bars,
+.cala-admin .finance-line { position: relative; }
+.cala-admin .finance-bars-plot {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  height: 180px;
+  border-bottom: 1px solid var(--border);
+}
+.cala-admin .finance-bar {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  padding: 0 2px;
+  border-radius: 6px 6px 0 0;
+}
+.cala-admin .finance-bar:hover,
+.cala-admin .finance-bar.active { background: var(--subtle); }
+.cala-admin .finance-bar i {
+  display: block;
+  width: min(28px, 100%);
+  min-height: 2px;
+  background: var(--accent);
+  border-radius: 4px 4px 0 0;
+}
+.cala-admin .finance-bar small {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: calc(10px * var(--cala-fs, 1));
+}
+.cala-admin .finance-bars { padding-bottom: 22px; }
+.cala-admin .finance-bars-plot:has(> :nth-child(13)) .finance-bar small { display: none; }
+
+.cala-admin .finance-line-plot {
+  position: relative;
+  height: 180px;
+  margin: 0 8px 0 36px;
+  border-bottom: 1px solid var(--border);
+}
+.cala-admin .finance-line-plot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.cala-admin .finance-line-plot polyline { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; }
+.cala-admin .finance-line-plot .grid { stroke: var(--border); stroke-width: 1; }
+.cala-admin .finance-line-plot .crosshair { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; }
+.cala-admin .line-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--surface);
+  pointer-events: none;
+}
+.cala-admin .line-dot.active { width: 12px; height: 12px; margin: -6px 0 0 -6px; }
+.cala-admin .line-hits { position: absolute; inset: 0 -8px; display: flex; }
+.cala-admin .line-hits button { flex: 1; border: 0; background: transparent; padding: 0; }
+.cala-admin .line-axis {
+  position: absolute;
+  left: -36px;
+  color: var(--muted);
+  font-size: calc(10px * var(--cala-fs, 1));
+}
+.cala-admin .line-axis.top { top: -6px; }
+.cala-admin .line-axis.bottom { bottom: -6px; }
+.cala-admin .finance-line-labels {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 8px 0 36px;
+  color: var(--muted);
+  font-size: calc(10px * var(--cala-fs, 1));
+  gap: 4px;
+  overflow: hidden;
+}
+.cala-admin .finance-line-labels:has(> :nth-child(13)) small:not(:first-child):not(:last-child) { display: none; }
+
+.cala-admin .finance-tables { display: grid; gap: 16px; }
+.cala-admin .finance-tables tfoot th { border-top: 2px solid var(--border); }
+
+@media (max-width: 1199px) {
+  .cala-admin .finance-charts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .cala-admin .finance-gauge-panel { grid-column: 1 / -1; }
+}
+@media (max-width: 760px) {
+  .cala-admin .finance-receivables thead { display: none; }
+  .cala-admin .finance-receivables table,
+  .cala-admin .finance-receivables tbody { display: block; width: 100%; }
+  .cala-admin .finance-receivables tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .cala-admin .finance-receivables td { display: block; padding: 0; border: 0; text-align: left; }
+  .cala-admin .finance-receivables td[data-label] { display: flex; justify-content: space-between; grid-column: 1 / -1; }
+  .cala-admin .finance-receivables td[data-label]::before { content: attr(data-label); color: var(--muted); font-family: inherit; }
+  .cala-admin .finance-receivables td:last-child { grid-column: 1 / -1; }
+  .cala-admin .finance-receivables td:last-child .button { width: 100%; justify-content: center; }
+  .cala-admin .finance-kpis,
+  .cala-admin .finance-charts { grid-template-columns: minmax(0, 1fr); }
+  .cala-admin .finance-filters > * { flex: 1 1 140px; }
+  .cala-admin .finance-scope select { min-width: 0; width: 100%; }
+}
