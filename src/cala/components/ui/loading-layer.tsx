@@ -1,7 +1,9 @@
 "use client";
 /**
  * Global loading feedback for CALA. Mounted once around the whole admin:
- *  - a thin tide bar on top as soon as something takes longer than a blink;
+ *  - a thin bar on top that fills with the real progress (frame by frame,
+ *    same engine as the CALA mark) as soon as something takes longer than a
+ *    blink;
  *  - a status pill with the CALA mark (and evolving copy) when it takes longer;
  *  - the button that started the action shows the mark and ignores repeat
  *    taps until the work is done;
@@ -17,6 +19,7 @@ import {
   getActivity,
   useActivity,
 } from "@/cala/lib/activity";
+import { FillSmoother, onFrame } from "@/cala/lib/load-progress";
 import { CalaMark, useWaitMessage } from "./cala-loader";
 import { useOptionalT } from "@/cala/lib/i18n";
 
@@ -149,6 +152,34 @@ export function CalaLoadingLayer() {
     };
   }, []);
 
+  // Progress fill of the top bar and of the pressed control, painted per
+  // frame. When the work ends it keeps going until it reaches the top.
+  const barFill = useRef<HTMLSpanElement>(null);
+  const activeRef = useRef(active);
+  const stopFill = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    activeRef.current = active;
+    if (!active || stopFill.current) return;
+    const smoother = new FillSmoother();
+    let stopped = false;
+    const stop = onFrame((time, dt) => {
+      if (stopped) return;
+      const value = smoother.step(time, dt);
+      barFill.current?.style.setProperty("transform", `scaleX(${value.toFixed(4)})`);
+      for (const element of document.querySelectorAll<HTMLElement>(
+        '[data-cala-loading="true"]',
+      ))
+        element.style.setProperty("--cala-fill", value.toFixed(3));
+      if (!activeRef.current && value >= 1) {
+        stopped = true;
+        stop();
+        stopFill.current = null;
+      }
+    });
+    stopFill.current = stop;
+  }, [active]);
+  useEffect(() => () => stopFill.current?.(), []);
+
   // Stage 1 = tide bar, stage 2 = status pill. Quick actions show nothing.
   useEffect(() => {
     const root = document.documentElement;
@@ -180,7 +211,7 @@ export function CalaLoadingLayer() {
         className="cala-tide-bar"
         data-visible={active && stage >= 1 ? "true" : "false"}
       >
-        <span />
+        <span ref={barFill} />
       </div>
       {active && stage === 2 && current && (
         <ActivityPill label={current.label} since={since} key={since} />

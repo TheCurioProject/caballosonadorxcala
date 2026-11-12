@@ -7,7 +7,9 @@
    CALA theme (shell, sand, ink, pacific…) is covered.
    ============================================================ */
 
-/* ---------- 1. The mark ---------- */
+/* ---------- 1. The mark ----------
+   The liquid's shape is redrawn every frame by CalaMark from the real
+   progress; CSS only paints it. No keyframes here on purpose. */
 .cala-mark {
   display: block;
   flex: none;
@@ -18,49 +20,26 @@
   fill: currentColor;
   opacity: 0.16;
 }
-.cala-mark-tide {
-  animation: cala-tide 2.6s cubic-bezier(0.45, 0, 0.25, 1) infinite alternate;
-}
-.cala-mark-wave {
+.cala-mark-liquid {
   fill: currentColor;
-  opacity: 0.92;
-  animation: cala-wave 1.5s linear infinite;
 }
-.cala-mark-trace {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 9;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 24 76;
-  animation: cala-trace 2.2s linear infinite;
+/* Small marks (buttons, pill, inline icons) need a more visible empty shape. */
+.icon-cala-loading .cala-mark-base,
+.cala-spinner .cala-mark-base,
+.cala-activity-pill .cala-mark-base,
+.cala-loader-sm .cala-mark-base {
+  opacity: 0.24;
 }
-/* Small marks (buttons, pill, inline icons) need a bolder trace. */
-.icon-cala-loading .cala-mark-trace,
-.cala-spinner .cala-mark-trace,
-.cala-activity-pill .cala-mark-trace,
-.cala-loader-sm .cala-mark-trace {
-  stroke-width: 20;
+/* Full: a short settle pulse before it refills (if still waiting). */
+.cala-mark[data-full] {
+  animation: cala-mark-full 0.5s var(--motion-ease, ease) both;
 }
-@keyframes cala-wave {
-  to {
-    transform: translateX(226px);
-  }
-}
-@keyframes cala-tide {
-  from {
-    transform: translateY(430px);
+@keyframes cala-mark-full {
+  40% {
+    transform: scale(1.06);
   }
   to {
-    transform: translateY(118px);
-  }
-}
-@keyframes cala-trace {
-  from {
-    stroke-dashoffset: 100;
-  }
-  to {
-    stroke-dashoffset: 0;
+    transform: none;
   }
 }
 
@@ -203,17 +182,6 @@
   font-weight: 650;
   letter-spacing: 0.34em;
   line-height: 1;
-  animation: cala-word 2.6s ease-in-out infinite alternate;
-}
-@keyframes cala-word {
-  from {
-    letter-spacing: 0.3em;
-    opacity: 0.78;
-  }
-  to {
-    letter-spacing: 0.38em;
-    opacity: 1;
-  }
 }
 @media (max-width: 760px) {
   .cala-splash .cala-mark {
@@ -225,7 +193,7 @@
   }
 }
 
-/* ---------- 4. Top tide bar ---------- */
+/* ---------- 4. Top progress bar (scaleX set per frame) ---------- */
 .cala-tide-bar {
   position: fixed;
   top: env(safe-area-inset-top, 0px);
@@ -244,25 +212,16 @@
 }
 .cala-tide-bar > span {
   position: absolute;
-  inset: 0 auto 0 0;
-  width: 42%;
-  border-radius: 3px;
+  inset: 0;
+  border-radius: 0 3px 3px 0;
   background: linear-gradient(
     90deg,
-    transparent,
-    var(--accent, #2f7773) 35%,
-    var(--cala-clay, #c97352) 75%,
-    transparent
+    var(--accent, #2f7773) 60%,
+    var(--cala-clay, #c97352)
   );
-  animation: cala-bar 1.3s cubic-bezier(0.45, 0, 0.25, 1) infinite;
-}
-@keyframes cala-bar {
-  from {
-    transform: translateX(-105%);
-  }
-  to {
-    transform: translateX(245%);
-  }
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
 }
 
 /* ---------- 5. Status pill ---------- */
@@ -327,18 +286,16 @@
   height: 1.15em;
   margin-inline-end: 0.45em;
   vertical-align: -0.22em;
+  /* --cala-fill (0…1) is written every frame by the loading layer. */
   background: linear-gradient(
-      to top,
-      currentColor 50%,
-      color-mix(in srgb, currentColor 30%, transparent) 50%
-    )
-    0 0 / 100% 200%;
+    to top,
+    currentColor calc(var(--cala-fill, 0) * 100%),
+    color-mix(in srgb, currentColor 28%, transparent) 0
+  );
   -webkit-mask: url("/cala/assets/brand/cala-mark.svg") center / contain
     no-repeat;
   mask: url("/cala/assets/brand/cala-mark.svg") center / contain no-repeat;
-  animation:
-    cala-press-in 0.2s var(--motion-ease, ease) 0.14s both,
-    cala-press-tide 1.3s ease-in-out infinite alternate;
+  animation: cala-press-in 0.2s var(--motion-ease, ease) 0.14s both;
 }
 /* Flex buttons already space their children. */
 .cala-admin .button[data-cala-loading="true"]::before,
@@ -363,53 +320,17 @@
     transform: none;
   }
 }
-@keyframes cala-press-tide {
-  from {
-    background-position: 0 0%;
-  }
-  to {
-    background-position: 0 100%;
-  }
-}
 @media (hover: hover) and (pointer: fine) {
   html[data-cala-activity="true"] body.cala-admin {
     cursor: progress;
   }
 }
 
-/* ---------- 7. Reduced motion ---------- */
+/* ---------- 7. Reduced motion ----------
+   The fill still shows progress (it just jumps without ripples, see
+   load-progress.ts); only decorative motion is removed. */
 @media (prefers-reduced-motion: reduce) {
-  .cala-mark-wave,
-  .cala-mark-trace,
-  .cala-splash-word,
-  .cala-tide-bar > span {
+  .cala-mark[data-full] {
     animation: none;
-  }
-  .cala-mark-trace {
-    stroke-dasharray: none;
-    opacity: 0.35;
-  }
-  .cala-mark-tide {
-    animation: none;
-    transform: translateY(270px);
-  }
-  .cala-mark {
-    animation: cala-calm 1.8s ease-in-out infinite alternate;
-  }
-  .cala-tide-bar > span {
-    width: 100%;
-    opacity: 0.7;
-  }
-  .cala-admin [data-cala-loading="true"]::before {
-    animation: cala-calm 1.8s ease-in-out infinite alternate;
-    background: currentColor;
-  }
-}
-@keyframes cala-calm {
-  from {
-    opacity: 0.55;
-  }
-  to {
-    opacity: 1;
   }
 }

@@ -17,7 +17,7 @@ import { WelcomeAuth } from "./login";
 import { navigation } from "./navigation";
 import { Icon, Modal, Skeleton } from "@/cala/components/ui/primitives";
 import { CalaLogo } from "@/cala/components/brand/cala-logo";
-import { CalaSplash } from "@/cala/components/ui/cala-loader";
+import { CalaSplash, useLoaderExit } from "@/cala/components/ui/cala-loader";
 import { CalaAssistant } from "@/cala/features/onboarding/cala-assistant";
 import { CalaGuide } from "@/cala/features/onboarding/cala-guide";
 import { roleLabels } from "@/cala/domain/identity/permissions";
@@ -129,7 +129,9 @@ function WorkspaceRoot({
     const timer = setTimeout(() => void load(), 0);
     return () => clearTimeout(timer);
   }, [load]);
-  if (loading) return <CalaSplash />;
+  // The splash stays a beat after loading so its mark finishes filling.
+  const splash = useLoaderExit(loading);
+  if (splash) return <CalaSplash />;
   if (!account?.authenticated)
     return (
       <WelcomeAuth

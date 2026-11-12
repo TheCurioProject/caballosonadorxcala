@@ -8,6 +8,7 @@
  *  - section navigation is registered by the loading layer on link clicks.
  */
 import { useSyncExternalStore } from "react";
+import { beginLoad } from "./load-progress";
 
 export type ActivityKind = "save" | "load" | "navigate";
 export interface Activity {
@@ -35,8 +36,13 @@ export const defaultActivityLabel: Record<ActivityKind, string> = {
   navigate: "Abriendo sección…",
 };
 
+const loadEnders = new Map<number, () => void>();
 export function beginActivity(kind: ActivityKind, label?: string) {
   const id = ++sequence;
+  // Requests feed the fill progress from the fetch hook; a route change is
+  // one more step that only finishes once the new screen is rendered.
+  const endLoad = kind === "navigate" ? beginLoad() : null;
+  if (endLoad) loadEnders.set(id, endLoad);
   state = {
     items: [
       ...state.items,
@@ -53,6 +59,8 @@ export function beginActivity(kind: ActivityKind, label?: string) {
   return () => {
     if (ended) return;
     ended = true;
+    endLoad?.();
+    loadEnders.delete(id);
     state = { items: state.items.filter((item) => item.id !== id) };
     emit();
   };
@@ -61,6 +69,11 @@ export function beginActivity(kind: ActivityKind, label?: string) {
 /** Clears every activity of one kind (e.g. navigation once the route changed). */
 export function endActivities(kind: ActivityKind) {
   if (!state.items.some((item) => item.kind === kind)) return;
+  for (const item of state.items)
+    if (item.kind === kind) {
+      loadEnders.get(item.id)?.();
+      loadEnders.delete(item.id);
+    }
   state = { items: state.items.filter((item) => item.kind !== kind) };
   emit();
 }
@@ -95,7 +108,8 @@ let fetchPatched = false;
 /**
  * Registers same-origin writes that don't go through `api()` (Casa Caballo
  * Soñador modules, Next server actions, image uploads). Reads stay silent so
- * prefetches and background refreshes never flash a loader.
+ * prefetches and background refreshes never flash a loader, but every
+ * same-origin request counts towards the real progress the fill shows.
  */
 export function installFetchTracking() {
   if (fetchPatched || typeof window === "undefined") return;
@@ -115,14 +129,17 @@ export function installFetchTracking() {
       init?.method ??
       (typeof input === "object" && "method" in input ? input.method : "GET")
     ).toUpperCase();
+    const sameOrigin = url !== null && url.origin === window.location.origin;
     const tracked =
-      url !== null &&
-      url.origin === window.location.origin &&
+      sameOrigin &&
       method !== "GET" &&
       method !== "HEAD" &&
       // `api()` registers its own calls with a precise label.
-      !url.pathname.startsWith("/api/cala/");
-    if (!tracked) return original(input, init);
-    return trackActivity(original(input, init), "save", "Procesando…");
+      !url?.pathname.startsWith("/api/cala/");
+    const endLoad = sameOrigin ? beginLoad() : null;
+    const request = original(input, init);
+    if (endLoad) request.then(endLoad, endLoad);
+    if (!tracked) return request;
+    return trackActivity(request, "save", "Procesando…");
   };
 }
