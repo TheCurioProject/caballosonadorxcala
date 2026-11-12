@@ -6,6 +6,7 @@ import { X, Bed, Users, Bath, Droplets, ChevronLeft, ChevronRight, Maximize2, Mi
 import { useBooking } from '@/context/BookingContext';
 import { useDictionary } from '@/i18n/DictionaryContext';
 import { useScrollLock } from '@/hooks/useScrollLock';
+import { RoomAvailabilityCalendar } from './RoomAvailabilityCalendar';
 
 interface RoomModalProps {
   room: any | null;
@@ -170,8 +171,8 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
               </div>
 
               {/* Right/Bottom Section: Info (50%) */}
-              <div className="w-full md:w-1/2 bg-[#F9F7F4] flex flex-col h-full overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E5E0D8] hover:[&::-webkit-scrollbar-thumb]:bg-[#D0C8BC]">
-                <div className="p-8 md:p-12 w-full flex flex-col h-full">
+              <div className="w-full md:w-1/2 bg-[#F9F7F4] flex flex-col flex-1 min-h-0 md:h-full overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#E5E0D8] hover:[&::-webkit-scrollbar-thumb]:bg-[#D0C8BC]">
+                <div className="px-6 pt-8 pb-[max(2.5rem,calc(env(safe-area-inset-bottom)+1.5rem))] sm:px-8 md:px-10 md:pt-12 md:pb-12 lg:px-12 w-full flex flex-col shrink-0 min-h-full">
                   
                   <h2 className="font-serif text-3xl md:text-5xl text-[#23211F] mb-6 leading-tight shrink-0">{getTitle()}</h2>
                   
@@ -196,11 +197,14 @@ export const RoomModal = ({ room, onClose }: RoomModalProps) => {
                         </div>
                       )}
 
-                      <div className="pt-6 border-t border-[#E5E0D8] flex flex-col gap-4">
+                      <div className="pt-6 border-t border-[#E5E0D8] flex flex-col gap-5 md:gap-6">
                         {!isCocina && room.price !== undefined && (
                           <span className="font-serif italic text-2xl text-[#23211F]">{room.price === 0 ? '' : typeof room.price==='number' ? new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(room.price)+' MXN / noche' : room.price}</span>
                         )}
-                        {room.lodgingId&&!isCocina&&<button className="bg-[#23211F] text-white rounded-full px-7 py-4 text-sm uppercase tracking-widest font-semibold" onClick={()=>{onClose();openLodgingBooking(room.lodgingId);}}>{dict.nav?.rooms==='Rooms'?'Book this room':'Reservar esta habitación'}</button>}
+                        {room.lodgingId && !isCocina && (
+                          <RoomAvailabilityCalendar key={room.lodgingId} lodgingId={room.lodgingId} isEn={dict.nav?.rooms==='Rooms'} />
+                        )}
+                        {room.lodgingId&&!isCocina&&<button className="w-full sm:w-auto sm:self-start bg-[#23211F] text-white rounded-full px-7 py-4 text-sm uppercase tracking-widest font-semibold" onClick={()=>{onClose();openLodgingBooking(room.lodgingId);}}>{dict.nav?.rooms==='Rooms'?'Book this room':'Reservar esta habitación'}</button>}
                       </div>
                     </div>
                   </div>

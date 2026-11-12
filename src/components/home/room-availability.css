@@ -1,0 +1,212 @@
+/* Read-only room availability (RoomAvailabilityCalendar). Deliberately no
+   :hover / :active styles on days: the calendar is for looking, not picking. */
+.ra {
+  container-type: inline-size;
+  width: 100%;
+  padding: 20px;
+  border: 1px solid #e5e0d8;
+  border-radius: 18px;
+  background: #ffffff;
+  color: #23211f;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.ra-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.ra-eyebrow {
+  margin: 0;
+  color: #9b7e67;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.ra-nav {
+  display: flex;
+  gap: 6px;
+}
+.ra-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #e5e0d8;
+  border-radius: 999px;
+  background: #f9f7f4;
+  color: #23211f;
+  cursor: pointer;
+}
+.ra-arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.ra-arrow:focus-visible {
+  outline: 2px solid #9b7e67;
+  outline-offset: 2px;
+}
+
+.ra-months {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 28px;
+}
+.ra-months[data-columns="2"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.ra-caption {
+  margin: 0 0 10px;
+  font-family: var(--font-cormorant, "Cormorant Garamond"), serif;
+  font-size: 21px;
+  line-height: 1.2;
+  text-align: center;
+  text-transform: capitalize;
+}
+.ra-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+.ra-weekday {
+  padding-bottom: 4px;
+  color: #8a837b;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+}
+.ra-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 0.92;
+  min-width: 0;
+  border-radius: 9px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  cursor: default;
+  transition: none;
+}
+.ra-empty {
+  visibility: hidden;
+}
+.ra-available {
+  border: 1px solid #e5d9c5;
+  background: #f9f7f4;
+  color: #23211f;
+  font-weight: 500;
+}
+.ra-unavailable {
+  position: relative;
+  background: #ece7e0;
+  color: #a39b91;
+  text-decoration: line-through;
+  text-decoration-color: #b8afa4;
+}
+.ra-past {
+  color: #c9c2b8;
+}
+.ra-loading {
+  background: #f3efe9;
+  color: transparent;
+  animation: ra-pulse 1.4s ease-in-out infinite alternate;
+}
+.ra-today {
+  box-shadow: inset 0 0 0 2px #9b7e67;
+}
+@keyframes ra-pulse {
+  from { opacity: 0.55; }
+  to { opacity: 1; }
+}
+
+.ra-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #f0ebe4;
+  color: #6b645d;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.ra-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.ra-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+}
+.ra-swatch-available {
+  border: 1px solid #e5d9c5;
+  background: #f9f7f4;
+}
+.ra-swatch-unavailable {
+  background: #ece7e0;
+}
+.ra-note,
+.ra-message {
+  margin: 10px 0 0;
+  color: #8a837b;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+.ra-message {
+  padding: 18px 0;
+  text-align: center;
+}
+
+/* ---- Per device ---------------------------------------------------- */
+
+/* Narrow panels (small phones, and the 50 % panel on portrait tablets). */
+@container (max-width: 300px) {
+  .ra-grid { gap: 3px; }
+  .ra-cell { border-radius: 7px; font-size: 12.5px; }
+  .ra-caption { font-size: 19px; }
+  .ra-weekday { font-size: 10px; }
+}
+/* Two months side by side (wide desktop panel): tighter cells. */
+@container (min-width: 480px) {
+  .ra-cell { font-size: 13px; aspect-ratio: 1 / 0.85; }
+}
+
+/* Phones */
+@media (max-width: 639px) {
+  .ra {
+    padding: 16px 14px;
+    border-radius: 16px;
+  }
+  .ra-legend {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+}
+/* Very small phones (iPhone SE / 320 px) */
+@media (max-width: 359px) {
+  .ra { padding: 14px 10px; }
+  .ra-grid { gap: 2px; }
+  .ra-cell { border-radius: 6px; font-size: 12px; }
+}
+/* Tablets */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .ra { padding: 18px; }
+}
+/* Touch screens: bigger arrows for fingers. */
+@media (pointer: coarse) {
+  .ra-arrow { width: 44px; height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ra-loading { animation: none; }
+}
