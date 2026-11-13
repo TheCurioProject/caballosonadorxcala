@@ -353,3 +353,113 @@
   .cala-admin .finance-filters > * { flex: 1 1 140px; }
   .cala-admin .finance-scope select { min-width: 0; width: 100%; }
 }
+
+/* ---------- Invoice: payments breakdown (fixed paper colors, like the sheet) ---------- */
+.cala-admin .invoice-payments {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+  gap: 24px;
+  align-items: start;
+  padding: 10px 34px 6px;
+  color: #102a2a;
+}
+.cala-admin .invoice-payment-list { min-width: 0; }
+.cala-admin .invoice-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #69645b;
+  font-size: calc(10px * var(--cala-fs-dense, 1));
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cala-admin .invoice-payment-list ul { list-style: none; margin: 0; padding: 0; }
+.cala-admin .invoice-payment-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #ded8cc;
+}
+.cala-admin .invoice-payment-list li strong,
+.cala-admin .invoice-payment-list li small { display: block; }
+.cala-admin .invoice-payment-list li small { color: #69645b; margin-top: 2px; }
+.cala-admin .invoice-payment-list li > span { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.cala-admin .invoice-summary {
+  grid-column: 2;
+  margin: 0;
+  border: 1px solid #ded8cc;
+  border-radius: 14px;
+  overflow: hidden;
+}
+.cala-admin .invoice-summary > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #ded8cc;
+}
+.cala-admin .invoice-summary > div:last-child { border-bottom: 0; }
+.cala-admin .invoice-summary dt,
+.cala-admin .invoice-summary dd { margin: 0; }
+.cala-admin .invoice-summary dd { white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 600; }
+.cala-admin .invoice-summary dt small { display: block; margin-top: 3px; color: #69645b; font-size: calc(11px * var(--cala-fs, 1)); }
+.cala-admin .invoice-percent { color: #69645b; font-weight: 400; }
+.cala-admin .invoice-balance { background: #f4ecdf; }
+.cala-admin .invoice-balance dt,
+.cala-admin .invoice-balance dd { font-weight: 700; font-size: calc(15px * var(--cala-fs, 1)); }
+.cala-admin .invoice-balance.is-paid { background: #e5f0ec; }
+.cala-admin .invoice-deposit dt,
+.cala-admin .invoice-deposit dd { font-weight: 400; color: #3e4b48; }
+@media (max-width: 680px) {
+  .cala-admin .invoice-payments { grid-template-columns: minmax(0, 1fr); padding-inline: 20px; }
+  .cala-admin .invoice-summary { grid-column: 1; }
+}
+@media print {
+  .cala-admin .invoice-balance,
+  .cala-admin .invoice-balance.is-paid { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+/* Invoice printing: drop everything that isn't the sheet (or one of its ancestors) so the
+   sheet flows from the top of page 1 and can span pages; the old fixed-position rule clipped
+   it inside the scrolling dialog. */
+@media print {
+  .cala-admin *:not(:has(.invoice-sheet)):not(.invoice-sheet):not(.invoice-sheet *) {
+    display: none !important;
+  }
+  html,
+  body,
+  .cala-admin,
+  .cala-admin *:has(.invoice-sheet) {
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    transform: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    animation: none !important;
+  }
+  .cala-admin dialog:has(.invoice-sheet)::backdrop { display: none; }
+  .cala-admin .invoice-sheet {
+    position: static !important;
+    overflow: visible !important;
+    width: 100% !important;
+  }
+  .cala-admin .invoice-sheet,
+  .cala-admin .invoice-sheet * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .cala-admin .invoice-payments,
+  .cala-admin .invoice-summary,
+  .cala-admin .invoice-table tr { break-inside: avoid; }
+}

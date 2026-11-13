@@ -5,6 +5,19 @@ import { Icon, Modal } from "@/cala/components/ui/primitives";
 import { useWorkspace } from "@/cala/features/workspace/context";
 import { money, shortDate } from "@/cala/lib/format";
 import { useI18n } from "@/cala/lib/i18n";
+import {
+  conceptLabel,
+  conceptOf,
+  methodLabel,
+  summarizePayments,
+} from "@/cala/domain/reservations/payments";
+
+/** "14.3%" — one decimal only when it isn't a whole number. */
+function percentOf(part: number, total: number) {
+  if (total <= 0) return "";
+  const value = Math.round((part / total) * 1000) / 10;
+  return `${Number.isInteger(value) ? value.toFixed(0) : value.toFixed(1)}%`;
+}
 
 export function ReservationInvoice({
   reservationId,
@@ -40,6 +53,22 @@ export function ReservationInvoice({
   const total = lineItems.length
     ? lineItems.reduce((sum, item) => sum + item.amountMinor, 0)
     : reservation.totalMinor;
+  const payments = data.payments
+    .filter((p) => p.reservationId === reservation.id && p.status === "succeeded")
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  const summary = summarizePayments(payments);
+  const stayPayments = payments.filter((p) => {
+    const c = conceptOf(p);
+    return c === "prepayment" || c === "payment" || c === "refund";
+  });
+  const balance = total - summary.paidMinor;
+  const onlyPrepayment =
+    stayPayments.length > 0 &&
+    stayPayments.every((p) => conceptOf(p) === "prepayment");
+  const paidLabel = onlyPrepayment ? t("Anticipo pagado") : t("Total pagado");
+  const methodName = (method?: string, provider?: string) =>
+    t(methodLabel[method ?? ""] ?? methodLabel[provider ?? ""] ?? "Otro");
+  const fmt = (n: number) => money(n, reservation.currency);
 
   return (
     <Modal title={t("Invoice de reserva")} onClose={onClose} wide>
@@ -142,6 +171,81 @@ export function ReservationInvoice({
             </tfoot>
           </table>
         </div>
+
+        <section className="invoice-payments" aria-label={t("Pagos")}>
+          {stayPayments.length > 0 && (
+            <div className="invoice-payment-list">
+              <span className="invoice-label">{t("Pagos recibidos")}</span>
+              <ul>
+                {stayPayments.map((p) => {
+                  const refund = conceptOf(p) === "refund";
+                  return (
+                    <li key={p.id}>
+                      <div>
+                        <strong>{t(conceptLabel[conceptOf(p)])}</strong>
+                        <small>
+                          {shortDate(p.createdAt.slice(0, 10))} ·{" "}
+                          {methodName(p.method, p.provider)}
+                        </small>
+                      </div>
+                      <span>
+                        {refund ? "−" : ""}
+                        {fmt(p.amountMinor)}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+          <dl className="invoice-summary">
+            <div>
+              <dt>{t("Total de la estancia")}</dt>
+              <dd>{fmt(total)}</dd>
+            </div>
+            {summary.paidMinor > 0 && (
+              <div>
+                <dt>
+                  {paidLabel}{" "}
+                  <span className="invoice-percent">
+                    ({percentOf(summary.paidMinor, total)})
+                  </span>
+                </dt>
+                <dd>{fmt(summary.paidMinor)}</dd>
+              </div>
+            )}
+            {balance > 0 ? (
+              <div className="invoice-balance">
+                <dt>
+                  {t("Saldo pendiente")}{" "}
+                  <span className="invoice-percent">
+                    ({percentOf(balance, total)})
+                  </span>
+                  <small>
+                    {t("A liquidar a la llegada · {date}", {
+                      date: shortDate(reservation.arrival),
+                    })}
+                  </small>
+                </dt>
+                <dd>{fmt(balance)}</dd>
+              </div>
+            ) : (
+              <div className="invoice-balance is-paid">
+                <dt>{t("Pagado en su totalidad")}</dt>
+                <dd>{fmt(0)}</dd>
+              </div>
+            )}
+            {summary.depositHeldMinor > 0 && (
+              <div className="invoice-deposit">
+                <dt>
+                  {t("Depósito en garantía (reembolsable)")}
+                  <small>{t("No forma parte del precio de la estancia.")}</small>
+                </dt>
+                <dd>{fmt(summary.depositHeldMinor)}</dd>
+              </div>
+            )}
+          </dl>
+        </section>
 
         <footer className="invoice-footer">
           <div>

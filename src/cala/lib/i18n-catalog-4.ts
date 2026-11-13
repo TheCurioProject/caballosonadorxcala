@@ -124,4 +124,13 @@ export const catalog4: Record<string, string> = {
   "Sin estancias en este período": "No stays in this period",
   "Total:": "Total:",
   Directa: "Direct",
+
+  // Invoice payment breakdown
+  "Anticipo pagado": "Prepayment paid",
+  "Total pagado": "Total paid",
+  "Pagos recibidos": "Payments received",
+  "A liquidar a la llegada · {date}": "To be paid on arrival · {date}",
+  "Pagado en su totalidad": "Paid in full",
+  "Depósito en garantía (reembolsable)": "Security deposit (refundable)",
+  "No forma parte del precio de la estancia.": "Not part of the stay price.",
 };
