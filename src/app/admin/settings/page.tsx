@@ -3,7 +3,7 @@ import { requireAdmin, requireAdminPage } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import React from 'react';
-import { createCoupon } from '@/lib/stripe';
+import Link from 'next/link';
 import AdminEmailsEditor from './AdminEmailsEditor';
 import SaveSettingsButton from './SaveSettingsButton';
 import {supabaseServerClient} from '@/cala/infrastructure/supabase/server';
@@ -51,24 +51,6 @@ export default async function AdminSettingsPage() {
     revalidatePublicSite();
   }
 
-  async function handleCreateCoupon(formData: FormData) {
-    'use server';
-    await requireAdmin();
-    const name = formData.get('name') as string;
-    const type = formData.get('type') as string;
-    const amount = parseFloat(formData.get('amount') as string);
-    
-    if (name && Number.isFinite(amount) && amount > 0 && (type !== 'percent' || amount <= 100)) {
-      if (type === 'percent') {
-        await createCoupon(name, null, amount);
-      } else {
-        await createCoupon(name, amount, null);
-      }
-      revalidatePath('/admin/settings');
-      revalidatePublicSite();
-    }
-  }
-
   async function updateAdminCredentials(formData: FormData) {
     'use server';
     await requireAdmin();
@@ -94,7 +76,7 @@ export default async function AdminSettingsPage() {
       <div className="mb-4 sm:mb-8">
         <h2 className="text-2xl sm:text-4xl font-serif text-[#23211F]">Website Settings</h2>
         <p className="text-gray-500 font-light mt-1 sm:mt-2 text-sm sm:text-base">
-          Contact details, coupons and service availability for the public website.
+          Contact details and service availability for the public website.
         </p>
       </div>
 
@@ -115,32 +97,15 @@ export default async function AdminSettingsPage() {
           </form>
         </div>
 
-        {/* Coupon Form */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h2 className="text-lg font-serif text-[#23211F] mb-4">Create Discount Coupon (Stripe)</h2>
-          <form action={handleCreateCoupon} className="space-y-4">
-            <div>
-              <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Name / Code</label>
-              <input type="text" name="name" required placeholder="e.g. SUMMER20" className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Type</label>
-                <select name="type" className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]">
-                  <option value="percent">Percentage (%)</option>
-                  <option value="amount">Fixed Amount ($)</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Value</label>
-                <input type="number" name="amount" required className="w-full border border-gray-200 rounded-xl px-3 py-3 sm:py-2 text-[#23211F] text-base sm:text-sm focus:outline-none focus:border-[#9B7E67]" />
-              </div>
-            </div>
-            <button type="submit" className="w-full bg-[#23211F] hover:bg-[#9B7E67] text-white font-bold text-xs tracking-widest uppercase py-3 rounded-xl transition-all duration-300">
-              CREATE COUPON
-            </button>
-          </form>
-          <p className="text-xs md:text-[10px] text-gray-400 mt-4 text-center">Coupons will appear in the Stripe dashboard.</p>
+        {/* Coupons live in CALA → Cupones (guests type them in the booking summary). */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col">
+          <h2 className="text-lg font-serif text-[#23211F] mb-2">Cupones de descuento</h2>
+          <p className="text-sm text-gray-500 mb-6 flex-grow">
+            Los cupones se crean y gestionan en la sección «Cupones». El huésped escribe el código en el resumen de su reserva y Stripe cobra el total ya con descuento.
+          </p>
+          <Link href="/admin/cupones/" className="w-full text-center bg-[#23211F] hover:bg-[#9B7E67] text-white font-bold text-xs tracking-widest uppercase py-3 rounded-xl transition-all duration-300">
+            Abrir Cupones
+          </Link>
         </div>
 
         {/* Service Availability Section */}

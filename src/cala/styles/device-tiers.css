@@ -2085,3 +2085,13 @@ html:is([data-font-size="medium"], [data-font-size="large"]) .cala-admin
     display: none;
   }
 }
+
+/* Dialogs of the website editors rendered at the end of <body>
+   (SiteModulePortal): same scope as .site-module, without the card. */
+.cala-admin .site-module.site-module-portal {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}

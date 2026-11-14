@@ -1,6 +1,8 @@
 import prisma from '@/lib/prisma';
 import * as ical from 'node-ical';
 import { revalidatePath } from 'next/cache';
+import { eventKind } from '@/lib/cala/connectors/ical-feed';
+import { retireLinkedLegacySources } from '@/lib/cala/connectors/legacy';
 
 export interface SyncFeedResult {
   sourceId: number;
@@ -107,6 +109,11 @@ export async function syncSingleIcalSource(source: {
         const summaryText = typeof ev.summary === 'string'
           ? ev.summary
           : (ev.summary?.val || `${source.name} (Reserva Externa)`);
+        // "Airbnb (Not available)" is an availability mark, not a booking: on a
+        // whole-house listing it mirrors the nights when any room is taken, so
+        // importing it would close the house (and with it every room).
+        const descriptionText = typeof ev.description === 'string' ? ev.description : (ev.description?.val || '');
+        if (eventKind(String(ev.uid || ''), summaryText, descriptionText) === 'unavailable') continue;
 
         if (end > start && ev.status !== 'CANCELLED') {
           newBlocks.push({
@@ -182,6 +189,8 @@ export async function syncSingleIcalSource(source: {
  * Sincroniza todas las fuentes iCal registradas (o filtradas por propertyId)
  */
 export async function syncAllIcalFeeds(targetPropertyId?: number): Promise<SyncAllResult> {
+  // A calendar already connected in CALA is read there; never import it twice.
+  await retireLinkedLegacySources();
   const whereClause = targetPropertyId ? { propertyId: targetPropertyId } : {};
   const sources = await prisma.icalSource.findMany({
     where: whereClause

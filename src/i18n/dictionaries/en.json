@@ -29,7 +29,25 @@
     "explore": "View Details",
     "mobileInstruction": "Swipe to explore",
     "desktopInstruction": "Scroll down to explore",
-    "roomPrefix": "Room"
+    "roomPrefix": "Room",
+    "modal": {
+      "position": "Room {current} of {total}",
+      "swipeHint": "Swipe to see another room",
+      "arrowsHint": "Use the arrows to see another room",
+      "previous": "Previous room",
+      "next": "Next room",
+      "close": "Close",
+      "photo": "Photo {current} of {total}",
+      "previousPhoto": "Previous photo",
+      "nextPhoto": "Next photo",
+      "expand": "View photos full screen",
+      "book": "Book this room",
+      "guests": "guests",
+      "bathroom": "bathroom",
+      "bathrooms": "bathrooms",
+      "noPhotos": "Room photos coming soon",
+      "amenities": "Amenities"
+    }
   },
   "amenities": {
     "title": "Designed for your comfort",

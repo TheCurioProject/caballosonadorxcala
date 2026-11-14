@@ -97,7 +97,20 @@ const TOUR_IMAGES: Record<string, string[]> = {
 
 import { getImageUrl } from '@/lib/siteImages';
 
-export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', siteImages: any }) {
+/** A tour as saved in CALA → ATV Tours (see src/lib/tours.server.ts). */
+type ManagedTour = {
+  id: number;
+  title: { es: string; en: string };
+  summary: { es: string; en: string };
+  long: { es: string; en: string };
+  duration: { es: string; en: string };
+  capacity: { es: string; en: string };
+  includes: { es: string[]; en: string[] };
+  images: string[];
+  pricePerPax: number;
+};
+
+export default function ToursClient({ lang, siteImages, dbTours }: { lang: 'es' | 'en', siteImages: any, dbTours?: ManagedTour[] | null }) {
   const dict = useDictionary();
   const pathname = usePathname();
   const router = useRouter();
@@ -119,6 +132,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
   const willChange = useTransform(scrollY, (v) => v < 1000 ? "transform" : "auto");
   
   useEffect(() => {
+    if (dbTours) return; // managed tours already carry their price
     const abortController = new AbortController();
     // Fetch prices from DB
     const fetchPrices = async () => {
@@ -153,7 +167,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
     };
     fetchPrices();
     return () => abortController.abort();
-  }, []);
+  }, [dbTours]);
 
 
   useEffect(() => {
@@ -236,14 +250,30 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
     return 0;
   };
 
-  const tours = t.tours.map((tourData: any) => {
-    const rawImages = TOUR_IMAGES[tourData.type] || [TOUR_IMAGES["ATV_OJO_DE_AGUA"][0]];
-    return {
-      ...tourData,
-      images: rawImages.map(img => getImageUrl(img, siteImages)),
-      price: getTourPrice(tourData)
-    };
-  });
+  const language = lang === 'en' ? 'en' : 'es';
+  // Tours edited in CALA win; the dictionary copy is only the fallback.
+  const tours = dbTours
+    ? dbTours.map((tour, index) => ({
+        id: tour.id,
+        number: index + 1,
+        title: tour.title[language] || tour.title.es,
+        description: tour.summary[language] || tour.summary.es,
+        longDescription: tour.long[language] || tour.long.es,
+        duration: tour.duration[language] || tour.duration.es,
+        capacity: tour.capacity[language] || tour.capacity.es,
+        includes: tour.includes[language].length ? tour.includes[language] : tour.includes.es,
+        images: tour.images.length ? tour.images : [getImageUrl('/imagenes/07_tours/atvhero.webp', siteImages)],
+        price: tour.pricePerPax,
+      }))
+    : t.tours.map((tourData: any) => {
+        const rawImages = TOUR_IMAGES[tourData.type] || [TOUR_IMAGES["ATV_OJO_DE_AGUA"][0]];
+        return {
+          ...tourData,
+          number: tourData.id,
+          images: rawImages.map(img => getImageUrl(img, siteImages)),
+          price: getTourPrice(tourData)
+        };
+      });
 
   return (
     <div className="bg-[#0A0908] text-[#F9F7F4] font-sans min-h-screen antialiased selection:bg-[#9B7E67] selection:text-[#0A0908]">
@@ -568,7 +598,7 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                   <div className="w-full md:w-1/2 flex flex-col justify-center">
                     <div className="flex items-center gap-6 mb-8">
                       <span className="text-[#9B7E67] font-serif italic text-4xl md:text-6xl opacity-40">
-                        {tour.id.toString().padStart(2, '0')}
+                        {tour.number.toString().padStart(2, '0')}
                       </span>
                       <div className="h-px bg-white/10 flex-grow"></div>
                     </div>
@@ -581,11 +611,13 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                       {tour.description}
                     </p>
 
-                    <div className="flex items-center gap-8 text-[#9B7E67] mb-12 text-base md:text-lg tracking-widest uppercase font-bold">
-                      <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/5">
-                        <Clock size={16} />
-                        <span>{tour.duration}</span>
-                      </div>
+                    <div className="flex flex-wrap items-center gap-x-8 gap-y-3 text-[#9B7E67] mb-12 text-base md:text-lg tracking-widest uppercase font-bold">
+                      {tour.duration && (
+                        <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/5">
+                          <Clock size={16} />
+                          <span>{tour.duration}</span>
+                        </div>
+                      )}
                       {tour.price > 0 && (
                         <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/5">
                           <DollarSign size={16} />
@@ -742,41 +774,53 @@ export default function ToursClient({ lang, siteImages }: { lang: 'es' | 'en', s
                 
                 {/* Stats Row */}
                 <div className="flex flex-wrap gap-4 mb-10">
-                  <div className="bg-[#0A0908] border border-white/5 rounded-2xl p-5 flex-1 min-w-[120px]">
-                    <Clock size={20} className="text-[#9B7E67] mb-3" />
-                    <span className="block text-[9px] uppercase tracking-widest text-[#F9F7F4]/40 font-bold mb-1">{t.modal.duration}</span>
-                    <span className="font-medium text-[#F9F7F4] text-base md:text-lg">{selectedTour.duration}</span>
-                  </div>
-                  {getTourPrice(selectedTour) > 0 && (
+                  {selectedTour.duration && (
+                    <div className="bg-[#0A0908] border border-white/5 rounded-2xl p-5 flex-1 min-w-[120px]">
+                      <Clock size={20} className="text-[#9B7E67] mb-3" />
+                      <span className="block text-[9px] uppercase tracking-widest text-[#F9F7F4]/40 font-bold mb-1">{t.modal.duration}</span>
+                      <span className="font-medium text-[#F9F7F4] text-base md:text-lg">{selectedTour.duration}</span>
+                    </div>
+                  )}
+                  {selectedTour.price > 0 && (
                     <div className="bg-[#0A0908] border border-white/5 rounded-2xl p-5 flex-1 min-w-[120px]">
                       <DollarSign size={20} className="text-[#9B7E67] mb-3" />
                       <span className="block text-[9px] uppercase tracking-widest text-[#F9F7F4]/40 font-bold mb-1">{t.modal.price}</span>
-                      <span className="font-medium text-[#F9F7F4] text-base md:text-lg">{formatPrice(getTourPrice(selectedTour))} {lang === 'en' ? 'per person' : 'por persona'}</span>
+                      <span className="font-medium text-[#F9F7F4] text-base md:text-lg">{formatPrice(selectedTour.price)} {lang === 'en' ? 'per person' : 'por persona'}</span>
                     </div>
                   )}
-                  <div className="bg-[#0A0908] border border-white/5 rounded-2xl p-5 flex-1 min-w-[120px]">
-                    <Users size={20} className="text-[#9B7E67] mb-3" />
-                    <span className="block text-[9px] uppercase tracking-widest text-[#F9F7F4]/40 font-bold mb-1">{t.modal.capacity}</span>
-                    <span className="font-medium text-[#F9F7F4] text-sm md:text-base leading-tight">{selectedTour.capacity}</span>
-                  </div>
+                  {selectedTour.capacity && (
+                    <div className="bg-[#0A0908] border border-white/5 rounded-2xl p-5 flex-1 min-w-[120px]">
+                      <Users size={20} className="text-[#9B7E67] mb-3" />
+                      <span className="block text-[9px] uppercase tracking-widest text-[#F9F7F4]/40 font-bold mb-1">{t.modal.capacity}</span>
+                      <span className="font-medium text-[#F9F7F4] text-sm md:text-base leading-tight">{selectedTour.capacity}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="h-px bg-white/5 w-full mb-10"></div>
 
-                <h4 className="font-serif text-2xl mb-5 text-[#F9F7F4]">{t.modal?.about || "Acerca del Recorrido"}</h4>
-                <p className="font-light text-[#F9F7F4]/70 leading-relaxed mb-10 text-xl md:text-2xl">
-                  {selectedTour.longDescription}
-                </p>
+                {(selectedTour.longDescription || selectedTour.description) && (
+                  <>
+                    <h4 className="font-serif text-2xl mb-5 text-[#F9F7F4]">{t.modal?.about || "Acerca del Recorrido"}</h4>
+                    <p className="font-light text-[#F9F7F4]/70 leading-relaxed mb-10 text-xl md:text-2xl whitespace-pre-line">
+                      {selectedTour.longDescription || selectedTour.description}
+                    </p>
+                  </>
+                )}
 
-                <h4 className="font-serif text-2xl mb-5 text-[#F9F7F4]">{t.modal.includes}</h4>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
-                  {selectedTour.includes.map((item: string, idx: number) => (
-                    <li key={idx} className="flex items-start gap-3 text-base md:text-lg font-light text-[#F9F7F4]/70">
-                      <CheckCircle2 size={18} className="text-[#9B7E67] shrink-0 mt-0.5" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
+                {selectedTour.includes?.length > 0 && (
+                  <>
+                    <h4 className="font-serif text-2xl mb-5 text-[#F9F7F4]">{t.modal.includes}</h4>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+                      {selectedTour.includes.map((item: string, idx: number) => (
+                        <li key={idx} className="flex items-start gap-3 text-base md:text-lg font-light text-[#F9F7F4]/70">
+                          <CheckCircle2 size={18} className="text-[#9B7E67] shrink-0 mt-0.5" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
 
                 <div className="w-full inline-flex justify-center items-center gap-4 text-sm md:text-base uppercase tracking-[0.2em] text-[#9B7E67] font-bold bg-[#9B7E67]/10 border border-[#9B7E67]/30 px-8 py-6 rounded-2xl text-center">
                   {lang === 'en' ? 'Reserve this tour when booking your stay' : 'Reserva este tour al reservar tu estancia'}

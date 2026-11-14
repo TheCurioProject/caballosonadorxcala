@@ -6,6 +6,7 @@ import { requireCalaAccess } from "@/lib/cala/access";
 import { DomainError, invariant } from "@/cala/domain/shared/errors";
 import { publicCalendar } from "@/cala/infrastructure/public-calendar";
 import {
+  bookedEvents,
   fetchCalendar,
   normalizeCalendarUrl,
   parseOtaCalendar,
@@ -110,14 +111,15 @@ export async function POST(request: Request) {
         );
         const events = parseOtaCalendar(await fetchCalendar(url));
         const today = new Date().toISOString().slice(0, 10);
-        const upcoming = events
-          .filter((e) => !e.cancelled && e.departure >= today)
-          .sort((a, b) => a.arrival.localeCompare(b.arrival));
+        const current = events.filter((e) => !e.cancelled && e.departure >= today);
+        const upcoming = bookedEvents(current).sort((a, b) => a.arrival.localeCompare(b.arrival));
         return NextResponse.json({
           ok: true,
           detected: providerForUrl(url),
           total: events.length,
           upcoming: upcoming.length,
+          // "Airbnb (Not available)" marks: shown to the user, never imported.
+          ignored: current.length - upcoming.length,
           sample: upcoming.slice(0, 8).map(({ arrival, departure, summary }) => ({ arrival, departure, summary })),
         });
       }

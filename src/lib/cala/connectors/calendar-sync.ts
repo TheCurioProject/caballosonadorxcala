@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabaseAdminClient } from "@/cala/infrastructure/supabase/admin";
 import { DomainError } from "@/cala/domain/shared/errors";
-import { fetchCalendar, parseOtaCalendar } from "./ical-feed";
+import { bookedEvents, fetchCalendar, parseOtaCalendar } from "./ical-feed";
 
 export interface SyncResult {
   ok: boolean;
@@ -11,6 +11,8 @@ export interface SyncResult {
   created?: number;
   updated?: number;
   released?: number;
+  /** OTA availability marks ("Airbnb (Not available)") that were not imported. */
+  ignored?: number;
   conflicts?: { code: string; arrival: string; departure: string; source: string }[];
 }
 type LinkRow = { id: string; url: string; property_id: string; last_sync_at: string | null };
@@ -32,10 +34,14 @@ export async function syncCalendarLink(linkId: string): Promise<SyncResult> {
 async function applyLink(admin: SupabaseClient, link: LinkRow): Promise<SyncResult> {
   let events: unknown = [];
   let failure: string | null = null;
+  let ignored = 0;
   try {
-    events = parseOtaCalendar(await fetchCalendar(link.url)).map(
-      ({ uid, arrival, departure, cancelled }) => ({ uid, arrival, departure, cancelled }),
-    );
+    const all = parseOtaCalendar(await fetchCalendar(link.url));
+    // Only real bookings close dates. Availability marks are dropped here, so
+    // blocks a previous sync created from them are released by the apply step.
+    const booked = bookedEvents(all);
+    ignored = all.filter((e) => !e.cancelled).length - booked.filter((e) => !e.cancelled).length;
+    events = booked.map(({ uid, arrival, departure, cancelled }) => ({ uid, arrival, departure, cancelled }));
   } catch (e) {
     failure = e instanceof DomainError ? e.message : "No pudimos leer el calendario.";
   }
@@ -45,7 +51,7 @@ async function applyLink(admin: SupabaseClient, link: LinkRow): Promise<SyncResu
     failure,
   });
   if (error) return { ok: false, error: "No pudimos guardar el calendario. Inténtalo de nuevo." };
-  return data as SyncResult;
+  return { ...(data as SyncResult), ignored };
 }
 
 /** Cron: every link, oldest first, within the time budget. */

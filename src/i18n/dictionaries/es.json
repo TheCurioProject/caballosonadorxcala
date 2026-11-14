@@ -29,7 +29,25 @@
     "explore": "Ver Detalles",
     "mobileInstruction": "Desliza para explorar",
     "desktopInstruction": "Sigue bajando para explorar",
-    "roomPrefix": "Habitación"
+    "roomPrefix": "Habitación",
+    "modal": {
+      "position": "Habitación {current} de {total}",
+      "swipeHint": "Desliza para ver otra habitación",
+      "arrowsHint": "Usa las flechas para ver otra habitación",
+      "previous": "Habitación anterior",
+      "next": "Habitación siguiente",
+      "close": "Cerrar",
+      "photo": "Foto {current} de {total}",
+      "previousPhoto": "Foto anterior",
+      "nextPhoto": "Foto siguiente",
+      "expand": "Ver fotos en grande",
+      "book": "Reservar esta habitación",
+      "guests": "huéspedes",
+      "bathroom": "baño",
+      "bathrooms": "baños",
+      "noPhotos": "Fotos de la habitación próximamente",
+      "amenities": "Comodidades"
+    }
   },
   "amenities": {
     "title": "Diseñado para tu confort",

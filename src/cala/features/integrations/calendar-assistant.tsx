@@ -18,6 +18,7 @@ type Inspect = {
   detected: ConnectorProvider | null;
   total: number;
   upcoming: number;
+  ignored?: number;
   sample: { arrival: string; departure: string; summary: string }[];
 };
 type SyncResult = {
@@ -27,6 +28,7 @@ type SyncResult = {
   created?: number;
   updated?: number;
   released?: number;
+  ignored?: number;
   conflicts?: { code: string; arrival: string; departure: string; source: string }[];
 };
 const steps = ["Qué conectar", "Calendario de la OTA", "Importar", "Calendario de CALA", "Listo"] as const;
@@ -330,6 +332,11 @@ export function CalendarAssistant({
                       ))}
                     </ul>
                   )}
+                  {(inspect.ignored ?? 0) > 0 && (
+                    <p className="muted">
+                      {`Además trae ${inspect.ignored} ${inspect.ignored === 1 ? "periodo marcado" : "periodos marcados"} como «No disponible». No son reservas (son cierres manuales o reglas de ${guide.label}) y CALA no los importa, para no cerrar fechas que sí puedes vender.`}
+                    </p>
+                  )}
                   {overlaps.length > 0 && (
                     <p className="ota-inline bad">
                       <Icon name="warning" size={16} />
@@ -366,6 +373,12 @@ export function CalendarAssistant({
                       ? `${sync.active} ${sync.active === 1 ? "fecha bloqueada" : "fechas bloqueadas"} en CALA (${sync.created ?? 0} nuevas)`
                       : "Sin fechas ocupadas que bloquear por ahora"}
                   </li>
+                  {(sync.ignored ?? 0) > 0 && (
+                    <li className="is-ok">
+                      <span><Icon name="check" size={13} /></span>
+                      {`${sync.ignored} ${sync.ignored === 1 ? "periodo «No disponible» ignorado" : "periodos «No disponible» ignorados"}: no son reservas y no cierran tu calendario`}
+                    </li>
+                  )}
                   <li className={sync.conflicts?.length ? "is-bad" : "is-ok"}>
                     <span>{sync.conflicts?.length ? <Icon name="warning" size={13} /> : <Icon name="check" size={13} />}</span>
                     {sync.conflicts?.length

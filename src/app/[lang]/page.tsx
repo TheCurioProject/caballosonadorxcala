@@ -155,7 +155,7 @@ export default async function Home({ params, searchParams }: { params: Promise<{
         <About imageSrc={getImageUrl('/casaestancia.webp', siteImages)} />
         <Concept imageSrc={getImageUrl('/imagenes/02_hero/hero_01_img_4885.webp', siteImages)} />
         <Suites rooms={rooms} />
-        <Services imageSrc={getImageUrl('/casacuartos.webp', siteImages)} siteImages={siteImages} amenities={amenities} lang={safeLang} />
+        <Services imageSrc={getImageUrl('/casacuartos.webp', siteImages)} siteImages={siteImages} amenities={amenities} lang={safeLang} rooms={rooms} />
         <FoodServices />
         <Experiences experiences={experiences} />
         <Reviews />

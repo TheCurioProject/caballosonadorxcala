@@ -9,6 +9,8 @@ import { getBilingualText } from '@/lib/bilingual';
 import { expandRecurringPricing } from '@/lib/pricing';
 import { lodgingSelectionSchema, type LodgingSelection, lodgingText } from '@/lib/lodgings';
 import { getLodgings, quoteLodging } from '@/lib/lodgings.server';
+import { CouponError, couponsReady, stripeCouponFor, usableCoupon, type SiteCoupon } from '@/lib/coupons.server';
+import { couponMessage } from '@/lib/coupons';
 
 // ─── Simple in-memory rate limiter (per serverless instance) ───
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -160,6 +162,22 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Los precios han cambiado. Recarga la página.' }, { status: 409 });
       }
 
+      // ─── COUPON (CALA → Cupones) ───
+      // Validated here against the server total; Stripe applies the discount.
+      const couponCode = typeof body.couponCode === 'string' && body.couponCode.trim() ? body.couponCode : null;
+      const orderMinor = Math.round(serverGrandTotal * 100);
+      let applied: { coupon: SiteCoupon; discountMinor: number } | null = null;
+      if (couponCode) {
+        try {
+          if (!(await couponsReady())) throw new CouponError('INVALID');
+          applied = await usableCoupon(couponCode, orderMinor);
+        } catch (error) {
+          if (error instanceof CouponError) return NextResponse.json({ error: couponMessage(error.reason, lang, error.detail), coupon: error.reason }, { status: 400 });
+          throw error;
+        }
+      }
+      const couponNote = applied ? `Cupón ${applied.coupon.code} aplicado: -$${(applied.discountMinor / 100).toLocaleString('en-US')} MXN.` : '';
+
       // VULN-09: Use transaction to atomically check availability + create booking
       booking = await prisma.$transaction(async (tx) => {
         if(process.env.DATA_BACKEND==='supabase')await tx.$queryRaw`SELECT site.lock_property(${property.id}::integer)`;
@@ -174,6 +192,8 @@ export async function POST(req: Request) {
           const quoted=await tx.$queryRaw<Array<{total:bigint}>>`SELECT site.cala_quote(${property.id}::integer,${checkInDate}::date,${checkOutDate}::date) AS total`;
           if(Number(quoted[0]?.total)/100!==verifiedAccommodationTotal)throw new Error('PRICE_CHANGED');
         }
+        // Checkouts are serialized by the lock above, so a coupon cannot exceed its limit of uses.
+        if (applied) applied = await usableCoupon(applied.coupon.code, orderMinor, tx);
         // Check for overlapping bookings or blocks (inside transaction for atomicity)
         const overlappingBookings = selection ? [] : await tx.booking.findMany({
           where: {
@@ -209,7 +229,7 @@ export async function POST(req: Request) {
             totalPrice: group ? roomTotalsMinor[0] / 100 + serverAddonTotal : serverGrandTotal,
             payment_status: 'PENDING',
             origin: 'WEBSITE',
-            ...(selectedLodging ? {notes: [`Alojamiento: ${lodgingText(selectedLodging.name, lang)}. Huéspedes: ${selection!.adults} adultos, ${selection!.children} menores.`, groupNote].filter(Boolean).join('\n')} : {}),
+            ...(selectedLodging ? {notes: [`Alojamiento: ${lodgingText(selectedLodging.name, lang)}. Huéspedes: ${selection!.adults} adultos, ${selection!.children} menores.`, groupNote, couponNote].filter(Boolean).join('\n')} : couponNote ? {notes: couponNote} : {}),
             addons: {
               create: verifiedAddons.map((a: any) => ({
                 type: a.type,
@@ -233,6 +253,8 @@ export async function POST(req: Request) {
           await tx.$executeRaw`INSERT INTO site.booking_lodging(booking_id,lodging_id,adults,children) VALUES(${room.id}::integer,${s.lodgingId}::uuid,${s.adults}::integer,${s.children}::integer)`;
           linked.push(room.id);
         }
+        // Holds one use of the coupon until the checkout is paid or expires.
+        if (applied) await tx.$executeRaw`INSERT INTO site.coupon_redemptions(coupon_id,code,booking_id,session_id,discount_minor) VALUES(${applied.coupon.id}::integer,${applied.coupon.code},${created.id}::integer,${'booking:' + created.id},${applied.discountMinor}::bigint)`;
         return {...created, linked};
       }, { isolationLevel: process.env.DATA_BACKEND==='supabase' ? Prisma.TransactionIsolationLevel.ReadCommitted : Prisma.TransactionIsolationLevel.Serializable });
 
@@ -241,7 +263,8 @@ export async function POST(req: Request) {
         const origin = new URL(req.url).origin;
         
         const session = await stripe.checkout.sessions.create({
-          allow_promotion_codes: true,
+          // A CALA coupon is applied as a Stripe discount; otherwise Stripe's own promotion codes stay available.
+          ...(applied ? { discounts: [{ coupon: await stripeCouponFor(applied.coupon) }] } : { allow_promotion_codes: true }),
           expires_at: Math.floor(Date.now() / 1000) + CHECKOUT_SECONDS,
           payment_method_types: ['card'],
           line_items: [
@@ -275,8 +298,10 @@ export async function POST(req: Request) {
             bookingId: booking.id.toString(),
             ...(selection ? {lodgingId: selection.lodgingId} : {}),
             ...(booking.linked.length ? {groupBookingIds: [booking.id, ...booking.linked].join(',')} : {}),
+            ...(applied ? {couponCode: applied.coupon.code, couponId: String(applied.coupon.id)} : {}),
           },
         });
+        if (applied) await prisma.$executeRaw`UPDATE site.coupon_redemptions SET session_id=${session.id} WHERE session_id=${'booking:' + booking.id}`;
 
         if (booking.linked.length) {
           // The group payment matches every room by its external id; without them it could not be confirmed.
@@ -298,9 +323,12 @@ export async function POST(req: Request) {
         } catch (e) {
           console.error('Failed to cleanup booking after stripe error', e);
         }
+        if (applied) await prisma.$executeRaw`UPDATE site.coupon_redemptions SET status='expired' WHERE session_id=${'booking:' + booking.id}`.catch(() => undefined);
         return NextResponse.json({ error: 'Error al inicializar el pago con Stripe.' }, { status: 502 });
       }
     } catch (dbError: any) {
+      // The coupon ran out (or was switched off) while this checkout was being prepared.
+      if (dbError instanceof CouponError) return NextResponse.json({ error: couponMessage(dbError.reason, lang, dbError.detail), coupon: dbError.reason }, { status: 400 });
       if (/DATES_UNAVAILABLE|UNIT_CONFLICT|NO_AVAILABILITY|LODGING_RULES|LODGING_SALES_CLOSED|RATE_RESTRICTION|PRICE_CHANGED|DEPARTURE_CLOSED/.test(String(dbError.meta?.message || dbError.message))) {
         return NextResponse.json({ 
           error: 'La estancia ya no está disponible con esas fechas, reglas o precio. Revisa tu selección.'

@@ -80,6 +80,7 @@ export default async function AdminStripePage() {
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-50 flex justify-between items-center">
               <h2 className="font-serif text-[#23211F] text-lg sm:text-xl">Active Coupons</h2>
+              <a href="/admin/cupones/" className="text-xs font-bold uppercase tracking-widest text-[#9B7E67] hover:text-[#23211F]">Gestionar cupones</a>
             </div>
             
             {/* Mobile: Cards */}
@@ -103,7 +104,7 @@ export default async function AdminStripePage() {
                   </div>
                 </div>
               ))}
-              {coupons.length === 0 && <div className="py-8 text-center text-sm text-gray-400 italic">No active coupons. Create one from Settings.</div>}
+              {coupons.length === 0 && <div className="py-8 text-center text-sm text-gray-400 italic">No hay cupones en Stripe. Créalos en la sección Cupones.</div>}
             </div>
             
             {/* Desktop: Table */}
@@ -135,7 +136,7 @@ export default async function AdminStripePage() {
                       </td>
                     </tr>
                   ))}
-                  {coupons.length === 0 && <tr><td colSpan={4} className="py-8 text-center text-sm text-gray-400 italic">No active coupons. Create one from Settings.</td></tr>}
+                  {coupons.length === 0 && <tr><td colSpan={4} className="py-8 text-center text-sm text-gray-400 italic">No hay cupones en Stripe. Créalos en la sección Cupones.</td></tr>}
                 </tbody>
               </table>
             </div>

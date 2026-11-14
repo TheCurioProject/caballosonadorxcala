@@ -14,6 +14,7 @@ import { catalog } from "@/cala/lib/i18n-catalog";
 import { catalog2 } from "@/cala/lib/i18n-catalog-2";
 import { catalog3 } from "@/cala/lib/i18n-catalog-3";
 import { catalog4 } from "@/cala/lib/i18n-catalog-4";
+import { catalog5 } from "@/cala/lib/i18n-catalog-5";
 import { advisorEnglish } from "@/cala/domain/analytics/advisor";
 
 export type Locale = "es" | "en";
@@ -280,6 +281,7 @@ const english: Record<string, string> = {
   ...catalog2,
   ...catalog3,
   ...catalog4,
+  ...catalog5,
   ...advisorEnglish,
   ...base,
 };

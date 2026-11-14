@@ -13,6 +13,7 @@ import { useRouter, useParams } from 'next/navigation';
 export type { ServiceItem } from './ServiceModal';
 
 const ServiceModal = dynamic(() => import('./ServiceModal').then(mod => mod.ServiceModal), { ssr: false });
+const RoomModal = dynamic(() => import('./RoomModal').then(mod => mod.RoomModal), { ssr: false });
 
 const images = [
   '/imagenes/05_amenities/amenity_01_private_rooms.webp', // Card 1: Rooms
@@ -30,12 +31,14 @@ const icons = [
 
 import { getImageUrl } from '@/lib/siteImages';
 
-export const Services = ({ imageSrc, siteImages, amenities, lang }: { imageSrc?: string, siteImages?: any, amenities?: any[], lang?: string }) => {
+export const Services = ({ imageSrc, siteImages, amenities, lang, rooms = [] }: { imageSrc?: string, siteImages?: any, amenities?: any[], lang?: string, rooms?: any[] }) => {
   const dict = useDictionary();
   const router = useRouter();
   const params = useParams();
   const currentLang = lang || params?.lang || 'en';
   const [selectedService, setSelectedService] = useState<any | null>(null);
+  // The rooms card opens the rooms themselves (same expanded cards as the rooms section).
+  const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
 
   // Build the full service items
   const serviceItems: any[] = (amenities && amenities.length > 0 ? amenities : (dict as any).services.items)
@@ -48,7 +51,9 @@ export const Services = ({ imageSrc, siteImages, amenities, lang }: { imageSrc?:
         short: isDbItem ? (currentLang === 'es' ? item.shortEs : item.shortEn) : item.short,
         desc: isDbItem ? (currentLang === 'es' ? item.descEs : item.descEn) : item.desc,
         image: siteImages ? getImageUrl(images[index % images.length], siteImages) : images[index % images.length],
-        icon: icons[index % icons.length]
+        icon: icons[index % icons.length],
+        // First card of the section: "6 private rooms".
+        opensRooms: index === 0 && rooms.length > 0
       };
     });
 
@@ -105,8 +110,10 @@ export const Services = ({ imageSrc, siteImages, amenities, lang }: { imageSrc?:
                   >
                     <button
                       onClick={() => {
-                        setSelectedService(service);
+                        if (service.opensRooms) setSelectedRoom(0);
+                        else setSelectedService(service);
                       }}
+                      aria-haspopup="dialog"
                       className="group w-full text-left flex items-start sm:items-center gap-4 sm:gap-6 p-4 sm:p-5 rounded-2xl bg-white/[0.03] hover:bg-[#9B7E67]/20 border border-white/10 hover:border-[#9B7E67]/50 transition-all duration-300 relative overflow-hidden active:scale-[0.98]"
                     >
                       {/* Icon container */}
@@ -142,6 +149,9 @@ export const Services = ({ imageSrc, siteImages, amenities, lang }: { imageSrc?:
 
       {/* Modal */}
       <ServiceModal service={selectedService} onClose={() => setSelectedService(null)} />
+      {rooms.length > 0 && (
+        <RoomModal rooms={rooms} index={selectedRoom} onIndexChange={setSelectedRoom} onClose={() => setSelectedRoom(null)} />
+      )}
     </>
   );
 };

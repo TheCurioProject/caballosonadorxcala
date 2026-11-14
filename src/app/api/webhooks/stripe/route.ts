@@ -8,6 +8,7 @@ import { differenceInDays } from 'date-fns';
 import { generateInvoicePDFBuffer, generateTourInvoicePDFBuffer } from '@/lib/pdf';
 import fs from 'fs';
 import path from 'path';
+import { confirmRedemption, releaseRedemption } from '@/lib/coupons.server';
 
 export async function POST(request: Request) {
   const body = await request.text();
@@ -41,6 +42,8 @@ export async function POST(request: Request) {
     // Multi-room checkouts store "<session>#<booking>" on every extra room.
     await prisma.booking.updateMany({ where: { OR: [{ externalId: session.id }, { externalId: { startsWith: `${session.id}#` } }], payment_status: 'PENDING' }, data: { payment_status: 'EXPIRED' } });
     await prisma.serviceBooking.updateMany({ where: { externalId: session.id, paymentStatus: 'PENDING' }, data: { paymentStatus: 'EXPIRED' } });
+    // The coupon use held by this checkout is free again.
+    if (session.metadata?.couponCode) await releaseRedemption(session.id).catch(error => console.error('[Webhook] coupon release failed', error));
   }
 
   if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
@@ -99,6 +102,9 @@ export async function POST(request: Request) {
         const roomName = isGroup
           ? groupRooms.map(r => /^Alojamiento: (.+?)\. Huéspedes/.exec(r.notes || '')?.[1]).filter(Boolean).join(' + ') || `${groupIds.length} habitaciones`
           : booking.property?.name || 'Casa Caballo Soñador';
+
+        // The coupon use now counts, with the discount Stripe really applied.
+        if (session.metadata?.couponCode) await confirmRedemption(session.id, session.total_details?.amount_discount ?? null).catch(error => console.error('[Webhook] coupon confirmation failed', error));
 
         console.log('[Webhook] Booking confirmed:', bookingId);
 

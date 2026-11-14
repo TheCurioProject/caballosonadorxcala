@@ -634,6 +634,36 @@ export const guide: GuideTopic[] = [
     },
   },
   {
+    path: "atv-tours",
+    group: "web",
+    icon: "mapping",
+    es: {
+      title: "ATV Tours",
+      summary: "Los tours de la página pública de tours: textos, fotos, precio y orden.",
+      steps: ["Crea o edita un tour con sus fotos y textos en español e inglés.", "Ordénalos, ocúltalos o elimínalos; la web se actualiza al guardar."],
+    },
+    en: {
+      title: "ATV Tours",
+      summary: "The tours on the public tours page: texts, photos, price and order.",
+      steps: ["Create or edit a tour with its photos and texts in Spanish and English.", "Reorder, hide or delete them; the website updates when you save."],
+    },
+  },
+  {
+    path: "cupones",
+    group: "web",
+    icon: "receipt",
+    es: {
+      title: "Cupones",
+      summary: "Códigos de descuento que los huéspedes escriben al reservar en la web y que Stripe aplica al pago.",
+      steps: ["Crea un cupón con porcentaje o monto fijo, vigencia y límite de usos.", "Compártelo: el huésped lo escribe en el resumen de su reserva."],
+    },
+    en: {
+      title: "Coupons",
+      summary: "Discount codes guests enter when booking on the website and Stripe applies to the payment.",
+      steps: ["Create a coupon with a percentage or fixed amount, validity and usage limit.", "Share it: the guest enters it in the booking summary."],
+    },
+  },
+  {
     path: "writers-group",
     group: "web",
     icon: "message",

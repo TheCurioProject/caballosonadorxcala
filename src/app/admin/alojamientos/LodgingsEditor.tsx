@@ -87,7 +87,9 @@ export default function LodgingsEditor({
         <div className="row" style={{ flexWrap: "wrap", gap: 12 }}>
           {[
             ["content", "Fotografías"],
-            ["servicios-comida", "Comida y tours"],
+            ["servicios-comida", "Comida"],
+            ["atv-tours", "ATV Tours"],
+            ["cupones", "Cupones"],
             ["writers-group", "Workshops"],
             ["during-your-stay", "Amenidades"],
             ["calendario", "Calendario por habitación"],

@@ -153,6 +153,13 @@ export const navigation: {
     permission: "property.write",
   },
   {
+    path: "atv-tours",
+    label: "ATV Tours",
+    icon: "mapping",
+    group: "CASA CABALLO SOÑADOR",
+    permission: "property.write",
+  },
+  {
     path: "writers-group",
     label: "Talleres de escritura",
     icon: "message",
@@ -177,6 +184,13 @@ export const navigation: {
     path: "tours-bookings",
     label: "Reservas de servicios",
     icon: "reservation",
+    group: "CASA CABALLO SOÑADOR",
+    permission: "property.write",
+  },
+  {
+    path: "cupones",
+    label: "Cupones",
+    icon: "receipt",
     group: "CASA CABALLO SOÑADOR",
     permission: "property.write",
   },

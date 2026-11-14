@@ -1,5 +1,5 @@
 import { test, expect } from "vitest";
-import { parseOtaCalendar, providerForUrl } from "@/lib/cala/connectors/ical-feed";
+import { bookedEvents, calendarIdentity, parseOtaCalendar, providerForUrl } from "@/lib/cala/connectors/ical-feed";
 import { matchReservation, parseInbound } from "@/lib/cala/connectors/mail-parse";
 import { providerForSource } from "@/cala/domain/messaging/ota";
 
@@ -29,11 +29,57 @@ const airbnbFeed = [
 
 test("OTA calendar reader accepts all-day and timed events and skips CALA echoes", () => {
   expect(parseOtaCalendar(airbnbFeed)).toEqual([
-    { uid: "1418fb94e984-9b2a@airbnb.com", arrival: "2027-01-02", departure: "2027-01-05", cancelled: false, summary: "Reserved" },
-    { uid: "timed@booking", arrival: "2027-01-10", departure: "2027-01-11", cancelled: false, summary: "CLOSED - Not available" },
+    { uid: "1418fb94e984-9b2a@airbnb.com", arrival: "2027-01-02", departure: "2027-01-05", cancelled: false, summary: "Reserved", kind: "reservation" },
+    { uid: "timed@booking", arrival: "2027-01-10", departure: "2027-01-11", cancelled: false, summary: "CLOSED - Not available", kind: "reservation" },
   ]);
   expect(() => parseOtaCalendar("BEGIN:VCALENDAR\nBEGIN:VEVENT\nDTSTART;VALUE=DATE:20270101\nRRULE:FREQ=WEEKLY\nEND:VEVENT\nEND:VCALENDAR")).toThrow();
   expect(() => parseOtaCalendar("BEGIN:VCALENDAR\nBEGIN:VEVENT")).toThrow();
+});
+
+test("Airbnb availability marks are never treated as bookings", () => {
+  // Real feed shape of a whole-house listing: one booking and several
+  // "Airbnb (Not available)" ranges that only mirror rooms taken elsewhere.
+  const feed = [
+    "BEGIN:VCALENDAR",
+    "PRODID:-//Airbnb Inc//Hosting Calendar 1.0//EN",
+    "BEGIN:VEVENT",
+    "DTSTART;VALUE=DATE:20261227",
+    "DTEND;VALUE=DATE:20261230",
+    "SUMMARY:Reserved",
+    "UID:1418fb94e984-183c@airbnb.com",
+    "DESCRIPTION:Reservation URL: https://www.airbnb.com/hosting/reservations/de",
+    " tails/HM39AET5Q4\\nPhone Number (Last 4 Digits): 0000",
+    "END:VEVENT",
+    "BEGIN:VEVENT",
+    "DTSTART;VALUE=DATE:20270109",
+    "DTEND;VALUE=DATE:20270401",
+    "SUMMARY:Airbnb (Not available)",
+    "UID:7f662ec65913-1e94@airbnb.com",
+    "END:VEVENT",
+    "BEGIN:VEVENT",
+    "DTSTART;VALUE=DATE:20270410",
+    "DTEND;VALUE=DATE:20270418",
+    "SUMMARY:Jane Doe (HMXYZ)",
+    "UID:legacy-format@airbnb.com",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+  const events = parseOtaCalendar(feed);
+  expect(events.map((e) => e.kind)).toEqual(["reservation", "unavailable", "reservation"]);
+  expect(bookedEvents(events).map((e) => e.arrival)).toEqual(["2026-12-27", "2027-04-10"]);
+  // Other OTAs use "not available" for real bookings: they must keep blocking.
+  const booking = "BEGIN:VCALENDAR\nBEGIN:VEVENT\nDTSTART;VALUE=DATE:20270101\nDTEND;VALUE=DATE:20270103\nUID:x@booking.com\nSUMMARY:CLOSED - Not available\nEND:VEVENT\nEND:VCALENDAR";
+  expect(bookedEvents(parseOtaCalendar(booking))).toHaveLength(1);
+});
+
+test("the same OTA calendar is recognised across country domains", () => {
+  expect(calendarIdentity("https://www.airbnb.mx/calendar/ical/123.ics?t=abc")).toBe(
+    calendarIdentity("webcal://www.airbnb.com/calendar/ical/123.ics?t=abc"),
+  );
+  expect(calendarIdentity("https://www.airbnb.com/calendar/ical/124.ics?t=abc")).not.toBe(
+    calendarIdentity("https://www.airbnb.com/calendar/ical/123.ics?t=abc"),
+  );
+  expect(calendarIdentity("https://example.com/a.ics/")).toBe(calendarIdentity("https://example.com/a.ics"));
 });
 
 test("calendar URLs are attributed to their OTA", () => {

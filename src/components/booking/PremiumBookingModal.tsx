@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useDragControls } from 'framer-motion';
-import { X, CalendarDays, ArrowRight, Check, ChefHat, CreditCard, User, Map, Utensils, Minus, Plus, ChevronDown, ChevronUp, BedDouble } from 'lucide-react';
+import { X, CalendarDays, ArrowRight, Check, ChefHat, CreditCard, User, Map, Utensils, Minus, Plus, ChevronDown, ChevronUp, BedDouble, Tag } from 'lucide-react';
+import { couponMessage, discountFor, type CouponRule } from '@/lib/coupons';
 import { ActionLoadingScreen } from '../ui/ActionLoadingScreen';
 import { DayPicker, DateRange } from 'react-day-picker';
 import dynamic from 'next/dynamic';
 import { CountryCodeDropdown } from './CountryCodeDropdown';
 import { AvailabilityOverview, localDate, type AvailabilityOverviewData, type BookingLodging, type Device } from './AvailabilityOverview';
 import { StaySearchForm, StayResults, type StaySearchResult } from './StaySearch';
+import type { StaySuggestion } from '@/lib/staySuggestions';
 import { lodgingText } from '@/lib/lodgings';
 import type { PlannedRoom } from '@/lib/stayPlanner';
 
@@ -446,6 +448,10 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
   const getConvertedPrice = (amountInMxn: number) => amountInMxn;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [couponInput, setCouponInput] = useState('');
+  const [coupon, setCoupon] = useState<(CouponRule & { code: string }) | null>(null);
+  const [couponError, setCouponError] = useState('');
+  const [couponBusy, setCouponBusy] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
 
@@ -619,14 +625,20 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
     setSearchNights(value);
     if(range?.from){const to=new Date(range.from);to.setDate(to.getDate()+value);selectDates({from:range.from,to});}
   };
-  const searchStay=()=>{
-    if(!range?.from||!range?.to)return;
+  const searchStay=(dates?:{from:Date;to:Date})=>{
+    const from=dates?.from??range?.from,to=dates?.to??range?.to;
+    if(!from||!to)return;
     setStayResult(null);setStayError('');setStayLoading(true);setStep('results');
-    fetch('/api/stay-options/?'+new URLSearchParams({checkIn:format(range.from,'yyyy-MM-dd'),checkOut:format(range.to,'yyyy-MM-dd'),adults:String(adults),children:String(children)}),{cache:'no-store'})
+    fetch('/api/stay-options/?'+new URLSearchParams({checkIn:format(from,'yyyy-MM-dd'),checkOut:format(to,'yyyy-MM-dd'),adults:String(adults),children:String(children)}),{cache:'no-store'})
       .then(async response=>{const data=await response.json();if(!response.ok)throw new Error(isEn?'We could not search those dates. Please try again.':data.error||'No se pudo buscar disponibilidad.');return data as StaySearchResult;})
       .then(data=>setStayResult(data))
       .catch(reason=>setStayError(reason.message))
       .finally(()=>setStayLoading(false));
+  };
+  // A suggested stay (nothing fitted the dates asked for): adopt its dates and search again.
+  const applySuggestion=(suggestion:StaySuggestion)=>{
+    const from=localDate(suggestion.checkIn),to=localDate(suggestion.checkOut);
+    setSearchNights(suggestion.nights);selectDates({from,to});searchStay({from,to});
   };
   const chooseRooms=(rooms:PlannedRoom[])=>{
     setStayRooms(rooms);setFlow('multi');setLodgingId('');resetExtras();
@@ -798,6 +810,40 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
   
   const grandTotal = accommodationTotal + cookTotal + atvTotal;
 
+  // Coupon typed by the guest (created in CALA → Cupones). The server
+  // validates it again at checkout and Stripe applies the discount.
+  const couponDiscount = coupon ? discountFor(coupon, Math.round(grandTotal * 100)) / 100 : 0;
+  const payableTotal = Math.max(0, grandTotal - couponDiscount);
+  // A coupon with a minimum order stops applying if the guest removes extras below it.
+  useEffect(() => {
+    if (coupon && grandTotal < coupon.minTotal) {
+      setCoupon(null);
+      setCouponError(couponMessage('MIN_TOTAL', isEn ? 'en' : 'es', coupon.minTotal));
+    }
+  }, [coupon, grandTotal, isEn]);
+  const applyCoupon = async () => {
+    const code = couponInput.trim();
+    if (!code || couponBusy) return;
+    setCouponBusy(true);
+    setCouponError('');
+    try {
+      const res = await fetch('/api/coupons/validate/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, total: grandTotal, lang: currentLangCode }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!data.valid) throw new Error(data.error || couponMessage('UNAVAILABLE', currentLangCode === 'en' ? 'en' : 'es'));
+      setCoupon({ code: data.code, type: data.type, value: data.value, minTotal: data.minTotal });
+      setCouponInput('');
+    } catch (err: any) {
+      setCoupon(null);
+      setCouponError(err.message);
+    } finally {
+      setCouponBusy(false);
+    }
+  };
+
   const isNameValid = guestName.trim().length >= 2;
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail);
   const isPhoneValid = guestPhone.trim().length >= 7;
@@ -887,6 +933,7 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
           guestPhone: `${countryCode} ${guestPhone}`,
           accommodationTotal,
           totalPrice: grandTotal,
+          ...(coupon ? { couponCode: coupon.code } : {}),
           addons: selectedAddons,
           currency: currency.toLowerCase(),
           lang: currentLangCode,
@@ -894,7 +941,11 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Checkout initialization failed');
+      if (!res.ok) {
+        // The coupon stopped being valid (used up, expired…): drop it so the guest can continue.
+        if (data.coupon) { setCoupon(null); setCouponError(data.error || ''); }
+        throw new Error(data.error || 'Checkout initialization failed');
+      }
       
       setIsSuccess(true);
       setShowConfetti(true);
@@ -1226,8 +1277,8 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
                   {(catalogError||availabilityError||quoteError)&&<p role="alert" className="text-red-700 text-sm px-4 py-3">{catalogError||availabilityError||quoteError}</p>}
                   {catalogLoading&&step!=='overview'&&<p role="status" className="text-gray-500 py-8">{isEn?'Loading accommodation…':'Cargando alojamientos…'}</p>}
                   {step==='overview'&&<motion.div key="overview" initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} exit={{opacity:0,x:-15}}><AvailabilityOverview catalog={catalog} data={overview} error={overviewError} isEn={isEn} locale={localeObj} device={device} onContinue={startGroupSearch}/></motion.div>}
-                  {!catalogLoading&&step==='search'&&<motion.div key="search" initial={{opacity:0,x:15}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-15}}><StaySearchForm catalog={catalog} overview={overview} isEn={isEn} locale={localeObj} device={device} arrival={range?.from} nights={searchNights} adults={adults} minors={children} onArrival={setSearchArrival} onNights={setSearchNightsValue} onAdults={setAdults} onChildren={setChildren} onSearch={searchStay}/></motion.div>}
-                  {step==='results'&&<motion.div key="results" initial={{opacity:0,x:15}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-15}}><StayResults catalog={catalog} result={stayResult} loading={stayLoading} error={stayError} isEn={isEn} locale={localeObj} device={device} onChoose={chooseRooms} onEdit={()=>setStep('search')}/></motion.div>}
+                  {!catalogLoading&&step==='search'&&<motion.div key="search" initial={{opacity:0,x:15}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-15}}><StaySearchForm catalog={catalog} overview={overview} isEn={isEn} locale={localeObj} device={device} arrival={range?.from} nights={searchNights} adults={adults} minors={children} onArrival={setSearchArrival} onNights={setSearchNightsValue} onAdults={setAdults} onChildren={setChildren} onSearch={()=>searchStay()}/></motion.div>}
+                  {step==='results'&&<motion.div key="results" initial={{opacity:0,x:15}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-15}}><StayResults catalog={catalog} result={stayResult} loading={stayLoading} error={stayError} isEn={isEn} locale={localeObj} device={device} onChoose={chooseRooms} onEdit={()=>setStep('search')} onSuggestion={applySuggestion}/></motion.div>}
                   {step === 'dates' && (
                     <motion.div
                       key="step1"
@@ -2308,12 +2359,77 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
                             )}
                           </AnimatePresence>
 
-                          <div className="flex justify-between items-center pt-4 border-t border-gray-100 mt-4 shrink-0">
+                          {/* Coupon */}
+                          <div className="pt-4 border-t border-gray-100 mt-4 shrink-0">
+                            {coupon ? (
+                              <div className="flex items-center justify-between gap-3 rounded-2xl bg-[#9B7E67]/10 border border-[#9B7E67]/25 px-4 py-3">
+                                <div className="flex items-center gap-3 min-w-0">
+                                  <Tag size={18} className="text-[#9B7E67] shrink-0" />
+                                  <div className="min-w-0">
+                                    <p className="font-bold text-[#23211F] tracking-wider truncate">{coupon.code}</p>
+                                    <p className="text-sm text-gray-500">
+                                      {coupon.type === 'percent'
+                                        ? (isEn ? `${coupon.value}% off` : `${coupon.value}% de descuento`)
+                                        : (isEn ? 'Discount applied' : 'Descuento aplicado')}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3 shrink-0">
+                                  <span className="font-serif text-xl text-[#9B7E67]">−${couponDiscount.toLocaleString('en-US')}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => { setCoupon(null); setCouponError(''); }}
+                                    aria-label={isEn ? 'Remove coupon' : 'Quitar cupón'}
+                                    className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-[#23211F] hover:bg-white transition-colors"
+                                  >
+                                    <X size={16} />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <form
+                                onSubmit={(e) => { e.preventDefault(); void applyCoupon(); }}
+                                className="flex items-stretch gap-2"
+                              >
+                                <label htmlFor="booking-coupon" className="sr-only">{isEn ? 'Coupon code' : 'Código de cupón'}</label>
+                                <div className="relative flex-1 min-w-0">
+                                  <Tag size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                  <input
+                                    id="booking-coupon"
+                                    type="text"
+                                    value={couponInput}
+                                    onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(''); }}
+                                    placeholder={isEn ? 'Coupon code' : 'Código de cupón'}
+                                    autoComplete="off"
+                                    autoCapitalize="characters"
+                                    spellCheck={false}
+                                    maxLength={32}
+                                    aria-invalid={Boolean(couponError)}
+                                    aria-describedby={couponError ? 'booking-coupon-error' : undefined}
+                                    className="w-full h-12 pl-11 pr-4 rounded-full bg-[#F9F7F4] border border-gray-200 text-base tracking-wider uppercase placeholder:normal-case placeholder:tracking-normal outline-none focus:border-[#9B7E67] focus:ring-2 focus:ring-[#9B7E67]/20 transition-all"
+                                  />
+                                </div>
+                                <button
+                                  type="submit"
+                                  disabled={!couponInput.trim() || couponBusy || grandTotal === 0}
+                                  className="h-12 px-5 rounded-full border border-[#23211F] text-[#23211F] text-sm font-bold uppercase tracking-widest hover:bg-[#23211F] hover:text-white transition-colors disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-[#23211F] shrink-0"
+                                >
+                                  {couponBusy ? (isEn ? 'Checking…' : 'Validando…') : (isEn ? 'Apply' : 'Aplicar')}
+                                </button>
+                              </form>
+                            )}
+                            {couponError && <p id="booking-coupon-error" role="alert" className="text-sm text-red-600 mt-2 px-2">{couponError}</p>}
+                          </div>
+
+                          <div className="flex justify-between items-center pt-4 shrink-0">
     <div>
       <h4 className="font-bold text-2xl text-[#23211F]">{dict.modal?.total}</h4>
                               <p className="text-base md:text-lg text-gray-400 uppercase tracking-widest">{dict.modal?.taxesIncluded}</p>
                             </div>
-                            <div className="font-serif text-3xl text-[#23211F]">${grandTotal.toLocaleString('en-US')} {currency}</div>
+                            <div className="text-right">
+                              {couponDiscount > 0 && <div className="text-base text-gray-400 line-through">${grandTotal.toLocaleString('en-US')} {currency}</div>}
+                              <div className="font-serif text-3xl text-[#23211F]">${payableTotal.toLocaleString('en-US')} {currency}</div>
+                            </div>
                           </div>
                         </div>
 

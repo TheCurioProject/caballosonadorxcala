@@ -1,4 +1,7 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+
+/** Tags of the cached reads behind public pages (see src/app/[lang]/page.tsx). */
+export const PUBLIC_CACHE_TAGS = ["amenities", "experiences"] as const;
 
 /**
  * The public website belongs exclusively to Casa Caballo Soñador, which in
@@ -14,6 +17,10 @@ export function isWebsiteProperty(propertyId: unknown) {
 export function revalidatePublicSite() {
   try {
     revalidatePath("/", "layout");
+    // The home page keeps "During your stay" and the experiences in tagged
+    // caches (unstable_cache, 1 h): expire them too, so an edit in CALA shows
+    // on the very next visit instead of up to an hour later.
+    for (const tag of PUBLIC_CACHE_TAGS) revalidateTag(tag, { expire: 0 });
   } catch (error) {
     // Outside a request scope (scripts/tests) there is nothing to invalidate.
     console.warn("[revalidatePublicSite]", (error as Error).message);

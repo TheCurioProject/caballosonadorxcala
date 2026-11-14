@@ -17,7 +17,28 @@ export interface OtaCalendarEvent {
   departure: string;
   cancelled: boolean;
   summary: string;
+  /**
+   * "reservation": a real booking, must close the dates in CALA.
+   * "unavailable": the OTA only says "not bookable here" (Airbnb's
+   * "Airbnb (Not available)"): manual blocks, booking-window / notice rules,
+   * linked listings or dates another channel manager closed. It is NOT a
+   * booking and must never block CALA: on a whole-house listing those marks
+   * mirror the nights when any room is taken, so importing them closes every
+   * room of the house.
+   */
+  kind: "reservation" | "unavailable";
 }
+
+/** Only Airbnb tells bookings and availability marks apart in its feed. */
+export function eventKind(uid: string, summary: string, description: string): OtaCalendarEvent["kind"] {
+  const airbnb = /@airbnb\.[a-z.]+$/i.test(uid) || /^airbnb\b/i.test(summary);
+  if (!airbnb) return "reservation";
+  if (/reservation url|\/hosting\/reservations\//i.test(description)) return "reservation";
+  return /not available|no disponible|unavailable|blocked/i.test(summary) ? "unavailable" : "reservation";
+}
+
+/** Events that must close dates in CALA. */
+export const bookedEvents = (events: OtaCalendarEvent[]) => events.filter((e) => e.kind === "reservation");
 
 const hostProviders: [RegExp, CalendarProvider][] = [
   [/(^|\.)airbnb\.[a-z.]+$/, "airbnb"],
@@ -33,6 +54,23 @@ export function providerForUrl(url: string): CalendarProvider | null {
     return hostProviders.find(([re]) => re.test(host))?.[1] ?? null;
   } catch {
     return null;
+  }
+}
+
+/**
+ * Identity of an OTA calendar regardless of the country domain it was copied
+ * from (airbnb.com and airbnb.mx serve the same feed): used to detect that two
+ * importers read the same calendar.
+ */
+export function calendarIdentity(raw: string) {
+  const text = raw.trim().replace(/^webcal:\/\//i, "https://");
+  try {
+    const url = new URL(text);
+    const provider = providerForUrl(text);
+    const path = url.pathname.replace(/\/+$/, "") + url.search;
+    return provider ? `${provider}:${path}` : `${url.hostname.toLowerCase()}${path}`;
+  } catch {
+    return text.replace(/\/+$/, "");
   }
 }
 
@@ -200,12 +238,14 @@ export function parseOtaCalendar(text: string): OtaCalendarEvent[] {
       if (!arrival) continue;
       let departure = dateOf(prop("DTEND")) ?? nextDay(arrival);
       if (departure <= arrival) departure = nextDay(arrival);
+      const summary = prop("SUMMARY").replace(/\\,/g, ",").slice(0, 120);
       events.push({
         uid: (uid || `${arrival}:${departure}`).slice(0, 300),
         arrival,
         departure,
         cancelled: prop("STATUS").toUpperCase() === "CANCELLED",
-        summary: prop("SUMMARY").replace(/\\,/g, ",").slice(0, 120),
+        summary,
+        kind: eventKind(uid, summary, prop("DESCRIPTION")),
       });
       if (events.length > 3000)
         fail("CALENDAR_TOO_LARGE", "El calendario tiene más de 3000 eventos.");

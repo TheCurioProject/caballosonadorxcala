@@ -16,6 +16,8 @@ export function SiteAdmin({
   const legacy = [
     "content",
     "experiencias",
+    "atv-tours",
+    "cupones",
     "writers-group",
     "during-your-stay",
     "servicios-comida",

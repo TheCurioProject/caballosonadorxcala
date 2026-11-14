@@ -134,9 +134,11 @@ function PropertyChannels() {
                       disabled={Boolean(busy)}
                       onClick={() =>
                         void act(link.id, async () => {
-                          const r = await connector<{ ok: boolean; error?: string; active?: number }>("calendar.sync", { propertyId, linkId: link.id });
+                          const r = await connector<{ ok: boolean; error?: string; active?: number; ignored?: number }>("calendar.sync", { propertyId, linkId: link.id });
                           if (!r.ok) throw new Error(r.error ?? "No pudimos leer el calendario.");
-                          return `${label}: calendario leído, ${r.active ?? 0} fechas bloqueadas.`;
+                          return r.ignored
+                            ? `${label}: calendario leído, ${r.active ?? 0} fechas bloqueadas y ${r.ignored} periodos «No disponible» ignorados (no son reservas).`
+                            : `${label}: calendario leído, ${r.active ?? 0} fechas bloqueadas.`;
                         })
                       }
                     >

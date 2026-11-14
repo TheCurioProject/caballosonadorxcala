@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, BedDouble, CalendarDays, Check, ChevronDown, CornerDownRight, Home, Minus, Moon, Plus, Search, Sparkles, Users } from "lucide-react";
 import { lodgingPrice, lodgingText } from "@/lib/lodgings";
 import { customSelection, type PlannedRoom, type StayOption } from "@/lib/stayPlanner";
+import type { StaySuggestion } from "@/lib/staySuggestions";
 import { dayStatus, localDate, type AvailabilityOverviewData, type BookingLodging, type Device } from "./AvailabilityOverview";
 
 export type StaySearchResult = {
@@ -17,6 +18,10 @@ export type StaySearchResult = {
   currency: string;
   lodgings: Array<{ lodgingId: string; available: true; totalMinor: number } | { lodgingId: string; available: false; code: string }>;
   options: StayOption[];
+  /** Only when no option fits: the closest stays that do, already priced by CALA. */
+  suggestions?: StaySuggestion[];
+  /** Only when no option fits: how many people could still stay on the requested dates. */
+  sameDatesCapacity?: number | null;
 };
 
 const iso = (d: Date) => format(d, "yyyy-MM-dd");
@@ -147,15 +152,28 @@ const reasonText = (code: string, isEn: boolean) =>
     LODGING_SALES_CLOSED: isEn ? "Not on sale for those dates" : "Sin venta en esas fechas",
   })[code] ?? (isEn ? "Booked on those dates" : "Ocupada en esas fechas");
 
+/** What changed from the stay the guest asked for, in a few words. */
+function suggestionLabel(s: StaySuggestion, isEn: boolean) {
+  const days = Math.abs(s.shiftDays);
+  const move = s.shiftDays === 0 ? (isEn ? "Same arrival" : "Misma llegada")
+    : isEn ? `${days} ${days === 1 ? "day" : "days"} ${s.shiftDays > 0 ? "later" : "earlier"}`
+    : `${days} ${days === 1 ? "día" : "días"} ${s.shiftDays > 0 ? "después" : "antes"}`;
+  const delta = Math.abs(s.nightsDelta);
+  const length = s.nightsDelta === 0 ? (isEn ? "same nights" : "mismas noches")
+    : isEn ? `${delta} ${delta === 1 ? "night" : "nights"} ${s.nightsDelta > 0 ? "more" : "fewer"}`
+    : `${delta} ${delta === 1 ? "noche" : "noches"} ${s.nightsDelta > 0 ? "más" : "menos"}`;
+  return `${move} · ${length}`;
+}
+
 const people = (r: { adults: number; children: number }, isEn: boolean) =>
   `${r.adults} ${isEn ? (r.adults === 1 ? "adult" : "adults") : r.adults === 1 ? "adulto" : "adultos"}${r.children ? ` · ${r.children} ${isEn ? (r.children === 1 ? "child" : "children") : r.children === 1 ? "menor" : "menores"}` : ""}`;
 
 /** Step 2: recommended combinations, or a hand-picked set of rooms. */
 export function StayResults({
-  catalog, result, loading, error, isEn, locale, device, onChoose, onEdit,
+  catalog, result, loading, error, isEn, locale, device, onChoose, onEdit, onSuggestion,
 }: {
   catalog: BookingLodging[]; result: StaySearchResult | null; loading: boolean; error: string; isEn: boolean; locale: Locale; device: Device;
-  onChoose: (rooms: PlannedRoom[]) => void; onEdit: () => void;
+  onChoose: (rooms: PlannedRoom[]) => void; onEdit: () => void; onSuggestion: (suggestion: StaySuggestion) => void;
 }) {
   const lang = isEn ? "en" : "es";
   const [manual, setManual] = useState(false);
@@ -204,8 +222,17 @@ export function StayResults({
   return (
     <section className="flex flex-col gap-5 pb-6" aria-label={isEn ? "Room options" : "Opciones de habitaciones"}>
       <header>
-        <p className="text-[10px] md:text-[11px] tracking-[0.3em] uppercase text-[#9B7E67] font-bold mb-2">{isEn ? "Recommended for you" : "Recomendado para ti"}</p>
-        <h3 className="text-3xl font-serif text-[#23211F] mb-2">{isEn ? "Where your group fits" : "Así se acomoda tu grupo"}</h3>
+        {result && !loading && !result.options.length ? (
+          <>
+            <p className="text-[10px] md:text-[11px] tracking-[0.3em] uppercase text-[#9B7E67] font-bold mb-2">{isEn ? "Other dates for you" : "Otras fechas para ti"}</p>
+            <h3 className="text-3xl font-serif text-[#23211F] mb-2">{isEn ? "Let's find you a spot" : "Busquemos un lugar para ti"}</h3>
+          </>
+        ) : (
+          <>
+            <p className="text-[10px] md:text-[11px] tracking-[0.3em] uppercase text-[#9B7E67] font-bold mb-2">{isEn ? "Recommended for you" : "Recomendado para ti"}</p>
+            <h3 className="text-3xl font-serif text-[#23211F] mb-2">{isEn ? "Where your group fits" : "Así se acomoda tu grupo"}</h3>
+          </>
+        )}
         {summary}
       </header>
 
@@ -245,10 +272,64 @@ export function StayResults({
             ))}
           </ul>
         ) : (
-          <div className="bg-[#FAF8F5] border border-[#D4A574] rounded-2xl p-5 text-[#7A5F49] space-y-2">
-            <p className="font-serif text-xl">{isEn ? "No combination fits those dates" : "No hay una combinación libre para esas fechas"}</p>
-            <p className="text-sm">{isEn ? "There aren't enough free beds for your group, or the stay doesn't meet the house rules. Try other dates or nights." : "No hay suficientes lugares libres para tu grupo o la estancia no cumple las reglas de la casa. Prueba otras fechas o número de noches."}</p>
-            <button type="button" onClick={onEdit} className="underline font-semibold text-sm">{isEn ? "Change dates" : "Cambiar fechas"}</button>
+          <div className="space-y-4">
+            <div className="bg-[#FAF8F5] border border-[#D4A574] rounded-2xl p-5 text-[#7A5F49] space-y-2">
+              <p className="font-serif text-xl">{isEn ? "Those dates are full for your group" : "Esas fechas ya no tienen lugar para tu grupo"}</p>
+              <p className="text-sm">
+                {result.sameDatesCapacity
+                  ? (isEn
+                    ? `On those dates there is room for up to ${result.sameDatesCapacity} ${result.sameDatesCapacity === 1 ? "guest" : "guests"}, not for ${result.adults + result.children}.`
+                    : `En esas fechas queda lugar para hasta ${result.sameDatesCapacity} ${result.sameDatesCapacity === 1 ? "persona" : "personas"}, no para ${result.adults + result.children}.`)
+                  : (isEn ? "Every room is taken or closed on those dates." : "Todas las habitaciones están ocupadas o cerradas en esas fechas.")}
+                {result.suggestions?.length ? (isEn ? " We looked for the closest dates that do fit your group:" : " Buscamos las fechas más cercanas donde sí cabe tu grupo:") : ""}
+              </p>
+            </div>
+
+            {result.suggestions?.length ? (
+              <ul className="space-y-3" aria-label={isEn ? "Suggested dates" : "Fechas sugeridas"}>
+                {result.suggestions.map((s, index) => {
+                  const o = s.option;
+                  const names = o.rooms.map((r) => { const l = byId(r.lodgingId); return l ? lodgingText(l.name, lang) : ""; }).filter(Boolean);
+                  return (
+                    <motion.li key={s.checkIn + s.nights} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.06 }}
+                      className={`bg-white rounded-3xl border p-4 md:p-5 shadow-sm ${index === 0 ? "border-[#9B7E67] ring-1 ring-[#9B7E67]/30" : "border-[#E8E1D8]"}`}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-[#9B7E67] mb-1">
+                            {index === 0 && <Sparkles size={12} />}{suggestionLabel(s, isEn)}
+                          </span>
+                          <h4 className="font-serif text-xl text-[#23211F] capitalize">
+                            {format(localDate(s.checkIn), "EEE d MMM", { locale })} → {format(localDate(s.checkOut), "EEE d MMM", { locale })}
+                          </h4>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            {s.nights} {isEn ? (s.nights === 1 ? "night" : "nights") : s.nights === 1 ? "noche" : "noches"} · {people(result, isEn)}
+                          </p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="font-serif text-2xl text-[#23211F] leading-none">{money(o.totalMinor)}</p>
+                          <p className="text-[10px] uppercase tracking-widest text-gray-400 mt-1">{isEn ? "taxes incl." : "imp. incl."}</p>
+                        </div>
+                      </div>
+                      <p className="flex items-start gap-2 text-sm text-[#524D48] mt-3 pt-3 border-t border-[#F4F0EA]">
+                        {o.kind === "whole_home" ? <Home size={16} className="text-[#9B7E67] shrink-0 mt-0.5" /> : <BedDouble size={16} className="text-[#9B7E67] shrink-0 mt-0.5" />}
+                        <span>
+                          {o.kind === "whole_home" ? (isEn ? "The whole house" : "La casa completa") : o.rooms.length === 1 ? (isEn ? "1 room" : "1 habitación") : isEn ? `${o.rooms.length} rooms` : `${o.rooms.length} habitaciones`}
+                          {o.kind !== "whole_home" && names.length ? `: ${names.join(" + ")}` : ""}
+                        </span>
+                      </p>
+                      <button type="button" onClick={() => onSuggestion(s)} className={`mt-4 w-full py-3 rounded-full font-bold uppercase tracking-widest text-xs md:text-sm flex items-center justify-center gap-2 transition-colors ${index === 0 ? "bg-[#23211F] text-[#F9F7F4] hover:bg-[#9B7E67]" : "border border-[#23211F] text-[#23211F] hover:bg-[#23211F] hover:text-[#F9F7F4]"}`}>
+                        {isEn ? "See these dates" : "Ver estas fechas"} <ArrowRight size={16} />
+                      </button>
+                    </motion.li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-600 px-1">
+                {isEn ? "We found no nearby dates for your group. Try other dates, fewer nights or a smaller group." : "No encontramos fechas cercanas para tu grupo. Prueba otras fechas, menos noches o un grupo más pequeño."}
+              </p>
+            )}
+            <button type="button" onClick={onEdit} className="underline font-semibold text-sm text-[#7A5F49] px-1">{isEn ? "Choose other dates myself" : "Elegir yo otras fechas"}</button>
           </div>
         )
       )}

@@ -9,7 +9,7 @@ export const Suites = ({ rooms }: { rooms: any[] }) => {
   const dict = useDictionary();
   const scrollRef = useRef<HTMLDivElement>(null);
   const spacerRef = useRef<HTMLDivElement>(null);
-  const [selectedRoom, setSelectedRoom] = useState<any | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
@@ -105,7 +105,7 @@ export const Suites = ({ rooms }: { rooms: any[] }) => {
                   {room.shortDescription || room.desc || room.description}
                 </p>
                 <button 
-                  onClick={() => setSelectedRoom(room)}
+                  onClick={() => setSelectedRoom(index)}
                   className="mt-auto group/btn flex items-center gap-3 w-fit"
                 >
                   <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover/btn:bg-white group-hover/btn:text-[#2C2621] transition-all duration-300">
@@ -122,7 +122,7 @@ export const Suites = ({ rooms }: { rooms: any[] }) => {
         </div>
       </div>
 
-      <RoomModal room={selectedRoom} onClose={() => setSelectedRoom(null)} />
+      <RoomModal rooms={rooms} index={selectedRoom} onIndexChange={setSelectedRoom} onClose={() => setSelectedRoom(null)} />
     </section>
   );
 };

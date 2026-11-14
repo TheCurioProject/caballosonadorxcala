@@ -1,5 +1,6 @@
 import { getSiteImages } from '@/lib/siteImages.server';
 import { getDictionary } from '@/i18n/dictionaries';
+import { listTours } from '@/lib/tours.server';
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
@@ -59,8 +60,13 @@ import ToursClient from './ToursClient';
 
 export default async function ToursPage({ params }: { params: Promise<{ lang: 'es' | 'en' }> }) {
   const { lang } = await params;
-  const siteImages = await getSiteImages();
-  
-  return <ToursClient lang={lang} siteImages={siteImages} />;
+  // Tours are managed in CALA → ATV Tours. Until that content exists in the
+  // database (or if it cannot be read) the page keeps its built-in copy.
+  const [siteImages, dbTours] = await Promise.all([
+    getSiteImages(),
+    listTours({ activeOnly: true }).catch(() => null),
+  ]);
+
+  return <ToursClient lang={lang} siteImages={siteImages} dbTours={dbTours} />;
 }
 

@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Save, AlertCircle, Utensils, Map, Trash2 } from 'lucide-react';
 import { CalaSpinner as Loader2 } from "@/cala/components/ui/cala-loader";
 import { translateDB } from '@/lib/translations';
 
 export default function AdminExperiencias() {
   const [foodItems, setFoodItems] = useState<any[]>([]);
-  const [tours, setTours] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [minTourPax, setMinTourPax] = useState(3);
@@ -18,9 +18,8 @@ export default function AdminExperiencias() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [foodRes, toursRes, settingsRes] = await Promise.all([
+      const [foodRes, settingsRes] = await Promise.all([
         fetch('/api/admin/food'),
-        fetch('/api/admin/tours'),
         fetch('/api/settings/tours')
       ]);
       
@@ -30,13 +29,6 @@ export default function AdminExperiencias() {
           ...item,
           name: translateDB(item.name, true),
           description: translateDB(item.description, true),
-        })));
-      }
-      if (toursRes.ok) {
-        const data = await toursRes.json();
-        setTours(data.map((item: any) => ({
-          ...item,
-          name: translateDB(item.name, true),
         })));
       }
       if (settingsRes.ok) {
@@ -58,10 +50,6 @@ export default function AdminExperiencias() {
 
   const handleFoodChange = (id: number, field: string, value: any) => {
     setFoodItems(prev => prev.map(f => f.id === id ? { ...f, [field]: value } : f));
-  };
-
-  const handleTourChange = (id: number, field: string, value: any) => {
-    setTours(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
   };
 
   const handleSaveFood = async (service: any) => {
@@ -100,28 +88,6 @@ export default function AdminExperiencias() {
         setMessage({ type: 'error', text: 'Failed to delete' });
       }
     } catch (e) {
-      setMessage({ type: 'error', text: 'Network error' });
-    } finally {
-      setSaving(false);
-      setTimeout(() => setMessage(null), 3000);
-    }
-  };
-
-  const handleSaveTour = async (tour: any) => {
-    setSaving(true);
-    setMessage(null);
-    try {
-      const res = await fetch('/api/admin/tours', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...tour, pricePerPax: parseFloat(tour.pricePerPax) })
-      });
-      if (res.ok) {
-        setMessage({ type: 'success', text: `Saved: ${tour.name}` });
-      } else {
-        setMessage({ type: 'error', text: 'Failed to save tour' });
-      }
-    } catch (error) {
       setMessage({ type: 'error', text: 'Network error' });
     } finally {
       setSaving(false);
@@ -351,136 +317,21 @@ export default function AdminExperiencias() {
       {renderFoodSection('Catering Prices', 'FOOD_PRICE', false, true)}
       {renderFoodSection('Dishes Menu', 'FOOD_DISH', true, false)}
 
-      {/* Tour Destinations Section */}
+      {/* Tour destinations moved to their own editor (texts, photos, price, order). */}
       <section>
-        <div className="flex items-center justify-between mb-6">
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#9B7E67]/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#9B7E67]/10 flex items-center justify-center shrink-0">
               <Map className="text-[#9B7E67] w-5 h-5" />
             </div>
-            <h3 className="text-xl sm:text-2xl font-serif text-[#23211F]">Tour Destinations</h3>
-          </div>
-          <button 
-            onClick={() => setTours([{ id: 0, name: 'New Destination', pricePerPax: 0, isActive: true }, ...tours])}
-            className="text-sm font-bold text-[#9B7E67] hover:text-[#23211F] transition-colors"
-          >
-            + Add Destination
-          </button>
-        </div>
-
-        {/* Mobile View: Cards */}
-        <div className="space-y-4 sm:hidden">
-          {tours.length === 0 ? (
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center text-gray-500">
-              No tour destinations registered.
+            <div>
+              <h3 className="text-xl font-serif text-[#23211F]">Destinos de los tours</h3>
+              <p className="text-sm text-gray-500">Los destinos, sus precios, textos y fotos se editan ahora en la sección «ATV Tours».</p>
             </div>
-          ) : (
-            tours.map((tour) => (
-              <div key={tour.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                <div>
-                  <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Destination Name</label>
-                  <input 
-                    type="text" 
-                    value={tour.name}
-                    onChange={(e) => handleTourChange(tour.id, 'name', e.target.value)}
-                    className="w-full bg-[#F9F7F4] border-none rounded-xl px-4 py-2.5 text-[#23211F] font-medium text-sm focus:ring-2 focus:ring-[#9B7E67]"
-                  />
-                </div>
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex-1">
-                    <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Price (MXN/Person)</label>
-                    <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
-                      <input 
-                        type="number" 
-                        value={tour.pricePerPax}
-                        onChange={(e) => handleTourChange(tour.id, 'pricePerPax', e.target.value)}
-                        className="w-full pl-8 pr-3 py-2.5 bg-[#F9F7F4] border-none rounded-xl text-[#23211F] font-medium text-sm focus:ring-2 focus:ring-[#9B7E67]"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-center shrink-0">
-                    <label className="block text-xs md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Active</label>
-                    <input 
-                      type="checkbox"
-                      checked={tour.isActive}
-                      onChange={(e) => handleTourChange(tour.id, 'isActive', e.target.checked)}
-                      className="w-6 h-6 rounded text-[#9B7E67] focus:ring-[#9B7E67] border-gray-300"
-                    />
-                  </div>
-                </div>
-                <button 
-                  onClick={() => handleSaveTour(tour)}
-                  disabled={saving}
-                  className="w-full py-3 bg-[#23211F] text-white rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#9B7E67] transition-colors shadow-sm disabled:opacity-50"
-                >
-                  <Save size={16} />
-                  Save Destination
-                </button>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Desktop View: Table */}
-        <div className="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[600px]">
-            <thead>
-              <tr>
-                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Destination</th>
-                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400">Price (MXN/Person)</th>
-                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-center">Active</th>
-                <th className="border-b border-gray-100 p-6 text-xs uppercase tracking-widest font-bold text-gray-400 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tours.length === 0 ? (
-                <tr><td colSpan={4} className="p-6 text-center text-gray-500">No tour destinations registered.</td></tr>
-              ) : (
-                tours.map((tour) => (
-                  <tr key={tour.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                    <td className="p-6">
-                      <input 
-                        type="text" 
-                        value={tour.name}
-                        onChange={(e) => handleTourChange(tour.id, 'name', e.target.value)}
-                        className="w-full bg-transparent border-none p-0 focus:ring-0 text-[#23211F] font-medium"
-                      />
-                    </td>
-                    <td className="p-6">
-                      <div className="relative w-32">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                        <input 
-                          type="number" 
-                          value={tour.pricePerPax}
-                          onChange={(e) => handleTourChange(tour.id, 'pricePerPax', e.target.value)}
-                          className="w-full pl-8 pr-4 py-2 bg-[#F9F7F4] border-none rounded-xl focus:ring-2 focus:ring-[#9B7E67] text-[#23211F] font-medium"
-                        />
-                      </div>
-                    </td>
-                    <td className="p-6 text-center">
-                      <input 
-                        type="checkbox"
-                        checked={tour.isActive}
-                        onChange={(e) => handleTourChange(tour.id, 'isActive', e.target.checked)}
-                        className="w-5 h-5 rounded text-[#9B7E67] focus:ring-[#9B7E67] border-gray-300"
-                      />
-                    </td>
-                    <td className="p-6 text-right">
-                      <button 
-                        onClick={() => handleSaveTour(tour)}
-                        disabled={saving}
-                        className="inline-flex items-center gap-2 bg-[#23211F] text-white px-5 py-2.5 rounded-xl hover:bg-[#9B7E67] transition-colors text-sm font-medium disabled:opacity-50 shadow-sm"
-                      >
-                        <Save size={16} />
-                        Save
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+          </div>
+          <Link href="/admin/atv-tours/" className="px-5 py-2.5 rounded-lg bg-[#9B7E67] text-white font-medium hover:bg-[#8A6D56] transition-colors text-center whitespace-nowrap">
+            Abrir ATV Tours
+          </Link>
         </div>
       </section>
 
