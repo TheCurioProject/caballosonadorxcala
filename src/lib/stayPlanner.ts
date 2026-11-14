@@ -161,6 +161,34 @@ export function planStay(
   return result;
 }
 
+/**
+ * Which bookable lodgings can be part of some valid selection for the group:
+ * the whole house when it sleeps everyone; a room when it plus the largest
+ * other free rooms (at most one room per adult) can hold the group.
+ */
+export function selectableForGroup(
+  available: PlannerLodging[],
+  adults: number,
+  children: number,
+): Set<string> {
+  const guests = adults + children;
+  const ok = new Set<string>();
+  if (adults < 1) return ok;
+  const rooms = available
+    .filter((l) => l.kind === "room" && l.capacity > 0)
+    .sort((a, b) => b.capacity - a.capacity);
+  for (const l of available) {
+    if (l.kind === "whole_home") {
+      if (l.capacity >= guests) ok.add(l.id);
+      continue;
+    }
+    if (l.capacity < 1) continue;
+    const others = rooms.filter((r) => r.id !== l.id).slice(0, adults - 1);
+    if (l.capacity + others.reduce((s, r) => s + r.capacity, 0) >= guests) ok.add(l.id);
+  }
+  return ok;
+}
+
 /** Validates a guest-made selection with the same rules as the planner. */
 export function customSelection(
   lodgings: PlannerLodging[],

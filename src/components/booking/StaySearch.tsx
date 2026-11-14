@@ -6,7 +6,7 @@ import type { Locale } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, BedDouble, CalendarDays, Check, ChevronDown, CornerDownRight, Home, Minus, Moon, Plus, Search, Sparkles, Users } from "lucide-react";
 import { lodgingDisplayName, lodgingPrice, lodgingText } from "@/lib/lodgings";
-import { customSelection, type PlannedRoom, type StayOption } from "@/lib/stayPlanner";
+import { customSelection, selectableForGroup, type PlannedRoom, type StayOption } from "@/lib/stayPlanner";
 import type { StaySuggestion } from "@/lib/staySuggestions";
 import { dayStatus, localDate, type AvailabilityOverviewData, type BookingLodging, type Device } from "./AvailabilityOverview";
 
@@ -183,15 +183,41 @@ export function StayResults({
   const nights = result ? Math.round((Date.parse(result.checkOut) - Date.parse(result.checkIn)) / 86400000) : 0;
 
   const available = (result?.lodgings ?? []).filter((l): l is { lodgingId: string; available: true; totalMinor: number } => l.available);
-  const custom = useMemo(() => {
-    if (!result) return null;
-    const chosen = picked.flatMap((id) => {
-      const l = byId(id), q = available.find((a) => a.lodgingId === id);
-      return l && q ? [{ id, kind: l.kind, capacity: l.capacity, totalMinor: q.totalMinor }] : [];
+  // What CALA quoted for these dates that can actually hold this group (alone or combined).
+  const selectable = useMemo(() => {
+    if (!result) return new Set<string>();
+    const bookable = available.flatMap((a) => {
+      const l = byId(a.lodgingId);
+      return l ? [{ id: l.id, kind: l.kind, capacity: l.capacity, totalMinor: a.totalMinor }] : [];
     });
-    return customSelection(chosen, result.adults, result.children);
+    return selectableForGroup(bookable, result.adults, result.children);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [picked, result]);
+  }, [result, catalog]);
+  // Picks from an earlier search that no longer apply are ignored.
+  const chosenIds = picked.filter((id) => selectable.has(id));
+  const pickedRooms = chosenIds.filter((id) => byId(id)?.kind === "room").length;
+  const listed = (result?.lodgings ?? []).filter((q) => byId(q.lodgingId));
+  const guestsCount = result ? result.adults + result.children : 0;
+  /** Why a lodging can't be picked right now, or "" when it can. */
+  const blockedReason = (q: StaySearchResult["lodgings"][number]) => {
+    const l = byId(q.lodgingId)!;
+    if (!q.available) return reasonText(q.code, isEn);
+    if (!selectable.has(l.id))
+      return l.kind === "whole_home"
+        ? (isEn ? `Sleeps ${l.capacity}; your group is ${guestsCount}` : `Capacidad ${l.capacity}; tu grupo es de ${guestsCount}`)
+        : (isEn ? `Not enough free rooms for ${guestsCount} people on these dates` : `No hay suficientes habitaciones libres para ${guestsCount} personas en esas fechas`);
+    if (l.kind === "room" && !chosenIds.includes(l.id) && result && pickedRooms >= result.adults)
+      return isEn ? "Each room needs at least one adult" : "Cada habitación necesita al menos un adulto";
+    return "";
+  };
+  const custom = result
+    ? customSelection(
+        chosenIds.flatMap((id) => {
+          const l = byId(id), q = available.find((a) => a.lodgingId === id);
+          return l && q ? [{ id, kind: l.kind, capacity: l.capacity, totalMinor: q.totalMinor }] : [];
+        }),
+        result.adults, result.children)
+    : null;
 
   const summary = result && (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600">
@@ -339,31 +365,52 @@ export function StayResults({
           <button type="button" onClick={() => setManual((m) => !m)} aria-expanded={manual} className="w-full flex items-center justify-between gap-3 p-4 md:p-5 text-left">
             <span>
               <span className="block font-semibold text-[#23211F]">{manual ? (isEn ? "Back to recommendations" : "Volver a las recomendaciones") : isEn ? "I'd rather pick the rooms myself" : "Prefiero elegir yo las habitaciones"}</span>
-              <span className="block text-xs text-gray-500">{isEn ? "Select one or more rooms; we'll spread your group across them." : "Selecciona una o varias; repartimos a tu grupo entre ellas."}</span>
+              <span className="block text-xs text-gray-500">
+                {isEn
+                  ? `${selectable.size} of ${listed.length} available for your dates and ${guestsCount} ${guestsCount === 1 ? "guest" : "guests"}.`
+                  : `${selectable.size} de ${listed.length} disponibles para tus fechas y ${guestsCount} ${guestsCount === 1 ? "persona" : "personas"}.`}
+              </span>
             </span>
             <ChevronDown size={18} className={`shrink-0 transition-transform ${manual ? "rotate-180" : ""}`} />
           </button>
           <AnimatePresence initial={false}>
             {manual && (
               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                <p className="px-4 md:px-5 pb-3 text-xs text-gray-600">
+                  {isEn ? "Availability checked in real time for " : "Disponibilidad consultada en tiempo real para "}
+                  <span className="capitalize font-semibold text-[#23211F]">{format(localDate(result.checkIn), "EEE d MMM", { locale })} → {format(localDate(result.checkOut), "EEE d MMM", { locale })}</span>
+                  {` · ${people(result, isEn)}. `}
+                  {selectable.size
+                    ? (isEn ? "Select one or more; we'll spread your group across them." : "Selecciona una o varias; repartimos a tu grupo entre ellas.")
+                    : (isEn ? "Nothing can hold your group on those dates." : "En esas fechas nada alcanza para tu grupo.")}
+                </p>
                 <ul className={`grid gap-2 px-4 md:px-5 ${device === "mobile" ? "grid-cols-1" : "grid-cols-2"}`}>
-                  {result.lodgings.map((q) => {
-                    const l = byId(q.lodgingId);
-                    if (!l) return null;
-                    const on = picked.includes(l.id);
+                  {listed.map((q) => {
+                    const l = byId(q.lodgingId)!;
+                    const on = chosenIds.includes(l.id);
+                    const blocked = blockedReason(q);
+                    const off = !on && blocked !== "";
                     return (
                       <li key={l.id} className={l.kind === "whole_home" ? "col-span-full" : ""}>
-                        <button type="button" disabled={!q.available} aria-pressed={on}
-                          onClick={() => setPicked((p) => (on ? p.filter((x) => x !== l.id) : l.kind === "whole_home" ? [l.id] : [...p.filter((x) => byId(x)?.kind !== "whole_home"), l.id]))}
-                          className={`w-full h-full text-left flex items-start gap-3 p-3 rounded-2xl border transition-colors ${l.kind === "whole_home" ? "bg-[#F7F2EC] " : ""}${!q.available ? "opacity-50 cursor-not-allowed border-[#EFE9E1]" : on ? "border-[#9B7E67] bg-[#FAF6F1]" : "border-[#E8E1D8] hover:border-[#9B7E67]"}`}>
-                          <span className={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 ${on ? "bg-[#23211F] border-[#23211F] text-white" : "border-[#D9D1C6]"}`}>{on && <Check size={13} strokeWidth={3} />}</span>
-                          <span className="min-w-0">
-                            <span className="flex items-center gap-1 font-semibold text-sm text-[#23211F] leading-tight">
-                              {l.kind === "whole_home" ? <Home size={13} className="text-[#9B7E67] shrink-0" /> : <CornerDownRight size={13} className="text-[#C9B99A] shrink-0" />}
+                        <button type="button" disabled={off} aria-pressed={on} aria-disabled={off}
+                          onClick={() => setPicked(() => {
+                            const p = chosenIds;
+                            return on ? p.filter((x) => x !== l.id) : l.kind === "whole_home" ? [l.id] : [...p.filter((x) => byId(x)?.kind !== "whole_home"), l.id];
+                          })}
+                          className={`w-full h-full text-left flex items-start gap-3 p-3 rounded-2xl border transition-colors ${l.kind === "whole_home" && !off ? "bg-[#F7F2EC] " : ""}${off ? "cursor-not-allowed border-dashed border-[#E2DBD1] bg-[#F6F4F1]" : on ? "border-[#9B7E67] bg-[#FAF6F1]" : "border-[#E8E1D8] hover:border-[#9B7E67]"}`}>
+                          <span className={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 ${on ? "bg-[#23211F] border-[#23211F] text-white" : off ? "border-[#E2DBD1] bg-[#EEEAE4]" : "border-[#D9D1C6]"}`}>{on && <Check size={13} strokeWidth={3} />}</span>
+                          <span className="min-w-0 flex-1">
+                            <span className={`flex items-center gap-1 font-semibold text-sm leading-tight ${off ? "text-gray-400" : "text-[#23211F]"}`}>
+                              {l.kind === "whole_home" ? <Home size={13} className={`${off ? "text-gray-300" : "text-[#9B7E67]"} shrink-0`} /> : <CornerDownRight size={13} className={`${off ? "text-gray-300" : "text-[#C9B99A]"} shrink-0`} />}
                               {lodgingDisplayName(l, lang)}
                             </span>
-                            <span className="block text-xs text-gray-500">{isEn ? "Sleeps" : "Capacidad"} {l.capacity}{q.available ? ` · ${money(q.totalMinor)}` : ""}</span>
-                            {!q.available && <span className="block text-[11px] text-[#9B7E67]">{reasonText(q.code, isEn)}</span>}
+                            <span className={`block text-xs ${off ? "text-gray-400" : "text-gray-500"}`}>{isEn ? "Sleeps" : "Capacidad"} {l.capacity}{q.available && !off ? ` · ${money(q.totalMinor)}` : ""}</span>
+                            {off && (
+                              <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-1 text-[11px] text-[#9B7E67]">
+                                {(!q.available || !selectable.has(l.id)) && <span className="rounded-full bg-[#E9E4DD] text-gray-500 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest">{isEn ? "Unavailable" : "No disponible"}</span>}
+                                {blocked}
+                              </span>
+                            )}
                           </span>
                         </button>
                       </li>
