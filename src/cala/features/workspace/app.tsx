@@ -180,7 +180,7 @@ function Shell({
 }) {
   const { t, locale } = useI18n();
   const mobile = useMobileLayout();
-  const { data, can, select, busy } = useWorkspace();
+  const { data, can, select, busy, syncStatus } = useWorkspace();
   const router = useRouter();
   const navigate = (href: string) => {
     startNavigation(href);
@@ -497,9 +497,14 @@ function Shell({
         </main>
         <footer className="workspace-footer">
           <span>CALA · {t("Hospitality, in flow.")}</span>
-          <span>
-            <span className="status-dot" /> {t("Cambios guardados")}
-          </span>
+          {/* Saves already confirm themselves (loader + toast); the footer only
+              speaks up when the data on screen may be out of date. */}
+          {(syncStatus === "offline" || syncStatus === "error") && (
+            <span role="status">
+              <span className="status-dot is-warning" />{" "}
+              {t(syncStatus === "offline" ? "Sin conexión" : "Datos sin actualizar")}
+            </span>
+          )}
         </footer>
       </div>
       <nav className="bottom-nav" aria-label="Navegación móvil">

@@ -2095,3 +2095,8 @@ html:is([data-font-size="medium"], [data-font-size="large"]) .cala-admin
   box-shadow: none;
   overflow: visible;
 }
+
+/* Footer sync warning (offline / data not updated). */
+.cala-admin .workspace-footer .status-dot.is-warning {
+  background: var(--warning);
+}
