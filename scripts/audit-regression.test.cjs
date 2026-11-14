@@ -191,7 +191,10 @@ test('payment notification retries use existing fields and preserve the paid res
     '@/lib/prisma': { $transaction: async function(work){return work(this);}, booking: {
       findUnique: async () => ({ ...booking }),
       update: async ({ data }) => { assert.equal(Object.hasOwn(data, 'notificationsSentAt'), false); writes.push({ ...data }); Object.assign(booking, data); return { ...booking }; },
+      // Final confirmation is written for every room of the checkout (one room here).
+      updateMany: async ({ where, data }) => { assert.deepEqual(where.id.in, [7]); writes.push({ ...data }); Object.assign(booking, data); return { count: 1 }; },
     } },
+    '@/lib/coupons.server': { confirmRedemption: async () => {}, releaseRedemption: async () => {} },
     '@/lib/resend': { sendBookingConfirmation: email, sendInvoiceEmail: email, sendAdminBookingNotification: async () => ({ success: true }) },
     '@/lib/pdf': { generateInvoicePDFBuffer: async () => Buffer.from('test invoice') },
   });

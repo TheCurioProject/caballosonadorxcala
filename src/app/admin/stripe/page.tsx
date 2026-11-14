@@ -1,5 +1,6 @@
 import { requireAdmin, requireAdminPage } from '@/lib/auth';
 import React from 'react';
+import Link from 'next/link';
 import { listCoupons, deleteCoupon, getRecentPayments, getAccountBalance } from '@/lib/stripe';
 import { revalidatePath } from 'next/cache';
 
@@ -80,7 +81,7 @@ export default async function AdminStripePage() {
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-50 flex justify-between items-center">
               <h2 className="font-serif text-[#23211F] text-lg sm:text-xl">Active Coupons</h2>
-              <a href="/admin/cupones/" className="text-xs font-bold uppercase tracking-widest text-[#9B7E67] hover:text-[#23211F]">Gestionar cupones</a>
+              <Link href="/admin/cupones/" className="text-xs font-bold uppercase tracking-widest text-[#9B7E67] hover:text-[#23211F]">Gestionar cupones</Link>
             </div>
             
             {/* Mobile: Cards */}
