@@ -5,7 +5,7 @@ import { addDays, format } from "date-fns";
 import type { Locale } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, BedDouble, CalendarDays, Check, ChevronDown, CornerDownRight, Home, Minus, Moon, Plus, Search, Sparkles, Users } from "lucide-react";
-import { lodgingPrice, lodgingText } from "@/lib/lodgings";
+import { lodgingDisplayName, lodgingPrice, lodgingText } from "@/lib/lodgings";
 import { customSelection, type PlannedRoom, type StayOption } from "@/lib/stayPlanner";
 import type { StaySuggestion } from "@/lib/staySuggestions";
 import { dayStatus, localDate, type AvailabilityOverviewData, type BookingLodging, type Device } from "./AvailabilityOverview";
@@ -211,7 +211,7 @@ export function StayResults({
           <span className={`${device === "mobile" ? "w-12 h-12" : "w-14 h-14"} rounded-xl bg-[#EAE5DD] flex items-center justify-center shrink-0`}>{l.kind === "whole_home" ? <Home size={18} className="text-[#9B7E67]" /> : <BedDouble size={18} className="text-[#9B7E67]" />}</span>
         )}
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-[#23211F] leading-tight truncate">{lodgingText(l.name, lang)}</p>
+          <p className="font-semibold text-[#23211F] leading-tight truncate">{lodgingDisplayName(l, lang)}</p>
           <p className="text-xs text-gray-500">{people(r, isEn)} · {isEn ? "sleeps" : "capacidad"} {l.capacity}</p>
         </div>
         <span className="text-sm font-semibold text-[#9B7E67] shrink-0">{money(r.totalMinor)}</span>
@@ -289,7 +289,7 @@ export function StayResults({
               <ul className="space-y-3" aria-label={isEn ? "Suggested dates" : "Fechas sugeridas"}>
                 {result.suggestions.map((s, index) => {
                   const o = s.option;
-                  const names = o.rooms.map((r) => { const l = byId(r.lodgingId); return l ? lodgingText(l.name, lang) : ""; }).filter(Boolean);
+                  const names = o.rooms.map((r) => { const l = byId(r.lodgingId); return l ? lodgingDisplayName(l, lang) : ""; }).filter(Boolean);
                   return (
                     <motion.li key={s.checkIn + s.nights} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.06 }}
                       className={`bg-white rounded-3xl border p-4 md:p-5 shadow-sm ${index === 0 ? "border-[#9B7E67] ring-1 ring-[#9B7E67]/30" : "border-[#E8E1D8]"}`}>
@@ -360,7 +360,7 @@ export function StayResults({
                           <span className="min-w-0">
                             <span className="flex items-center gap-1 font-semibold text-sm text-[#23211F] leading-tight">
                               {l.kind === "whole_home" ? <Home size={13} className="text-[#9B7E67] shrink-0" /> : <CornerDownRight size={13} className="text-[#C9B99A] shrink-0" />}
-                              {lodgingText(l.name, lang)}
+                              {lodgingDisplayName(l, lang)}
                             </span>
                             <span className="block text-xs text-gray-500">{isEn ? "Sleeps" : "Capacidad"} {l.capacity}{q.available ? ` · ${money(q.totalMinor)}` : ""}</span>
                             {!q.available && <span className="block text-[11px] text-[#9B7E67]">{reasonText(q.code, isEn)}</span>}

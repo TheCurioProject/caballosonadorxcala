@@ -96,7 +96,7 @@ export const Suites = ({ rooms }: { rooms: any[] }) => {
                 className="w-[85vw] sm:w-[400px] md:w-[480px] shrink-0 group flex flex-col relative p-10 md:p-14 bg-[#2C2621] border-r border-white/10 min-h-[450px] snap-center md:snap-start hover:bg-[#23211F] transition-colors duration-500"
               >
                 <div className="text-[#9B7E67] uppercase tracking-widest text-sm md:text-base font-bold mb-3">
-                  {(dict as any).suites?.roomPrefix || 'Room'} {index + 1}
+                  {(dict as any).suites?.roomPrefix || 'Room'} {room.roomNumber ?? index + 1}
                 </div>
                 <h4 className="font-serif text-4xl md:text-5xl text-white mb-6 leading-tight">
                   {room.name.split(' (')[0]}

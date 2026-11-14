@@ -26,7 +26,7 @@ interface RoomModalProps {
 
 const fallbackLabels = {
   es: {
-    position: 'Habitación {current} de {total}',
+    position: 'Habitación {current}',
     swipeHint: 'Desliza para ver otra habitación',
     arrowsHint: 'Usa las flechas para ver otra habitación',
     previous: 'Habitación anterior',
@@ -44,7 +44,7 @@ const fallbackLabels = {
     amenities: 'Comodidades',
   },
   en: {
-    position: 'Room {current} of {total}',
+    position: 'Room {current}',
     swipeHint: 'Swipe to see another room',
     arrowsHint: 'Use the arrows to see another room',
     previous: 'Previous room',
@@ -380,7 +380,7 @@ export const RoomModal = ({ rooms, index, onIndexChange, onClose }: RoomModalPro
                     className="px-6 pt-7 pb-10 md:px-10 md:pt-9 lg:px-12 lg:pt-14 lg:pb-12"
                   >
                     <p className="text-[#9B7E67] text-xs md:text-sm font-bold uppercase tracking-[0.3em]" aria-live="polite">
-                      {fill(labels.position, index! + 1, total)}
+                      {fill(labels.position, room.roomNumber ?? index! + 1, total)}
                     </p>
 
                     <div className="mt-3 flex items-start justify-between gap-6">

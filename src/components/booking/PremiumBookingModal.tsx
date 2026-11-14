@@ -11,7 +11,7 @@ import { CountryCodeDropdown } from './CountryCodeDropdown';
 import { AvailabilityOverview, localDate, type AvailabilityOverviewData, type BookingLodging, type Device } from './AvailabilityOverview';
 import { StaySearchForm, StayResults, type StaySearchResult } from './StaySearch';
 import type { StaySuggestion } from '@/lib/staySuggestions';
-import { lodgingText } from '@/lib/lodgings';
+import { lodgingDisplayName, lodgingText } from '@/lib/lodgings';
 import type { PlannedRoom } from '@/lib/stayPlanner';
 
 const FluidHorseAnimation = dynamic(() => import('../FluidHorseAnimation'), {
@@ -1192,7 +1192,7 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
                       </div>
                       <div className="min-w-0">
                         <p className="font-bold text-white mb-1 uppercase tracking-widest text-[10px] md:text-[11px]">{bookingRooms.length > 1 ? (isEn ? `${bookingRooms.length} rooms` : `${bookingRooms.length} habitaciones`) : (isEn ? 'Accommodation' : 'Alojamiento')}</p>
-                        <ul className="space-y-0.5">{bookingRooms.map(r => { const l = catalog.find(c => c.id === r.lodgingId); return l ? <li key={r.lodgingId} className="leading-snug">{lodgingText(l.name, currentLangCode)}{bookingRooms.length > 1 && <span className="text-gray-500 text-sm"> · {r.adults + r.children}</span>}</li> : null; })}</ul>
+                        <ul className="space-y-0.5">{bookingRooms.map(r => { const l = catalog.find(c => c.id === r.lodgingId); return l ? <li key={r.lodgingId} className="leading-snug">{lodgingDisplayName(l, currentLangCode)}{bookingRooms.length > 1 && <span className="text-gray-500 text-sm"> · {r.adults + r.children}</span>}</li> : null; })}</ul>
                       </div>
                     </div>
                   )}
@@ -1289,7 +1289,7 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
                       className="min-h-full flex flex-col flex-grow shrink-0 w-full"
                     >
                       <div className="mb-6 shrink-0">
-                        <p className="text-xs uppercase tracking-widest text-[#9B7E67] mb-2">{selectedLodging ? lodgingText(selectedLodging.name,currentLangCode) : ''}</p>
+                        <p className="text-xs uppercase tracking-widest text-[#9B7E67] mb-2">{selectedLodging ? lodgingDisplayName(selectedLodging,currentLangCode) : ''}</p>
                         <div className="flex items-center justify-between gap-3"><h3 className="text-2xl font-serif text-[#23211F]">{isEn?'Dates and guests':'Fechas y huéspedes'}</h3><button type="button" className="text-xs underline text-[#9B7E67]" onClick={startGroupSearch}>{isEn?'Book several rooms':'Reservar varias habitaciones'}</button></div>
                         <div className="grid grid-cols-2 gap-4 mt-5"><label className="text-sm text-gray-600">{isEn?'Adults':'Adultos'}<input aria-label={isEn?'Adults':'Adultos'} type="number" min={1} max={selectedLodging?.capacity||12} value={adults} onChange={e=>setAdults(Number(e.target.value))} className="w-full mt-2 p-3 border rounded-xl bg-white"/></label><label className="text-sm text-gray-600">{isEn?'Children':'Menores'}<input aria-label={isEn?'Children':'Menores'} type="number" min={0} max={Math.max(0,(selectedLodging?.capacity||12)-adults)} value={children} onChange={e=>setChildren(Number(e.target.value))} className="w-full mt-2 p-3 border rounded-xl bg-white"/></label></div>
                         <p className="text-xs text-gray-500 mt-3">{isEn?'Up to':'Hasta'} {selectedLodging?.capacity} {isEn?'guests':'personas'} · {isEn?'Minimum stay':'Estancia mínima'}: {minStay} {isEn?'nights':'noches'} · {isEn?'Check-in':'Entrada'} {selectedLodging?.checkInTime} / {isEn?'Check-out':'Salida'} {selectedLodging?.checkOutTime}</p>
@@ -2243,7 +2243,7 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
                           <div className="pb-5 border-b border-gray-100 space-y-3">
                             {bookingRooms.map(r => { const l = catalog.find(c => c.id === r.lodgingId); return l ? (
                               <div key={r.lodgingId} className="flex justify-between gap-3">
-                                <div><h4 className="font-serif text-xl">{lodgingText(l.name,currentLangCode)}</h4><p className="text-gray-500 mt-1">{r.adults} {isEn?'adults':'adultos'} · {r.children} {isEn?'children':'menores'}</p></div>
+                                <div><h4 className="font-serif text-xl">{lodgingDisplayName(l,currentLangCode)}</h4><p className="text-gray-500 mt-1">{r.adults} {isEn?'adults':'adultos'} · {r.children} {isEn?'children':'menores'}</p></div>
                                 {bookingRooms.length > 1 && <span className="font-serif text-lg text-[#9B7E67] shrink-0">${(r.totalMinor/100).toLocaleString('en-US')}</span>}
                               </div>) : null; })}
                             {Array.from(new Set(bookingRooms.map(r => { const l = catalog.find(c => c.id === r.lodgingId); return l ? lodgingText(l.policy,currentLangCode) : ''; }).filter(Boolean))).map(text => <p key={text} className="text-sm text-gray-500 whitespace-pre-line">{text}</p>)}

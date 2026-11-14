@@ -5,6 +5,8 @@ export const lodgingSchema = z.object({
   id: z.uuid(),
   kind: z.enum(["whole_home", "room"]),
   slug: z.string(),
+  /** From the CALA unit name ("Room 6- Madera Viva" → 6); null for the house. */
+  roomNumber: z.number().int().nullable().optional(),
   name: bilingual,
   description: bilingual,
   beds: bilingual,
@@ -113,6 +115,22 @@ export type LodgingAvailability = {
 
 export function lodgingText(value: { es: string; en: string }, lang: string) {
   return lang === "en" ? value.en || value.es : value.es;
+}
+
+/** The room number CALA gives the unit; there is no room 5. */
+export function lodgingRoomNumber(lodging: Pick<Lodging, "roomNumber">) {
+  return lodging.roomNumber ?? null;
+}
+/** "Habitación 6 · Madera Viva" for rooms, the plain name otherwise. */
+export function lodgingDisplayName(
+  lodging: Pick<Lodging, "roomNumber" | "name">,
+  lang: string,
+) {
+  const name = lodgingText(lodging.name, lang);
+  const number = lodgingRoomNumber(lodging);
+  return number === null
+    ? name
+    : `${lang === "en" ? "Room" : "Habitación"} ${number} · ${name}`;
 }
 export function lodgingPrice(
   amountMinor: number,

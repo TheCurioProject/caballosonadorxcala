@@ -31,7 +31,7 @@
     "desktopInstruction": "Scroll down to explore",
     "roomPrefix": "Room",
     "modal": {
-      "position": "Room {current} of {total}",
+      "position": "Room {current}",
       "swipeHint": "Swipe to see another room",
       "arrowsHint": "Use the arrows to see another room",
       "previous": "Previous room",

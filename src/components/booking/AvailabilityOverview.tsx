@@ -4,7 +4,7 @@ import { addDays, addMonths, format, getDaysInMonth, startOfMonth } from "date-f
 import type { Locale } from "date-fns";
 import { motion } from "framer-motion";
 import { ArrowRight, BedDouble, CalendarDays, ChevronLeft, ChevronRight, CornerDownRight, Home, LayoutList, Users } from "lucide-react";
-import { lodgingPrice, lodgingText, type Lodging } from "@/lib/lodgings";
+import { lodgingDisplayName, lodgingPrice, lodgingRoomNumber, lodgingText, type Lodging } from "@/lib/lodgings";
 
 export type BookingLodging = Lodging & { images: string[] };
 export type Device = "mobile" | "tablet" | "desktop";
@@ -244,7 +244,7 @@ function Timeline({ rows, days, data, device, isEn, lang, locale }: { rows: Book
               <div role="rowheader" className={`self-stretch flex items-center justify-between gap-1 pl-3 md:pl-4 pr-2 min-w-0 ${sticky}`}>
                 <span className="flex items-center gap-1.5 min-w-0">
                   {roomCount > 0 && rows.some((r) => r.kind === "whole_home") && <CornerDownRight size={13} className="text-[#C9B99A] shrink-0" aria-hidden="true" />}
-                  <span className={`text-[#23211F] min-w-0 ${device === "mobile" ? "text-[11px] leading-tight line-clamp-2" : "text-sm truncate"}`} title={lodgingText(l.name, lang)}>{lodgingText(l.name, lang)}</span>
+                  <span className={`text-[#23211F] min-w-0 ${device === "mobile" ? "text-[11px] leading-tight line-clamp-2" : "text-sm truncate"}`} title={lodgingDisplayName(l, lang)}>{lodgingRoomNumber(l) !== null ? `${lodgingRoomNumber(l)} · ${lodgingText(l.name, lang)}` : lodgingText(l.name, lang)}</span>
                 </span>
                 <span className="flex items-center gap-0.5 text-[10px] md:text-xs text-gray-500 shrink-0"><Users size={12} />{l.capacity}</span>
               </div>
@@ -299,7 +299,7 @@ function RoomsList({ rows, data, device, isEn, lang, locale }: { rows: BookingLo
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   {l.kind === "whole_home" && <p className="text-[10px] font-bold uppercase tracking-widest text-[#9B7E67] flex items-center gap-1 mb-0.5"><Home size={12} className="shrink-0" />{isEn ? `Whole house · ${rooms.length} rooms` : `Casa completa · ${rooms.length} habitaciones`}</p>}
-                  <h4 className="font-serif text-lg leading-tight text-[#23211F]">{lodgingText(l.name, lang)}</h4>
+                  <h4 className="font-serif text-lg leading-tight text-[#23211F]">{lodgingDisplayName(l, lang)}</h4>
                 </div>
                 <span className={`shrink-0 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${freeTonight ? "bg-[#E7EFE6] text-[#3F5E3C]" : "bg-[#F4F0EA] text-[#7A6A5B]"}`}>
                   {freeTonight ? (isEn ? "Free tonight" : "Libre hoy") : isEn ? "Busy tonight" : "Ocupada hoy"}

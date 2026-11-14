@@ -6,7 +6,7 @@ import { getImageUrl } from '@/lib/siteImages';
 import { getSiteImages } from '@/lib/siteImages.server';
 import { getLodgings } from '@/lib/lodgings.server';
 import { calaConfiguration } from '@/lib/cala/config';
-import { lodgingPrice, lodgingText } from '@/lib/lodgings';
+import { lodgingPrice, lodgingRoomNumber, lodgingText } from '@/lib/lodgings';
 
 import { unstable_cache } from 'next/cache';
 import { stripe } from '@/lib/stripe';
@@ -91,7 +91,7 @@ export default async function Home({ params, searchParams }: { params: Promise<{
   let experiences = await getCachedExperiences();
   const amenities = await getCachedAmenities();
 
-  const getRoom = (id: number, basePrice: number, imageKeys: string[]) => {
+  const getRoom = (id: number, roomNumber: number, basePrice: number, imageKeys: string[]) => {
     const r = (dict.roomsData as any)[id.toString()];
     const resolvedImages = imageKeys
       .map(img => getImageUrl(img, siteImages))
@@ -99,6 +99,7 @@ export default async function Home({ params, searchParams }: { params: Promise<{
 
     return {
       id,
+      roomNumber,
       name: r.name,
       price: basePrice,
       description: r.description,
@@ -109,16 +110,16 @@ export default async function Home({ params, searchParams }: { params: Promise<{
   };
 
   const legacyRooms = [
-    getRoom(1, 0, ['/rooms/room1/1.webp', '/rooms/room1/2.webp', '/rooms/room1/3.webp', '/rooms/room1/4.webp', '/rooms/room1/5.webp']),
-    getRoom(2, 0, ['/rooms/room2/1.webp', '/rooms/room2/2.webp', '/rooms/room2/3.webp', '/rooms/room2/4.webp', '/rooms/room2/5.webp']),
-    getRoom(3, 0, ['/rooms/room3/1.webp', '/rooms/room3/2.webp', '/rooms/room3/3.webp', '/rooms/room3/4.webp', '/rooms/room3/5.webp']),
-    getRoom(4, 0, ['/rooms/room4/1.webp', '/rooms/room4/2.webp', '/rooms/room4/3.webp', '/rooms/room4/4.webp', '/rooms/room4/5.webp']),
-    getRoom(5, 0, ['/rooms/room5/1.webp', '/rooms/room5/2.webp', '/rooms/room5/3.webp', '/rooms/room5/4.webp', '/rooms/room5/5.webp']),
-    getRoom(6, 0, ['/rooms/room6/1.webp', '/rooms/room6/2.webp', '/rooms/room6/3.webp', '/rooms/room6/4.webp', '/rooms/room6/5.webp'])
+    getRoom(1, 1, 0, ['/rooms/room1/1.webp', '/rooms/room1/2.webp', '/rooms/room1/3.webp', '/rooms/room1/4.webp', '/rooms/room1/5.webp']),
+    getRoom(2, 2, 0, ['/rooms/room2/1.webp', '/rooms/room2/2.webp', '/rooms/room2/3.webp', '/rooms/room2/4.webp', '/rooms/room2/5.webp']),
+    getRoom(3, 3, 0, ['/rooms/room3/1.webp', '/rooms/room3/2.webp', '/rooms/room3/3.webp', '/rooms/room3/4.webp', '/rooms/room3/5.webp']),
+    getRoom(4, 4, 0, ['/rooms/room4/1.webp', '/rooms/room4/2.webp', '/rooms/room4/3.webp', '/rooms/room4/4.webp', '/rooms/room4/5.webp']),
+    getRoom(5, 6, 0, ['/rooms/room5/1.webp', '/rooms/room5/2.webp', '/rooms/room5/3.webp', '/rooms/room5/4.webp', '/rooms/room5/5.webp']),
+    getRoom(6, 7, 0, ['/rooms/room6/1.webp', '/rooms/room6/2.webp', '/rooms/room6/3.webp', '/rooms/room6/4.webp', '/rooms/room6/5.webp'])
   ];
 
   const rooms = catalog === null ? legacyRooms : catalog.filter(l=>l.kind==='room').map((l,index)=>({
-    id:index+1,lodgingId:l.id,name:lodgingText(l.name,safeLang),price:(safeLang==='en'?'From ':'Desde ')+lodgingPrice(l.fromRateMinor??l.baseRateMinor,l.currency,safeLang)+(safeLang==='en'?' / night':' / noche'),
+    id:index+1,roomNumber:lodgingRoomNumber(l),lodgingId:l.id,name:lodgingText(l.name,safeLang),price:(safeLang==='en'?'From ':'Desde ')+lodgingPrice(l.fromRateMinor??l.baseRateMinor,l.currency,safeLang)+(safeLang==='en'?' / night':' / noche'),
     description:lodgingText(l.description,safeLang),shortDescription:lodgingText(l.description,safeLang),
     images:l.photoKeys.map(key=>getImageUrl(key,siteImages)).filter(Boolean),
     details:{guests:l.capacity,beds:lodgingText(l.beds,safeLang),bath:l.bathrooms,extra:l.amenities.join(' · ')},

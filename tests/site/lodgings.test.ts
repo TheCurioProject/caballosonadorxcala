@@ -398,3 +398,39 @@ test("one Stripe checkout pays several rooms, each with its own CALA reservation
     db.query("select site.accept_stripe_group_payment($1,$2,$3,$4,$5)", [ids, "evt_bad", "cs_other", 450000, "MXN"]),
   ).rejects.toThrow(/PAYMENT_MISMATCH/);
 });
+
+test("the website numbers rooms the way CALA names their units, and editing the name keeps the number", async () => {
+  const catalog = async () =>
+    (
+      await db.query<{ data: Array<{ id: string; roomNumber: number | null; version: number }> }>(
+        "select site.lodging_catalog(true,$1) as data",
+        [scope.organizationId],
+      )
+    ).rows[0].data;
+  const entry = async (id: string) => (await catalog()).find((l) => l.id === id)!;
+  const unitName = async () =>
+    (await db.query<{ name: string }>("select name from public.units where id=$1", [room(1).unit_id])).rows[0].name;
+  const rename = async (es: string) => {
+    const current = await entry(room(1).id);
+    await db.query("select site.save_lodging($1,$2,$3::jsonb,$4)", [
+      room(1).id,
+      current.version,
+      JSON.stringify({ ...current, name: { es, en: es }, actorId: owner }),
+      scope.organizationId,
+    ]);
+  };
+  expect((await entry(whole().id)).roomNumber).toBeNull();
+  expect((await entry(room(1).id)).roomNumber).toBe(2);
+  await db.query("update public.units set name='Room 6- Madera Viva' where id=$1", [room(1).unit_id]);
+  expect((await entry(room(1).id)).roomNumber).toBe(6);
+  await rename("Madera Viva Suite");
+  expect(await unitName()).toBe("Room 6- Madera Viva Suite");
+  expect((await entry(room(1).id)).roomNumber).toBe(6);
+  await db.query("update public.units set name='Habitación 7' where id=$1", [room(1).unit_id]);
+  await rename("El Sueño del Mar");
+  expect(await unitName()).toBe("Habitación 7- El Sueño del Mar");
+  await db.query("update public.units set name='Suite sin número' where id=$1", [room(1).unit_id]);
+  expect((await entry(room(1).id)).roomNumber).toBeNull();
+  await rename("Habitación 2");
+  expect(await unitName()).toBe("Habitación 2");
+});

@@ -7,7 +7,7 @@ import { stripe } from '@/lib/stripe';
 import prisma from '@/lib/prisma';
 import { getBilingualText } from '@/lib/bilingual';
 import { expandRecurringPricing } from '@/lib/pricing';
-import { lodgingSelectionSchema, type LodgingSelection, lodgingText } from '@/lib/lodgings';
+import { lodgingSelectionSchema, type LodgingSelection, lodgingDisplayName } from '@/lib/lodgings';
 import { getLodgings, quoteLodging } from '@/lib/lodgings.server';
 import { CouponError, couponsReady, stripeCouponFor, usableCoupon, type SiteCoupon } from '@/lib/coupons.server';
 import { couponMessage } from '@/lib/coupons';
@@ -216,7 +216,7 @@ export async function POST(req: Request) {
           throw new Error('DATES_UNAVAILABLE');
         }
 
-        const groupNote = group ? `Reserva web de ${selections.length} habitaciones (un solo pago): ${selections.map(s => `${lodgingText(catalog.find(l => l.id === s.lodgingId)!.name, 'es')} (${s.adults} adultos, ${s.children} menores)`).join('; ')}.` : '';
+        const groupNote = group ? `Reserva web de ${selections.length} habitaciones (un solo pago): ${selections.map(s => `${lodgingDisplayName(catalog.find(l => l.id === s.lodgingId)!, 'es')} (${s.adults} adultos, ${s.children} menores)`).join('; ')}.` : '';
         const created = await tx.booking.create({
           data: {
             propertyId: property.id,
@@ -229,7 +229,7 @@ export async function POST(req: Request) {
             totalPrice: group ? roomTotalsMinor[0] / 100 + serverAddonTotal : serverGrandTotal,
             payment_status: 'PENDING',
             origin: 'WEBSITE',
-            ...(selectedLodging ? {notes: [`Alojamiento: ${lodgingText(selectedLodging.name, lang)}. Huéspedes: ${selection!.adults} adultos, ${selection!.children} menores.`, groupNote, couponNote].filter(Boolean).join('\n')} : couponNote ? {notes: couponNote} : {}),
+            ...(selectedLodging ? {notes: [`Alojamiento: ${lodgingDisplayName(selectedLodging, lang)}. Huéspedes: ${selection!.adults} adultos, ${selection!.children} menores.`, groupNote, couponNote].filter(Boolean).join('\n')} : couponNote ? {notes: couponNote} : {}),
             addons: {
               create: verifiedAddons.map((a: any) => ({
                 type: a.type,
@@ -248,7 +248,7 @@ export async function POST(req: Request) {
           const room = await tx.booking.create({data: {
             propertyId: property.id, checkIn: checkInDate, checkOut: checkOutDate, guestName, guestEmail, guestPhone,
             totalPrice: roomTotalsMinor[i] / 100, payment_status: 'PENDING', origin: 'WEBSITE',
-            notes: `Alojamiento: ${lodgingText(lodging.name, lang)}. Huéspedes: ${s.adults} adultos, ${s.children} menores.\nParte de la reserva web #${created.id}. ${groupNote}`,
+            notes: `Alojamiento: ${lodgingDisplayName(lodging, lang)}. Huéspedes: ${s.adults} adultos, ${s.children} menores.\nParte de la reserva web #${created.id}. ${groupNote}`,
           }});
           await tx.$executeRaw`INSERT INTO site.booking_lodging(booking_id,lodging_id,adults,children) VALUES(${room.id}::integer,${s.lodgingId}::uuid,${s.adults}::integer,${s.children}::integer)`;
           linked.push(room.id);
@@ -272,7 +272,7 @@ export async function POST(req: Request) {
               price_data: {
                 currency: currency.toLowerCase(),
                 product_data: {
-                  name: lodging ? `${lodgingText(lodging.name, lang)} · Casa Caballo Soñador` : 'Reserva / Booking - Casa Caballo Soñador',
+                  name: lodging ? `${lodgingDisplayName(lodging, lang)} · Casa Caballo Soñador` : 'Reserva / Booking - Casa Caballo Soñador',
                   description: `Fechas / Dates: ${checkInDate.toLocaleDateString('es-MX', { timeZone: 'UTC' })} al / to ${checkOutDate.toLocaleDateString('es-MX', { timeZone: 'UTC' })}`,
                 },
                 unit_amount: amount, // Stripe expects cents

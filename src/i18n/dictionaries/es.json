@@ -31,7 +31,7 @@
     "desktopInstruction": "Sigue bajando para explorar",
     "roomPrefix": "Habitación",
     "modal": {
-      "position": "Habitación {current} de {total}",
+      "position": "Habitación {current}",
       "swipeHint": "Desliza para ver otra habitación",
       "arrowsHint": "Usa las flechas para ver otra habitación",
       "previous": "Habitación anterior",

@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { Bed, Users, Bath, Wind, Wifi, Droplets, Tv } from 'lucide-react';
 import { useBooking } from '@/context/BookingContext';
 import { getImageUrl } from '@/lib/siteImages';
-import { lodgingText, lodgingPrice, type Lodging } from '@/lib/lodgings';
+import { lodgingText, lodgingPrice, lodgingRoomNumber, type Lodging } from '@/lib/lodgings';
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -35,6 +35,7 @@ export default function RoomsClient({ siteImages, lodgings, lang }: { siteImages
   const legacyRooms = [
     {
       id: 1,
+      roomNumber: 1,
       name: 'Paso Suave | Room 1',
       desc: 'Su nombre significa "paso gentil". Es el espacio ideal para amigos, hermanos o viajeros solitarios que comparten una escapada de descanso. Un ambiente aireado con estilo minimalista, tonos calmos y un sutil toque boho.',
       details: { guests: '2', beds: '2 Individuales', bath: '1 Baño' },
@@ -43,6 +44,7 @@ export default function RoomsClient({ siteImages, lodgings, lang }: { siteImages
     },
     {
       id: 2,
+      roomNumber: 2,
       name: 'Estrella | Room 2',
       desc: 'Brillante y acogedora, Estrella resplandece con un encanto íntimo y texturas costeras naturales. Es el lugar perfecto para dejar atrás el estrés y relajarse después de un día explorando las playas de Nayarit.',
       details: { guests: '2', beds: '1 Queen', bath: '1 Baño' },
@@ -51,6 +53,7 @@ export default function RoomsClient({ siteImages, lodgings, lang }: { siteImages
     },
     {
       id: 3,
+      roomNumber: 3,
       name: 'La Luna | Room 3',
       desc: 'Un retiro pacífico bañado en tonos suaves y luz tenue. La Luna te invita a desconectar bajo una influencia calmante. Ideal para parejas o viajeros solitarios que buscan serenidad absoluta.',
       details: { guests: '2', beds: '1 Queen', bath: '1 Baño' },
@@ -59,6 +62,7 @@ export default function RoomsClient({ siteImages, lodgings, lang }: { siteImages
     },
     {
       id: 4,
+      roomNumber: 4,
       name: 'Campo Abierto | Room 4',
       desc: 'Espaciosa y versátil. Los materiales naturales y la decoración cálida crean un refugio hogareño excelente para parejas, amigos o familias pequeñas que valoran el confort.',
       details: { guests: '3', beds: '1 Matrimonial + 1 Day Bed', bath: '1 Baño' },
@@ -67,7 +71,8 @@ export default function RoomsClient({ siteImages, lodgings, lang }: { siteImages
     },
     {
       id: 5,
-      name: 'Madera Viva | Room 5',
+      roomNumber: 6,
+      name: 'Madera Viva | Room 6',
       desc: 'Nombrada así por la hermosa madera natural presente en toda la habitación. Ofrece una atmósfera tranquila y arraigada a la tierra, con detalles en piedra tallada por artesanos locales. Para quienes valoran la amplitud y la simplicidad.',
       details: { guests: '2', beds: '1 King', bath: '1 Baño' },
       price: 'Desde $165 USD',
@@ -75,7 +80,8 @@ export default function RoomsClient({ siteImages, lodgings, lang }: { siteImages
     },
     {
       id: 6,
-      name: 'El Sueño del Mar | Room 6',
+      roomNumber: 7,
+      name: 'El Sueño del Mar | Room 7',
       desc: 'La joya de Casa Caballo Soñador. Un refugio sereno para estancias románticas o escapes conscientes. Elaborada con madera y piedra local, cuenta con espacio de oficina, sala de estar y vistas inspiradoras.',
       details: { guests: '2', beds: '1 King', bath: '1 Baño', extra: 'Jacuzzi Privado & Vista al Mar' },
       price: 'Desde $185 USD',
@@ -84,7 +90,7 @@ export default function RoomsClient({ siteImages, lodgings, lang }: { siteImages
   ];
 
   const rooms = lodgings === null ? legacyRooms.map(r=>({...r,lodgingId:undefined as string|undefined,policy:''})) : lodgings.filter(l=>l.kind==='room').map((l,index)=>({
-    id:index+1,lodgingId:l.id,name:lodgingText(l.name,lang),desc:lodgingText(l.description,lang),
+    id:index+1,roomNumber:lodgingRoomNumber(l),lodgingId:l.id,name:lodgingText(l.name,lang),desc:lodgingText(l.description,lang),
     details:{guests:String(l.capacity),beds:lodgingText(l.beds,lang),bath:`${l.bathrooms} ${isEn?'bathroom(s)':'baño(s)'}`,extra:l.amenities.join(' · ')},
     price:(isEn?'From ':'Desde ')+lodgingPrice(l.fromRateMinor??l.baseRateMinor,l.currency,lang),
     img:l.photoKeys.map(key=>getImageUrl(key,siteImages)).find(Boolean)||'',policy:lodgingText(l.policy,lang),
@@ -144,7 +150,8 @@ export default function RoomsClient({ siteImages, lodgings, lang }: { siteImages
                 )}
               </div>
               <div className="w-full lg:w-1/2 space-y-6">
-                <h2 className="text-3xl md:text-4xl font-serif text-brand-dark">{room.name}</h2>
+                {room.roomNumber!=null&&<p className="text-xs md:text-sm tracking-[0.2em] uppercase text-[#9B7E67] font-semibold">{isEn?'Room':'Habitación'} {room.roomNumber}</p>}
+                <h2 className="text-3xl md:text-4xl font-serif text-brand-dark">{room.name.split(' | ')[0]}</h2>
                 <div className="w-16 h-[2px] bg-brand-dark/20"></div>
                 <p className="text-gray-600 font-light leading-relaxed text-xl md:text-2xl">
                   {room.desc}
@@ -156,7 +163,7 @@ export default function RoomsClient({ siteImages, lodgings, lang }: { siteImages
                   <div className="flex items-center gap-2"><Wind size={16} /> Aire Acond.</div>
                   <div className="flex items-center gap-2"><Wifi size={16} /> Wi-Fi</div>
                   {room.details.extra && <div className="flex items-center gap-2"><Droplets size={16} /> {room.details.extra}</div>}
-                  {room.id === 7 && <div className="flex items-center gap-2"><Tv size={16} /> TV</div>}
+                  {room.roomNumber === 7 && <div className="flex items-center gap-2"><Tv size={16} /> TV</div>}
                 </div>
                 {room.policy&&<details className="text-sm text-gray-500"><summary className="cursor-pointer underline underline-offset-4">{isEn?'Rules and cancellation policy':'Reglas y política de cancelación'}</summary><p className="whitespace-pre-line leading-relaxed mt-4">{room.policy}</p></details>}
                 <div className="pt-4 flex flex-wrap gap-4 items-center justify-between">
