@@ -178,4 +178,9 @@ export const catalog5: Record<string, string> = {
   "Le reenviamos el correo de invitación.": "We sent the invitation email again.",
   "No se pudo crear la cuenta.": "The account could not be created.",
   "El acceso es solo por invitación. Si no tienes cuenta o necesitas recuperar el acceso, contacta al administrador.": "Access is by invitation only. If you don't have an account or need to recover access, contact the administrator.",
+  "¿Retirar a esta persona del equipo? Perderá el acceso de inmediato y se eliminará su cuenta: para volver tendrás que invitarla de nuevo. Su historial se conserva.": "Remove this person from the team? They lose access immediately and their account is deleted: to come back you'll have to invite them again. Their history is kept.",
+  "Miembro retirado del equipo.": "Member removed from the team.",
+  "Miembro retirado y cuenta eliminada.": "Member removed and account deleted.",
+  "Miembro retirado, pero no se pudo borrar su cuenta.": "Member removed, but their account could not be deleted.",
+  "Falta indicar a quién retirar.": "Missing who to remove.",
 };

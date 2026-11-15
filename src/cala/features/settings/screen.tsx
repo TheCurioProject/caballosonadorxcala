@@ -607,7 +607,7 @@ export function Team() {
               <>
                 <p>
                   {t(
-                    "¿Retirar a esta persona del equipo? Perderá el acceso de inmediato.",
+                    "¿Retirar a esta persona del equipo? Perderá el acceso de inmediato y se eliminará su cuenta: para volver tendrás que invitarla de nuevo. Su historial se conserva.",
                   )}
                 </p>
                 <div className="row">
@@ -621,11 +621,27 @@ export function Team() {
                     className="button danger"
                     onClick={async () => {
                       try {
-                        await command({ type: "team.remove", id: m.id });
+                        const result = await api<{
+                          message: string;
+                          warning?: string;
+                        }>(`/api/team?id=${encodeURIComponent(m.id)}`, {
+                          method: "DELETE",
+                          headers: { "Idempotency-Key": crypto.randomUUID() },
+                        });
+                        await refresh();
+                        notify(
+                          t(result.warning ?? result.message),
+                          result.warning ? "warning" : "success",
+                        );
                         setEditing(null);
                         setConfirmRemove(false);
-                      } catch {
-                        /* command() already notified */
+                      } catch (reason) {
+                        notify(
+                          reason instanceof Error
+                            ? t(reason.message)
+                            : t("No se pudo completar la operación."),
+                          "error",
+                        );
                       }
                     }}
                   >

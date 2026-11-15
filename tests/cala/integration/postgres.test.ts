@@ -1340,3 +1340,25 @@ test("SQL reservation payments: prepayment, deposit, edit, delete and stripe loc
   await db.exec("reset role");
   expect((await rows()).map((r) => r.concept)).toEqual(["deposit", "payment"]);
 });
+test("deleting a member's Auth account keeps their history and drops their personal data", async () => {
+  const leaver = "20000000-0000-0000-0000-0000000000dd";
+  await db.exec(`reset role;
+    insert into auth.users(id) values('${leaver}');
+    insert into public.organization_members(organization_id,user_id,role_id,all_properties,invited_by)
+      values('${ids.org}','${leaver}',(select id from public.roles where key='front_desk'),true,'${ids.user}');
+    insert into public.idempotency_keys(organization_id,actor_id,key,fingerprint) values('${ids.org}','${leaver}','leaver-key-1','x');
+    insert into public.ical_feeds(organization_id,property_id,unit_id,token_hash,created_by)
+      values('${ids.org}','${ids.prop}','${ids.unit}','leaver-feed-hash','${leaver}');
+    update public.organization_members set invited_by='${leaver}' where user_id='${ids.house}';`);
+  await db.exec(`delete from auth.users where id='${leaver}'`);
+  const left = (
+    await db.query<{ members: number; keys: number; feeds: number; invitedBy: string | null }>(
+      `select (select count(*)::int from public.organization_members where user_id=$1) members,
+              (select count(*)::int from public.idempotency_keys where actor_id=$1) keys,
+              (select count(*)::int from public.ical_feeds where created_by=$1) feeds,
+              (select invited_by::text from public.organization_members where user_id=$2) "invitedBy"`,
+      [leaver, ids.house],
+    )
+  ).rows[0];
+  expect(left).toEqual({ members: 0, keys: 0, feeds: 1, invitedBy: null });
+});

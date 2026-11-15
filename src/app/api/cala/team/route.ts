@@ -154,3 +154,59 @@ export async function POST(request: Request) {
     return failure(error);
   }
 }
+
+/**
+ * Removes a member AND deletes their Auth account: to come back they must be
+ * invited again and choose a new password. pms_command does the removal and
+ * re-checks the actor's rights (no self-removal, owners can't be removed).
+ * History survives: authored rows keep the author's id (migration
+ * 20261121000000_member_account_deletion).
+ */
+export async function DELETE(request: Request) {
+  try {
+    assertOrigin(request);
+    const { client, organizationId } = await requireCalaAccess();
+    const rawId = new URL(request.url).searchParams.get("id") ?? "";
+    const target = rawId.includes(":") ? rawId.split(":")[1] : rawId;
+    invariant(
+      z.uuid().safeParse(target).success,
+      "VALIDATION",
+      "Falta indicar a quién retirar.",
+      400,
+    );
+    const result = await new SupabaseCommandGateway(client).execute(
+      { type: "team.remove", organizationId, id: rawId },
+      request.headers.get("Idempotency-Key") || crypto.randomUUID(),
+    );
+    const admin = supabaseAdminClient();
+    // Only delete the account when it no longer belongs to any organization.
+    const { count, error: countError } = await admin
+      .from("organization_members")
+      .select("user_id", { count: "exact", head: true })
+      .eq("user_id", target);
+    if (countError || count) {
+      return NextResponse.json({
+        ...result,
+        message: "Miembro retirado del equipo.",
+        ...(countError
+          ? { warning: "Miembro retirado, pero no se pudo borrar su cuenta." }
+          : {}),
+      });
+    }
+    const { error } = await admin.auth.admin.deleteUser(target);
+    if (error && !/not.?found/i.test(error.message)) {
+      console.error("[CALA team] deleteUser failed:", error.message);
+      return NextResponse.json({
+        ...result,
+        message: "Miembro retirado del equipo.",
+        warning: "Miembro retirado, pero no se pudo borrar su cuenta.",
+      });
+    }
+    return NextResponse.json({
+      ...result,
+      message: "Miembro retirado y cuenta eliminada.",
+    });
+  } catch (error) {
+    return failure(error);
+  }
+}
