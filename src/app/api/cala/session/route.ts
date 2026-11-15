@@ -13,6 +13,7 @@ import {
   findUserByEmail,
   issueCode,
 } from "@/lib/cala/signup-verification";
+import { acceptInvite, checkInvite } from "@/lib/cala/team-invitation";
 
 /** Language for the confirmation email: the CALA interface cookie. */
 function requestLocale(request: Request): "es" | "en" {
@@ -98,6 +99,15 @@ export async function POST(request: Request) {
           action: z.literal("signup_resend"),
           email: z.email().max(255),
         }),
+        z.object({
+          action: z.literal("invite_info"),
+          invite: z.string().min(1).max(200),
+        }),
+        z.object({
+          action: z.literal("invite_accept"),
+          invite: z.string().min(1).max(200),
+          password: z.string().min(8).max(256),
+        }),
       ])
       .parse(await body(request));
     const client = await supabaseServerClient();
@@ -127,6 +137,43 @@ export async function POST(request: Request) {
       await new SupabaseAuthAdapter(client).requireMfa();
       return NextResponse.json({ authenticated: true });
     }
+    if (input.action === "invite_info") {
+      // Shown on the "choose your password" screen of an invitation link.
+      const user = await checkInvite(supabaseAdminClient(), input.invite);
+      return NextResponse.json({
+        authenticated: false,
+        invite: {
+          email: user.email,
+          name: String(user.user_metadata?.name || ""),
+        },
+      });
+    }
+
+    if (input.action === "invite_accept") {
+      // Team invitation: the link proves the email, the person picks a
+      // password, then signs in. Membership was created by the inviter.
+      const admin = supabaseAdminClient();
+      const user = await checkInvite(admin, input.invite);
+      await acceptInvite(admin, user, input.password);
+      const { error } = await client.auth.signInWithPassword({
+        email: user.email!,
+        password: input.password,
+      });
+      invariant(
+        !error,
+        "SIGNIN_AFTER_INVITE_FAILED",
+        "Cuenta activada. Inicia sesión con tu correo y contraseña.",
+        401,
+      );
+      try {
+        await requireCalaAccess(client);
+      } catch (accessError) {
+        await client.auth.signOut();
+        throw accessError;
+      }
+      return NextResponse.json({ authenticated: true });
+    }
+
     if (input.action === "signup") {
       // Step 1: create the account unconfirmed (no access yet) and email a
       // 6-digit code through Resend.

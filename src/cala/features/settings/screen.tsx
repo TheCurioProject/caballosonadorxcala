@@ -259,6 +259,12 @@ export function Team() {
   const [editing, setEditing] = useState<Membership | null>(null);
   const [adding, setAdding] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState(false);
+  // Invitation link returned by /api/team, shown so it can also be shared
+  // by WhatsApp or when the email could not be sent.
+  const [shared, setShared] = useState<{
+    link: string;
+    emailSent: boolean;
+  } | null>(null);
   const [query, setQuery] = useState("");
   const myRole =
     data.memberships.find((m) => m.userId === data.currentUser.id)?.role ??
@@ -413,7 +419,7 @@ export function Team() {
         <Modal title={t("Añadir miembro")} onClose={() => setAdding(false)}>
           <p className="muted">
             {t(
-              "Con contraseña temporal puede entrar al momento. Sin ella le enviamos un correo de invitación.",
+              "Con contraseña temporal puede entrar al momento. Sin ella le enviamos un correo con un enlace para que elija su contraseña.",
             )}
           </p>
           <Form
@@ -459,7 +465,12 @@ export function Team() {
                 throw new Error(
                   t("La contraseña temporal necesita al menos 8 caracteres."),
                 );
-              const result = await api<{ message: string; warning?: string }>(
+              const result = await api<{
+                message: string;
+                warning?: string;
+                inviteLink?: string;
+                emailSent?: boolean;
+              }>(
                 "/api/team",
                 {
                   method: "POST",
@@ -476,11 +487,59 @@ export function Team() {
               await refresh();
               notify(
                 t(result.warning ?? result.message),
-                result.warning ? "warning" : "success",
+                result.warning || result.emailSent === false
+                  ? "warning"
+                  : "success",
               );
               setAdding(false);
+              if (result.inviteLink)
+                setShared({
+                  link: result.inviteLink,
+                  emailSent: Boolean(result.emailSent),
+                });
             }}
           />
+        </Modal>
+      )}
+      {shared && (
+        <Modal title={t("Enlace de invitación")} onClose={() => setShared(null)}>
+          <p className="muted">
+            {shared.emailSent
+              ? t(
+                  "Le enviamos este enlace por correo. También puedes copiarlo y mandárselo por WhatsApp. Es válido durante 7 días y sirve una sola vez.",
+                )
+              : t(
+                  "No se pudo enviar el correo. Copia este enlace y compártelo con esa persona. Es válido durante 7 días y sirve una sola vez.",
+                )}
+          </p>
+          <input
+            readOnly
+            value={shared.link}
+            onFocus={(e) => e.currentTarget.select()}
+            aria-label={t("Enlace de invitación")}
+            style={{ width: "100%" }}
+          />
+          <div className="row" style={{ marginTop: "1rem" }}>
+            <button
+              className="button secondary"
+              onClick={() => setShared(null)}
+            >
+              {t("Cerrar")}
+            </button>
+            <button
+              className="button primary"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(shared.link);
+                  notify(t("Enlace copiado."), "success");
+                } catch {
+                  notify(t("No se pudo copiar el enlace."), "warning");
+                }
+              }}
+            >
+              {t("Copiar enlace")}
+            </button>
+          </div>
         </Modal>
       )}
       {m && (

@@ -1,12 +1,12 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CalaLogo } from "@/cala/components/brand/cala-logo";
 import { LanguageToggle } from "@/cala/components/ui/language-toggle";
 import { useI18n } from "@/cala/lib/i18n";
 import { api } from "./context";
 
-type Mode = "signin" | "signup" | "verify";
+type Mode = "signin" | "signup" | "verify" | "invite";
 
 /** Eye icon – show/hide password */
 function EyeIcon({ open }: { open: boolean }) {
@@ -92,6 +92,38 @@ export function WelcomeAuth({
     password: string;
   } | null>(null);
   const [code, setCode] = useState("");
+  // Team invitation link (/admin/login/?invite=…): the person only chooses
+  // a password; the account and its access were created by the inviter.
+  const [invite, setInvite] = useState<{
+    token: string;
+    email: string;
+    name: string;
+  } | null>(null);
+  useEffect(() => {
+    const token = new URLSearchParams(window.location.search).get("invite");
+    if (!token) return;
+    let active = true;
+    api<{ invite: { email: string; name: string } }>("/api/session", {
+      method: "POST",
+      body: JSON.stringify({ action: "invite_info", invite: token }),
+    })
+      .then((result) => {
+        if (!active) return;
+        setInvite({ token, ...result.invite });
+        setMode("invite");
+      })
+      .catch((reason) => {
+        if (active)
+          setError(
+            reason instanceof Error
+              ? reason.message
+              : "No se pudo abrir la invitación.",
+          );
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const fail = (reason: unknown) =>
     setError(
@@ -107,6 +139,25 @@ export function WelcomeAuth({
     setSuccess("");
     const form = new FormData(event.currentTarget);
     try {
+      if (mode === "invite" && invite) {
+        const password = form.get("password") as string;
+        if (password !== form.get("confirm")) {
+          setError(t("Las contraseñas no coinciden."));
+          return;
+        }
+        await api("/api/session", {
+          method: "POST",
+          body: JSON.stringify({
+            action: "invite_accept",
+            invite: invite.token,
+            password,
+          }),
+        });
+        window.history.replaceState(null, "", window.location.pathname);
+        setInvite(null);
+        onAuthenticated();
+        return;
+      }
       if (mode === "verify" && pending) {
         await api("/api/session", {
           method: "POST",
@@ -178,13 +229,17 @@ export function WelcomeAuth({
   }
 
   const heading =
-    mode === "signin"
+    mode === "invite"
+      ? t("Activa tu cuenta")
+      : mode === "signin"
       ? t("Accede a tu panel")
       : mode === "signup"
         ? t("Crea tu cuenta CALA")
         : t("Confirma tu correo");
   const intro =
-    mode === "signin"
+    mode === "invite"
+      ? t("Te invitaron al equipo de Casa Caballo Soñador. Elige una contraseña para entrar.")
+      : mode === "signin"
       ? t("Usa la cuenta autorizada para este alojamiento.")
       : mode === "signup"
         ? t("Regístrate para acceder al panel de Casa Caballo Soñador.")
@@ -234,6 +289,19 @@ export function WelcomeAuth({
             </label>
           ) : (
             <>
+              {/* ── Invitación: el correo ya está decidido ── */}
+              {mode === "invite" && invite && (
+                <label>
+                  {t("Correo electrónico")}
+                  <input
+                    name="email"
+                    type="email"
+                    autoComplete="username"
+                    value={invite.email}
+                    readOnly
+                  />
+                </label>
+              )}
               {/* ── Signup-only: nombre ── */}
               {mode === "signup" && (
                 <label>
@@ -249,6 +317,7 @@ export function WelcomeAuth({
               )}
 
               {/* ── Correo ── */}
+              {mode !== "invite" && (
               <label>
                 {t("Correo electrónico")}
                 <input
@@ -261,20 +330,21 @@ export function WelcomeAuth({
                   defaultValue={pending?.email}
                 />
               </label>
+              )}
 
               {/* ── Contraseña ── */}
               <label>
                 {t("Contraseña")}
                 <PasswordInput
                   name="password"
-                  autoComplete={mode === "signup" ? "new-password" : "current-password"}
-                  minLength={mode === "signup" ? 8 : undefined}
-                  placeholder={mode === "signup" ? t("Mínimo 8 caracteres") : undefined}
+                  autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                  minLength={mode === "signin" ? undefined : 8}
+                  placeholder={mode === "signin" ? undefined : t("Mínimo 8 caracteres")}
                 />
               </label>
 
-              {/* ── Confirmar contraseña (signup) ── */}
-              {mode === "signup" && (
+              {/* ── Confirmar contraseña (signup / invitación) ── */}
+              {(mode === "signup" || mode === "invite") && (
                 <label>
                   {t("Confirmar contraseña")}
                   <PasswordInput
@@ -303,12 +373,16 @@ export function WelcomeAuth({
             style={{ marginTop: "0.25rem" }}
           >
             {busy
-              ? mode === "signin"
+              ? mode === "invite"
+                ? t("Activando…")
+                : mode === "signin"
                 ? t("Entrando…")
                 : mode === "signup"
                   ? t("Enviando código…")
                   : t("Confirmando…")
-              : mode === "signin"
+              : mode === "invite"
+                ? t("Activar y entrar")
+                : mode === "signin"
                 ? t("Iniciar sesión")
                 : mode === "signup"
                   ? t("Crear cuenta CALA")
@@ -338,7 +412,7 @@ export function WelcomeAuth({
                 {t("Usar otro correo")}
               </button>
             </div>
-          ) : (
+          ) : mode === "invite" ? null : (
             <>
               {/* ── Separador ── */}
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", margin: "0.5rem 0" }}>
@@ -372,7 +446,9 @@ export function WelcomeAuth({
           )}
 
           <p className="helper" style={{ marginTop: "0.75rem" }}>
-            {mode === "signin"
+            {mode === "invite"
+              ? t("Después entrarás con tu correo y esta contraseña.")
+              : mode === "signin"
               ? t("Si necesitas recuperar el acceso, contacta al administrador.")
               : mode === "signup"
                 ? t("Te enviaremos un código para confirmar tu correo.")
