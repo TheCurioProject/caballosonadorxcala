@@ -259,6 +259,7 @@ export function Team() {
   const [editing, setEditing] = useState<Membership | null>(null);
   const [adding, setAdding] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState(false);
+  const [resending, setResending] = useState(false);
   // Invitation link returned by /api/team, shown so it can also be shared
   // by WhatsApp or when the email could not be sent.
   const [shared, setShared] = useState<{
@@ -361,7 +362,11 @@ export function Team() {
                 </div>
               </div>
               <div className="row team-actions">
-                <Badge status={m.status} />
+                {m.activated === false ? (
+                  <Badge status="pending">{t("Pendiente de activar")}</Badge>
+                ) : (
+                  <Badge status={m.status} />
+                )}
                 {editable ? (
                   <button
                     className="button secondary"
@@ -419,11 +424,11 @@ export function Team() {
         <Modal title={t("Añadir miembro")} onClose={() => setAdding(false)}>
           <p className="muted">
             {t(
-              "Con contraseña temporal puede entrar al momento. Sin ella le enviamos un correo con un enlace para que elija su contraseña.",
+              "Le enviaremos un correo de activación para que elija su propia contraseña. Después podrá iniciar sesión con su correo y esa contraseña.",
             )}
           </p>
           <Form
-            submit={t("Añadir al equipo")}
+            submit={t("Enviar invitación")}
             onCancel={() => setAdding(false)}
             fields={[
               { name: "name", label: t("Nombre"), value: "" },
@@ -451,20 +456,8 @@ export function Team() {
                   })),
                 ],
               },
-              {
-                name: "password",
-                label: t("Contraseña temporal (opcional)"),
-                value: "",
-                required: false,
-                help: t("Mínimo 8 caracteres. Pídele que la cambie al entrar."),
-              },
             ]}
             onSubmit={async (v) => {
-              const password = String(v.password ?? "");
-              if (password && password.length < 8)
-                throw new Error(
-                  t("La contraseña temporal necesita al menos 8 caracteres."),
-                );
               const result = await api<{
                 message: string;
                 warning?: string;
@@ -480,7 +473,6 @@ export function Team() {
                     email: v.email,
                     role: v.role,
                     propertyIds: v.propertyId ? [v.propertyId] : [],
-                    password,
                   }),
                 },
               );
@@ -502,11 +494,11 @@ export function Team() {
         </Modal>
       )}
       {shared && (
-        <Modal title={t("Enlace de invitación")} onClose={() => setShared(null)}>
+        <Modal title={t("Enlace de activación")} onClose={() => setShared(null)}>
           <p className="muted">
             {shared.emailSent
               ? t(
-                  "Le enviamos este enlace por correo. También puedes copiarlo y mandárselo por WhatsApp. Es válido durante 7 días y sirve una sola vez.",
+                  "Le enviamos el correo de activación. También puedes copiar este enlace y mandárselo por WhatsApp. Es válido durante 7 días y sirve una sola vez.",
                 )
               : t(
                   "No se pudo enviar el correo. Copia este enlace y compártelo con esa persona. Es válido durante 7 días y sirve una sola vez.",
@@ -516,7 +508,7 @@ export function Team() {
             readOnly
             value={shared.link}
             onFocus={(e) => e.currentTarget.select()}
-            aria-label={t("Enlace de invitación")}
+            aria-label={t("Enlace de activación")}
             style={{ width: "100%" }}
           />
           <div className="row" style={{ marginTop: "1rem" }}>
@@ -552,6 +544,64 @@ export function Team() {
         >
           {userOf(m.userId)?.email && (
             <p className="muted">{userOf(m.userId)?.email}</p>
+          )}
+          {m.activated === false && (
+            <div
+              className="notice"
+              style={{
+                marginBottom: "1rem",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                gap: ".6rem",
+              }}
+            >
+              <p style={{ margin: 0 }}>
+                {t(
+                  "Aún no ha activado su cuenta: no puede entrar hasta que elija su contraseña desde el correo de activación.",
+                )}
+              </p>
+              <button
+                className="button secondary"
+                disabled={resending}
+                onClick={async () => {
+                  setResending(true);
+                  try {
+                    const result = await api<{
+                      message: string;
+                      inviteLink?: string;
+                      emailSent?: boolean;
+                    }>("/api/team", {
+                      method: "PATCH",
+                      body: JSON.stringify({ userId: m.userId }),
+                    });
+                    notify(
+                      t(result.message),
+                      result.emailSent ? "success" : "warning",
+                    );
+                    if (result.inviteLink)
+                      setShared({
+                        link: result.inviteLink,
+                        emailSent: Boolean(result.emailSent),
+                      });
+                    setEditing(null);
+                  } catch (reason) {
+                    notify(
+                      reason instanceof Error
+                        ? t(reason.message)
+                        : t("No se pudo completar la operación."),
+                      "error",
+                    );
+                  } finally {
+                    setResending(false);
+                  }
+                }}
+              >
+                {resending
+                  ? t("Enviando…")
+                  : t("Reenviar correo de activación")}
+              </button>
+            </div>
           )}
           <Form
             key={m.id + m.role + m.status}

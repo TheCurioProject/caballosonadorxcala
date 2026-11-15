@@ -67,6 +67,8 @@ export interface Membership {
   role: Role;
   propertyIds: string[];
   status: "active" | "suspended";
+  /** false while an invited person hasn't chosen their password yet. */
+  activated?: boolean;
 }
 export type RentalMode = "whole" | "rooms" | "both";
 export interface Property {

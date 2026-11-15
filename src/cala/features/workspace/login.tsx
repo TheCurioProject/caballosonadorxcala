@@ -86,7 +86,9 @@ export function WelcomeAuth({
   // password; the account and its access were created by the inviter.
   const [mode, setMode] = useState<Mode>("signin");
   const [busy, setBusy] = useState(false),
-    [error, setError] = useState("");
+    [error, setError] = useState(""),
+    [success, setSuccess] = useState(""),
+    [activatedEmail, setActivatedEmail] = useState("");
   const [invite, setInvite] = useState<{
     token: string;
     email: string;
@@ -122,6 +124,7 @@ export function WelcomeAuth({
     event.preventDefault();
     setBusy(true);
     setError("");
+    setSuccess("");
     const form = new FormData(event.currentTarget);
     try {
       if (mode === "invite" && invite) {
@@ -138,9 +141,14 @@ export function WelcomeAuth({
             password,
           }),
         });
+        // Activated: back to the normal sign-in, email already filled in.
         window.history.replaceState(null, "", window.location.pathname);
+        setActivatedEmail(invite.email);
         setInvite(null);
-        onAuthenticated();
+        setMode("signin");
+        setSuccess(
+          t("Cuenta activada. Ahora inicia sesión con tu correo y tu nueva contraseña."),
+        );
         return;
       }
       await api("/api/session", {
@@ -188,7 +196,7 @@ export function WelcomeAuth({
           </h2>
           <p style={{ marginTop: 0, marginBottom: "1.25rem" }}>
             {inviting
-              ? t("Te invitaron al equipo de Casa Caballo Soñador. Elige una contraseña para entrar.")
+              ? t("Te invitaron al equipo de Casa Caballo Soñador. Elige tu propia contraseña para activar tu cuenta.")
               : t("Usa la cuenta autorizada para este alojamiento.")}
           </p>
 
@@ -205,12 +213,14 @@ export function WelcomeAuth({
               />
             ) : (
               <input
+                key={activatedEmail}
                 name="email"
                 type="email"
                 required
                 autoComplete="username"
                 maxLength={255}
                 placeholder="correo@ejemplo.com"
+                defaultValue={activatedEmail}
               />
             )}
           </label>
@@ -241,6 +251,9 @@ export function WelcomeAuth({
           {error && (
             <p className="notice error" role="alert">{error}</p>
           )}
+          {success && (
+            <p className="notice success" role="status">{success}</p>
+          )}
 
           <button
             className="button primary full"
@@ -252,13 +265,13 @@ export function WelcomeAuth({
                 ? t("Activando…")
                 : t("Entrando…")
               : inviting
-                ? t("Activar y entrar")
+                ? t("Activar mi cuenta")
                 : t("Iniciar sesión")}
           </button>
 
           <p className="helper" style={{ marginTop: "0.75rem" }}>
             {inviting
-              ? t("Después entrarás con tu correo y esta contraseña.")
+              ? t("Después iniciarás sesión con tu correo y esta contraseña.")
               : t("El acceso es solo por invitación. Si no tienes cuenta o necesitas recuperar el acceso, contacta al administrador.")}
           </p>
           <Link href="/es/">{t("Volver a la web")}</Link>

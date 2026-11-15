@@ -330,6 +330,7 @@ export async function supabaseSnapshot(
         role: z.string(),
         status: z.string(),
         propertyIds: z.array(z.string()),
+        activated: z.boolean().optional(),
       }),
     )
     .catch([])
@@ -484,6 +485,7 @@ export async function supabaseSnapshot(
           role: member.role as Role,
           propertyIds: member.propertyIds,
           status: member.status as "active" | "suspended",
+          activated: member.activated,
         }))
       : memberRows
           .filter((member) => member.organization_id === org)

@@ -150,28 +150,12 @@ export async function POST(request: Request) {
     }
 
     if (input.action === "invite_accept") {
-      // Team invitation: the link proves the email, the person picks a
-      // password, then signs in. Membership was created by the inviter.
+      // Account activation: the emailed link proves the address and the
+      // person chooses their own password. They sign in afterwards with it.
       const admin = supabaseAdminClient();
       const user = await checkInvite(admin, input.invite);
       await acceptInvite(admin, user, input.password);
-      const { error } = await client.auth.signInWithPassword({
-        email: user.email!,
-        password: input.password,
-      });
-      invariant(
-        !error,
-        "SIGNIN_AFTER_INVITE_FAILED",
-        "Cuenta activada. Inicia sesión con tu correo y contraseña.",
-        401,
-      );
-      try {
-        await requireCalaAccess(client);
-      } catch (accessError) {
-        await client.auth.signOut();
-        throw accessError;
-      }
-      return NextResponse.json({ authenticated: true });
+      return NextResponse.json({ authenticated: false, activated: true });
     }
 
     if (input.action === "signup") {

@@ -7,6 +7,7 @@ import { invariant } from "@/cala/domain/shared/errors";
 import { roles } from "@/cala/application/schemas";
 import { canManageRole } from "@/cala/domain/identity/permissions";
 import type { Role } from "@/cala/domain/model";
+import type { User } from "@supabase/supabase-js";
 import { supabaseAdminClient } from "@/cala/infrastructure/supabase/admin";
 import { SupabaseCommandGateway } from "@/cala/infrastructure/supabase/commands";
 import { findUserByEmail } from "@/lib/cala/signup-verification";
@@ -25,15 +26,34 @@ const inviteSchema = z.object({
   email: z.email(),
   role: z.enum(roles),
   propertyIds: z.array(z.string().min(1).max(100)).max(100),
-  // Optional temporary password: the person can sign in right away. Without
-  // it CALA emails a one-time invitation link (see team-invitation.ts).
-  password: z.union([z.string().min(8).max(72), z.literal("")]).optional(),
 });
 
+/** Issues a fresh activation link and emails it (see team-invitation.ts). */
+async function sendActivation(
+  request: Request,
+  admin: ReturnType<typeof supabaseAdminClient>,
+  account: User,
+  name: string,
+  inviter: User,
+) {
+  const link = await issueInvite(admin, account, new URL(request.url).origin);
+  const sent = await sendInviteEmail({
+    to: account.email!,
+    name,
+    inviter: String(
+      inviter.user_metadata?.name || inviter.email?.split("@")[0] || "Tu equipo",
+    ),
+    link,
+    locale: requestLocale(request),
+  });
+  return { inviteLink: link, emailSent: sent };
+}
+
 /**
- * Adds a team member: make sure a Supabase Auth account exists for the email
- * (service role), create the membership through pms_command, which re-checks
- * the inviter's rights in the database, and email the invitation link.
+ * Invites a team member. The account is created WITHOUT a password and stays
+ * unconfirmed: the person gets an activation email, chooses their own
+ * password and only then can sign in. The membership is created through
+ * pms_command, which re-checks the inviter's rights in the database.
  */
 export async function POST(request: Request) {
   try {
@@ -53,14 +73,10 @@ export async function POST(request: Request) {
     );
     const email = input.email.toLowerCase();
     const admin = supabaseAdminClient();
-    let warning: string | undefined;
-    // 1. Make sure the Auth account exists. Without a temporary password it
-    //    stays unconfirmed until the person accepts the invitation link.
     const { data: created, error: createError } =
       await admin.auth.admin.createUser({
         email,
-        ...(input.password ? { password: input.password } : {}),
-        email_confirm: Boolean(input.password),
+        email_confirm: false,
         user_metadata: { name: input.name },
       });
     let account = created?.user ?? null;
@@ -72,83 +88,105 @@ export async function POST(request: Request) {
         503,
       );
       account = await findUserByEmail(admin, email);
-      invariant(account, "INVITE_FAILED", "No se pudo crear la cuenta.", 503);
-      if (account.email_confirmed_at) {
-        if (input.password)
-          warning = "Esa persona ya tenía cuenta: conserva su contraseña actual.";
-      }
     }
-    // 2. Membership through pms_command (re-checks the inviter's rights).
-    //    Inviting someone who is already in the team only resends the link.
+    invariant(account, "INVITE_FAILED", "No se pudo crear la cuenta.", 503);
     const { data: existing } = await admin
       .from("organization_members")
       .select("user_id")
       .eq("organization_id", organizationId)
-      .eq("user_id", account!.id)
+      .eq("user_id", account.id)
       .maybeSingle();
     invariant(
-      !existing || !account!.email_confirmed_at,
+      !existing,
       "DUPLICATE_MEMBER",
-      "Esa persona ya forma parte del equipo.",
+      account.email_confirmed_at
+        ? "Esa persona ya forma parte del equipo."
+        : "Esa persona ya está invitada. Usa «Reenviar correo de activación» en su ficha.",
       409,
     );
-    if (input.password && !account!.email_confirmed_at) {
-      // Pending invitation, now with a temporary password: activate it.
-      const { error } = await admin.auth.admin.updateUserById(account!.id, {
-        password: input.password,
-        email_confirm: true,
-        app_metadata: { ...account!.app_metadata, cala_invite: null },
-      });
-      invariant(!error, "INVITE_FAILED", "No se pudo crear la cuenta.", 503);
-      account!.email_confirmed_at = new Date().toISOString();
-    }
-    const result = existing
-      ? { message: "Invitación reenviada" }
-      : await new SupabaseCommandGateway(client).execute(
-          {
-            type: "team.invite",
-            organizationId,
-            name: input.name,
-            email,
-            role: input.role,
-            propertyIds: input.propertyIds,
-          },
-          request.headers.get("Idempotency-Key") || crypto.randomUUID(),
-        );
-    if (account!.email_confirmed_at)
+    const result = await new SupabaseCommandGateway(client).execute(
+      {
+        type: "team.invite",
+        organizationId,
+        name: input.name,
+        email,
+        role: input.role,
+        propertyIds: input.propertyIds,
+      },
+      request.headers.get("Idempotency-Key") || crypto.randomUUID(),
+    );
+    if (account.email_confirmed_at)
+      // Someone who already had an active account (e.g. another property).
       return NextResponse.json({
         ...result,
-        message: input.password && !warning
-          ? "Miembro añadido. Ya puede iniciar sesión con su correo y la contraseña temporal."
-          : "Miembro añadido. Ya puede iniciar sesión con su cuenta de siempre.",
-        ...(warning ? { warning } : {}),
+        message: "Miembro añadido. Ya puede iniciar sesión con su cuenta de siempre.",
       });
-    // 3. One-time link, emailed through Resend. If the email can't be sent
-    //    the inviter gets the link to share by hand.
-    const inviteLink = await issueInvite(
-      admin,
-      account!,
-      new URL(request.url).origin,
-    );
-    const inviter = String(
-      user.user_metadata?.name || user.email?.split("@")[0] || "Tu equipo",
-    );
-    const sent = await sendInviteEmail({
-      to: email,
-      name: input.name,
-      inviter,
-      link: inviteLink,
-      locale: requestLocale(request),
-    });
+    const activation = await sendActivation(request, admin, account, input.name, user);
     return NextResponse.json({
       ...result,
-      inviteLink,
-      emailSent: sent,
-      message: !sent
-        ? "No se pudo enviar el correo. Copia el enlace de invitación y compártelo."
-        : existing
-          ? "Le reenviamos el correo de invitación."
-          : "Miembro añadido. Le enviamos un correo para activar su cuenta.",
+      ...activation,
+      message: activation.emailSent
+        ? "Invitación enviada. Le llegará un correo para activar su cuenta y elegir su contraseña."
+        : "No se pudo enviar el correo. Copia el enlace de activación y compártelo.",
+    });
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+/** Resends the activation email to a member who hasn't activated yet. */
+export async function PATCH(request: Request) {
+  try {
+    assertOrigin(request);
+    const { client, organizationId, member, user } = await requireCalaAccess();
+    const { userId } = z.object({ userId: z.uuid() }).parse(await body(request));
+    const admin = supabaseAdminClient();
+    const [{ data: actorRole }, { data: grant }, { data: target }] = await Promise.all([
+      client.from("roles").select("key").eq("id", member.role_id).maybeSingle(),
+      admin
+        .from("role_permissions")
+        .select("permission_key")
+        .eq("role_id", member.role_id)
+        .eq("permission_key", "team.manage")
+        .maybeSingle(),
+      admin
+        .from("organization_members")
+        .select("role_id, roles(key)")
+        .eq("organization_id", organizationId)
+        .eq("user_id", userId)
+        .maybeSingle(),
+    ]);
+    invariant(grant, "FORBIDDEN", "No tienes permiso para gestionar el equipo.", 403);
+    invariant(target, "NOT_FOUND", "Esa persona ya no está en el equipo.", 404);
+    const targetRole = (target.roles as unknown as { key: string } | null)?.key;
+    invariant(
+      actorRole &&
+        targetRole &&
+        canManageRole(actorRole.key as Role, targetRole as Role),
+      "ROLE_ESCALATION",
+      "No puedes gestionar a esta persona.",
+      403,
+    );
+    const { data, error } = await admin.auth.admin.getUserById(userId);
+    invariant(!error && data.user, "NOT_FOUND", "No se encontró la cuenta.", 404);
+    invariant(
+      !data.user.email_confirmed_at,
+      "ALREADY_ACTIVE",
+      "Esta persona ya activó su cuenta.",
+      409,
+    );
+    const activation = await sendActivation(
+      request,
+      admin,
+      data.user,
+      String(data.user.user_metadata?.name || data.user.email?.split("@")[0]),
+      user,
+    );
+    return NextResponse.json({
+      ...activation,
+      message: activation.emailSent
+        ? "Le reenviamos el correo de activación."
+        : "No se pudo enviar el correo. Copia el enlace de activación y compártelo.",
     });
   } catch (error) {
     return failure(error);

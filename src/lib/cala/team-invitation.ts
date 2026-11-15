@@ -125,18 +125,18 @@ export async function sendInviteEmail(input: {
   const copy =
     input.locale === "en"
       ? {
-          subject: `${input.inviter} invited you to CALA · Casa Caballo Soñador`,
+          subject: "Activate your CALA account · Casa Caballo Soñador",
           title: `Hi ${input.name}`,
-          body: `${input.inviter} added you to the Casa Caballo Soñador team in CALA. Open the link to choose your password and sign in. It is valid for 7 days.`,
-          button: "Accept invitation",
-          ignore: "If you weren't expecting this invitation, you can ignore this email.",
+          body: `${input.inviter} added you to the Casa Caballo Soñador team in CALA. To activate your account, press the button and choose your own password. After that you can sign in with your email and that password. The link is valid for 7 days and works only once.`,
+          button: "Activate my account",
+          ignore: "If you weren't expecting this email, you can ignore it: the account stays inactive.",
         }
       : {
-          subject: `${input.inviter} te invitó a CALA · Casa Caballo Soñador`,
+          subject: "Activa tu cuenta de CALA · Casa Caballo Soñador",
           title: `Hola, ${input.name}`,
-          body: `${input.inviter} te añadió al equipo de Casa Caballo Soñador en CALA. Abre el enlace para elegir tu contraseña y entrar. Es válido durante 7 días.`,
-          button: "Aceptar invitación",
-          ignore: "Si no esperabas esta invitación, puedes ignorar este correo.",
+          body: `${input.inviter} te añadió al equipo de Casa Caballo Soñador en CALA. Para activar tu cuenta, pulsa el botón y elige tu propia contraseña. Después podrás iniciar sesión con tu correo y esa contraseña. El enlace es válido durante 7 días y sirve una sola vez.`,
+          button: "Activar mi cuenta",
+          ignore: "Si no esperabas este correo, puedes ignorarlo: la cuenta seguirá sin activar.",
         };
   if (!process.env.RESEND_API_KEY) {
     console.info(`[CALA invite] Enlace para ${input.to}: ${input.link}`);

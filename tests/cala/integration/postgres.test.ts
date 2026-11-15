@@ -982,7 +982,7 @@ test("SQL workspace management: inventory, units, property and ranked team comma
       });
   const invitee = "20000000-0000-0000-0000-0000000000aa";
   await db.exec(
-    `reset role;alter table auth.users add column if not exists email text,add column if not exists raw_user_meta_data jsonb,add column if not exists last_sign_in_at timestamptz;insert into auth.users(id,email,raw_user_meta_data) values('${invitee}','nueva@example.com','{"name":"Nueva Persona"}');update public.organization_members set status='active' where user_id='${ids.manager}';`,
+    `reset role;alter table auth.users add column if not exists email text,add column if not exists raw_user_meta_data jsonb,add column if not exists last_sign_in_at timestamptz,add column if not exists email_confirmed_at timestamptz;insert into auth.users(id,email,raw_user_meta_data) values('${invitee}','nueva@example.com','{"name":"Nueva Persona"}');update public.organization_members set status='active' where user_id='${ids.manager}';`,
   );
   await as(ids.user);
   await run(
@@ -1100,6 +1100,8 @@ test("SQL workspace management: inventory, units, property and ranked team comma
   expect(team.find((m) => m.userId === invitee)).toMatchObject({
     name: "Nueva Persona",
     role: "front_desk",
+    // Invited, hasn't chosen a password yet.
+    activated: false,
   });
 
   // A manager edits lower ranks (accepting "<org>:<user>" ids) but cannot
