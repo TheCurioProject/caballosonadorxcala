@@ -6,7 +6,7 @@ import { LanguageToggle } from "@/cala/components/ui/language-toggle";
 import { useI18n } from "@/cala/lib/i18n";
 import { api } from "./context";
 
-type Mode = "signin" | "signup" | "verify" | "invite";
+type Mode = "signin" | "invite";
 
 /** Eye icon – show/hide password */
 function EyeIcon({ open }: { open: boolean }) {
@@ -81,19 +81,12 @@ export function WelcomeAuth({
   onAuthenticated: () => void;
 }) {
   const { t } = useI18n();
+  // CALA is invitation-only: there is no self sign-up here. New people get a
+  // link from Equipo y permisos (/admin/login/?invite=…) and only choose a
+  // password; the account and its access were created by the inviter.
   const [mode, setMode] = useState<Mode>("signin");
   const [busy, setBusy] = useState(false),
-    [error, setError] = useState(""),
-    [success, setSuccess] = useState("");
-  // Kept in memory only while the email is being confirmed: the password is
-  // needed once more to open the session after the code is accepted.
-  const [pending, setPending] = useState<{
-    email: string;
-    password: string;
-  } | null>(null);
-  const [code, setCode] = useState("");
-  // Team invitation link (/admin/login/?invite=…): the person only chooses
-  // a password; the account and its access were created by the inviter.
+    [error, setError] = useState("");
   const [invite, setInvite] = useState<{
     token: string;
     email: string;
@@ -125,18 +118,10 @@ export function WelcomeAuth({
     };
   }, []);
 
-  const fail = (reason: unknown) =>
-    setError(
-      reason instanceof Error
-        ? reason.message
-        : t("No se pudo completar la operación."),
-    );
-
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
     setError("");
-    setSuccess("");
     const form = new FormData(event.currentTarget);
     try {
       if (mode === "invite" && invite) {
@@ -158,42 +143,6 @@ export function WelcomeAuth({
         onAuthenticated();
         return;
       }
-      if (mode === "verify" && pending) {
-        await api("/api/session", {
-          method: "POST",
-          body: JSON.stringify({
-            action: "signup_verify",
-            email: pending.email,
-            password: pending.password,
-            code,
-          }),
-        });
-        setPending(null);
-        onAuthenticated();
-        return;
-      }
-      if (mode === "signup") {
-        const password = form.get("password") as string;
-        const confirm = form.get("confirm") as string;
-        if (password !== confirm) {
-          setError(t("Las contraseñas no coinciden."));
-          return;
-        }
-        const email = String(form.get("email") ?? "").trim();
-        await api("/api/session", {
-          method: "POST",
-          body: JSON.stringify({
-            action: "signup",
-            email,
-            password,
-            name: form.get("name") || undefined,
-          }),
-        });
-        setPending({ email, password });
-        setCode("");
-        setMode("verify");
-        return;
-      }
       await api("/api/session", {
         method: "POST",
         body: JSON.stringify({
@@ -204,48 +153,17 @@ export function WelcomeAuth({
       });
       onAuthenticated();
     } catch (reason) {
-      fail(reason);
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : t("No se pudo completar la operación."),
+      );
     } finally {
       setBusy(false);
     }
   }
 
-  async function resend() {
-    if (!pending) return;
-    setBusy(true);
-    setError("");
-    setSuccess("");
-    try {
-      await api("/api/session", {
-        method: "POST",
-        body: JSON.stringify({ action: "signup_resend", email: pending.email }),
-      });
-      setSuccess(t("Te enviamos un código nuevo."));
-    } catch (reason) {
-      fail(reason);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  const heading =
-    mode === "invite"
-      ? t("Activa tu cuenta")
-      : mode === "signin"
-      ? t("Accede a tu panel")
-      : mode === "signup"
-        ? t("Crea tu cuenta CALA")
-        : t("Confirma tu correo");
-  const intro =
-    mode === "invite"
-      ? t("Te invitaron al equipo de Casa Caballo Soñador. Elige una contraseña para entrar.")
-      : mode === "signin"
-      ? t("Usa la cuenta autorizada para este alojamiento.")
-      : mode === "signup"
-        ? t("Regístrate para acceder al panel de Casa Caballo Soñador.")
-        : t("Enviamos un código de 6 dígitos a {email}. Escríbelo para terminar tu registro.", {
-            email: pending?.email ?? "",
-          });
+  const inviting = mode === "invite" && invite;
 
   return (
     <main className="welcome-auth">
@@ -265,194 +183,83 @@ export function WelcomeAuth({
             <LanguageToggle />
           </div>
 
-          <h2 style={{ marginBottom: "0.1rem" }}>{heading}</h2>
-          <p style={{ marginTop: 0, marginBottom: "1.25rem" }}>{intro}</p>
+          <h2 style={{ marginBottom: "0.1rem" }}>
+            {inviting ? t("Activa tu cuenta") : t("Accede a tu panel")}
+          </h2>
+          <p style={{ marginTop: 0, marginBottom: "1.25rem" }}>
+            {inviting
+              ? t("Te invitaron al equipo de Casa Caballo Soñador. Elige una contraseña para entrar.")
+              : t("Usa la cuenta autorizada para este alojamiento.")}
+          </p>
 
-          {mode === "verify" ? (
-            <label>
-              {t("Código de confirmación")}
+          {/* ── Correo (fijo cuando viene de una invitación) ── */}
+          <label>
+            {t("Correo electrónico")}
+            {inviting ? (
               <input
-                name="code"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                pattern="[0-9]{6}"
-                maxLength={6}
+                name="email"
+                type="email"
+                autoComplete="username"
+                value={invite.email}
+                readOnly
+              />
+            ) : (
+              <input
+                name="email"
+                type="email"
                 required
-                autoFocus
-                className="auth-code-input"
-                placeholder="000000"
-                value={code}
-                onChange={(e) =>
-                  setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
-                }
+                autoComplete="username"
+                maxLength={255}
+                placeholder="correo@ejemplo.com"
+              />
+            )}
+          </label>
+
+          {/* ── Contraseña ── */}
+          <label>
+            {t("Contraseña")}
+            <PasswordInput
+              name="password"
+              autoComplete={inviting ? "new-password" : "current-password"}
+              minLength={inviting ? 8 : undefined}
+              placeholder={inviting ? t("Mínimo 8 caracteres") : undefined}
+            />
+          </label>
+
+          {inviting && (
+            <label>
+              {t("Confirmar contraseña")}
+              <PasswordInput
+                name="confirm"
+                autoComplete="new-password"
+                minLength={8}
+                placeholder={t("Repite tu contraseña")}
               />
             </label>
-          ) : (
-            <>
-              {/* ── Invitación: el correo ya está decidido ── */}
-              {mode === "invite" && invite && (
-                <label>
-                  {t("Correo electrónico")}
-                  <input
-                    name="email"
-                    type="email"
-                    autoComplete="username"
-                    value={invite.email}
-                    readOnly
-                  />
-                </label>
-              )}
-              {/* ── Signup-only: nombre ── */}
-              {mode === "signup" && (
-                <label>
-                  {t("Nombre (opcional)")}
-                  <input
-                    name="name"
-                    type="text"
-                    autoComplete="name"
-                    maxLength={120}
-                    placeholder={t("Tu nombre")}
-                  />
-                </label>
-              )}
-
-              {/* ── Correo ── */}
-              {mode !== "invite" && (
-              <label>
-                {t("Correo electrónico")}
-                <input
-                  name="email"
-                  type="email"
-                  required
-                  autoComplete="username"
-                  maxLength={255}
-                  placeholder="correo@ejemplo.com"
-                  defaultValue={pending?.email}
-                />
-              </label>
-              )}
-
-              {/* ── Contraseña ── */}
-              <label>
-                {t("Contraseña")}
-                <PasswordInput
-                  name="password"
-                  autoComplete={mode === "signin" ? "current-password" : "new-password"}
-                  minLength={mode === "signin" ? undefined : 8}
-                  placeholder={mode === "signin" ? undefined : t("Mínimo 8 caracteres")}
-                />
-              </label>
-
-              {/* ── Confirmar contraseña (signup / invitación) ── */}
-              {(mode === "signup" || mode === "invite") && (
-                <label>
-                  {t("Confirmar contraseña")}
-                  <PasswordInput
-                    name="confirm"
-                    autoComplete="new-password"
-                    minLength={8}
-                    placeholder={t("Repite tu contraseña")}
-                  />
-                </label>
-              )}
-            </>
           )}
 
-          {/* ── Mensajes ── */}
           {error && (
             <p className="notice error" role="alert">{error}</p>
           )}
-          {success && (
-            <p className="notice success" role="status">{success}</p>
-          )}
 
-          {/* ── Botón principal ── */}
           <button
             className="button primary full"
-            disabled={busy || (mode === "verify" && code.length !== 6)}
+            disabled={busy}
             style={{ marginTop: "0.25rem" }}
           >
             {busy
-              ? mode === "invite"
+              ? inviting
                 ? t("Activando…")
-                : mode === "signin"
-                ? t("Entrando…")
-                : mode === "signup"
-                  ? t("Enviando código…")
-                  : t("Confirmando…")
-              : mode === "invite"
+                : t("Entrando…")
+              : inviting
                 ? t("Activar y entrar")
-                : mode === "signin"
-                ? t("Iniciar sesión")
-                : mode === "signup"
-                  ? t("Crear cuenta CALA")
-                  : t("Confirmar y entrar")}
+                : t("Iniciar sesión")}
           </button>
 
-          {mode === "verify" ? (
-            <div className="auth-verify-actions">
-              <button
-                type="button"
-                className="button secondary"
-                disabled={busy}
-                onClick={() => void resend()}
-              >
-                {t("Reenviar código")}
-              </button>
-              <button
-                type="button"
-                className="button secondary"
-                disabled={busy}
-                onClick={() => {
-                  setMode("signup");
-                  setError("");
-                  setSuccess("");
-                }}
-              >
-                {t("Usar otro correo")}
-              </button>
-            </div>
-          ) : mode === "invite" ? null : (
-            <>
-              {/* ── Separador ── */}
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", margin: "0.5rem 0" }}>
-                <hr style={{ flex: 1, border: "none", borderTop: "1px solid #e0d6cc" }} />
-                <span style={{ fontSize: "0.75rem", color: "#b0a89f", whiteSpace: "nowrap" }}>
-                  {mode === "signin" ? t("¿No tienes cuenta?") : t("¿Ya tienes cuenta?")}
-                </span>
-                <hr style={{ flex: 1, border: "none", borderTop: "1px solid #e0d6cc" }} />
-              </div>
-
-              {/* ── Botón alternativo de modo ── */}
-              <button
-                type="button"
-                onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setError(""); setSuccess(""); }}
-                style={{
-                  width: "100%",
-                  padding: "0.6rem",
-                  fontSize: "0.875rem",
-                  fontWeight: 500,
-                  background: "transparent",
-                  color: "#23211F",
-                  border: "1px solid #c8bdb5",
-                  borderRadius: "0.5rem",
-                  cursor: "pointer",
-                  transition: "background 0.15s",
-                }}
-              >
-                {mode === "signin" ? t("Crear cuenta CALA") : t("Iniciar sesión")}
-              </button>
-            </>
-          )}
-
           <p className="helper" style={{ marginTop: "0.75rem" }}>
-            {mode === "invite"
+            {inviting
               ? t("Después entrarás con tu correo y esta contraseña.")
-              : mode === "signin"
-              ? t("Si necesitas recuperar el acceso, contacta al administrador.")
-              : mode === "signup"
-                ? t("Te enviaremos un código para confirmar tu correo.")
-                : t("El código caduca en 10 minutos. Revisa también la carpeta de spam.")}
+              : t("El acceso es solo por invitación. Si no tienes cuenta o necesitas recuperar el acceso, contacta al administrador.")}
           </p>
           <Link href="/es/">{t("Volver a la web")}</Link>
         </form>

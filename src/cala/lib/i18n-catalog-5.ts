@@ -177,4 +177,5 @@ export const catalog5: Record<string, string> = {
   "No se pudo enviar el correo. Copia el enlace de invitación y compártelo.": "The email could not be sent. Copy the invitation link and share it.",
   "Le reenviamos el correo de invitación.": "We sent the invitation email again.",
   "No se pudo crear la cuenta.": "The account could not be created.",
+  "El acceso es solo por invitación. Si no tienes cuenta o necesitas recuperar el acceso, contacta al administrador.": "Access is by invitation only. If you don't have an account or need to recover access, contact the administrator.",
 };
