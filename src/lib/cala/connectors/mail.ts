@@ -96,6 +96,33 @@ export async function configureMail(rawDomain: string, endpoint: string) {
 
 export const inboxAddress = (localPart: string, domain: string) => `${localPart}@${domain}`;
 
+/** Subject prefix of the self-test e-mail; the assistant looks for it in the received list. */
+export const SELF_TEST_SUBJECT = "Prueba de conexión de CALA";
+
+/**
+ * End-to-end check without waiting for a guest: CALA sends a real e-mail to the
+ * property's relay address. It only shows up in the received list after it went
+ * through Resend receiving, the signed webhook and the database.
+ */
+export async function sendSelfTest(to: string) {
+  if (!(await mailReady())) throw new DomainError("MAIL_NOT_READY", "Primero conecta Resend en el paso 1.", 409);
+  const nonce = Math.random().toString(36).slice(2, 8).toUpperCase();
+  const from = process.env.CALA_EMAIL_FROM || "CALA · Casa Caballo Soñador <no-reply@casacaballosonador.com>";
+  const { error } = await resend().emails.send({
+    from,
+    to: [to],
+    subject: `${SELF_TEST_SUBJECT} · ${nonce}`,
+    text: `Correo automático de CALA para comprobar que la bandeja de mensajes recibe correos.\n\nCódigo: ${nonce}`,
+  });
+  if (error)
+    throw new DomainError(
+      "SELF_TEST_SEND",
+      `Resend no pudo enviar el correo de prueba: ${error.message}`,
+      502,
+    );
+  return { nonce, sentAt: new Date().toISOString() };
+}
+
 /** Handles one `email.received` event for any CALA relay address. */
 export async function receiveEmail(event: { email_id: string; to: string[]; received_for?: string[] }) {
   const { domain } = await mailSetup();

@@ -13,7 +13,7 @@ import {
   providerForUrl,
 } from "@/lib/cala/connectors/ical-feed";
 import { syncCalendarLink, untyped } from "@/lib/cala/connectors/calendar-sync";
-import { configureMail, inboxAddress, mailSetup, receivingDomains } from "@/lib/cala/connectors/mail";
+import { configureMail, inboxAddress, mailSetup, receivingDomains, sendSelfTest } from "@/lib/cala/connectors/mail";
 import { isWebsiteProperty, revalidatePublicSite } from "@/lib/revalidatePublic";
 import { retireLegacySource } from "@/lib/cala/connectors/legacy";
 
@@ -32,6 +32,7 @@ const input = z.discriminatedUnion("action", [
   z.object({ action: z.literal("inbox.enable"), propertyId: id }),
   z.object({ action: z.literal("mail.configure"), propertyId: id, domain: z.string().min(3).max(320) }),
   z.object({ action: z.literal("inbox.list"), propertyId: id }),
+  z.object({ action: z.literal("inbox.selftest"), propertyId: id }),
   z.object({ action: z.literal("thread.reply"), propertyId: id, threadId: id, body: z.string().min(1).max(20000), manual: z.boolean().optional() }),
   z.object({ action: z.literal("thread.note"), propertyId: id, threadId: id, body: z.string().min(1).max(20000) }),
   z.object({ action: z.literal("thread.cancel"), propertyId: id, messageId: id }),
@@ -166,6 +167,13 @@ export async function POST(request: Request) {
         const r = await rpc("inbox.enable");
         const setup = await mailSetup();
         return NextResponse.json({ localPart: r.localPart, address: setup.domain ? inboxAddress(String(r.localPart), setup.domain) : null });
+      }
+      case "inbox.selftest": {
+        const state = await rpc("state"); // channel.manage required
+        const inbox = state.inbox as { localPart: string } | null;
+        const setup = await mailSetup();
+        invariant(Boolean(inbox && setup.domain), "NO_INBOX", "Primero crea tu dirección de CALA en el paso 1.", 409);
+        return NextResponse.json(await sendSelfTest(inboxAddress(inbox!.localPart, setup.domain)));
       }
       case "inbox.list":
         return NextResponse.json(await rpc("inbox.list"));

@@ -9,6 +9,7 @@ import { CalendarAssistant, OtaMark } from "./calendar-assistant";
 import { MessageAssistant } from "@/cala/features/messaging/message-assistant";
 import {
   connector,
+  isSelfTestEmail,
   looksLikeBrowser,
   otaGuides,
   timeAgo,
@@ -54,6 +55,7 @@ function PropertyChannels() {
   const orphanFeeds = (state?.feeds ?? []).filter((f) => !state?.links.some((l) => l.unitId === f.unitId && l.provider === f.provider));
   const mailReady = Boolean(state?.mail.apiKey && state.mail.receiving && state.mail.webhook);
   const lastMessage = state?.emails.find((e) => e.kind === "message");
+  const selfTest = state?.emails.find(isSelfTestEmail);
 
   return (
     <>
@@ -198,8 +200,8 @@ function PropertyChannels() {
                 <Icon name="inbox" size={22} />
                 <strong>Mensajes de OTAs por correo</strong>
               </span>
-              <span className={`cx-pill ${state.inbox && mailReady && lastMessage ? "ok" : "warn"}`}>
-                {!mailReady ? "Resend sin conectar" : !state.inbox ? "Sin conectar" : lastMessage ? "Recibiendo" : "Esperando el primer correo"}
+              <span className={`cx-pill ${state.inbox && mailReady && (lastMessage || selfTest) ? "ok" : "warn"}`}>
+                {!mailReady ? "Resend sin conectar" : !state.inbox ? "Sin conectar" : lastMessage ? "Recibiendo" : selfTest ? "Lista" : "Esperando el primer correo"}
               </span>
             </div>
             <ul className="ota-verify">
@@ -207,9 +209,13 @@ function PropertyChannels() {
                 <span>{mailReady ? <Icon name="check" size={13} /> : <Icon name="warning" size={13} />}</span>
                 {mailReady ? `Resend conectado (@${state.mail.domain})` : "Conecta Resend desde el asistente (un solo paso)"}
               </li>
-              <li className={lastMessage ? "is-ok" : "is-bad"}>
-                <span>{lastMessage ? <Icon name="check" size={13} /> : <Icon name="warning" size={13} />}</span>
-                {lastMessage ? `Último mensaje recibido ${timeAgo(lastMessage.receivedAt)}` : "Aún no llega ningún mensaje de una OTA"}
+              <li className={lastMessage || selfTest ? "is-ok" : "is-bad"}>
+                <span>{lastMessage || selfTest ? <Icon name="check" size={13} /> : <Icon name="warning" size={13} />}</span>
+                {lastMessage
+                  ? `Último mensaje recibido ${timeAgo(lastMessage.receivedAt)}`
+                  : selfTest
+                    ? `Recepción comprobada ${timeAgo(selfTest.receivedAt)}; los mensajes de las OTAs llegarán solos`
+                    : "Aún no llega ningún mensaje de una OTA"}
               </li>
             </ul>
             {state.inbox?.address && <small className="muted">Dirección de reenvío: {state.inbox.address}</small>}

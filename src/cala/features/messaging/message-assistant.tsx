@@ -5,6 +5,7 @@ import { useWorkspace } from "@/cala/features/workspace/context";
 import { dateTime } from "@/cala/lib/format";
 import {
   connector,
+  isSelfTestEmail,
   otaGuides,
   listOf,
   timeAgo,
@@ -13,7 +14,7 @@ import {
 } from "@/cala/features/integrations/connectors";
 import { copyText, OtaMark } from "@/cala/features/integrations/calendar-assistant";
 
-const steps = ["Conectar", "Reenvío", "Prueba real", "Responder"] as const;
+const steps = ["Conectar", "Reenvío", "Comprobar", "Responder"] as const;
 const mailOtas: ConnectorProvider[] = ["airbnb", "booking", "vrbo", "expedia"];
 type MailApp = "gmail" | "outlook" | "other";
 
@@ -41,6 +42,8 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
   const [error, setError] = useState("");
   const [copied, setCopied] = useState("");
   const [testSince, setTestSince] = useState<string | null>(null);
+  const [selfTest, setSelfTest] = useState<{ nonce: string; sentAt: string } | null>(null);
+  const [selfTestSlow, setSelfTestSlow] = useState(false);
   const [forwardSince] = useState(() => new Date(Date.now() - 30 * 60000).toISOString());
   const { state, refresh } = useConnectorState(propertyId, step === 1 || step === 2 ? 4000 : 0);
   const mail = state?.mail;
@@ -60,6 +63,10 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
   })();
   const testEmails = testSince ? (state?.emails ?? []).filter((e) => e.receivedAt >= testSince) : [];
   const testOk = testEmails.find((e) => e.kind === "message");
+  const selfTestOk = selfTest
+    ? (state?.emails ?? []).find((e) => isSelfTestEmail(e) && Boolean(e.subject?.endsWith(selfTest.nonce)))
+    : undefined;
+  const anyForwarding = state?.emails.find((e) => e.kind === "forwarding");
   const receivingFormat = /^([^\s@]+@)?[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(receiving.trim());
 
   async function run(work: () => Promise<unknown>) {
@@ -85,9 +92,17 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
       window.setTimeout(() => setCopied(""), 2500);
     }
   }
+  /** CALA mails its own address: proves Resend receiving + webhook + database without waiting for a guest. */
+  const sendSelfTest = () =>
+    run(async () => {
+      setSelfTestSlow(false);
+      setSelfTest(await connector<{ nonce: string; sentAt: string }>("inbox.selftest", { propertyId }));
+      window.setTimeout(() => setSelfTestSlow(true), 60000);
+    });
   function go(next: number) {
     setError("");
     if (next === 2 && !testSince) setTestSince(new Date(Date.now() - 5000).toISOString());
+    if (next === 2 && !selfTest && !busy) void sendSelfTest();
     setStep(next);
   }
   const copyButton = (key: string, text: string, label = "Copiar") => (
@@ -116,7 +131,8 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
       </Modal>
     );
 
-  const canNext = [ready && Boolean(address), emailOk, Boolean(testOk), true][step];
+  const verified = Boolean(testOk || selfTestOk);
+  const canNext = [ready && Boolean(address), emailOk, verified, true][step];
 
   return (
     <Modal title="Asistente de mensajes de OTAs" onClose={onClose} wide>
@@ -313,32 +329,65 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
           )}
           {step === 2 && (
             <>
-              <h3>Prueba con un correo real</h3>
+              <h3>Comprueba la conexión</h3>
               <p className="muted">
-                Reenvía a tu dirección de CALA un aviso de mensaje que ya tengas de {listOf(otas.map((o) => otaGuides[o].label), "disjunction")} (por ejemplo «Nuevo mensaje de…»). Con el filtro activo, los siguientes llegarán solos.
+                CALA se envía un correo de prueba a tu dirección y confirma que llega a la bandeja. No hace falta esperar a que un huésped escriba: con el reenvío activo, los avisos de {listOf(otas.map((o) => otaGuides[o].label))} llegarán solos.
+              </p>
+              <ul className="ota-verify" aria-live="polite">
+                {check(Boolean(mail?.webhook), mail?.webhook ? `Resend conectado (@${mail.domain})` : "Resend sin conectar")}
+                {check(
+                  Boolean(selfTestOk),
+                  selfTestOk
+                    ? `Correo de prueba recibido ${timeAgo(selfTestOk.receivedAt)}: Resend → webhook → CALA funcionan`
+                    : selfTest
+                      ? "Correo de prueba enviado, esperando que llegue a CALA…"
+                      : busy
+                        ? "Enviando el correo de prueba…"
+                        : "Falta enviar el correo de prueba",
+                  !selfTestOk && (busy || Boolean(selfTest)),
+                )}
+                {app === "gmail" &&
+                  check(
+                    Boolean(anyForwarding),
+                    anyForwarding
+                      ? `Gmail ya puede reenviar a CALA (confirmación recibida ${timeAgo(anyForwarding.receivedAt)})`
+                      : "No vemos la confirmación de Gmail: revisa que el reenvío esté verificado en Gmail",
+                  )}
+                {testOk &&
+                  check(true, `Reconocido como mensaje de ${otaGuides[testOk.provider ?? "other"].label}: «${testOk.summary ?? testOk.subject ?? ""}»`)}
+              </ul>
+              {selfTest && !selfTestOk && selfTestSlow && (
+                <div className="notice warning">
+                  <p>El correo de prueba tarda más de lo normal. Revisa en Resend → Webhooks que el webhook de CALA esté activo y vuelve a enviar la prueba.</p>
+                </div>
+              )}
+              {!busy && (selfTestSlow || !selfTest || error) && !selfTestOk && (
+                <button type="button" className="button secondary" onClick={() => void sendSelfTest()}>
+                  <Icon name="sync" size={16} /> {selfTest ? "Volver a enviar la prueba" : "Enviar correo de prueba"}
+                </button>
+              )}
+              {error && (
+                <p className="notice error" role="alert">
+                  {error}
+                </p>
+              )}
+              <p className="muted">
+                Opcional: si reenvías a tu dirección un aviso de mensaje que ya tengas (por ejemplo «Nuevo mensaje de…»), CALA lo mostrará aquí como mensaje reconocido.
               </p>
               {addressBox}
-              <ul className="ota-verify" aria-live="polite">
-                {check(testEmails.length > 0, testEmails.length ? (testEmails.length === 1 ? `Llegaron ${testEmails.length} correo a CALA` : `Llegaron ${testEmails.length} correos a CALA`) : "Esperando un correo…", !testEmails.length)}
-                {testEmails.length > 0 &&
-                  check(
-                    Boolean(testOk),
-                    testOk
-                      ? `Reconocido como mensaje de ${otaGuides[testOk.provider ?? "other"].label}: «${testOk.summary ?? testOk.subject ?? ""}»`
-                      : "El correo no parece un aviso de mensaje de una OTA. Reenvía uno que diga «mensaje» de Airbnb o Booking.com.",
-                  )}
-              </ul>
-              {testEmails.length > 0 && (
+              {testEmails.filter((e) => !isSelfTestEmail(e)).length > 0 && (
                 <ul className="cx-mail-log">
-                  {testEmails.map((e) => (
-                    <li key={e.id}>
-                      <strong>{e.subject || "(sin asunto)"}</strong>
-                      <small>
-                        {e.from} · {dateTime(e.receivedAt)} ·{" "}
-                        {e.kind === "message" ? "en la bandeja" : e.kind === "forwarding" ? "confirmación de reenvío" : "no es de una OTA"}
-                      </small>
-                    </li>
-                  ))}
+                  {testEmails
+                    .filter((e) => !isSelfTestEmail(e))
+                    .map((e) => (
+                      <li key={e.id}>
+                        <strong>{e.subject || "(sin asunto)"}</strong>
+                        <small>
+                          {e.from} · {dateTime(e.receivedAt)} ·{" "}
+                          {e.kind === "message" ? "en la bandeja" : e.kind === "forwarding" ? "confirmación de reenvío" : "no es de una OTA"}
+                        </small>
+                      </li>
+                    ))}
                 </ul>
               )}
             </>
@@ -348,8 +397,9 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
               <span className="ota-done-mark" aria-hidden="true">
                 <Icon name="check" size={34} />
               </span>
-              <h3>Los mensajes de tus OTAs ya llegan a CALA</h3>
+              <h3>{testOk ? "Los mensajes de tus OTAs ya llegan a CALA" : "Tu bandeja de mensajes está lista"}</h3>
               <ol className="ota-next">
+                {!testOk && <li>La conexión está comprobada. El primer aviso real aparecerá en Mensajes en cuanto un huésped escriba.</li>}
                 <li>Cada mensaje aparece en Mensajes, unido a su reserva cuando CALA la reconoce.</li>
                 <li>Para responder, escribe en CALA (con plantillas si quieres) y pulsa «Copiar y abrir en Airbnb» (o la OTA que sea): se abre esa conversación con tu texto copiado; solo pegas y envías.</li>
                 <li>Así la respuesta sale por el chat oficial de la OTA, que es lo que Airbnb y Booking.com exigen, y queda registrada en CALA.</li>
@@ -371,7 +421,7 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
               <span />
             )}
             <button type="button" className="button primary" disabled={!canNext || busy} onClick={() => go(step + 1)}>
-              {step === 2 ? (testOk ? "Verificado, continuar" : "Esperando el correo…") : "Continuar"}
+              {step === 2 ? (verified ? "Verificado, continuar" : "Comprobando…") : "Continuar"}
               <Icon name="chevron-right" size={16} />
             </button>
           </footer>

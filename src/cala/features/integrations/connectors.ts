@@ -45,6 +45,10 @@ export interface ConnectorState {
   webhookUrl: string;
 }
 
+/** Self-test e-mail sent by CALA to its own relay address (see sendSelfTest). */
+export const isSelfTestEmail = (e: Pick<InboundEmail, "subject">) =>
+  Boolean(e.subject?.startsWith("Prueba de conexión de CALA"));
+
 export class ConnectorError extends Error {
   constructor(
     message: string,

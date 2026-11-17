@@ -362,4 +362,28 @@ export const catalog3: Record<string, string> = {
   "{name} · 1 habitación": "{name} · 1 room",
   "{name} · {n} camas": "{name} · {n} beds",
   Habitación: "Room",
+  Comprobar: "Verify",
+  "Comprueba la conexión": "Check the connection",
+  "CALA se envía un correo de prueba a tu dirección y confirma que llega a la bandeja. No hace falta esperar a que un huésped escriba: con el reenvío activo, los avisos de {list} llegarán solos.":
+    "CALA sends a test e-mail to your address and confirms it reaches the inbox. No need to wait for a guest to write: with forwarding on, notices from {list} will arrive on their own.",
+  "Correo de prueba recibido {when}: Resend → webhook → CALA funcionan": "Test e-mail received {when}: Resend → webhook → CALA work",
+  "Correo de prueba enviado, esperando que llegue a CALA…": "Test e-mail sent, waiting for it to reach CALA…",
+  "Enviando el correo de prueba…": "Sending the test e-mail…",
+  "Falta enviar el correo de prueba": "Test e-mail not sent yet",
+  "Gmail ya puede reenviar a CALA (confirmación recibida {when})": "Gmail can forward to CALA (confirmation received {when})",
+  "No vemos la confirmación de Gmail: revisa que el reenvío esté verificado en Gmail": "We don't see Gmail's confirmation: check that forwarding is verified in Gmail",
+  "El correo de prueba tarda más de lo normal. Revisa en Resend → Webhooks que el webhook de CALA esté activo y vuelve a enviar la prueba.":
+    "The test e-mail is taking longer than usual. Check in Resend → Webhooks that CALA's webhook is active and send the test again.",
+  "Volver a enviar la prueba": "Send the test again",
+  "Enviar correo de prueba": "Send test e-mail",
+  "Opcional: si reenvías a tu dirección un aviso de mensaje que ya tengas (por ejemplo «Nuevo mensaje de…»), CALA lo mostrará aquí como mensaje reconocido.":
+    "Optional: if you forward a message notice you already have (e.g. “New message from…”) to your address, CALA will show it here as a recognized message.",
+  "Tu bandeja de mensajes está lista": "Your message inbox is ready",
+  "La conexión está comprobada. El primer aviso real aparecerá en Mensajes en cuanto un huésped escriba.":
+    "The connection is verified. The first real notice will appear in Messages as soon as a guest writes.",
+  Lista: "Ready",
+  "Recepción comprobada {when}; los mensajes de las OTAs llegarán solos": "Receiving verified {when}; OTA messages will arrive on their own",
+  "Primero conecta Resend en el paso 1.": "First connect Resend in step 1.",
+  "Primero crea tu dirección de CALA en el paso 1.": "First create your CALA address in step 1.",
+  "Resend no pudo enviar el correo de prueba: {error}": "Resend couldn't send the test e-mail: {error}",
 };
