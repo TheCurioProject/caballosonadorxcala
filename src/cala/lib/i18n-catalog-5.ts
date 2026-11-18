@@ -204,4 +204,84 @@ export const catalog5: Record<string, string> = {
   "No se encontró la cuenta.": "The account was not found.",
   "Esta persona ya activó su cuenta.": "This person already activated their account.",
   "No tienes permiso para gestionar el equipo.": "You don't have permission to manage the team.",
+
+  // OTA replies sent from the host's mailbox (SMTP)
+  Listo: "Done",
+  "Responder desde tu correo": "Reply from your e-mail",
+  "Responder desde {email}": "Reply from {email}",
+  "Responder desde mi correo": "Reply from my e-mail",
+  "Responde a tus huéspedes desde CALA": "Reply to your guests from CALA",
+  "Las OTAs aceptan respuestas por correo solo si salen del correo con el que entras a {list}. CALA enviará tus respuestas desde ese correo y llegarán al chat de la reserva. Queda una copia en tus Enviados.":
+    "OTAs accept e-mail replies only when they come from the address you sign in to {list} with. CALA will send your replies from that address and they will reach the booking's chat. A copy stays in your Sent folder.",
+  "CALA responde desde {email} ({host}) · comprobado {when}": "CALA replies from {email} ({host}) · verified {when}",
+  "Te enviamos un correo de prueba a {email}. Búscalo en tu bandeja: confirma que CALA puede enviar.":
+    "We sent a test e-mail to {email}. Look for it in your inbox: it confirms CALA can send.",
+  "Cambiar correo o contraseña": "Change e-mail or password",
+  "Correo registrado en tus OTAs": "E-mail registered with your OTAs",
+  "Si Google te pide iniciar sesión, entra con {email} y tu contraseña de TELUS.":
+    "If Google asks you to sign in, use {email} and your TELUS password.",
+  "Abre {link} y activa la «Verificación en dos pasos» si aún no lo está.": "Open {link} and turn on “2-Step Verification” if it isn't on yet.",
+  "tu cuenta de Google": "your Google account",
+  // Sentences split by an inline link are translated node by node.
+  Abre: "Open",
+  "y activa la «Verificación en dos pasos» si aún no lo está.": "and turn on “2-Step Verification” if it isn't on yet.",
+  ", escribe «CALA» como nombre y pulsa «Crear».": ", type “CALA” as the name and click “Create”.",
+  "Crea una contraseña de aplicación en": "Create an app password in",
+  "con el nombre «CALA».": "named “CALA”.",
+  "Abre {link}, escribe «CALA» como nombre y pulsa «Crear».": "Open {link}, type “CALA” as the name and click “Create”.",
+  "Contraseñas de aplicaciones": "App passwords",
+  "Google te muestra 16 letras. Cópialas y pégalas aquí abajo (los espacios no importan).":
+    "Google shows you 16 letters. Copy them and paste them below (spaces don't matter).",
+  "Crea una contraseña de aplicación en {link} con el nombre «CALA».": "Create an app password in {link} named “CALA”.",
+  "tu cuenta de {label}": "your {label} account",
+  "Pégala aquí abajo.": "Paste it below.",
+  "No conocemos el servidor de este correo. Abre «Ajustes avanzados» y escribe el servidor SMTP que indica tu proveedor. Usa una contraseña de aplicación si tu proveedor la ofrece.":
+    "We don't know this e-mail's server. Open “Advanced settings” and enter the SMTP server your provider gives. Use an app password if your provider offers one.",
+  "Contraseña de aplicación": "App password",
+  "La contraseña de aplicación de Google tiene 16 letras (tienes {n}).": "Google's app password has 16 letters (you have {n}).",
+  "Ajustes avanzados": "Advanced settings",
+  "Servidor SMTP": "SMTP server",
+  Puerto: "Port",
+  "Si Google no te deja crear contraseñas de aplicación, prueba con el servidor antiguo de TELUS: smtp.telus.net, puerto 465, y tu contraseña normal de TELUS.":
+    "If Google doesn't let you create app passwords, try TELUS's old server: smtp.telus.net, port 465, and your regular TELUS password.",
+  "Comprobando tu correo…": "Checking your e-mail…",
+  "Conectar y enviar prueba": "Connect and send test",
+  "CALA guarda la contraseña cifrada y solo la usa para enviar tus respuestas. Puedes revocarla cuando quieras en tu cuenta de Google.":
+    "CALA stores the password encrypted and only uses it to send your replies. You can revoke it any time in your Google account.",
+  "Opcional: para que CALA se entere si una OTA rechaza una respuesta, añade «mailer-daemon» a tu filtro de reenvío.":
+    "Optional: so CALA learns when an OTA rejects a reply, add “mailer-daemon” to your forwarding filter.",
+  "Filtro con avisos de rebote": "Filter with bounce notices",
+  "Ahora no, continuar": "Not now, continue",
+  "Para responder, escribe en CALA (con plantillas si quieres) y pulsa «Enviar»: sale desde {email} y llega al chat de la reserva en la OTA.":
+    "To reply, write in CALA (with templates if you like) and click “Send”: it leaves from {email} and reaches the booking's chat in the OTA.",
+  "Si una OTA rechaza una respuesta, CALA la marca como «No entregado» y te deja copiarla y abrir esa conversación para enviarla allí.":
+    "If an OTA rejects a reply, CALA marks it “Not delivered” and lets you copy it and open that conversation to send it there.",
+  "Si prefieres enviar sin salir de CALA, conecta tu correo en el paso «Responder».": "To send without leaving CALA, connect your e-mail in the “Reply” step.",
+  "CALA envía tus respuestas desde {email} al chat de esta reserva": "CALA sends your replies from {email} to this booking's chat",
+  "Sale desde {email} al chat de {label}": "Leaves from {email} to the {label} chat",
+  "Enviar por {label}": "Send via {label}",
+  "{failure} Tu texto quedó guardado en la conversación: usa «Copiar y abrir en {label}» para enviarlo allí.":
+    "{failure} Your text was saved in the conversation: use “Copy and open in {label}” to send it there.",
+  "Respuestas desde {email} · última enviada {when}": "Replies from {email} · last sent {when}",
+  "Respuestas desde {email}": "Replies from {email}",
+  "Respuestas con «Copiar y abrir» (conecta tu correo para enviar desde CALA)": "Replies with “Copy and open” (connect your e-mail to send from CALA)",
+  // server messages
+  "No conocemos el servidor de ese correo. Abre «Ajustes avanzados» y escribe su servidor SMTP.":
+    "We don't know that e-mail's server. Open “Advanced settings” and enter its SMTP server.",
+  "Se comprobó el correo pero no se pudo guardar. Inténtalo de nuevo.": "The e-mail was verified but couldn't be saved. Try again.",
+  "Google pide una contraseña de aplicación, no tu contraseña normal. Créala en tu cuenta de Google → Seguridad → Contraseñas de aplicaciones.":
+    "Google requires an app password, not your regular password. Create it in your Google account → Security → App passwords.",
+  "Google no aceptó el correo o la contraseña de aplicación. Revisa que la contraseña sea la de 16 letras que te dio Google (sin espacios) y que la verificación en dos pasos siga activa.":
+    "Google didn't accept the e-mail or app password. Check it's the 16-letter password Google gave you (no spaces) and that 2-Step Verification is still on.",
+  "El servidor no aceptó el usuario o la contraseña. Revisa que sea una contraseña de aplicación.": "The server didn't accept the user or password. Check it's an app password.",
+  "Tu proveedor no permite enviar por SMTP con esta cuenta. Pide que lo activen o usa otro correo registrado en las OTAs.":
+    "Your provider doesn't allow SMTP sending for this account. Ask them to enable it or use another e-mail registered with the OTAs.",
+  "No se pudo conectar con el servidor de correo. Revisa el servidor y el puerto e inténtalo de nuevo.": "Couldn't connect to the mail server. Check the server and port and try again.",
+  "La OTA no aceptó la dirección de respuesta de esta conversación.": "The OTA didn't accept this conversation's reply address.",
+  "El servidor de correo respondió: {error}": "The mail server replied: {error}",
+  "CALA no pudo abrir tu correo de envío. Vuelve a conectarlo en el asistente de mensajes (paso «Responder»).":
+    "CALA couldn't open your sending e-mail. Connect it again in the message assistant (“Reply” step).",
+  "Esta conversación aún no tiene dirección de respuesta de la OTA.": "This conversation doesn't have the OTA's reply address yet.",
+  "Se desconectó el correo de envío antes de mandar esta respuesta.": "The sending e-mail was disconnected before this reply went out.",
+  "La respuesta no se pudo enviar.": "The reply couldn't be sent.",
 };

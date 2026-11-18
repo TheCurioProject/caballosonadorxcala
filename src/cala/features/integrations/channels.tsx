@@ -217,6 +217,12 @@ function PropertyChannels() {
                     ? `Recepción comprobada ${timeAgo(selfTest.receivedAt)}; los mensajes de las OTAs llegarán solos`
                     : "Aún no llega ningún mensaje de una OTA"}
               </li>
+              <li className={state.sender ? "is-ok" : "is-bad"}>
+                <span>{state.sender ? <Icon name="check" size={13} /> : <Icon name="warning" size={13} />}</span>
+                {state.sender
+                  ? `Respuestas desde ${state.sender.email}${state.outbound.lastSentAt ? ` · última enviada ${timeAgo(state.outbound.lastSentAt)}` : ""}`
+                  : "Respuestas con «Copiar y abrir» (conecta tu correo para enviar desde CALA)"}
+              </li>
             </ul>
             {state.inbox?.address && <small className="muted">Dirección de reenvío: {state.inbox.address}</small>}
             <div className="row wrap">

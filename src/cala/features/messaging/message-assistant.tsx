@@ -13,15 +13,19 @@ import {
   type ConnectorProvider,
 } from "@/cala/features/integrations/connectors";
 import { copyText, OtaMark } from "@/cala/features/integrations/calendar-assistant";
+import { smtpPreset } from "@/lib/cala/connectors/smtp-presets";
 
-const steps = ["Conectar", "Reenvío", "Comprobar", "Responder"] as const;
+const steps = ["Conectar", "Reenvío", "Comprobar", "Responder", "Listo"] as const;
+/** Step where the host connects the mailbox CALA replies from. */
+export const SENDER_STEP = 3;
 const mailOtas: ConnectorProvider[] = ["airbnb", "booking", "vrbo", "expedia"];
 type MailApp = "gmail" | "outlook" | "other";
 
 function mailAppFor(email: string): MailApp | null {
   const domain = email.trim().toLowerCase().split("@")[1] ?? "";
   if (!domain) return null;
-  if (/^(gmail|googlemail)\.com$/.test(domain)) return "gmail";
+  // TELUS e-mail runs on Google Workspace: same settings screens as Gmail.
+  if (/^(gmail|googlemail)\.com$/.test(domain) || /^(telus|telusplanet)\.net$/.test(domain)) return "gmail";
   if (/^(outlook|hotmail|live|msn)\.[a-z.]+$/.test(domain)) return "outlook";
   return "other";
 }
@@ -31,10 +35,10 @@ function mailAppFor(email: string): MailApp | null {
  * proven with real data: Resend configured by CALA itself, the forwarding
  * confirmation and a real OTA e-mail arriving at the CALA address.
  */
-export function MessageAssistant({ onClose }: { onClose: () => void }) {
+export function MessageAssistant({ onClose, initialStep = 0 }: { onClose: () => void; initialStep?: number }) {
   const { data, can } = useWorkspace();
   const propertyId = data.currentPropertyId;
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(initialStep);
   const [otas, setOtas] = useState<ConnectorProvider[]>(["airbnb", "booking"]);
   const [receiving, setReceiving] = useState("");
   const [email, setEmail] = useState("");
@@ -44,6 +48,13 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
   const [testSince, setTestSince] = useState<string | null>(null);
   const [selfTest, setSelfTest] = useState<{ nonce: string; sentAt: string } | null>(null);
   const [selfTestSlow, setSelfTestSlow] = useState(false);
+  const [senderEmail, setSenderEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [advanced, setAdvanced] = useState(false);
+  const [smtpHost, setSmtpHost] = useState("");
+  const [smtpPort, setSmtpPort] = useState(465);
+  const [editSender, setEditSender] = useState(false);
+  const [senderProved, setSenderProved] = useState(false);
   const [forwardSince] = useState(() => new Date(Date.now() - 30 * 60000).toISOString());
   const { state, refresh } = useConnectorState(propertyId, step === 1 || step === 2 ? 4000 : 0);
   const mail = state?.mail;
@@ -67,6 +78,12 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
     ? (state?.emails ?? []).find((e) => isSelfTestEmail(e) && Boolean(e.subject?.endsWith(selfTest.nonce)))
     : undefined;
   const anyForwarding = state?.emails.find((e) => e.kind === "forwarding");
+  const sender = state?.sender ?? null;
+  const fromEmail = (senderEmail || sender?.email || email).trim().toLowerCase();
+  const fromOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(fromEmail);
+  const preset = fromOk ? smtpPreset(fromEmail) : null;
+  const appPassword = password.replace(/\s+/g, "");
+  const showSenderForm = !sender || editSender;
   const receivingFormat = /^([^\s@]+@)?[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(receiving.trim());
 
   async function run(work: () => Promise<unknown>) {
@@ -85,6 +102,25 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
     run(async () => {
       if (!ready) await connector("mail.configure", { propertyId, domain: receiving.trim() });
       if (!state?.inbox) await connector("inbox.enable", { propertyId });
+    });
+  const connectSender = () =>
+    run(async () => {
+      setSenderProved(false);
+      await connector("sender.connect", {
+        propertyId,
+        email: fromEmail,
+        password: appPassword,
+        ...((advanced || !preset) && smtpHost.trim() ? { host: smtpHost.trim(), port: smtpPort } : {}),
+      });
+      setPassword("");
+      setEditSender(false);
+      setSenderProved(true);
+    });
+  const removeSender = () =>
+    run(async () => {
+      await connector("sender.remove", { propertyId });
+      setSenderProved(false);
+      setEditSender(false);
     });
   async function copy(key: string, text: string) {
     if (await copyText(text)) {
@@ -132,7 +168,7 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
     );
 
   const verified = Boolean(testOk || selfTestOk);
-  const canNext = [ready && Boolean(address), emailOk, verified, true][step];
+  const canNext = [ready && Boolean(address), emailOk, verified, true, true][step];
 
   return (
     <Modal title="Asistente de mensajes de OTAs" onClose={onClose} wide>
@@ -188,6 +224,10 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
                     {check(true, "Tu dirección privada de CALA está lista")}
                   </ul>
                   {addressBox}
+                  <button type="button" className="button secondary" onClick={() => go(SENDER_STEP)}>
+                    <Icon name="email" size={16} />
+                    {sender ? `Responder desde ${sender.email}` : "Responder desde tu correo"}
+                  </button>
                 </>
               ) : (
                 <>
@@ -392,7 +432,156 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
               )}
             </>
           )}
-          {step === 3 && (
+          {step === SENDER_STEP && (
+            <>
+              <h3>Responde a tus huéspedes desde CALA</h3>
+              <p className="muted">
+                {`Las OTAs aceptan respuestas por correo solo si salen del correo con el que entras a ${listOf(otas.map((o) => otaGuides[o].label))}. CALA enviará tus respuestas desde ese correo y llegarán al chat de la reserva. Queda una copia en tus Enviados.`}
+              </p>
+              {sender && (
+                <ul className="ota-verify" aria-live="polite">
+                  {check(true, `CALA responde desde ${sender.email} (${sender.host}) · comprobado ${timeAgo(sender.verifiedAt)}`)}
+                  {senderProved && check(true, `Te enviamos un correo de prueba a ${sender.email}. Búscalo en tu bandeja: confirma que CALA puede enviar.`)}
+                </ul>
+              )}
+              {sender && !editSender && (
+                <div className="row">
+                  <button type="button" className="button secondary" disabled={busy} onClick={() => setEditSender(true)}>
+                    <Icon name="key" size={16} /> Cambiar correo o contraseña
+                  </button>
+                  <button type="button" className="button secondary" disabled={busy} onClick={() => void removeSender()}>
+                    <Icon name="trash" size={16} /> Desconectar
+                  </button>
+                </div>
+              )}
+              {showSenderForm && (
+                <>
+                  <label className="field">
+                    <span>Correo registrado en tus OTAs</span>
+                    <input
+                      inputMode="email"
+                      autoComplete="email"
+                      spellCheck={false}
+                      value={senderEmail || sender?.email || email}
+                      placeholder="tu@correo.com"
+                      aria-invalid={Boolean(fromEmail) && !fromOk}
+                      onChange={(e) => setSenderEmail(e.target.value)}
+                    />
+                  </label>
+                  {fromOk && preset?.provider === "google" && (
+                    <ol className="cx-steps">
+                      {preset.label.startsWith("TELUS") && <li>{`Si Google te pide iniciar sesión, entra con ${fromEmail} y tu contraseña de TELUS.`}</li>}
+                      <li>
+                        Abre <a href="https://myaccount.google.com/signinoptions/twosv" target="_blank" rel="noreferrer">tu cuenta de Google</a> y activa la «Verificación en dos pasos» si aún no lo está.
+                      </li>
+                      <li>
+                        Abre <a href={preset.appPasswordUrl} target="_blank" rel="noreferrer">Contraseñas de aplicaciones</a>, escribe «CALA» como nombre y pulsa «Crear».
+                      </li>
+                      <li>Google te muestra 16 letras. Cópialas y pégalas aquí abajo (los espacios no importan).</li>
+                    </ol>
+                  )}
+                  {fromOk && preset && preset.provider !== "google" && (
+                    <ol className="cx-steps">
+                      <li>
+                        Crea una contraseña de aplicación en <a href={preset.appPasswordUrl} target="_blank" rel="noreferrer">{`tu cuenta de ${preset.label}`}</a> con el nombre «CALA».
+                      </li>
+                      <li>Pégala aquí abajo.</li>
+                    </ol>
+                  )}
+                  {fromOk && !preset && (
+                    <p className="muted">
+                      No conocemos el servidor de este correo. Abre «Ajustes avanzados» y escribe el servidor SMTP que indica tu proveedor. Usa una contraseña de aplicación si tu proveedor la ofrece.
+                    </p>
+                  )}
+                  <label className="field">
+                    <span>{preset ? "Contraseña de aplicación" : "Contraseña"}</span>
+                    <input
+                      type="password"
+                      autoComplete="new-password"
+                      spellCheck={false}
+                      value={password}
+                      placeholder={preset?.provider === "google" ? "abcd efgh ijkl mnop" : ""}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </label>
+                  {preset?.provider === "google" && appPassword.length > 0 && appPassword.length !== 16 && !advanced && (
+                    <p className="ota-inline bad">
+                      <Icon name="warning" size={16} /> {`La contraseña de aplicación de Google tiene 16 letras (tienes ${appPassword.length}).`}
+                    </p>
+                  )}
+                  <details
+                    className="cx-advanced"
+                    open={advanced || (fromOk && !preset)}
+                    onToggle={(e) => {
+                      const open = (e.currentTarget as HTMLDetailsElement).open;
+                      setAdvanced(open);
+                      if (open && !smtpHost) {
+                        setSmtpHost(preset?.host ?? "");
+                        setSmtpPort(preset?.port ?? 587);
+                      }
+                    }}
+                  >
+                    <summary>Ajustes avanzados</summary>
+                    <div className="row">
+                      <label className="field">
+                        <span>Servidor SMTP</span>
+                        <input spellCheck={false} value={smtpHost} placeholder="smtp.ejemplo.com" onChange={(e) => setSmtpHost(e.target.value)} />
+                      </label>
+                      <label className="field">
+                        <span>Puerto</span>
+                        <select value={smtpPort} onChange={(e) => setSmtpPort(Number(e.target.value))}>
+                          <option value={465}>465 (SSL)</option>
+                          <option value={587}>587 (STARTTLS)</option>
+                          <option value={2525}>2525</option>
+                        </select>
+                      </label>
+                    </div>
+                    {preset?.label.startsWith("TELUS") && (
+                      <p className="muted">
+                        Si Google no te deja crear contraseñas de aplicación, prueba con el servidor antiguo de TELUS: smtp.telus.net, puerto 465, y tu contraseña normal de TELUS.
+                      </p>
+                    )}
+                  </details>
+                  <div className="row">
+                    <button
+                      type="button"
+                      className="button primary"
+                      disabled={busy || !fromOk || appPassword.length < 4 || ((advanced || !preset) && !smtpHost.trim())}
+                      onClick={() => void connectSender()}
+                    >
+                      {busy ? <Icon name="spinner" size={16} /> : <Icon name="email" size={16} />}
+                      {busy ? "Comprobando tu correo…" : "Conectar y enviar prueba"}
+                    </button>
+                    {sender && editSender && (
+                      <button type="button" className="button secondary" disabled={busy} onClick={() => setEditSender(false)}>
+                        Cancelar
+                      </button>
+                    )}
+                  </div>
+                  <p className="muted">
+                    CALA guarda la contraseña cifrada y solo la usa para enviar tus respuestas. Puedes revocarla cuando quieras en tu cuenta de Google.
+                  </p>
+                </>
+              )}
+              {error && (
+                <p className="notice error" role="alert">
+                  {error}
+                </p>
+              )}
+              {sender && (
+                <div className="notice">
+                  <p>
+                    Opcional: para que CALA se entere si una OTA rechaza una respuesta, añade «mailer-daemon» a tu filtro de reenvío.
+                  </p>
+                  <div className="cx-copy">
+                    <input readOnly value={`from:(${[...domains, "mailer-daemon"].join(" OR ")})`} aria-label="Filtro con avisos de rebote" />
+                    {copyButton("bounce-filter", `from:(${[...domains, "mailer-daemon"].join(" OR ")})`)}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+          {step === 4 && (
             <div className="ota-done">
               <span className="ota-done-mark" aria-hidden="true">
                 <Icon name="check" size={34} />
@@ -401,8 +590,17 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
               <ol className="ota-next">
                 {!testOk && <li>La conexión está comprobada. El primer aviso real aparecerá en Mensajes en cuanto un huésped escriba.</li>}
                 <li>Cada mensaje aparece en Mensajes, unido a su reserva cuando CALA la reconoce.</li>
-                <li>Para responder, escribe en CALA (con plantillas si quieres) y pulsa «Copiar y abrir en Airbnb» (o la OTA que sea): se abre esa conversación con tu texto copiado; solo pegas y envías.</li>
-                <li>Así la respuesta sale por el chat oficial de la OTA, que es lo que Airbnb y Booking.com exigen, y queda registrada en CALA.</li>
+                {sender ? (
+                  <>
+                    <li>{`Para responder, escribe en CALA (con plantillas si quieres) y pulsa «Enviar»: sale desde ${sender.email} y llega al chat de la reserva en la OTA.`}</li>
+                    <li>Si una OTA rechaza una respuesta, CALA la marca como «No entregado» y te deja copiarla y abrir esa conversación para enviarla allí.</li>
+                  </>
+                ) : (
+                  <>
+                    <li>Para responder, escribe en CALA (con plantillas si quieres) y pulsa «Copiar y abrir en Airbnb» (o la OTA que sea): se abre esa conversación con tu texto copiado; solo pegas y envías.</li>
+                    <li>Si prefieres enviar sin salir de CALA, conecta tu correo en el paso «Responder».</li>
+                  </>
+                )}
               </ol>
               <button type="button" className="button primary" onClick={onClose}>
                 Ir a la bandeja
@@ -410,7 +608,7 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
             </div>
           )}
         </section>
-        {step < 3 && (
+        {step < 4 && (
           <footer className="ota-foot">
             {step > 0 ? (
               <button type="button" className="button secondary" disabled={busy} onClick={() => go(step - 1)}>
@@ -421,7 +619,7 @@ export function MessageAssistant({ onClose }: { onClose: () => void }) {
               <span />
             )}
             <button type="button" className="button primary" disabled={!canNext || busy} onClick={() => go(step + 1)}>
-              {step === 2 ? (verified ? "Verificado, continuar" : "Comprobando…") : "Continuar"}
+              {step === 2 ? (verified ? "Verificado, continuar" : "Comprobando…") : step === SENDER_STEP && !sender ? "Ahora no, continuar" : "Continuar"}
               <Icon name="chevron-right" size={16} />
             </button>
           </footer>

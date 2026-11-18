@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { syncAllIcalFeeds } from '@/lib/icalSync';
 import { syncAllCalendarLinks } from '@/lib/cala/connectors/calendar-sync';
 import { revalidatePublicSite } from '@/lib/revalidatePublic';
+import { deliverReplies } from '@/lib/cala/connectors/smtp';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // 60 segundos permitidos en Vercel Functions
@@ -23,13 +24,16 @@ export async function GET(request: Request) {
     const result = await syncAllIcalFeeds();
     // CALA OTA connectors: calendars of every unit.
     const calendars = await syncAllCalendarLinks(30000).catch((e) => ({ error: String(e?.message ?? e) }));
+    // CALA OTA replies left in the queue (e.g. the server was busy when sent).
+    const replies = await deliverReplies({ max: 20 }).catch((e) => ({ error: String(e?.message ?? e) }));
     revalidatePublicSite();
     console.log(`[iCal Cron] Finished. Sources: ${result.totalSources}, Success: ${result.successCount}, Blocks added: ${result.totalBlocks}`);
 
     return NextResponse.json({
       message: 'iCal sync completed successfully',
       ...result,
-      calendars
+      calendars,
+      replies
     });
   } catch (error: any) {
     console.error('[iCal Cron] Execution error:', error);

@@ -16,6 +16,7 @@ import { syncCalendarLink, untyped } from "@/lib/cala/connectors/calendar-sync";
 import { configureMail, inboxAddress, mailSetup, receivingDomains, sendSelfTest } from "@/lib/cala/connectors/mail";
 import { isWebsiteProperty, revalidatePublicSite } from "@/lib/revalidatePublic";
 import { retireLegacySource } from "@/lib/cala/connectors/legacy";
+import { deliverReplies, proveSender, sealSecret, smtpPreset, storedSender } from "@/lib/cala/connectors/smtp";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -33,6 +34,15 @@ const input = z.discriminatedUnion("action", [
   z.object({ action: z.literal("mail.configure"), propertyId: id, domain: z.string().min(3).max(320) }),
   z.object({ action: z.literal("inbox.list"), propertyId: id }),
   z.object({ action: z.literal("inbox.selftest"), propertyId: id }),
+  z.object({
+    action: z.literal("sender.connect"),
+    propertyId: id,
+    email: z.string().trim().toLowerCase().email().max(320),
+    password: z.string().min(4).max(200),
+    host: z.string().trim().toLowerCase().regex(/^[a-z0-9.-]+\.[a-z]{2,}$/).max(253).optional(),
+    port: z.union([z.literal(465), z.literal(587), z.literal(2525)]).optional(),
+  }),
+  z.object({ action: z.literal("sender.remove"), propertyId: id }),
   z.object({ action: z.literal("thread.reply"), propertyId: id, threadId: id, body: z.string().min(1).max(20000), manual: z.boolean().optional() }),
   z.object({ action: z.literal("thread.note"), propertyId: id, threadId: id, body: z.string().min(1).max(20000) }),
   z.object({ action: z.literal("thread.cancel"), propertyId: id, messageId: id }),
@@ -80,6 +90,10 @@ export async function POST(request: Request) {
       }
       return data as Record<string, unknown>;
     };
+    const sender = async () => {
+      const s = await storedSender(cmd.propertyId).catch(() => null);
+      return s ? { email: s.email, host: s.host, verifiedAt: s.verifiedAt } : null;
+    };
     const exportUrl = (token: string) => `${origin}/api/cala/ical/?token=${token}`;
 
     switch (cmd.action) {
@@ -94,6 +108,7 @@ export async function POST(request: Request) {
           inbox: inbox && setup.domain ? { ...inbox, address: inboxAddress(inbox.localPart, setup.domain) } : inbox,
           mail: { apiKey: setup.apiKey, receiving: setup.receiving, webhook: setup.webhook, domain: setup.domain || null, suggestions },
           webhookUrl: `${origin}/api/cala/inbound-email/`,
+          sender: await sender(),
         });
       }
       case "mail.configure": {
@@ -175,11 +190,56 @@ export async function POST(request: Request) {
         invariant(Boolean(inbox && setup.domain), "NO_INBOX", "Primero crea tu dirección de CALA en el paso 1.", 409);
         return NextResponse.json(await sendSelfTest(inboxAddress(inbox!.localPart, setup.domain)));
       }
+      case "sender.connect": {
+        await rpc("state"); // channel.manage required
+        const preset = smtpPreset(cmd.email);
+        const host = cmd.host ?? preset?.host;
+        const port = cmd.port ?? preset?.port ?? 587;
+        invariant(
+          Boolean(host),
+          "SMTP_HOST_REQUIRED",
+          "No conocemos el servidor de ese correo. Abre «Ajustes avanzados» y escribe su servidor SMTP.",
+          422,
+        );
+        const password = cmd.password.replace(/\s+/g, "");
+        const { data: property } = await db.from("properties").select("name").eq("id", cmd.propertyId).maybeSingle();
+        const config = { email: cmd.email, host: host!, port, username: cmd.email, password };
+        await proveSender(config, String((property as { name?: string } | null)?.name ?? "CALA"));
+        const { error } = await db.rpc("pms_mail_sender", {
+          command: {
+            type: "save",
+            organizationId,
+            propertyId: cmd.propertyId,
+            email: config.email,
+            host: config.host,
+            port: config.port,
+            username: config.username,
+            secret: sealSecret(password),
+          },
+        });
+        if (error) throw new DomainError("SAVE_FAILED", "Se comprobó el correo pero no se pudo guardar. Inténtalo de nuevo.", 503);
+        return NextResponse.json({ ok: true, sender: await sender() });
+      }
+      case "sender.remove": {
+        const { error } = await db.rpc("pms_mail_sender", {
+          command: { type: "remove", organizationId, propertyId: cmd.propertyId },
+        });
+        if (error) throw new DomainError("CONNECTOR_REJECTED", sqlErrors.FORBIDDEN[0], 403);
+        return NextResponse.json({ ok: true });
+      }
       case "inbox.list":
-        return NextResponse.json(await rpc("inbox.list"));
-      case "thread.reply":
-        // Replies are sent inside the OTA (copy + open); CALA records them.
-        return NextResponse.json(await rpc("thread.reply", { threadId: cmd.threadId, body: cmd.body, manual: true }));
+        return NextResponse.json({ ...(await rpc("inbox.list")), sender: await sender() });
+      case "thread.reply": {
+        // With the host's mailbox connected, CALA e-mails the OTA's reply
+        // address from it right away; otherwise the reply is copied and sent
+        // inside the OTA (copy + open) and CALA only records it.
+        const direct = !cmd.manual && Boolean(await sender());
+        const r = await rpc("thread.reply", { threadId: cmd.threadId, body: cmd.body, manual: !direct });
+        if (!direct) return NextResponse.json(r);
+        const delivery = await deliverReplies({ only: String(r.id), max: 1 });
+        const failure = delivery.failures[String(r.id)] ?? null;
+        return NextResponse.json({ ...r, status: failure ? "failed" : delivery.sent ? "sent" : "queued", failure });
+      }
       case "thread.note":
         return NextResponse.json(await rpc("thread.note", { threadId: cmd.threadId, body: cmd.body }));
       case "thread.cancel":

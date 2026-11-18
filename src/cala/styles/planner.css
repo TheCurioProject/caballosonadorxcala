@@ -2930,6 +2930,33 @@
   letter-spacing: 0.12em;
   font-variant-numeric: tabular-nums;
 }
+.cala-admin .cx-advanced {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+.cala-admin .cx-advanced summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.cala-admin .cx-advanced[open] summary {
+  margin-bottom: 8px;
+}
+.cala-admin .cx-advanced .row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.cala-admin .cx-advanced .row .field:first-child {
+  flex: 1 1 200px;
+}
+.cala-admin .ib-failure .button {
+  margin-top: 6px;
+  max-width: 100%;
+  white-space: normal;
+  text-align: left;
+  height: auto;
+}
 .cala-admin .cx-mail-log {
   display: grid;
   gap: 6px;

@@ -152,7 +152,9 @@ export async function receiveEmail(event: { email_id: string; to: string[]; rece
       payload: {
         localPart,
         resendId: event.email_id,
-        kind: parsed.kind,
+        // A bounce only fails a reply when it names the OTA relay it was for:
+        // other bounces in a forwarded mailbox are not about CALA.
+        kind: parsed.kind === "bounce" && !parsed.replyTo ? "other" : parsed.kind,
         provider: parsed.provider,
         replyTo: parsed.replyTo,
         guestName: parsed.guestName,

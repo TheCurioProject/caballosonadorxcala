@@ -43,6 +43,13 @@ export interface ConnectorState {
   outbound: { sent: number; failed: number; lastSentAt: string | null };
   mail: { apiKey: boolean; receiving: boolean; webhook: boolean; domain: string | null; suggestions: string[] };
   webhookUrl: string;
+  /** Host mailbox CALA sends replies from (null: replies are copied and sent in the OTA). */
+  sender: MailSender | null;
+}
+export interface MailSender {
+  email: string;
+  host: string;
+  verifiedAt: string;
 }
 
 /** Self-test e-mail sent by CALA to its own relay address (see sendSelfTest). */

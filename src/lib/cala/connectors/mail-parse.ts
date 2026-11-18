@@ -137,7 +137,7 @@ export function parseInbound(mail: IncomingMail): ParsedMail {
     return { ...base, kind: "forwarding", summary: JSON.stringify({ code, link }) };
   }
   if (/^(mailer-daemon|postmaster)@/i.test(fromAddress) || /(undeliverable|delivery status notification|could not be delivered|no se pudo entregar|returned mail|mensaje no entregado|couldn.t deliver|no pudimos entregar)/i.test(subject)) {
-    const relay = /[a-z0-9._%+-]+@(reply\.airbnb\.com|mchat\.booking\.com|guest\.booking\.com|messages\.(homeaway|vrbo)\.com)/i.exec(text)?.[0] ?? null;
+    const relay = /[a-z0-9._%+-]+@((?:[a-z0-9-]+\.)?reply\.airbnb\.com|(?:mchat|guest|property)\.booking\.com|messages\.(?:homeaway|vrbo)\.com|(?:[a-z0-9-]+\.)?expediapartnercentral\.com|m\.expediamail\.com)/i.exec(text)?.[0] ?? null;
     return { ...base, kind: "bounce", replyTo: relay?.toLowerCase() ?? null, summary: cleanMessage(text).slice(0, 400) || subject };
   }
 

@@ -243,3 +243,58 @@ test("simplified relay: settings stored, threads keyed by OTA link, replies reco
   // Settings are never readable by operators.
   await expect(db.query("select public.pms_service_mail_settings()")).rejects.toThrow();
 });
+
+test("mail sender: saved by managers only, never readable, claims only that property's replies", async () => {
+  const sender = (command: Record<string, unknown>) =>
+    db.query<{ r: Record<string, unknown> }>("select public.pms_mail_sender($1::jsonb) r", [
+      JSON.stringify({ organizationId: ids.org, propertyId: ids.prop, ...command }),
+    ]);
+  const save = { type: "save", email: "Kelli9@Telus.net ", host: "smtp.gmail.com", port: 465, username: "kelli9@telus.net", secret: "v1:a:b:c" };
+  await as(ids.house);
+  await expect(sender(save)).rejects.toThrow();
+  await as(ids.user);
+  expect((await sender(save)).rows[0].r).toEqual({ email: "kelli9@telus.net" });
+  await expect(sender({ ...save, port: 25 })).rejects.toThrow();
+  // Operators can't read it back, only the server.
+  await expect(db.query("select * from pms_private.mail_senders")).rejects.toThrow();
+  await expect(db.query(`select public.pms_service_mail_sender('${ids.prop}')`)).rejects.toThrow();
+  await as(null);
+  expect((await db.query<{ r: Record<string, unknown> }>(`select public.pms_service_mail_sender('${ids.prop}') r`)).rows[0].r).toMatchObject({
+    email: "kelli9@telus.net",
+    host: "smtp.gmail.com",
+    port: 465,
+    secret: "v1:a:b:c",
+  });
+
+  await as(ids.user);
+  const { localPart } = await connector({ type: "inbox.enable" });
+  await as(null);
+  const inbound = (
+    await db.query<{ r: Record<string, string> }>("select public.pms_service_inbound($1::jsonb) r", [
+      JSON.stringify({ localPart, kind: "message", provider: "booking", replyTo: "ana.123@guest.booking.com", guestName: "Ana B", subject: "Pregunta", resendId: "smtp-1", body: "¿Hay parqueo?" }),
+    ])
+  ).rows[0].r;
+  await as(ids.user);
+  const reply = await connector({ type: "thread.reply", threadId: inbound.threadId, body: "Sí, gratis." });
+  expect(reply.status).toBe("queued");
+  await as(null);
+  const claimed = (
+    await db.query<{ r: Array<Record<string, string>> }>("select public.pms_service_outbox_claim_sender(5,$1) r", [reply.id])
+  ).rows[0].r;
+  expect(claimed).toHaveLength(1);
+  expect(claimed[0]).toMatchObject({ id: reply.id, propertyId: ids.prop, replyTo: "ana.123@guest.booking.com", subject: "Re: Pregunta", body: "Sí, gratis." });
+  // Already leased: a second claim gets nothing.
+  expect((await db.query<{ r: unknown[] }>("select public.pms_service_outbox_claim_sender(5,null) r")).rows[0].r).toEqual([]);
+  await db.query("select public.pms_service_outbox_done($1,true,null,'<id@gmail.com>')", [reply.id]);
+
+  // Removing the sender fails replies still waiting in the queue.
+  await as(ids.user);
+  const waiting = await connector({ type: "thread.reply", threadId: inbound.threadId, body: "¿Algo más?" });
+  expect((await sender({ type: "remove" })).rows[0].r).toEqual({ removed: true });
+  const list = await connector({ type: "inbox.list" });
+  const messages = list.messages as Array<Record<string, string>>;
+  expect(messages.find((m) => m.id === reply.id)?.status).toBe("sent");
+  expect(messages.find((m) => m.id === waiting.id)?.status).toBe("failed");
+  await as(null);
+  expect((await db.query<{ r: unknown }>(`select public.pms_service_mail_sender('${ids.prop}') r`)).rows[0].r).toBeNull();
+});

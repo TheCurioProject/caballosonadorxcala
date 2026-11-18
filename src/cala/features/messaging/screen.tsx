@@ -17,7 +17,7 @@ import { renderMessage } from "@/cala/domain/messaging/templates";
 import { providerForSource } from "@/cala/domain/messaging/ota";
 import { connector, otaGuides, type ConnectorProvider } from "@/cala/features/integrations/connectors";
 import { copyText } from "@/cala/features/integrations/calendar-assistant";
-import { MessageAssistant } from "./message-assistant";
+import { MessageAssistant, SENDER_STEP } from "./message-assistant";
 import { useI18n } from "@/cala/lib/i18n";
 
 /**
@@ -48,7 +48,13 @@ type Message = {
   createdAt: string;
   sentAt: string | null;
 };
-type InboxData = { threads: Thread[]; messages: Message[]; inbox: { localPart: string } | null };
+type InboxData = {
+  threads: Thread[];
+  messages: Message[];
+  inbox: { localPart: string } | null;
+  /** Host mailbox CALA sends replies from; null = copy and send in the OTA. */
+  sender: { email: string } | null;
+};
 type Folder = "all" | "unread" | "mine" | "pending" | "archived";
 const folders: [Folder, string][] = [
   ["all", "Todas"],
@@ -175,7 +181,7 @@ function PropertyInbox({ compact }: { compact: boolean }) {
   const [sent, setSent] = useState(false);
   const [info, setInfo] = useState(false);
   const [inspect, setInspect] = useState<string | null>(null);
-  const [assistant, setAssistant] = useState(false);
+  const [assistant, setAssistant] = useState<number | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const timeline = useRef<HTMLDivElement>(null);
   const textarea = useRef<HTMLTextAreaElement>(null);
@@ -231,6 +237,10 @@ function PropertyInbox({ compact }: { compact: boolean }) {
   const guest = reservation ? data.guests.find((g) => g.id === reservation.guestId) : undefined;
   const unit = reservation ? data.units.find((u) => u.id === reservation.unitId) : undefined;
   const via = thread ? otaGuides[thread.provider].label : "";
+  const sender = inbox?.sender ?? null;
+  // E-mail the OTA relay from the host's mailbox when both exist; otherwise copy + open.
+  const direct = Boolean(sender && thread?.canReply);
+  const otaTarget = thread ? (thread.externalUrl ?? otaGuides[thread.provider].inbox) : "";
   const body = drafts[selected] ?? "";
   const candidates = thread
     ? data.reservations
@@ -267,22 +277,28 @@ function PropertyInbox({ compact }: { compact: boolean }) {
       setBusy(false);
     }
   }
+  /** Copies the text and opens that OTA conversation (inside the click, so it isn't blocked). */
+  async function copyAndOpen(text: string) {
+    const copying = copyText(text); // needs focus: start before opening
+    if (otaTarget) window.open(otaTarget, "_blank", "noopener");
+    if (await copying) return true;
+    setError("No se pudo copiar el texto. Selecciónalo y cópialo a mano.");
+    return false;
+  }
   async function send() {
     if (!thread || !body.trim()) return;
-    if (mode === "guest") {
-      // Airbnb and Booking.com only accept replies in their own chat: copy the
-      // text and open that conversation (inside the click, so it isn't blocked).
-      const target = thread.externalUrl ?? otaGuides[thread.provider].inbox;
-      const copying = copyText(body.trim()); // needs focus: start before opening
-      if (target) window.open(target, "_blank", "noopener");
-      if (!(await copying)) {
-        setError("No se pudo copiar el texto. Selecciónalo y cópialo a mano.");
-        return;
-      }
-    }
-    const ok = await run(() =>
-      connector(mode === "note" ? "thread.note" : "thread.reply", { propertyId, threadId: thread.id, body: body.trim() }),
-    );
+    if (mode === "guest" && !direct && !(await copyAndOpen(body.trim()))) return;
+    let failure: string | null = null;
+    const ok = await run(async () => {
+      const r = await connector<{ status?: string; failure?: string | null }>(
+        mode === "note" ? "thread.note" : "thread.reply",
+        mode === "note"
+          ? { propertyId, threadId: thread.id, body: body.trim() }
+          : { propertyId, threadId: thread.id, body: body.trim(), manual: !direct },
+      );
+      if (r.status === "failed") failure = r.failure ?? "La respuesta no se pudo enviar.";
+    });
+    if (failure) setError(`${failure} Tu texto quedó guardado en la conversación: usa «Copiar y abrir en ${via}» para enviarlo allí.`);
     if (ok) {
       setDrafts((d) => ({ ...d, [thread.id]: "" }));
       setSent(true);
@@ -457,7 +473,13 @@ function PropertyInbox({ compact }: { compact: boolean }) {
         <ChannelMark provider={thread.provider} />
         <div>
           <strong>{via}</strong>
-          <small>{thread.externalUrl ? "Respondes en el chat de la OTA: CALA abre esta conversación" : "Respondes en el chat de la OTA: CALA abre tu bandeja de la OTA"}</small>
+          <small>
+            {direct
+              ? `CALA envía tus respuestas desde ${sender!.email} al chat de esta reserva`
+              : thread.externalUrl
+                ? "Respondes en el chat de la OTA: CALA abre esta conversación"
+                : "Respondes en el chat de la OTA: CALA abre tu bandeja de la OTA"}
+          </small>
         </div>
         {(thread.externalUrl ?? otaGuides[thread.provider].inbox) && (
           <a className="button secondary" href={thread.externalUrl ?? otaGuides[thread.provider].inbox} target="_blank" rel="noreferrer">
@@ -466,6 +488,12 @@ function PropertyInbox({ compact }: { compact: boolean }) {
           </a>
         )}
       </div>
+      {!sender && can("channel.manage") && (
+        <button type="button" className="button secondary" onClick={() => setAssistant(SENDER_STEP)}>
+          <Icon name="email" size={16} />
+          Responder desde mi correo
+        </button>
+      )}
       <div className="ib-detail-actions">
         {reservation && (
           <button type="button" className="button secondary" onClick={() => setInspect(reservation.id)}>
@@ -534,7 +562,13 @@ function PropertyInbox({ compact }: { compact: boolean }) {
                 {m.status === "failed" && m.failure && (
                   <div className="ib-failure" role="alert">
                     <p>{m.failure}</p>
-                    <p>Responde desde {via} para asegurar que llegue.</p>
+                    <p>{`Responde desde ${via} para asegurar que llegue.`}</p>
+                    {otaTarget && (
+                      <button type="button" className="button secondary" onClick={() => void copyAndOpen(m.body)}>
+                        <Icon name="external-link" size={16} />
+                        {`Copiar y abrir en ${via}`}
+                      </button>
+                    )}
                   </div>
                 )}
                 {can("message.write") && m.status === "queued" && (
@@ -566,7 +600,9 @@ function PropertyInbox({ compact }: { compact: boolean }) {
               <Icon name="eye-off" size={14} />
               Nota interna
             </button>
-            {mode === "guest" && <span className="ib-via">Se envía desde {via}</span>}
+            {mode === "guest" && (
+              <span className="ib-via">{direct ? `Sale desde ${sender!.email} al chat de ${via}` : `Se envía desde ${via}`}</span>
+            )}
           </div>
           <textarea
             ref={textarea}
@@ -611,8 +647,16 @@ function PropertyInbox({ compact }: { compact: boolean }) {
             )}
             <span className="ib-spacer" />
             <button className={`button primary ib-send${sent ? " is-sent" : ""}`} disabled={busy || !body.trim()}>
-              {sent ? <Icon name="check" size={16} /> : <Icon name={mode === "note" ? "edit" : "external-link"} size={16} />}
-              {busy ? "Guardando…" : mode === "note" ? "Guardar nota" : `Copiar y abrir en ${via}`}
+              {sent ? <Icon name="check" size={16} /> : <Icon name={mode === "note" ? "edit" : direct ? "email" : "external-link"} size={16} />}
+              {busy
+                ? direct && mode === "guest"
+                  ? "Enviando…"
+                  : "Guardando…"
+                : mode === "note"
+                  ? "Guardar nota"
+                  : direct
+                    ? `Enviar por ${via}`
+                    : `Copiar y abrir en ${via}`}
             </button>
           </div>
         </form>
@@ -639,7 +683,7 @@ function PropertyInbox({ compact }: { compact: boolean }) {
         <small>El asistente te guía para reenviar los avisos de Airbnb, Booking.com, Vrbo o Expedia y comprueba cada paso.</small>
       </div>
       {can("channel.manage") && (
-        <button type="button" className="button primary" onClick={() => setAssistant(true)}>
+        <button type="button" className="button primary" onClick={() => setAssistant(0)}>
           Iniciar asistente
         </button>
       )}
@@ -660,7 +704,7 @@ function PropertyInbox({ compact }: { compact: boolean }) {
                 <Icon name="copy" />
               </Link>
               {can("channel.manage") && (
-                <button type="button" className="m-round-button" aria-label="Conectar mensajes" onClick={() => setAssistant(true)}>
+                <button type="button" className="m-round-button" aria-label="Conectar mensajes" onClick={() => setAssistant(0)}>
                   <Icon name="channels" />
                 </button>
               )}
@@ -674,7 +718,7 @@ function PropertyInbox({ compact }: { compact: boolean }) {
             Plantillas
           </Link>
           {can("channel.manage") && (
-            <button type="button" className="button primary" onClick={() => setAssistant(true)}>
+            <button type="button" className="button primary" onClick={() => setAssistant(0)}>
               <Icon name="channels" />
               {connected ? "Asistente de mensajes" : "Conectar mensajes"}
             </button>
@@ -701,10 +745,11 @@ function PropertyInbox({ compact }: { compact: boolean }) {
         </Modal>
       )}
       {inspect && <ReservationInspector id={inspect} onClose={() => setInspect(null)} />}
-      {assistant && (
+      {assistant !== null && (
         <MessageAssistant
+          initialStep={assistant}
           onClose={() => {
-            setAssistant(false);
+            setAssistant(null);
             void load();
           }}
         />
