@@ -244,6 +244,31 @@ test("simplified relay: settings stored, threads keyed by OTA link, replies reco
   await expect(db.query("select public.pms_service_mail_settings()")).rejects.toThrow();
 });
 
+test("one Airbnb conversation stays one thread even when links and relays change per e-mail", async () => {
+  await as(ids.user);
+  const { localPart } = await connector({ type: "inbox.enable" });
+  await as(null);
+  const send = (extra: Record<string, unknown>) =>
+    db.query<{ r: Record<string, string> }>("select public.pms_service_inbound($1::jsonb) r", [
+      JSON.stringify({ localPart, kind: "message", provider: "airbnb", body: "Hola", ...extra }),
+    ]);
+  const a = (await send({ resendId: "k1", replyTo: "1-aaa@reply.airbnb.com", externalUrl: "https://www.airbnb.ca/hosting/thread/2737368744?c=one&euid=1" })).rows[0].r;
+  const b = (
+    await send({ resendId: "k2", guestName: "Erick", replyTo: "2-bbb@reply.airbnb.com", externalUrl: "https://www.airbnb.ca/hosting/thread/2737368744" })
+  ).rows[0].r;
+  expect(b.threadId).toBe(a.threadId);
+  // An unnamed message from another conversation must not join just because both lack a name.
+  const other = (await send({ resendId: "k3" })).rows[0].r;
+  const unnamed = (await send({ resendId: "k4" })).rows[0].r;
+  expect(unnamed.threadId).not.toBe(a.threadId);
+  expect(other.threadId).not.toBe(a.threadId);
+  await db.exec("reset role");
+  const row = (
+    await db.query<{ guest_name: string; reply_to: string }>("select guest_name,reply_to from public.ota_threads where id=$1", [a.threadId])
+  ).rows[0];
+  expect(row).toEqual({ guest_name: "Erick", reply_to: "2-bbb@reply.airbnb.com" });
+});
+
 test("mail sender: saved by managers only, never readable, claims only that property's replies", async () => {
   const sender = (command: Record<string, unknown>) =>
     db.query<{ r: Record<string, unknown> }>("select public.pms_mail_sender($1::jsonb) r", [
