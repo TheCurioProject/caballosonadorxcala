@@ -19,6 +19,7 @@ import { connector, otaGuides, type ConnectorProvider } from "@/cala/features/in
 import { copyText } from "@/cala/features/integrations/calendar-assistant";
 import { MessageAssistant, SENDER_STEP } from "./message-assistant";
 import { useI18n } from "@/cala/lib/i18n";
+import { isOtaNotice, otaGuestMessage, unnamedGuest } from "@/lib/cala/connectors/ota-text";
 
 /**
  * OTA inbox. Only conversations that arrived from an OTA (through the e-mail
@@ -55,6 +56,32 @@ type InboxData = {
   /** Host mailbox CALA sends replies from; null = copy and send in the OTA. */
   sender: { email: string } | null;
 };
+/**
+ * Messages stored before CALA read OTA templates still hold the raw e-mail:
+ * keep only the guest's words, name unnamed threads after the guest, and drop
+ * OTA security/marketing notices (and threads holding nothing else).
+ */
+function tidyInbox(data: InboxData): InboxData {
+  const names = new Map<string, string>();
+  const noticeOnly = new Set<string>();
+  const messages = data.messages.flatMap((m) => {
+    if (m.direction !== "inbound") return [m];
+    if (isOtaNotice(m.body)) {
+      noticeOnly.add(m.threadId);
+      return [];
+    }
+    const guest = otaGuestMessage(m.body);
+    if (!guest) return [m];
+    if (!names.has(m.threadId)) names.set(m.threadId, guest.guestName);
+    return [{ ...m, body: guest.message }];
+  });
+  const kept = new Set(messages.map((m) => m.threadId));
+  const threads = data.threads
+    .filter((t) => kept.has(t.id) || !noticeOnly.has(t.id))
+    .map((t) => (unnamedGuest.test(t.guestName.trim()) && names.has(t.id) ? { ...t, guestName: names.get(t.id)! } : t));
+  return { ...data, threads, messages };
+}
+
 type Folder = "all" | "unread" | "mine" | "pending" | "archived";
 const folders: [Folder, string][] = [
   ["all", "Todas"],
@@ -189,7 +216,7 @@ function PropertyInbox({ compact }: { compact: boolean }) {
   const load = useCallback(async () => {
     try {
       const next = await connector<InboxData>("inbox.list", { propertyId });
-      setInbox(next);
+      setInbox(tidyInbox(next));
       setLoadError("");
       setNow(Date.now());
     } catch (e) {

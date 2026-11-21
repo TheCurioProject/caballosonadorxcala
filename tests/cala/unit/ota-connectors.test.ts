@@ -1,6 +1,7 @@
 import { test, expect } from "vitest";
 import { bookedEvents, calendarIdentity, parseOtaCalendar, providerForUrl } from "@/lib/cala/connectors/ical-feed";
 import { matchReservation, parseInbound } from "@/lib/cala/connectors/mail-parse";
+import { isOtaNotice, otaGuestMessage } from "@/lib/cala/connectors/ota-text";
 import { providerForSource } from "@/cala/domain/messaging/ota";
 
 const airbnbFeed = [
@@ -103,8 +104,58 @@ test("an auto-forwarded Airbnb message keeps the relay reply address and the gue
     replyTo: "4f1c2a9b@reply.airbnb.com",
     guestName: "Ana",
     body: "Hola, ¿a qué hora podemos llegar?",
-    threadUrl: "https://www.airbnb.com/hosting/inbox/folder/all/thread/123?c=x&euid=1",
+    threadUrl: "https://www.airbnb.com/hosting/inbox/folder/all/thread/123",
   });
+});
+
+test("an Airbnb inquiry notice shows only the guest's words and name", () => {
+  const text = [
+    "%opentrack%",
+    "",
+    "INQUIRY FOR 6 ROOMS/BREAKFAST/OCEANVIEW/POOL/2 FULL KITCHENS, DEC 16–18",
+    "",
+    "For your protection and safety, always communicate through Airbnb",
+    "[https://www.airbnb.ca/help/article/209?c=.pi80.pkTUVTU0FHSU5HX05FV19NRVNTQUdFX0VNQUlMX0RJR0VTVA%3D%",
+    "3D&euid=ff703546-7169-fa28-23ff-efd0bdfff36b].",
+    "",
+    "ERICK",
+    "",
+    "Booker",
+    "",
+    "Hello test v2",
+    "",
+    "Can we arrive early?",
+    "",
+    "Review inquiry",
+    "[https://www.airbnb.ca/hosting/thread/2737368744?thread_type=home_booking&c=abc]",
+    "",
+    "6 rooms/breakfast/oceanview/pool/2 full kitchens",
+    "Dec 16 – 18, 2026 · 1 guest",
+    "Airbnb Ireland UC, 8 Hanover Quay",
+  ].join("\n");
+  const parsed = parseInbound({
+    from: "Airbnb <automated@airbnb.com>",
+    replyTo: ["4-abc123@reply.airbnb.com"],
+    subject: "Inquiry for 6 rooms/breakfast/oceanview/pool/2 full kitchens for Dec 16 – 18, 2026",
+    text,
+    html: null,
+  });
+  expect(parsed).toMatchObject({
+    kind: "message",
+    provider: "airbnb",
+    guestName: "Erick",
+    body: "Hello test v2\n\nCan we arrive early?",
+    replyTo: "4-abc123@reply.airbnb.com",
+    threadUrl: "https://www.airbnb.ca/hosting/thread/2737368744",
+  });
+  expect(otaGuestMessage("%opentrack%\nMARÍA JOSÉ\nGuest\nHola\nReply")).toEqual({ guestName: "María José", message: "Hola" });
+});
+
+test("Airbnb security and marketing e-mails never become guest messages", () => {
+  const notice = "%opentrack%\n\nDID YOU LOG IN FROM A NEW DEVICE?\n\nWe noticed your Airbnb account was accessed from a new device.\n\nSecure your account [https://www.airbnb.ca/account-settings]";
+  expect(parseInbound({ from: "Airbnb <automated@airbnb.com>", replyTo: null, subject: "Did you log in from a new device?", text: notice, html: null })).toMatchObject({ kind: "other", provider: "airbnb" });
+  expect(isOtaNotice(notice)).toBe(true);
+  expect(isOtaNotice("Hello, can we arrive early?")).toBe(false);
 });
 
 test("Gmail forwarding confirmations, bounces and unrelated mail are classified", () => {

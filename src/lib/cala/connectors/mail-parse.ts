@@ -1,4 +1,5 @@
 import type { CalendarProvider } from "./ical-feed";
+import { otaGuestMessage, tidyLines } from "./ota-text";
 
 export type MailKind = "message" | "forwarding" | "bounce" | "other";
 export interface ParsedMail {
@@ -89,7 +90,10 @@ export function threadUrlFrom(provider: CalendarProvider | null, html: string | 
     ...(html?.match(/href\s*=\s*["']([^"']+)["']/gi) ?? []).map((h) => h.replace(/^href\s*=\s*["']|["']$/gi, "")),
     ...(text.match(/https:\/\/[^\s"'<>)\]]+/g) ?? []),
   ].map((u) => u.replace(/&amp;/g, "&"));
-  const hit = urls.find((u) => re.test(u));
+  let hit = urls.find((u) => re.test(u));
+  // Airbnb adds per-e-mail tracking parameters: without them every notice of
+  // one conversation carries the same link, so they land in the same thread.
+  if (hit && provider === "airbnb") hit = hit.split(/[?#]/)[0];
   return hit && hit.length <= 1000 ? hit : null;
 }
 
@@ -105,8 +109,7 @@ function codeFrom(provider: CalendarProvider | null, text: string): string | nul
 /** Keeps the guest's words: drops quoted history, signatures and OTA footers. */
 export function cleanMessage(text: string) {
   const out: string[] = [];
-  for (const raw of text.split(/\r?\n/)) {
-    const line = raw.trim();
+  for (const line of tidyLines(text)) {
     if (/^(on|el) .{6,120}(wrote|escribió):$/i.test(line)) break;
     if (/^-{2,}\s*(original message|mensaje original|forwarded message|mensaje reenviado)/i.test(line)) {
       out.length = 0; // forwarded by hand: the OTA e-mail starts below
@@ -147,13 +150,16 @@ export function parseInbound(mail: IncomingMail): ParsedMail {
   const replies = [...(mail.replyTo ?? []), from, ...(text.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi) ?? [])]
     .map(address)
     .filter((a) => relayDomains.test(a));
+  const guest = otaGuestMessage(text);
+  // No guest words and no relay to answer: an OTA security or marketing e-mail.
+  if (!guest && !replies.length) return { ...base, provider, kind: "other", summary: subject || cleanMessage(text).slice(0, 200) };
   const fromName = displayName(from);
-  const body = cleanMessage(text);
+  const body = guest?.message ?? cleanMessage(text);
   return {
     kind: "message",
     provider,
     replyTo: replies[0] ?? null,
-    guestName: guestFrom(fromName, subject),
+    guestName: guest?.guestName ?? guestFrom(fromName, subject),
     externalCode: codeFrom(provider, `${subject}\n${text}`),
     threadUrl: threadUrlFrom(provider, mail.html, text),
     subject,
