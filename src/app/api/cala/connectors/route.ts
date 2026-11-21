@@ -16,7 +16,7 @@ import { syncCalendarLink, untyped } from "@/lib/cala/connectors/calendar-sync";
 import { configureMail, inboxAddress, mailSetup, receivingDomains, sendSelfTest } from "@/lib/cala/connectors/mail";
 import { isWebsiteProperty, revalidatePublicSite } from "@/lib/revalidatePublic";
 import { retireLegacySource } from "@/lib/cala/connectors/legacy";
-import { deliverReplies, proveSender, sealSecret, smtpPreset, storedSender } from "@/lib/cala/connectors/smtp";
+import { deliverReplies, otaRecipient, proveSender, sealSecret, smtpPreset, storedSender } from "@/lib/cala/connectors/smtp";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -91,8 +91,12 @@ export async function POST(request: Request) {
       return data as Record<string, unknown>;
     };
     const sender = async () => {
-      const s = await storedSender(cmd.propertyId).catch(() => null);
-      return s ? { email: s.email, host: s.host, verifiedAt: s.verifiedAt } : null;
+      const [s, otaAddress] = await Promise.all([
+        storedSender(cmd.propertyId).catch(() => null),
+        otaRecipient(cmd.propertyId).catch(() => null),
+      ]);
+      // otaAddress: where the OTAs write to; replies from any other mailbox are dropped by them.
+      return s ? { email: s.email, host: s.host, verifiedAt: s.verifiedAt, otaAddress } : null;
     };
     const exportUrl = (token: string) => `${origin}/api/cala/ical/?token=${token}`;
 

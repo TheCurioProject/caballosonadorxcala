@@ -54,7 +54,7 @@ type InboxData = {
   messages: Message[];
   inbox: { localPart: string } | null;
   /** Host mailbox CALA sends replies from; null = copy and send in the OTA. */
-  sender: { email: string } | null;
+  sender: { email: string; otaAddress?: string | null } | null;
 };
 /**
  * Messages stored before CALA read OTA templates still hold the raw e-mail:
@@ -267,6 +267,8 @@ function PropertyInbox({ compact }: { compact: boolean }) {
   const sender = inbox?.sender ?? null;
   // E-mail the OTA relay from the host's mailbox when both exist; otherwise copy + open.
   const direct = Boolean(sender && thread?.canReply);
+  // The OTAs only accept relay replies from the mailbox they write to.
+  const otherMailbox = sender?.otaAddress && sender.otaAddress !== sender.email.toLowerCase() ? sender.otaAddress : null;
   const otaTarget = thread ? (thread.externalUrl ?? otaGuides[thread.provider].inbox) : "";
   const body = drafts[selected] ?? "";
   const candidates = thread
@@ -515,6 +517,11 @@ function PropertyInbox({ compact }: { compact: boolean }) {
           </a>
         )}
       </div>
+      {direct && otherMailbox && (
+        <p className="notice warning" role="alert">
+          {`${via} te escribe a ${otherMailbox}, pero CALA responde desde ${sender!.email}. Las OTAs solo aceptan respuestas del correo registrado: conecta ${otherMailbox} en el asistente (paso «Responder»).`}
+        </p>
+      )}
       {!sender && can("channel.manage") && (
         <button type="button" className="button secondary" onClick={() => setAssistant(SENDER_STEP)}>
           <Icon name="email" size={16} />

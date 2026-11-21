@@ -442,6 +442,10 @@ export function MessageAssistant({ onClose, initialStep = 0 }: { onClose: () => 
                 <ul className="ota-verify" aria-live="polite">
                   {check(true, `CALA responde desde ${sender.email} (${sender.host}) · comprobado ${timeAgo(sender.verifiedAt)}`)}
                   {senderProved && check(true, `Te enviamos un correo de prueba a ${sender.email}. Búscalo en tu bandeja: confirma que CALA puede enviar.`)}
+                  {sender.otaAddress &&
+                    (sender.otaAddress === sender.email.toLowerCase()
+                      ? check(true, `Es el mismo correo al que te escriben las OTAs (${sender.otaAddress}).`)
+                      : check(false, `Las OTAs te escriben a ${sender.otaAddress}, no a ${sender.email}: rechazarán estas respuestas. Conecta ${sender.otaAddress}.`))}
                 </ul>
               )}
               {sender && !editSender && (

@@ -284,4 +284,12 @@ export const catalog5: Record<string, string> = {
   "Esta conversación aún no tiene dirección de respuesta de la OTA.": "This conversation doesn't have the OTA's reply address yet.",
   "Se desconectó el correo de envío antes de mandar esta respuesta.": "The sending e-mail was disconnected before this reply went out.",
   "La respuesta no se pudo enviar.": "The reply couldn't be sent.",
+  // Reply mailbox vs. the one the OTAs write to; replies whose send was interrupted
+  "{via} te escribe a {ota}, pero CALA responde desde {email}. Las OTAs solo aceptan respuestas del correo registrado: conecta {ota} en el asistente (paso «Responder»).":
+    "{via} writes to {ota}, but CALA replies from {email}. OTAs only accept replies from the registered e-mail: connect {ota} in the assistant (“Reply” step).",
+  "Es el mismo correo al que te escriben las OTAs ({email}).": "It's the same e-mail the OTAs write to ({email}).",
+  "Las OTAs te escriben a {ota}, no a {email}: rechazarán estas respuestas. Conecta {ota}.":
+    "The OTAs write to {ota}, not {email}: they will reject these replies. Connect {ota}.",
+  "No se pudo confirmar si esta respuesta salió. Revisa la conversación en la OTA antes de volver a enviarla.":
+    "We couldn't confirm whether this reply went out. Check the conversation in the OTA before sending it again.",
 };

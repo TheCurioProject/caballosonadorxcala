@@ -50,6 +50,8 @@ export interface MailSender {
   email: string;
   host: string;
   verifiedAt: string;
+  /** Mailbox the OTAs write to (To of the latest guest notice). */
+  otaAddress?: string | null;
 }
 
 /** Self-test e-mail sent by CALA to its own relay address (see sendSelfTest). */

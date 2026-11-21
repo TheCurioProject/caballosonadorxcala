@@ -1,7 +1,7 @@
 import { test, expect, beforeAll } from "vitest";
-import { openSecret, sealSecret, smtpFailure } from "@/lib/cala/connectors/smtp";
+import { messageIdHeader, openSecret, sealSecret, smtpFailure } from "@/lib/cala/connectors/smtp";
 import { smtpPreset } from "@/lib/cala/connectors/smtp-presets";
-import { parseInbound } from "@/lib/cala/connectors/mail-parse";
+import { isRelayAddress, parseInbound } from "@/lib/cala/connectors/mail-parse";
 
 beforeAll(() => {
   process.env.SUPABASE_SERVICE_ROLE_KEY ||= "test-service-role-key";
@@ -44,4 +44,14 @@ test("bounces name the OTA relay they were for (Booking, Airbnb, Expedia)", () =
   expect(bounce("4f9a@reply.airbnb.com").replyTo).toBe("4f9a@reply.airbnb.com");
   expect(bounce("x1@m.expediapartnercentral.com").replyTo).toBe("x1@m.expediapartnercentral.com");
   expect(bounce("friend@example.com")).toMatchObject({ kind: "bounce", replyTo: null });
+});
+
+test("reply headers: Message-IDs are bracketed, junk is dropped; relay addresses are recognised", () => {
+  expect(messageIdHeader("abc.123@airbnb.com")).toBe("<abc.123@airbnb.com>");
+  expect(messageIdHeader(" <abc@mail.airbnb.com> ")).toBe("<abc@mail.airbnb.com>");
+  expect(messageIdHeader("no id")).toBeNull();
+  expect(messageIdHeader(null)).toBeNull();
+  expect(isRelayAddress("Ana <4-abc@reply.airbnb.com>")).toBe(true);
+  expect(isRelayAddress("ana.123@guest.booking.com")).toBe(true);
+  expect(isRelayAddress("kelli9@telus.net")).toBe(false);
 });

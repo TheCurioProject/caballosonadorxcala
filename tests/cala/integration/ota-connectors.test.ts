@@ -323,3 +323,58 @@ test("mail sender: saved by managers only, never readable, claims only that prop
   await as(null);
   expect((await db.query<{ r: unknown }>(`select public.pms_service_mail_sender('${ids.prop}') r`)).rows[0].r).toBeNull();
 });
+
+test("replies thread to the OTA notice, bounce by the relay used, never resend an interrupted send", async () => {
+  await as(ids.user);
+  await db.query("select public.pms_mail_sender($1::jsonb)", [
+    JSON.stringify({ organizationId: ids.org, propertyId: ids.prop, type: "save", email: "kelli9@telus.net", host: "smtp.gmail.com", port: 465, username: "kelli9@telus.net", secret: "v1:a:b:c" }),
+  ]);
+  const { localPart } = await connector({ type: "inbox.enable" });
+  await as(null);
+  const inbound = (extra: Record<string, unknown>) =>
+    db.query<{ r: Record<string, string> }>("select public.pms_service_inbound($1::jsonb) r", [
+      JSON.stringify({ localPart, kind: "message", provider: "airbnb", guestName: "Luz", subject: "RE: Inquiry for Casa", body: "Hola", externalUrl: "https://www.airbnb.com/hosting/thread/55550001", ...extra }),
+    ]);
+  const first = (await inbound({ resendId: "t1", replyTo: "1-a@reply.airbnb.com", messageId: "<n1@airbnb.com>", to: "kelli9@telus.net" })).rows[0].r;
+  await inbound({ resendId: "t2", replyTo: "2-b@reply.airbnb.com", messageId: "<n2@airbnb.com>", to: "kelli9@telus.net" });
+  expect((await db.query<{ r: string }>(`select public.pms_service_ota_recipient('${ids.prop}') r`)).rows[0].r).toBe("kelli9@telus.net");
+
+  await as(ids.user);
+  const reply = await connector({ type: "thread.reply", threadId: first.threadId, body: "Bienvenida" });
+  await as(null);
+  const [claimed] = (await db.query<{ r: Array<Record<string, unknown>> }>("select public.pms_service_outbox_claim_sender(5,$1) r", [reply.id])).rows[0].r;
+  expect(claimed).toMatchObject({ replyTo: "2-b@reply.airbnb.com", subject: "Re: Inquiry for Casa", inReplyTo: "<n2@airbnb.com>", references: ["<n1@airbnb.com>", "<n2@airbnb.com>"] });
+  await db.query("select public.pms_service_outbox_done($1,true,null,'<r1@gmail.com>')", [reply.id]);
+
+  // A newer notice changes the thread's relay; a bounce for the relay the reply used still fails it.
+  await inbound({ resendId: "t3", replyTo: "3-c@reply.airbnb.com", messageId: "<n3@airbnb.com>" });
+  await db.query("select public.pms_service_inbound($1::jsonb)", [JSON.stringify({ localPart, kind: "bounce", resendId: "t4", replyTo: "2-b@reply.airbnb.com", summary: "Rechazado" })]);
+  await db.exec("reset role");
+  expect((await db.query<{ status: string }>("select status from public.ota_messages where id=$1", [reply.id])).rows[0].status).toBe("failed");
+
+  // A send interrupted mid-way is never queued again (the OTA may already have it).
+  await as(ids.user);
+  const stuck = await connector({ type: "thread.reply", threadId: first.threadId, body: "¿Llegas hoy?" });
+  await as(null);
+  await db.query("select public.pms_service_outbox_claim_sender(5,$1)", [stuck.id]);
+  await db.exec("reset role");
+  await db.query("update public.ota_messages set claimed_at=now()-interval '11 minutes' where id=$1", [stuck.id]);
+  await as(null);
+  expect((await db.query<{ r: unknown[] }>("select public.pms_service_outbox_claim_sender(5,null) r")).rows[0].r).toEqual([]);
+  await db.exec("reset role");
+  const row = (await db.query<{ status: string; failure: string }>("select status,failure from public.ota_messages where id=$1", [stuck.id])).rows[0];
+  expect(row.status).toBe("failed");
+  expect(row.failure).toMatch(/Revisa la conversación/);
+
+  // An old reply just claimed is not taken away by another claim.
+  await as(ids.user);
+  const old = await connector({ type: "thread.reply", threadId: first.threadId, body: "Te esperamos" });
+  await db.exec("reset role");
+  await db.query("update public.ota_messages set created_at=now()-interval '1 hour' where id=$1", [old.id]);
+  await as(null);
+  await db.query("select public.pms_service_outbox_claim_sender(5,$1)", [old.id]);
+  await db.query("select public.pms_service_outbox_claim_sender(5,null)");
+  await db.query("select public.pms_service_outbox_done($1,true,null,null)", [old.id]);
+  await db.exec("reset role");
+  expect((await db.query<{ status: string }>("select status from public.ota_messages where id=$1", [old.id])).rows[0].status).toBe("sent");
+});

@@ -3,7 +3,7 @@ import { supabaseAdminClient } from "@/cala/infrastructure/supabase/admin";
 import { providerForSource } from "@/cala/domain/messaging/ota";
 import { DomainError } from "@/cala/domain/shared/errors";
 import { untyped } from "./calendar-sync";
-import { matchReservation, parseInbound } from "./mail-parse";
+import { isRelayAddress, matchReservation, parseInbound } from "./mail-parse";
 
 type MailSettings = { domain?: string | null; webhookId?: string | null; webhookSecret?: string | null };
 
@@ -148,6 +148,12 @@ export async function receiveEmail(event: { email_id: string; to: string[]; rece
     });
     const reservationId =
       parsed.kind === "message" ? matchReservation(parsed, owner.reservations ?? [], providerForSource) : null;
+    // Auto-forwarding keeps the notice's To: the mailbox registered in the OTA.
+    // Replies must leave from that same address or the OTA drops them.
+    const ownerAddress =
+      (email.to ?? [])
+        .map((a) => (/<([^>]+)>/.exec(a)?.[1] ?? a).trim().toLowerCase())
+        .find((a) => a.includes("@") && !a.endsWith("@" + domain) && !isRelayAddress(a)) ?? null;
     const { data } = await db.rpc("pms_service_inbound", {
       payload: {
         localPart,
@@ -165,6 +171,8 @@ export async function receiveEmail(event: { email_id: string; to: string[]; rece
         body: parsed.body,
         summary: parsed.summary,
         from: email.from,
+        messageId: email.message_id || email.headers?.["message-id"] || null,
+        to: ownerAddress,
       },
     });
     results.push(data);

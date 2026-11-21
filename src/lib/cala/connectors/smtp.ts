@@ -101,13 +101,28 @@ type Claimed = {
   body: string;
   replyTo: string | null;
   propertyName: string;
+  /** Message-ID of the latest OTA notice of the thread (and earlier ones). */
+  inReplyTo?: string | null;
+  references?: string[] | null;
 };
+
+/** "<id@host>" — Resend may give Message-IDs with or without brackets. */
+export function messageIdHeader(value: string | null | undefined) {
+  const v = (value ?? "").trim().replace(/^<|>$/g, "");
+  return /^[^\s<>@]+@[^\s<>@]+$/.test(v) ? `<${v}>` : null;
+}
 type StoredSender = { email: string; host: string; port: number; username: string; secret: string; verifiedAt: string };
 
 export async function storedSender(propertyId: string) {
   const { data, error } = await admin().rpc("pms_service_mail_sender", { prop: propertyId });
   if (error) throw new Error("sender unavailable");
   return (data ?? null) as StoredSender | null;
+}
+
+/** The mailbox the OTAs write to (To of the latest guest notice), if known. */
+export async function otaRecipient(propertyId: string) {
+  const { data, error } = await admin().rpc("pms_service_ota_recipient", { prop: propertyId });
+  return error || typeof data !== "string" ? null : data.toLowerCase();
 }
 
 /**
@@ -154,11 +169,16 @@ export async function deliverReplies(options: { only?: string; max?: number } = 
       continue;
     }
     try {
+      // Sent as a normal reply to the OTA notice: same subject, In-Reply-To and
+      // References, so the relay and the host's mailbox thread it correctly.
+      const inReplyTo = messageIdHeader(m.inReplyTo);
+      const references = (m.references ?? []).map(messageIdHeader).filter((x): x is string => Boolean(x));
       const info = await sender.t.sendMail({
         from: { name: m.propertyName.replace(/["<>]/g, ""), address: sender.config.email },
         to: m.replyTo,
         subject: m.subject || `Re: ${m.propertyName}`,
         text: m.body,
+        ...(inReplyTo ? { inReplyTo, references: references.length ? references : [inReplyTo] } : {}),
         headers: { "X-CALA-Message": m.id },
       });
       if (info.rejected?.length) await fail(smtpFailure({ response: String(info.response ?? "recipient rejected") }));

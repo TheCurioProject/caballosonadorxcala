@@ -32,6 +32,7 @@ const providerDomains: [RegExp, CalendarProvider][] = [
 /** Relay addresses that deliver a reply into the OTA conversation. */
 const relayDomains =
   /@((reply|[a-z0-9-]+\.reply)\.airbnb\.com|(mchat|guest|property)\.booking\.com|messages\.(homeaway|vrbo)\.com|[a-z0-9-]*\.?expediapartnercentral\.com|m\.expediamail\.com)$/i;
+export const isRelayAddress = (value: string) => relayDomains.test(address(value));
 
 export function htmlToText(html: string) {
   return html
