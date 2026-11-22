@@ -376,20 +376,20 @@ export const guide: GuideTopic[] = [
     icon: "finance",
     es: {
       title: "Finanzas",
-      summary: "Folios de cada estancia con cargos, pagos y saldo.",
+      summary: "Ingresos, ocupación, cobros y saldos; folios de cada estancia y los pagos de la web.",
       steps: [
-        "Abre un folio para ver el detalle.",
-        "«Agregar cargo» suma extras (comida, tours, daños…).",
-        "Registra pagos para que el saldo quede al día.",
+        "«Resumen»: ingresos, ocupación, ADR, RevPAR, anticipación, cancelaciones y saldos por período; descarga el CSV.",
+        "«Folios y pagos»: abre un folio, agrega cargos y registra pagos para que el saldo quede al día.",
+        "«Pagos web»: saldo de Stripe, últimos cobros y pagos web con conflicto de disponibilidad por revisar.",
       ],
     },
     en: {
       title: "Finance",
-      summary: "Each stay's folio with charges, payments and balance.",
+      summary: "Revenue, occupancy, collections and balances; each stay's folio and the website payments.",
       steps: [
-        "Open a folio to see its details.",
-        "«Add charge» adds extras (food, tours, damages…).",
-        "Record payments so the balance stays up to date.",
+        "«Overview»: revenue, occupancy, ADR, RevPAR, lead time, cancellations and balances per period; download the CSV.",
+        "«Folios & payments»: open a folio, add charges and record payments so the balance stays up to date.",
+        "«Website payments»: Stripe balance, latest charges and website payments with an availability conflict to review.",
       ],
     },
   },
@@ -460,29 +460,6 @@ export const guide: GuideTopic[] = [
       steps: [
         "«New rule»: choose when (reservation created, cancelled, check-out) and what to do (create a cleaning task, notify the team).",
         "Pause or activate each rule anytime.",
-      ],
-    },
-  },
-  {
-    path: "reportes",
-    group: "tools",
-    icon: "reports",
-    es: {
-      title: "Reportes",
-      summary: "Ocupación, ingresos, ADR, RevPAR, anticipación, duración y cancelaciones por período.",
-      steps: [
-        "Elige el rango y filtra por tipo, canal o incluye pendientes.",
-        "Cambia entre Gráficas y Tablas; compara con el período anterior.",
-        "Descarga el CSV para tu contabilidad.",
-      ],
-    },
-    en: {
-      title: "Reports",
-      summary: "Occupancy, revenue, ADR, RevPAR, lead time, length of stay and cancellations by period.",
-      steps: [
-        "Pick the range and filter by type or channel, or include pending.",
-        "Switch between Charts and Tables; compare with the previous period.",
-        "Download the CSV for your accounting.",
       ],
     },
   },
@@ -732,21 +709,6 @@ export const guide: GuideTopic[] = [
     },
   },
   {
-    path: "stripe",
-    group: "web",
-    icon: "finance",
-    es: {
-      title: "Pagos de la web",
-      summary: "Saldo de Stripe, pagos recientes y cupones activos de la pasarela de pago.",
-      steps: ["Consulta pagos y saldo.", "Revisa o desactiva cupones."],
-    },
-    en: {
-      title: "Website payments",
-      summary: "Stripe balance, recent payments and active coupons for the payment gateway.",
-      steps: ["Check payments and balance.", "Review or disable coupons."],
-    },
-  },
-  {
     path: "settings",
     group: "web",
     icon: "settings",
@@ -766,27 +728,6 @@ export const guide: GuideTopic[] = [
         "Edit the base house rules.",
         "Set when food and tours are offered.",
         "Create Stripe discount coupons.",
-      ],
-    },
-  },
-  {
-    path: "integracion",
-    group: "web",
-    icon: "activity",
-    es: {
-      title: "Revisión de pagos",
-      summary: "Pagos web que llegaron con un conflicto de disponibilidad.",
-      steps: [
-        "Revisa cada caso; la reserva queda como borrador en CALA.",
-        "Acuerda con el huésped un cambio de fechas o gestiona el reembolso en Stripe.",
-      ],
-    },
-    en: {
-      title: "Payment review",
-      summary: "Website payments that arrived with an availability conflict.",
-      steps: [
-        "Review each case; the reservation stays as a draft in CALA.",
-        "Agree new dates with the guest or process the refund in Stripe.",
       ],
     },
   },

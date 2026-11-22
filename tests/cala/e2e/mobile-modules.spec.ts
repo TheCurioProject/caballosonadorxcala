@@ -23,7 +23,7 @@ test("all current modules fit the phone and installation help is reachable", asy
         { message: `Page overflow on ${item.path}` },
       )
       .toBeLessThanOrEqual(1);
-    if (["inicio", "inbox", "reportes"].includes(item.path))
+    if (["inicio", "inbox", "finanzas"].includes(item.path))
       await page.screenshot({
         path: info.outputPath(`mobile-${item.path}.png`),
         fullPage: true,

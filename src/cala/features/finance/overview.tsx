@@ -18,6 +18,12 @@ const monthStart = (date: string, offset: number) => {
 };
 const pct = (n: number | null) =>
   n === null ? "—" : `${(n * 100).toFixed(1)}%`;
+/** Axis labels: all of them up to 7 periods, then every k-th (first and last kept). */
+const showLabel = (i: number, n: number) => {
+  if (n <= 7) return true;
+  const step = Math.ceil(n / 6);
+  return i === 0 || i === n - 1 ? true : i % step === 0 && n - 1 - i >= step / 2;
+};
 
 function bucketLabel(b: FinanceBucket, granularity: "month" | "year") {
   if (granularity === "year") return b.key;
@@ -109,7 +115,7 @@ export function FinanceOverview({
             </button>
           ))}
         </div>
-        <label className="field">
+        <label className="field finance-date">
           <span>{t("Desde")}</span>
           {granularity === "month" ? (
             <input
@@ -130,7 +136,7 @@ export function FinanceOverview({
             />
           )}
         </label>
-        <label className="field">
+        <label className="field finance-date">
           <span>{t("Hasta")}</span>
           {granularity === "month" ? (
             <input
@@ -172,22 +178,24 @@ export function FinanceOverview({
             ))}
           </select>
         </label>
-        <label className="checkbox-label">
-          <input
-            type="checkbox"
-            checked={pending}
-            onChange={(e) => setPending(e.target.checked)}
-          />
-          {t("Incluir pendientes")}
-        </label>
-        <button
-          className="button secondary"
-          disabled={!report}
-          onClick={download}
-        >
-          <Icon name="download" />
-          {t("Descargar CSV")}
-        </button>
+        <div className="finance-filter-actions">
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={pending}
+              onChange={(e) => setPending(e.target.checked)}
+            />
+            {t("Incluir pendientes")}
+          </label>
+          <button
+            className="button secondary"
+            disabled={!report}
+            onClick={download}
+          >
+            <Icon name="download" />
+            {t("Descargar CSV")}
+          </button>
+        </div>
       </div>
       {computed.error && (
         <div className="notice error" role="alert">
@@ -279,6 +287,25 @@ export function FinanceOverview({
               }
               detail={t("Por reserva con llegada en el período")}
             />
+            <Tile
+              label={t("Anticipación media")}
+              value={
+                report.totals.averageLeadDays === null
+                  ? "—"
+                  : `${report.totals.averageLeadDays.toFixed(1)} ${t("días")}`
+              }
+              detail={t("Entre fecha de reserva y llegada")}
+            />
+            <Tile
+              label={t("Reservas directas")}
+              value={pct(report.totals.directShare)}
+              detail={t("Directas o desde la web, sin comisión de OTA")}
+            />
+            <Tile
+              label={t("Tasa de cancelación")}
+              value={pct(report.totals.cancellationRate)}
+              detail={t("Canceladas / reservas con llegada en el período")}
+            />
           </div>
           <div className="finance-charts">
             <section className="panel padded finance-gauge-panel">
@@ -358,7 +385,7 @@ export function FinanceOverview({
           ) : (
             <div className="finance-tables">
               <div
-                className="panel table-wrap"
+                className="panel table-wrap finance-cards"
                 tabIndex={0}
                 role="region"
                 aria-label={t("Resumen por período")}
@@ -380,36 +407,36 @@ export function FinanceOverview({
                     {report.buckets.map((b, i) => (
                       <tr key={b.key}>
                         <td>{labels[i]}</td>
-                        <td className="align-right mono">{fmt(b.revenueMinor)}</td>
-                        <td className="align-right">{b.nights}</td>
-                        <td className="align-right">{b.bookings}</td>
-                        <td className="align-right">{b.cancellations}</td>
-                        <td className="align-right">{pct(b.occupancy)}</td>
-                        <td className="align-right mono">
+                        <td data-label={t("Ingresos")} className="align-right mono">{fmt(b.revenueMinor)}</td>
+                        <td data-label={t("Noches")} className="align-right">{b.nights}</td>
+                        <td data-label={t("Reservas")} className="align-right">{b.bookings}</td>
+                        <td data-label={t("Cancelaciones")} className="align-right">{b.cancellations}</td>
+                        <td data-label={t("Ocupación")} className="align-right">{pct(b.occupancy)}</td>
+                        <td data-label="ADR" className="align-right mono">
                           {b.nights ? fmt(Math.round(b.revenueMinor / b.nights)) : "—"}
                         </td>
-                        <td className="align-right mono">{fmt(b.collectedMinor)}</td>
+                        <td data-label={t("Cobrado")} className="align-right mono">{fmt(b.collectedMinor)}</td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot>
                     <tr>
                       <th>{t("Total")}</th>
-                      <th className="align-right mono">{fmt(report.totals.revenueMinor)}</th>
-                      <th className="align-right">{report.totals.nights}</th>
-                      <th className="align-right">{report.totals.bookings}</th>
-                      <th className="align-right">{report.totals.cancellations}</th>
-                      <th className="align-right">{pct(report.totals.occupancy)}</th>
-                      <th className="align-right mono">
+                      <th data-label={t("Ingresos")} className="align-right mono">{fmt(report.totals.revenueMinor)}</th>
+                      <th data-label={t("Noches")} className="align-right">{report.totals.nights}</th>
+                      <th data-label={t("Reservas")} className="align-right">{report.totals.bookings}</th>
+                      <th data-label={t("Cancelaciones")} className="align-right">{report.totals.cancellations}</th>
+                      <th data-label={t("Ocupación")} className="align-right">{pct(report.totals.occupancy)}</th>
+                      <th data-label="ADR" className="align-right mono">
                         {report.totals.adrMinor === null ? "—" : fmt(report.totals.adrMinor)}
                       </th>
-                      <th className="align-right mono">{fmt(report.totals.collectedMinor)}</th>
+                      <th data-label={t("Cobrado")} className="align-right mono">{fmt(report.totals.collectedMinor)}</th>
                     </tr>
                   </tfoot>
                 </table>
               </div>
               <div
-                className="panel table-wrap"
+                className="panel table-wrap finance-cards"
                 tabIndex={0}
                 role="region"
                 aria-label={t("Por propiedad")}
@@ -429,11 +456,11 @@ export function FinanceOverview({
                     {report.properties.map((p) => (
                       <tr key={p.propertyId}>
                         <td>{p.name}</td>
-                        <td className="align-right mono">{fmt(p.revenueMinor)}</td>
-                        <td className="align-right">{p.nights}</td>
-                        <td className="align-right">{p.bookings}</td>
-                        <td className="align-right">{pct(p.occupancy)}</td>
-                        <td className="align-right mono">
+                        <td data-label={t("Ingresos")} className="align-right mono">{fmt(p.revenueMinor)}</td>
+                        <td data-label={t("Noches")} className="align-right">{p.nights}</td>
+                        <td data-label={t("Reservas")} className="align-right">{p.bookings}</td>
+                        <td data-label={t("Ocupación")} className="align-right">{pct(p.occupancy)}</td>
+                        <td data-label="ADR" className="align-right mono">
                           {p.adrMinor === null ? "—" : fmt(p.adrMinor)}
                         </td>
                       </tr>
@@ -442,7 +469,7 @@ export function FinanceOverview({
                 </table>
               </div>
               <div
-                className="panel table-wrap"
+                className="panel table-wrap finance-cards"
                 tabIndex={0}
                 role="region"
                 aria-label={t("Por canal")}
@@ -461,10 +488,10 @@ export function FinanceOverview({
                     {report.channels.map((c) => (
                       <tr key={c.source}>
                         <td>{c.source}</td>
-                        <td className="align-right mono">{fmt(c.revenueMinor)}</td>
-                        <td className="align-right">{c.bookings}</td>
-                        <td className="align-right">{c.nights}</td>
-                        <td className="align-right">{c.cancellations}</td>
+                        <td data-label={t("Ingresos")} className="align-right mono">{fmt(c.revenueMinor)}</td>
+                        <td data-label={t("Reservas")} className="align-right">{c.bookings}</td>
+                        <td data-label={t("Noches")} className="align-right">{c.nights}</td>
+                        <td data-label={t("Cancelaciones")} className="align-right">{c.cancellations}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -485,7 +512,7 @@ export function FinanceOverview({
               </strong>
             </div>
             {report.receivables.length ? (
-              <div className="table-wrap finance-receivables">
+              <div className="table-wrap finance-receivables finance-cards">
                 <table>
                   <thead>
                     <tr>
@@ -604,9 +631,11 @@ function KpiCard({
     <section className={"panel finance-kpi tone-" + tone}>
       <div className="finance-kpi-head">
         <Icon name={icon} size={18} />
-        <strong style={fitChars(value)}>{value}</strong>
         <span>{label}</span>
       </div>
+      <strong className="finance-kpi-value" style={fitChars(value)}>
+        {value}
+      </strong>
       <small className="muted">{detail}</small>
       <div className="sparkline" onMouseLeave={() => setHover(null)}>
         <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" aria-hidden="true">
@@ -709,7 +738,7 @@ function BarChart({
             aria-label={`${labels[i]}: ${format(v)}`}
           >
             <i style={{ height: `${(v / max) * 100}%` }} />
-            <small>{labels[i]}</small>
+            {showLabel(i, values.length) && <small>{labels[i]}</small>}
           </button>
         ))}
       </div>
@@ -775,9 +804,17 @@ function LineChart({
         <span className="line-axis bottom">0%</span>
       </div>
       <div className="finance-line-labels" aria-hidden="true">
-        {labels.map((l, i) => (
-          <small key={i}>{l}</small>
-        ))}
+        {labels.map((l, i) =>
+          showLabel(i, n) ? (
+            <small
+              key={i}
+              className={i === 0 ? "first" : i === n - 1 ? "last" : ""}
+              style={{ left: `${x(i)}%` }}
+            >
+              {l}
+            </small>
+          ) : null,
+        )}
       </div>
       {hover !== null && (
         <div className="chart-tip" role="status">

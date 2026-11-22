@@ -102,13 +102,6 @@ export const navigation: {
     permission: "automation.write",
   },
   {
-    path: "reportes",
-    label: "Reportes",
-    icon: "reports",
-    group: "HERRAMIENTAS",
-    permission: "report.read",
-  },
-  {
     path: "actividad",
     label: "Activity Center",
     icon: "activity",
@@ -199,25 +192,11 @@ export const navigation: {
     permission: "property.write",
   },
   {
-    path: "stripe",
-    label: "Pagos de la web",
-    icon: "finance",
-    group: "CASA CABALLO SOÑADOR",
-    permission: "property.write",
-  },
-  {
     path: "settings",
     label: "Ajustes de la web",
     icon: "settings",
     group: "CASA CABALLO SOÑADOR",
     permission: "property.write",
-  },
-  {
-    path: "integracion",
-    label: "Revisión de pagos",
-    icon: "activity",
-    group: "CASA CABALLO SOÑADOR",
-    permission: "finance.write",
   },
 ];
 

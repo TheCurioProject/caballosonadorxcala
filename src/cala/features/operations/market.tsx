@@ -94,9 +94,11 @@ function PropertyMarket() {
         title="Estudio de mercado"
         description="Compara tu desempeño con observaciones de mercado cuya fuente puedes verificar."
       >
-        <Link className="button secondary" href="/admin/reportes">
-          Ver estadísticas
-        </Link>
+        {can("finance.read") && (
+          <Link className="button secondary" href="/admin/finanzas">
+            Ver finanzas
+          </Link>
+        )}
         {can("rates.write") && (
           <button
             className="button primary"

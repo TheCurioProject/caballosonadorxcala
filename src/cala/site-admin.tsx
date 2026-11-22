@@ -22,9 +22,7 @@ export function SiteAdmin({
     "during-your-stay",
     "servicios-comida",
     "tours-bookings",
-    "stripe",
     "settings",
-    "integracion",
     "alojamientos",
   ].includes(section);
   return (

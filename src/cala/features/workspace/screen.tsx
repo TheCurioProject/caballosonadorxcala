@@ -14,7 +14,6 @@ import { Jobs } from "@/cala/features/integrations/jobs";
 import { Operations } from "@/cala/features/operations/screen";
 import { Finance } from "@/cala/features/finance/screen";
 import { Automations } from "@/cala/features/operations/automation";
-import { Reports } from "@/cala/features/operations/reports";
 import { Settings, Team } from "@/cala/features/settings/screen";
 export function WorkspaceScreen({ section }: { section: string }) {
   switch (section) {
@@ -50,8 +49,6 @@ export function WorkspaceScreen({ section }: { section: string }) {
       return <Finance />;
     case "automatizaciones":
       return <Automations />;
-    case "reportes":
-      return <Reports />;
     case "equipo":
       return <Team />;
     case "ajustes":

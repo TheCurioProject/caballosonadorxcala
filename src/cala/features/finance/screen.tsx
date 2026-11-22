@@ -16,12 +16,14 @@ import { money, dateTime, shortDate } from "@/cala/lib/format";
 import { summarizePayments } from "@/cala/domain/reservations/payments";
 import { FinanceOverview } from "./overview";
 import { ReservationPayments, reservationTotal } from "./payments";
+import { WebPaymentsPanel } from "./web";
 
 export function Finance() {
   const params = useSearchParams();
   const initial = params.get("reservation");
-  const [tab, setTab] = useState<"overview" | "folios">(
-    initial ? "folios" : "overview",
+  const view = params.get("tab");
+  const [tab, setTab] = useState<"overview" | "folios" | "web">(
+    initial ? "folios" : view === "web" ? "web" : "overview",
   );
   const [selected, setSelected] = useState(initial ?? "");
   const { t } = useI18n();
@@ -49,9 +51,24 @@ export function Finance() {
           <Icon name="payment" size={16} />
           {t("Folios y pagos")}
         </button>
+        <button
+          className={tab === "web" ? "active" : ""}
+          aria-pressed={tab === "web"}
+          onClick={() => setTab("web")}
+        >
+          <Icon name="finance" size={16} />
+          {t("Pagos web")}
+        </button>
       </div>
       {tab === "overview" ? (
         <FinanceOverview
+          onOpenReservation={(id) => {
+            setSelected(id);
+            setTab("folios");
+          }}
+        />
+      ) : tab === "web" ? (
+        <WebPaymentsPanel
           onOpenReservation={(id) => {
             setSelected(id);
             setTab("folios");
@@ -187,7 +204,7 @@ function Folios({
                   </button>
                 )}
               </div>
-              <div className="table-wrap">
+              <div className="table-wrap folio-charges">
                 <table>
                   <thead>
                     <tr>

@@ -84,6 +84,25 @@ const addDay = (date: string, n: number) =>
 const ACTIVE = ["confirmed", "checked_in", "checked_out"];
 const CANCELLED = ["cancelled", "no_show"];
 
+/** Days between the booking date (in the property's timezone) and arrival. */
+function leadDays(createdAt: string, arrival: string, timeZone = "UTC") {
+  const created = Date.parse(createdAt);
+  if (!Number.isFinite(created)) return null;
+  let bookedOn: string;
+  try {
+    bookedOn = new Intl.DateTimeFormat("en-CA", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date(created));
+  } catch {
+    bookedOn = new Date(created).toISOString().slice(0, 10);
+  }
+  const days = Math.round((Date.parse(arrival) - Date.parse(bookedOn)) / DAY);
+  return Number.isFinite(days) && days >= 0 ? days : null;
+}
+
 export function financeBuckets(
   start: string,
   end: string,
@@ -161,6 +180,10 @@ export function financeOverview(state: FinanceState, filter: FinanceFilter) {
     return c;
   };
   const perProperty = new Map<string, { revenueMinor: number; nights: number; bookings: number }>();
+  // Arrival cohort extras (formerly only on the Reports screen).
+  const timezone = new Map(state.properties.map((p) => [p.id, p.timezone ?? "UTC"]));
+  const leadTimes: number[] = [];
+  let directBookings = 0;
   const propRow = (id: string) => {
     let p = perProperty.get(id);
     if (!p) perProperty.set(id, (p = { revenueMinor: 0, nights: 0, bookings: 0 }));
@@ -177,6 +200,9 @@ export function financeOverview(state: FinanceState, filter: FinanceFilter) {
       rows[arrivalBucket].bookingNights += n;
       channel(r.source).bookings++;
       propRow(r.propertyId).bookings++;
+      if (["direct", "website"].includes(r.source || "direct")) directBookings++;
+      const lead = leadDays(r.createdAt, r.arrival, timezone.get(r.propertyId));
+      if (lead !== null) leadTimes.push(lead);
     }
     for (let i = 0; i < n; i++) {
       const date = addDay(r.arrival, i);
@@ -318,6 +344,14 @@ export function financeOverview(state: FinanceState, filter: FinanceFilter) {
       adrMinor: nights ? Math.round(revenueMinor / nights) : null,
       revparMinor: capacity ? Math.round(revenueMinor / capacity) : null,
       averageStay: bookings ? bookingNights / bookings : null,
+      averageLeadDays: leadTimes.length
+        ? leadTimes.reduce((a, b) => a + b, 0) / leadTimes.length
+        : null,
+      directShare: bookings ? directBookings / bookings : null,
+      cancellationRate:
+        bookings + sum("cancellations")
+          ? sum("cancellations") / (bookings + sum("cancellations"))
+          : null,
       collectedMinor: sum("collectedMinor"),
       outstandingMinor: receivables.reduce((n, r) => n + r.balanceMinor, 0),
       depositsHeldMinor,

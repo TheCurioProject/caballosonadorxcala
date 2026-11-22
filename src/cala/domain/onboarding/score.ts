@@ -49,10 +49,10 @@ export function setupChecklist(state: State | Snapshot, propertyId: string) {
       href: "/admin/canales",
     },
     {
-      label: "Reportes operativos",
+      label: "Resumen financiero",
       weight: 5,
       complete: state.reservations.some((r) => r.propertyId === propertyId),
-      href: "/admin/reportes",
+      href: "/admin/finanzas",
     },
   ];
 }
