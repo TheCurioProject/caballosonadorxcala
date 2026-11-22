@@ -18,7 +18,7 @@ export function SiteAdmin({
     "experiencias",
     "atv-tours",
     "cupones",
-    "writers-group",
+    "retiros",
     "during-your-stay",
     "servicios-comida",
     "tours-bookings",

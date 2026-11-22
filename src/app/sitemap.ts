@@ -11,7 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '', priority: 1.0, changeFrequency: 'weekly' as const },
     { path: '/tours', priority: 0.9, changeFrequency: 'monthly' as const },
     { path: '/servicios-de-comida', priority: 0.8, changeFrequency: 'monthly' as const },
-    { path: '/writers-group', priority: 0.7, changeFrequency: 'weekly' as const },
+    { path: '/retiros', priority: 0.7, changeFrequency: 'weekly' as const },
     { path: '/politicas', priority: 0.3, changeFrequency: 'yearly' as const },
   ];
 

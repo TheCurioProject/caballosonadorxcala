@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useDragControls } from 'framer-motion';
 import { X, CalendarDays, ArrowRight, Check, ChefHat, CreditCard, User, Map, Utensils, Minus, Plus, ChevronDown, ChevronUp, BedDouble, Tag } from 'lucide-react';
-import { couponMessage, discountFor, type CouponRule } from '@/lib/coupons';
+import { couponMessage, couponRuleLabel, discountFor, type CouponRule } from '@/lib/coupons';
 import { ActionLoadingScreen } from '../ui/ActionLoadingScreen';
 import { DayPicker, DateRange } from 'react-day-picker';
 import dynamic from 'next/dynamic';
@@ -819,6 +819,10 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
     if (coupon && grandTotal < coupon.minTotal) {
       setCoupon(null);
       setCouponError(couponMessage('MIN_TOTAL', isEn ? 'en' : 'es', coupon.minTotal));
+    } else if (coupon?.type === 'final' && grandTotal <= coupon.value) {
+      // A final price only applies while the booking costs more than it.
+      setCoupon(null);
+      setCouponError(couponMessage('NO_SAVING', isEn ? 'en' : 'es'));
     }
   }, [coupon, grandTotal, isEn]);
   const applyCoupon = async () => {
@@ -2368,9 +2372,9 @@ export const PremiumBookingModal = ({ isOpen, onClose, initialLodgingId }: {
                                   <div className="min-w-0">
                                     <p className="font-bold text-[#23211F] tracking-wider truncate">{coupon.code}</p>
                                     <p className="text-sm text-gray-500">
-                                      {coupon.type === 'percent'
-                                        ? (isEn ? `${coupon.value}% off` : `${coupon.value}% de descuento`)
-                                        : (isEn ? 'Discount applied' : 'Descuento aplicado')}
+                                      {coupon.type === 'fixed'
+                                        ? (isEn ? 'Discount applied' : 'Descuento aplicado')
+                                        : couponRuleLabel(coupon, isEn ? 'en' : 'es')}
                                     </p>
                                   </div>
                                 </div>

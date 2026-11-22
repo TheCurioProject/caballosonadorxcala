@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import type { Snapshot } from "@/cala/domain/model";
 import { WorkspaceProvider, useWorkspace, api } from "./context";
 import { WelcomeAuth } from "./login";
-import { navigation } from "./navigation";
+import { visibleNavigation } from "./navigation";
 import { Icon, Modal, Skeleton } from "@/cala/components/ui/primitives";
 import { CalaLogo } from "@/cala/components/brand/cala-logo";
 import { CalaSplash, useLoaderExit } from "@/cala/components/ui/cala-loader";
@@ -197,7 +197,7 @@ function Shell({
   const role =
     data.memberships.find((m) => m.userId === data.currentUser.id)?.role ??
     "viewer";
-  const items = navigation.filter((n) => !n.permission || can(n.permission));
+  const items = visibleNavigation(can, role);
   const regularItems = items.filter((item) => !item.featured);
   const active = items.find((n) => n.path === section);
   useEffect(() => {

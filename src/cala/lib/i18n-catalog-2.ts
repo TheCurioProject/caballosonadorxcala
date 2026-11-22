@@ -248,6 +248,10 @@ export const catalog2: Record<string, string> = {
   "Ocultar guía de gestos": "Hide gesture guide",
   "Calendario por unidad. Desliza horizontalmente para recorrer el mes.":
     "Calendar by unit. Swipe sideways to browse the month.",
+  "Calendario por unidad. Desliza horizontalmente para recorrer los días; al llegar al final del mes continúa con el siguiente.":
+    "Calendar by unit. Swipe sideways to browse the days; at the end of the month it continues into the next one.",
+  "Solo lectura · Desliza para recorrer los días · Toca una reserva para ver sus fechas.":
+    "Read only · Swipe to browse the days · Tap a stay to see its dates.",
   "Unidad / inventario": "Unit / inventory",
   "UNIDAD / INVENTARIO": "UNIT / INVENTORY",
   Bloqueada: "Blocked",

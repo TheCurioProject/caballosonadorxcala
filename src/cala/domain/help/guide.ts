@@ -664,18 +664,26 @@ export const guide: GuideTopic[] = [
     },
   },
   {
-    path: "writers-group",
+    path: "retiros",
     group: "web",
     icon: "message",
     es: {
-      title: "Talleres de escritura",
-      summary: "Talleres publicados en la web con fechas e instructor.",
-      steps: ["Crea un taller y completa sus detalles.", "Publícalo o retíralo cuando quieras."],
+      title: "Retiros",
+      summary: "Retiros que se venden en la web junto con una habitación. Sus fechas quedan bloqueadas para el público y las OTAs.",
+      steps: [
+        "Crea un retiro con sus fechas, el cupo y el precio del retiro sin hospedaje: el hospedaje de la habitación elegida se suma con las tarifas de CALA para esas fechas.",
+        "CALA bloquea las habitaciones en esas fechas; cada venta ocupa una habitación.",
+        "Gestiona las reservas desde «Reservas»: edita los datos del huésped o cancela una plaza.",
+      ],
     },
     en: {
-      title: "Writing workshops",
-      summary: "Workshops published on the website with dates and instructor.",
-      steps: ["Create a workshop and fill in its details.", "Publish or withdraw it anytime."],
+      title: "Retreats",
+      summary: "Retreats sold on the website together with a room. Their dates are closed to the public and the OTAs.",
+      steps: [
+        "Create a retreat with its dates, the stock and the retreat price without lodging: the chosen room's lodging is added at CALA's rates for those dates.",
+        "CALA blocks the rooms for those dates; each sale takes one room.",
+        "Manage bookings from “Bookings”: edit the guest's details or cancel a place.",
+      ],
     },
   },
   {

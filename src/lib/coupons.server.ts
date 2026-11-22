@@ -2,7 +2,7 @@ import prisma from '@/lib/prisma';
 import { z } from 'zod';
 import { stripe } from '@/lib/stripe';
 import { HOLD_MILLISECONDS, hotelToday } from '@/lib/bookingPolicy';
-import { discountFor, type CouponRule } from '@/lib/coupons';
+import { discountFor, type CouponRule, type CouponType } from '@/lib/coupons';
 
 /** A website coupon as managed in CALA → Cupones. */
 export interface SiteCoupon extends CouponRule {
@@ -24,7 +24,7 @@ export interface SiteCoupon extends CouponRule {
 }
 
 type Row = {
-  id: number; code: string; description: string | null; discount_type: 'percent' | 'fixed'; value: unknown; min_total: unknown;
+  id: number; code: string; description: string | null; discount_type: CouponType; value: unknown; min_total: unknown;
   valid_from: string | null; valid_until: string | null; max_redemptions: number | null; is_active: boolean; stripe_coupon_id: string | null;
   created_at: Date; used: bigint | number; pending: bigint | number; discounted: bigint | number | null;
 };
@@ -72,7 +72,7 @@ export const couponInput = z.object({
   id: z.number().int().positive().optional(),
   code: z.string().transform(normalizeCode).pipe(z.string().regex(/^[A-Z0-9][A-Z0-9_-]{2,31}$/)),
   description: z.string().trim().max(300).nullable().optional(),
-  type: z.enum(['percent', 'fixed']),
+  type: z.enum(['percent', 'fixed', 'final']),
   value: z.number().positive().max(1_000_000),
   minTotal: z.number().min(0).max(10_000_000).default(0),
   validFrom: date.optional(),
@@ -80,11 +80,13 @@ export const couponInput = z.object({
   maxRedemptions: z.number().int().positive().max(1_000_000).nullable().optional(),
   isActive: z.boolean(),
 }).refine(c => c.type !== 'percent' || c.value <= 100, { path: ['value'] })
+  // Stripe cannot charge less than $10 MXN.
+  .refine(c => c.type !== 'final' || c.value >= 10, { path: ['value'] })
   .refine(c => !c.validFrom || !c.validUntil || c.validUntil >= c.validFrom, { path: ['validUntil'] });
 export type CouponInput = z.infer<typeof couponInput>;
 
 export class CouponError extends Error {
-  constructor(public reason: 'DUPLICATE_CODE' | 'NOT_FOUND' | 'INVALID' | 'INACTIVE' | 'NOT_STARTED' | 'EXPIRED' | 'EXHAUSTED' | 'MIN_TOTAL' | 'TOO_SMALL', public detail?: number) {
+  constructor(public reason: 'DUPLICATE_CODE' | 'NOT_FOUND' | 'INVALID' | 'INACTIVE' | 'NOT_STARTED' | 'EXPIRED' | 'EXHAUSTED' | 'MIN_TOTAL' | 'TOO_SMALL' | 'NO_SAVING', public detail?: number) {
     super(reason);
   }
 }
@@ -142,13 +144,33 @@ export async function usableCoupon(rawCode: unknown, totalMinor: number, databas
   if (totalMinor < Math.round(coupon.minTotal * 100)) throw new CouponError('MIN_TOTAL', coupon.minTotal);
   const discountMinor = discountFor(coupon, totalMinor);
   const payable = totalMinor - discountMinor;
+  // A final price at or above the order total saves nothing.
+  if (coupon.type === 'final' && discountMinor <= 0) throw new CouponError('NO_SAVING');
   // Stripe cannot charge less than $10 MXN (a fully discounted stay is fine).
   if (discountMinor <= 0 || (payable > 0 && payable < 1000)) throw new CouponError('TOO_SMALL');
   return { coupon, discountMinor };
 }
 
-/** The Stripe coupon that mirrors a CALA coupon, created on first use or when Stripe no longer has it. */
-export async function stripeCouponFor(coupon: SiteCoupon): Promise<string> {
+/**
+ * The Stripe coupon that mirrors a CALA coupon, created on first use or when
+ * Stripe no longer has it. A final-price coupon's discount depends on the
+ * order, so each checkout gets its own single-use Stripe coupon for exactly
+ * `discountMinor`.
+ */
+export async function stripeCouponFor(coupon: SiteCoupon, discountMinor?: number): Promise<string> {
+  if (coupon.type === 'final') {
+    if (!discountMinor || discountMinor <= 0) throw new CouponError('NO_SAVING');
+    const once = await stripe.coupons.create({
+      name: coupon.code.slice(0, 40),
+      duration: 'once',
+      amount_off: discountMinor,
+      currency: 'mxn',
+      max_redemptions: 1,
+      redeem_by: Math.floor(Date.now() / 1000) + 2 * 24 * 3600,
+      metadata: { source: 'cala', couponId: String(coupon.id), code: coupon.code, type: 'final' },
+    });
+    return once.id;
+  }
   if (coupon.stripeCouponId) {
     try {
       const existing = await stripe.coupons.retrieve(coupon.stripeCouponId);

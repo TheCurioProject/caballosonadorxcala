@@ -27,6 +27,12 @@ export interface OtaCalendarEvent {
    * room of the house.
    */
   kind: "reservation" | "unavailable";
+  /**
+   * The OTA itself says this is a booking (Airbnb "Reserved" with its
+   * reservation link). Such events are never taken for an echo of dates CALA
+   * closed (retreats), even when they fall inside them.
+   */
+  confirmed: boolean;
 }
 
 /** Only Airbnb tells bookings and availability marks apart in its feed. */
@@ -35,6 +41,12 @@ export function eventKind(uid: string, summary: string, description: string): Ot
   if (!airbnb) return "reservation";
   if (/reservation url|\/hosting\/reservations\//i.test(description)) return "reservation";
   return /not available|no disponible|unavailable|blocked/i.test(summary) ? "unavailable" : "reservation";
+}
+
+/** Airbnb names its real bookings and links them to the reservation. */
+export function confirmedBooking(uid: string, summary: string, description: string) {
+  const airbnb = /@airbnb\.[a-z.]+$/i.test(uid) || /^airbnb\b/i.test(summary);
+  return airbnb && /reservation url|\/hosting\/reservations\//i.test(description);
 }
 
 /** Events that must close dates in CALA. */
@@ -246,6 +258,7 @@ export function parseOtaCalendar(text: string): OtaCalendarEvent[] {
         cancelled: prop("STATUS").toUpperCase() === "CANCELLED",
         summary,
         kind: eventKind(uid, summary, prop("DESCRIPTION")),
+        confirmed: confirmedBooking(uid, summary, prop("DESCRIPTION")),
       });
       if (events.length > 3000)
         fail("CALENDAR_TOO_LARGE", "El calendario tiene más de 3000 eventos.");

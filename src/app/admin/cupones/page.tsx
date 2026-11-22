@@ -2,17 +2,18 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Edit2, Trash2, X, Tag, Copy, Check, Shuffle, Percent, Banknote, AlertTriangle } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Tag, Copy, Check, Shuffle, Percent, Banknote, AlertTriangle, BadgeDollarSign } from 'lucide-react';
 import { CalaSpinner as Loader2 } from '@/cala/components/ui/cala-loader';
 import { AdminConfirmModal } from '@/components/admin/AdminConfirmModal';
 import { AdminToast } from '@/components/admin/AdminToast';
 import { SiteModulePortal } from '@/components/admin/SiteModulePortal';
+import type { CouponType } from '@/lib/coupons';
 
 interface Coupon {
   id: number;
   code: string;
   description: string | null;
-  type: 'percent' | 'fixed';
+  type: CouponType;
   value: number;
   minTotal: number;
   validFrom: string | null;
@@ -27,7 +28,7 @@ type Draft = {
   id?: number;
   code: string;
   description: string;
-  type: 'percent' | 'fixed';
+  type: CouponType;
   value: string;
   minTotal: string;
   validFrom: string;
@@ -60,6 +61,8 @@ function statusOf(c: Coupon): Status {
   return { label: 'Activo', tone: 'bg-green-100 text-green-700' };
 }
 const discountLabel = (c: Pick<Coupon, 'type' | 'value'>) => (c.type === 'percent' ? `${c.value}%` : money(c.value));
+/** Text next to the big number of the card. */
+const discountSuffix = (c: Pick<Coupon, 'type'>) => (c.type === 'final' ? 'precio final de la reserva' : 'de descuento');
 function validity(c: Coupon) {
   if (c.validFrom && c.validUntil) return `${day(c.validFrom)} – ${day(c.validUntil)}`;
   if (c.validFrom) return `Desde ${day(c.validFrom)}`;
@@ -130,6 +133,7 @@ export default function CouponsAdmin() {
     const value = Number(draft.value);
     if (!draft.code.trim()) return setFormError('Escribe el código del cupón.');
     if (!Number.isFinite(value) || value <= 0 || (draft.type === 'percent' && value > 100)) return setFormError('Escribe un descuento válido (el porcentaje va de 1 a 100).');
+    if (draft.type === 'final' && value < 10) return setFormError('El precio final debe ser de al menos $10 MXN (es el mínimo que Stripe puede cobrar).');
     if (draft.maxRedemptions && (!Number.isInteger(Number(draft.maxRedemptions)) || Number(draft.maxRedemptions) < 1)) return setFormError('El límite de usos debe ser un número entero.');
     setSaving(true);
     setFormError('');
@@ -183,8 +187,9 @@ export default function CouponsAdmin() {
 
   return (
     <div className="p-4 md:p-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-        <div>
+      <div className="flex flex-wrap justify-between items-start lg:items-center mb-8 gap-4">
+        {/* Text wraps first; the actions move below only when they no longer fit. */}
+        <div className="flex-1 min-w-[16rem]">
           <h1 className="font-serif text-3xl text-[#2C2927]">Cupones</h1>
           <p className="text-gray-500 mt-1">Códigos de descuento para las reservas de la web. El huésped lo escribe en el resumen y Stripe cobra el total ya con descuento.</p>
         </div>
@@ -245,7 +250,7 @@ export default function CouponsAdmin() {
 
                 <div className="flex items-baseline gap-2">
                   <span className="font-serif text-4xl text-[#9B7E67]" data-no-translate>{discountLabel(coupon)}</span>
-                  <span className="text-gray-500">de descuento</span>
+                  <span className="text-gray-500">{discountSuffix(coupon)}</span>
                 </div>
 
                 <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
@@ -332,26 +337,29 @@ export default function CouponsAdmin() {
 
                   <div>
                     <span className={label}>Tipo de descuento</span>
-                    <div className="grid grid-cols-2 gap-3">
-                      {([['percent', 'Porcentaje', Percent], ['fixed', 'Monto fijo (MXN)', Banknote]] as const).map(([type, text, Icon]) => (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {([['percent', 'Porcentaje', Percent], ['fixed', 'Monto fijo (MXN)', Banknote], ['final', 'Precio final fijo (MXN)', BadgeDollarSign]] as const).map(([type, text, Icon]) => (
                         <button
                           key={type}
                           type="button"
                           aria-pressed={draft.type === type}
                           onClick={() => set('type', type)}
-                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium transition-colors ${draft.type === type ? 'border-[#9B7E67] bg-[#9B7E67]/10 text-[#2C2927]' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium text-center transition-colors ${draft.type === type ? 'border-[#9B7E67] bg-[#9B7E67]/10 text-[#2C2927]' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
                         >
-                          <Icon size={16} />
+                          <Icon size={16} className="shrink-0" />
                           {text}
                         </button>
                       ))}
                     </div>
+                    {draft.type === 'final' && (
+                      <p className="text-xs text-gray-500 mt-2">La reserva costará exactamente este importe, sea cual sea su precio. Ejemplo: una reserva de $12,500 MXN con un precio final de $50 MXN se paga en $50 MXN. Si la reserva ya cuesta menos, el cupón no se aplica.</p>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className={label} htmlFor="coupon-value">{draft.type === 'percent' ? 'Descuento (%)' : 'Descuento (MXN)'}</label>
-                      <input id="coupon-value" type="number" inputMode="decimal" min={0} max={draft.type === 'percent' ? 100 : undefined} step="any" value={draft.value} onChange={e => set('value', e.target.value)} className={field} placeholder={draft.type === 'percent' ? '10' : '500'} />
+                      <label className={label} htmlFor="coupon-value">{draft.type === 'percent' ? 'Descuento (%)' : draft.type === 'final' ? 'Precio final (MXN)' : 'Descuento (MXN)'}</label>
+                      <input id="coupon-value" type="number" inputMode="decimal" min={draft.type === 'final' ? 10 : 0} max={draft.type === 'percent' ? 100 : undefined} step="any" value={draft.value} onChange={e => set('value', e.target.value)} className={field} placeholder={draft.type === 'percent' ? '10' : draft.type === 'final' ? '50' : '500'} />
                     </div>
                     <div>
                       <label className={label} htmlFor="coupon-min">Compra mínima (MXN) <span className="text-gray-400 font-normal">(opcional)</span></label>

@@ -264,7 +264,7 @@ export async function POST(req: Request) {
         
         const session = await stripe.checkout.sessions.create({
           // A CALA coupon is applied as a Stripe discount; otherwise Stripe's own promotion codes stay available.
-          ...(applied ? { discounts: [{ coupon: await stripeCouponFor(applied.coupon) }] } : { allow_promotion_codes: true }),
+          ...(applied ? { discounts: [{ coupon: await stripeCouponFor(applied.coupon, applied.discountMinor) }] } : { allow_promotion_codes: true }),
           expires_at: Math.floor(Date.now() / 1000) + CHECKOUT_SECONDS,
           payment_method_types: ['card'],
           line_items: [

@@ -5,6 +5,7 @@ import { Upload, RotateCcw, CheckCircle2, Image as ImageIcon } from 'lucide-reac
 import { CalaSpinner as Loader2 } from "@/cala/components/ui/cala-loader";
 import { motion, AnimatePresence } from 'framer-motion';
 import { AdminConfirmModal } from '@/components/admin/AdminConfirmModal';
+import { prepareImage } from '@/lib/prepareImage';
 
 type SiteImage = {
   key: string;
@@ -50,68 +51,15 @@ export default function ContentAdminClient() {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const compressImage = (file: File): Promise<File> => {
-    return new Promise((resolve) => {
-      if (file.type.includes('svg')) {
-        resolve(file);
-        return;
-      }
-      const img = document.createElement('img');
-      const url = URL.createObjectURL(file);
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-        const maxWidth = 1400;
-        const maxHeight = 1400;
-        let width = img.width;
-        let height = img.height;
-
-        if (width > maxWidth || height > maxHeight) {
-          if (width > height) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          } else {
-            width = Math.round((width * maxHeight) / height);
-            height = maxHeight;
-          }
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          canvas.toBlob(
-            (blob) => {
-              if (blob) {
-                const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".webp", {
-                  type: 'image/webp',
-                  lastModified: Date.now(),
-                });
-                resolve(compressedFile);
-              } else {
-                resolve(file);
-              }
-            },
-            'image/webp',
-            0.7
-          );
-        } else {
-          resolve(file);
-        }
-      };
-      img.onerror = () => resolve(file);
-      img.src = url;
-    });
-  };
-
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploadingKey(key);
     try {
-      const processedFile = await compressImage(file);
+      // Resized in the browser (WebP, or JPEG where Safari cannot write WebP):
+      // Vercel rejects requests above 4.5 MB.
+      const processedFile = await prepareImage(file, 2000);
       const formData = new FormData();
       formData.append('file', processedFile);
       formData.append('key', key);
@@ -210,7 +158,7 @@ export default function ContentAdminClient() {
       {/* Category Tabs: Mobile Native Segment Pills / Desktop Underline Tabs */}
       <div className="md:border-b md:border-gray-200 w-full min-w-0">
         {/* Mobile Segmented Control Pills */}
-        <div className="flex md:hidden overflow-x-auto pb-2 gap-1.5 scrollbar-hide w-full">
+        <div className="flex md:hidden flex-wrap pb-2 gap-1.5 w-full">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -229,8 +177,9 @@ export default function ContentAdminClient() {
           })}
         </div>
 
-        {/* Desktop Tab Strip */}
-        <nav className="hidden md:flex -mb-px space-x-6 overflow-x-auto pb-2 scrollbar-hide" aria-label="Tabs">
+        {/* Desktop Tab Strip: wraps instead of scrolling (macOS hides
+            scrollbars, so tabs past the edge looked missing). */}
+        <nav className="hidden md:flex flex-wrap -mb-px gap-x-6 gap-y-1 pb-2" aria-label="Tabs">
           {tabs.map((tab) => (
             <button
               key={tab.id}

@@ -7,6 +7,7 @@ import { CalaSpinner as Loader2 } from '@/cala/components/ui/cala-loader';
 import { AdminConfirmModal } from '@/components/admin/AdminConfirmModal';
 import { AdminToast } from '@/components/admin/AdminToast';
 import { SiteModulePortal } from '@/components/admin/SiteModulePortal';
+import { prepareImage } from '@/lib/prepareImage';
 
 type Lang = 'es' | 'en';
 type Pair = { es: string; en: string };
@@ -53,23 +54,6 @@ const thumb = (url: string, width = 640) => url.includes('/image/upload/') ? url
 const legacyName = (raw: string) => {
   try { const p = JSON.parse(raw); return String(p.es || p.original || p.en || raw); } catch { return raw; }
 };
-
-/** Photos are resized in the browser so uploads stay small and fast. */
-async function prepareImage(file: File): Promise<File> {
-  try {
-    const bitmap = await createImageBitmap(file);
-    const scale = Math.min(1, 2400 / Math.max(bitmap.width, bitmap.height));
-    if (scale === 1 && file.size < 3.5 * 1024 * 1024) return file;
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.round(bitmap.width * scale);
-    canvas.height = Math.round(bitmap.height * scale);
-    canvas.getContext('2d')!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-    const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/webp', 0.86));
-    return blob ? new File([blob], file.name.replace(/\.[^.]+$/, '') + '.webp', { type: 'image/webp' }) : file;
-  } catch {
-    return file;
-  }
-}
 
 const field = 'w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#9B7E67]/20 focus:border-[#9B7E67] transition-all outline-none';
 const label = 'block text-sm font-medium text-gray-700 mb-2';
@@ -209,12 +193,13 @@ export default function AtvToursAdmin() {
 
   return (
     <div className="p-4 md:p-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-        <div>
+      <div className="flex flex-wrap justify-between items-start lg:items-center mb-8 gap-4">
+        {/* Text wraps first; the actions move below only when they no longer fit. */}
+        <div className="flex-1 min-w-[16rem]">
           <h1 className="font-serif text-3xl text-[#2C2927]">ATV Tours</h1>
           <p className="text-gray-500 mt-1">Los tours que se muestran en la página pública de tours y en el modal de reservas.</p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 sm:shrink-0">
           <a href="/es/tours/" target="_blank" rel="noreferrer" className="px-4 py-2.5 rounded-lg border border-gray-200 text-gray-600 flex items-center gap-2 hover:bg-white transition-colors whitespace-nowrap">
             <ExternalLink size={16} />
             Ver página de tours
@@ -424,7 +409,7 @@ export default function AtvToursAdmin() {
                         <label className="flex flex-col items-center justify-center aspect-[4/3] border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors text-gray-500 text-center px-2">
                           {uploading > 0 ? <Loader2 size={22} className="animate-spin mb-2 text-[#9B7E67]" /> : <ImageIcon size={22} className="mb-2" />}
                           <span className="text-sm">{uploading > 0 ? 'Subiendo…' : 'Añadir fotos'}</span>
-                          <input ref={fileInput} type="file" className="hidden" accept="image/jpeg,image/png,image/webp,image/avif" multiple disabled={uploading > 0} onChange={e => void upload(e.target.files)} />
+                          <input ref={fileInput} type="file" className="hidden" accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif" multiple disabled={uploading > 0} onChange={e => void upload(e.target.files)} />
                         </label>
                       )}
                     </div>

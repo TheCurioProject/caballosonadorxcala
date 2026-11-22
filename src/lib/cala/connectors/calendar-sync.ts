@@ -13,6 +13,8 @@ export interface SyncResult {
   released?: number;
   /** OTA availability marks ("Airbnb (Not available)") that were not imported. */
   ignored?: number;
+  /** Dates the OTA repeated back from a CALA retreat; never imported as blocks. */
+  echoed?: number;
   conflicts?: { code: string; arrival: string; departure: string; source: string }[];
 }
 type LinkRow = { id: string; url: string; property_id: string; last_sync_at: string | null };
@@ -41,7 +43,8 @@ async function applyLink(admin: SupabaseClient, link: LinkRow): Promise<SyncResu
     // blocks a previous sync created from them are released by the apply step.
     const booked = bookedEvents(all);
     ignored = all.filter((e) => !e.cancelled).length - booked.filter((e) => !e.cancelled).length;
-    events = booked.map(({ uid, arrival, departure, cancelled }) => ({ uid, arrival, departure, cancelled }));
+    // `confirmed` keeps real OTA bookings apart from echoes of retreat dates.
+    events = booked.map(({ uid, arrival, departure, cancelled, confirmed }) => ({ uid, arrival, departure, cancelled, confirmed }));
   } catch (e) {
     failure = e instanceof DomainError ? e.message : "No pudimos leer el calendario.";
   }

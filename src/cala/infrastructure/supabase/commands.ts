@@ -7,6 +7,8 @@ import { z } from "zod";
 const commandErrors: Record<string, string> = {
   CHECKOUT_BUFFER_MANAGED:
     "Esta noche de preparación se gestiona con la reserva. Cambia o cancela la estancia para actualizarla.",
+  RETREAT_BLOCK_MANAGED:
+    "Este bloqueo pertenece a un retiro. Cambia sus fechas o desactívalo en Casa Caballo Soñador → Retiros.",
   SITE_INVENTORY_SCOPE:
     "La web vende esta villa completa. Utiliza su unidad vinculada; las habitaciones necesitan una configuración de inventario específica.",
   VERSION_CONFLICT:

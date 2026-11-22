@@ -46,7 +46,7 @@ export default async function ServiciosComidaAdminPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-10">
         {/* Prices Section */}
         <section className="bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-gray-100">
           <h2 className="text-2xl font-serif text-[#2C2621] mb-6 flex items-center gap-3">

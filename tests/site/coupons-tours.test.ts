@@ -38,7 +38,7 @@ vi.mock("@/lib/stripe", () => ({
   },
 }));
 
-import { CouponError, confirmRedemption, couponsReady, deleteCoupon, listCoupons, releaseRedemption, saveCoupon, stripeCouponFor, usableCoupon } from "@/lib/coupons.server";
+import { CouponError, confirmRedemption, couponInput, couponsReady, deleteCoupon, listCoupons, releaseRedemption, saveCoupon, stripeCouponFor, usableCoupon } from "@/lib/coupons.server";
 import { discountFor } from "@/lib/coupons";
 import { deleteTour, listTours, reorderTours, saveTour } from "@/lib/tours.server";
 
@@ -66,6 +66,27 @@ test("coupon discounts never exceed the order", () => {
   expect(discountFor({ type: "fixed", value: 500 }, 123456)).toBe(50000);
   expect(discountFor({ type: "fixed", value: 5000 }, 123456)).toBe(123456);
   expect(discountFor({ type: "percent", value: 10 }, 0)).toBe(0);
+  // Final price: a 12,500 MXN booking with a 50 MXN final price pays 50 MXN.
+  expect(discountFor({ type: "final", value: 50 }, 1250000)).toBe(1245000);
+  expect(discountFor({ type: "final", value: 50 }, 4000)).toBe(0);
+});
+
+test("final-price coupons charge exactly their price with a single-use Stripe discount", async () => {
+  const coupon = await saveCoupon({ code: "AMIGOS50", type: "final", value: 50, minTotal: 0, isActive: true });
+  expect(coupon).toMatchObject({ type: "final", value: 50 });
+  const applied = await usableCoupon("AMIGOS50", 1250000);
+  expect(applied.discountMinor).toBe(1245000);
+  expect(await reason(usableCoupon("AMIGOS50", 5000))).toBe("NO_SAVING");
+  // Each checkout gets its own Stripe coupon for exactly that discount.
+  const a = await stripeCouponFor(applied.coupon, applied.discountMinor);
+  const b = await stripeCouponFor(applied.coupon, 30000);
+  expect(a).not.toBe(b);
+  expect(state.stripe.get(a)).toMatchObject({ amount_off: 1245000 });
+  expect(state.stripe.get(b)).toMatchObject({ amount_off: 30000 });
+  // Stripe cannot charge less than $10 MXN.
+  expect(couponInput.safeParse({ code: "CASIGRATIS", type: "final", value: 5, isActive: true }).success).toBe(false);
+  expect(couponInput.safeParse({ code: "AMIGOS50", type: "final", value: 50, isActive: true }).success).toBe(true);
+  await deleteCoupon(coupon.id);
 });
 
 test("coupons are created, validated against their rules and mirrored in Stripe", async () => {

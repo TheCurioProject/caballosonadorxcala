@@ -24,6 +24,14 @@ const nextConfig: NextConfig = {
     deviceSizes: [375, 640, 750, 828, 1080, 1200, 1920, 2048],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
+  async redirects() {
+    // "Chacala Writers Group" became "Retiros" (2026-11-21).
+    return [
+      { source: '/:lang(es|en)/writers-group', destination: '/:lang/retiros/', permanent: true },
+      { source: '/writers-group', destination: '/es/retiros/', permanent: true },
+      { source: '/admin/writers-group', destination: '/admin/retiros/', permanent: false },
+    ];
+  },
   async headers() {
     return [
       {source: '/((?!cala/disponibilidad/).*)', headers: [{key:'X-Frame-Options',value:'SAMEORIGIN'}]},

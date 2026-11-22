@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     }
 
     if (!(file instanceof File) || !Object.hasOwn(DEFAULT_IMAGES, key) || !['image/jpeg', 'image/png', 'image/webp', 'image/avif'].includes(file.type) || file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: 'Invalid image or file exceeds 10 MB' }, { status: 400 });
+      return NextResponse.json({ error: 'La imagen debe ser JPG, PNG, WebP o AVIF de hasta 10 MB.' }, { status: 400 });
     }
     const buffer = Buffer.from(await file.arrayBuffer());
 

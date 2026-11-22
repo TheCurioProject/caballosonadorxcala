@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { addDays, addMonths, format, getDaysInMonth, startOfMonth } from "date-fns";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { addDays, addMonths, differenceInCalendarDays, differenceInCalendarMonths, format, getDaysInMonth, startOfMonth } from "date-fns";
 import type { Locale } from "date-fns";
 import { motion } from "framer-motion";
 import { ArrowRight, BedDouble, CalendarDays, ChevronLeft, ChevronRight, CornerDownRight, Home, LayoutList, Users } from "lucide-react";
@@ -42,7 +42,8 @@ const COLUMN: Record<Device, number> = { mobile: 40, tablet: 44, desktop: 0 };
  * First screen of the booking modal: read-only availability of the house and
  * every room at a glance (no dates are chosen here). Every device shows the
  * whole month: it fits on desktop; on tablets and phones it scrolls sideways
- * with the lodging names pinned, like the CALA calendar.
+ * with the lodging names pinned, like the CALA calendar, and keeps going into
+ * the next (or previous) month so stays that cross months are never cut.
  */
 export function AvailabilityOverview({
   catalog,
@@ -64,15 +65,49 @@ export function AvailabilityOverview({
   const lang = isEn ? "en" : "es";
   const [tab, setTab] = useState<"calendar" | "rooms">("calendar");
   const today = data ? localDate(data.today) : new Date(new Date().setHours(0, 0, 0, 0));
-  // Offset in months from the current one.
-  const [page, setPage] = useState(0);
-  const days = useMemo(() => {
-    const start = startOfMonth(addMonths(today, page));
-    return Array.from({ length: getDaysInMonth(start) }, (_, i) => addDays(start, i));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, data?.today]);
-  const title = format(days[0], "LLLL yyyy", { locale });
   const maxPage = 18;
+  const scrolls = device !== "desktop";
+  // Month the calendar opens on (offset from the current one) and the month
+  // in view while it scrolls sideways across months.
+  const [page, setPage] = useState(0);
+  const [visible, setVisible] = useState(0);
+  const [landing, setLanding] = useState(0);
+  const go = (to: number) => {
+    const next = Math.max(0, Math.min(maxPage, to));
+    setPage(next);
+    setVisible(next);
+    setLanding((n) => n + 1);
+  };
+  // Months rendered around `page` (sideways scrolling only).
+  const key = `${page}#${landing}`;
+  const [span, setSpan] = useState({ key, before: 0, after: 1 });
+  let win = span;
+  if (win.key !== key) {
+    win = { key, before: page > 0 ? 1 : 0, after: page < maxPage ? 1 : 0 };
+    setSpan(win);
+  }
+  const first = scrolls ? page - win.before : page;
+  const last = scrolls ? page + win.after : page;
+  const days = useMemo(() => {
+    const out: Date[] = [];
+    for (let m = first; m <= last; m++) {
+      const start = startOfMonth(addMonths(today, m));
+      for (let i = 0; i < getDaysInMonth(start); i++) out.push(addDays(start, i));
+    }
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [first, last, data?.today]);
+  const shownPage = scrolls ? visible : page;
+  const title = format(startOfMonth(addMonths(today, shownPage)), "LLLL yyyy", { locale });
+  const extend = (side: "before" | "after") =>
+    setSpan((w) =>
+      w.key !== key
+        ? w
+        : side === "after"
+          ? page + w.after < maxPage ? { ...w, after: w.after + 1 } : w
+          : page - w.before > 0 ? { ...w, before: w.before + 1 } : w,
+    );
+  const onVisibleDay = (day: Date) => setVisible(Math.max(0, Math.min(maxPage, differenceInCalendarMonths(day, startOfMonth(today)))));
   const rows = [...catalog].sort((a, b) => (a.kind === b.kind ? 0 : a.kind === "whole_home" ? -1 : 1));
   const freeRooms = data
     ? rows.filter((l) => dayStatus(data, l.id, data.today) === "free").length
@@ -113,11 +148,11 @@ export function AvailabilityOverview({
           </div>
           {tab === "calendar" && (
             <div className="flex items-center justify-between sm:justify-end gap-2 md:gap-3">
-              <button type="button" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0} aria-label={isEn ? "Previous" : "Anterior"} className="w-9 h-9 rounded-full border border-[#E8E1D8] flex items-center justify-center text-[#23211F] disabled:opacity-30 hover:border-[#9B7E67] transition-colors">
+              <button type="button" onClick={() => go(shownPage - 1)} disabled={shownPage === 0} aria-label={isEn ? "Previous" : "Anterior"} className="w-9 h-9 rounded-full border border-[#E8E1D8] flex items-center justify-center text-[#23211F] disabled:opacity-30 hover:border-[#9B7E67] transition-colors">
                 <ChevronLeft size={18} />
               </button>
               <p className="min-w-[150px] text-center font-serif text-lg md:text-xl text-[#23211F] capitalize" aria-live="polite">{title}</p>
-              <button type="button" onClick={() => setPage((p) => Math.min(maxPage, p + 1))} disabled={page >= maxPage} aria-label={isEn ? "Next" : "Siguiente"} className="w-9 h-9 rounded-full border border-[#E8E1D8] flex items-center justify-center text-[#23211F] disabled:opacity-30 hover:border-[#9B7E67] transition-colors">
+              <button type="button" onClick={() => go(shownPage + 1)} disabled={shownPage >= maxPage} aria-label={isEn ? "Next" : "Siguiente"} className="w-9 h-9 rounded-full border border-[#E8E1D8] flex items-center justify-center text-[#23211F] disabled:opacity-30 hover:border-[#9B7E67] transition-colors">
                 <ChevronRight size={18} />
               </button>
             </div>
@@ -131,7 +166,19 @@ export function AvailabilityOverview({
             {Array.from({ length: 5 }, (_, i) => <div key={i} className="h-9 rounded-lg bg-[#F4F0EA] animate-pulse" />)}
           </div>
         ) : tab === "calendar" ? (
-          <Timeline rows={rows} days={days} data={data} device={device} isEn={isEn} lang={lang} locale={locale} />
+          <Timeline
+            rows={rows}
+            days={days}
+            data={data}
+            device={device}
+            isEn={isEn}
+            lang={lang}
+            locale={locale}
+            landKey={key}
+            openOn={startOfMonth(addMonths(today, page))}
+            onExtend={extend}
+            onVisibleDay={onVisibleDay}
+          />
         ) : (
           <RoomsList rows={rows} data={data} device={device} isEn={isEn} lang={lang} locale={locale} />
         )}
@@ -191,7 +238,15 @@ function segments(statuses: DayStatus[]) {
   return out.filter((s) => s.status === "booked" || s.status === "blocked");
 }
 
-function Timeline({ rows, days, data, device, isEn, lang, locale }: { rows: BookingLodging[]; days: Date[]; data: AvailabilityOverviewData; device: Device; isEn: boolean; lang: string; locale: Locale }) {
+function Timeline({ rows, days, data, device, isEn, lang, locale, landKey, openOn, onExtend, onVisibleDay }: {
+  rows: BookingLodging[]; days: Date[]; data: AvailabilityOverviewData; device: Device; isEn: boolean; lang: string; locale: Locale;
+  /** Changes when the calendar must land again on `openOn`. */
+  landKey: string;
+  openOn: Date;
+  /** Near an edge while scrolling sideways: render one more month there. */
+  onExtend: (side: "before" | "after") => void;
+  onVisibleDay: (day: Date) => void;
+}) {
   const scrolls = device !== "desktop";
   const nameWidth = device === "desktop" ? 230 : device === "tablet" ? 190 : 132;
   const roomCount = rows.filter((l) => l.kind === "room").length;
@@ -201,24 +256,51 @@ function Timeline({ rows, days, data, device, isEn, lang, locale }: { rows: Book
   const labelMin = 3;
   const scroller = useRef<HTMLDivElement>(null);
   const sticky = scrolls ? "sticky left-0 z-20 bg-white shadow-[6px_0_8px_-6px_rgba(35,33,31,0.12)]" : "";
+  const landed = useRef(false);
   // Open the month on today (or on its first day), like the CALA calendar.
   useEffect(() => {
     const el = scroller.current;
     if (!el || !scrolls) return;
-    const index = days.findIndex((d) => iso(d) === todayIso);
-    el.scrollTo({ left: index > 0 ? (index - 1) * COLUMN[device] : 0 });
-  }, [days, todayIso, scrolls, device]);
+    landed.current = false;
+    const sameMonth = format(openOn, "yyyy-MM") === todayIso.slice(0, 7);
+    const target = sameMonth ? todayIso : iso(openOn);
+    const index = days.findIndex((d) => iso(d) === target);
+    el.scrollTo({ left: index > 0 ? (index - (sameMonth ? 1 : 0)) * COLUMN[device] : 0 });
+    const ready = window.requestAnimationFrame(() => { landed.current = true; });
+    return () => window.cancelAnimationFrame(ready);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [landKey, todayIso, scrolls, device]);
+  // A month added before the first one keeps the same days in view.
+  const firstDay = useRef(days[0]);
+  useLayoutEffect(() => {
+    const el = scroller.current;
+    const added = differenceInCalendarDays(firstDay.current, days[0]);
+    firstDay.current = days[0];
+    if (el && scrolls && added > 0 && landed.current) el.scrollLeft += added * COLUMN[device];
+  }, [days, scrolls, device]);
+  const scrolled = () => {
+    const el = scroller.current;
+    if (!el || !scrolls || !landed.current) return;
+    const column = COLUMN[device];
+    const middle = Math.floor((el.scrollLeft + (el.clientWidth - nameWidth) / 2) / column);
+    const day = days[Math.max(0, Math.min(days.length - 1, middle))];
+    if (day) onVisibleDay(day);
+    if (el.scrollWidth - el.clientWidth - el.scrollLeft < el.clientWidth * 0.75) onExtend("after");
+    else if (el.scrollLeft < el.clientWidth * 0.5) onExtend("before");
+  };
   return (
-    <div ref={scroller} className={`pb-3 ${scrolls ? "overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] custom-scrollbar" : "px-3"}`}>
+    <div ref={scroller} onScroll={scrolled} className={`pb-3 ${scrolls ? "overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] custom-scrollbar" : "px-3"}`}>
     <div role="table" aria-label={isEn ? "Availability calendar" : "Calendario de disponibilidad"} style={scrolls ? { width: nameWidth + days.length * COLUMN[device] } : undefined}>
       <div role="row" className="grid items-end border-b border-[#EFE9E1]" style={{ gridTemplateColumns: columns }}>
         <span role="columnheader" className={`self-stretch flex items-end pl-3 pb-3 text-xs md:text-sm font-semibold text-[#23211F] ${sticky}`}>{isEn ? "Rooms" : "Alojamiento"}</span>
-        {days.map((d) => {
+        {days.map((d, i) => {
           const isToday = iso(d) === todayIso;
           const weekend = d.getDay() === 0 || d.getDay() === 6;
+          // While scrolling across months the 1st names its month.
+          const monthStart = scrolls && d.getDate() === 1 && i > 0;
           return (
-            <span role="columnheader" key={iso(d)} className="flex flex-col items-center gap-1 min-w-0 py-2 md:py-3">
-              <span className={`text-[9px] md:text-[10px] uppercase ${weekend ? "text-[#9B7E67]" : "text-gray-400"}`}>{format(d, "EEEEEE", { locale }).replace(".", "")}</span>
+            <span role="columnheader" key={iso(d)} className={`flex flex-col items-center gap-1 min-w-0 py-2 md:py-3 ${monthStart ? "border-l-2 border-[#9B7E67]/50" : ""}`}>
+              <span className={`text-[9px] md:text-[10px] uppercase ${monthStart ? "text-[#9B7E67] font-bold" : weekend ? "text-[#9B7E67]" : "text-gray-400"}`}>{monthStart ? format(d, "MMM", { locale }).replace(".", "") : format(d, "EEEEEE", { locale }).replace(".", "")}</span>
               <span className={`w-6 h-6 md:w-7 md:h-7 flex items-center justify-center rounded-full text-[11px] md:text-sm font-semibold ${isToday ? "bg-[#23211F] text-[#F9F7F4]" : "text-[#23211F]"}`}>{format(d, "d")}</span>
             </span>
           );

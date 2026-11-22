@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     if (!parsed.success) {
       const field = String(parsed.error.issues[0]?.path[0] ?? '');
       const message = field === 'code' ? 'El código debe tener de 3 a 32 letras o números (también - y _), sin espacios.'
-        : field === 'value' ? 'Escribe un descuento válido (el porcentaje va de 1 a 100).'
+        : field === 'value' ? 'Escribe un valor válido (el porcentaje va de 1 a 100; el precio final, desde $10 MXN).'
         : field === 'validUntil' ? 'La fecha final no puede ser anterior a la inicial.'
         : 'Revisa los datos del cupón.';
       return NextResponse.json({ error: message, field }, { status: 400 });

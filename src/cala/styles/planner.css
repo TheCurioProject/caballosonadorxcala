@@ -3048,3 +3048,18 @@
 .cala-admin .ib-failure p + p {
   color: var(--muted);
 }
+
+/* Continuous planner: the 1st of each month names the month and draws a
+   divider, so the days read naturally while scrolling across months. */
+.cala-admin .mc-day.is-month-start {
+  border-left: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.cala-admin .mc-day.is-month-start small {
+  color: var(--accent);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.cala-admin .mc-cell.is-month-start {
+  border-left: 2px solid color-mix(in srgb, var(--accent) 30%, transparent);
+}

@@ -102,7 +102,15 @@ function PropertyCalendar() {
   const [preview, setPreview] = useState<Reservation | null>(null);
   const [range, setRange] = useState<CalendarRange | null>(null);
   const [blockId, setBlockId] = useState<string | null>(null);
-  const [start, setStart] = useState(monthStart(data.today));
+  const [start, setStartMonth] = useState(monthStart(data.today));
+  // Month in view while the planner scrolls sideways across months.
+  const [visible, setVisible] = useState<string | null>(null);
+  const [landing, setLanding] = useState(0);
+  const setStart = (value: string) => {
+    setStartMonth(value);
+    setVisible(null);
+    setLanding((n) => n + 1);
+  };
   const [length, setLength] = useState<number>(preferences.calendar.days);
   const [selected, setSelected] = useState<string | null>(null);
   const [move, setMove] = useState<Move | null>(null);
@@ -145,6 +153,9 @@ function PropertyCalendar() {
     (r) => !source || r.source === source,
   );
   const step = layout === "multiple" && view === "year" ? 12 : 1;
+  // The sideways planner follows the month in view.
+  const timeline = layout === "multiple" && view === "timeline";
+  const current = timeline && visible ? visible : start;
 
   return (
     <>
@@ -159,7 +170,7 @@ function PropertyCalendar() {
           <button
             className="icon-button"
             aria-label="Período anterior"
-            onClick={() => setStart(shiftMonth(start, -step))}
+            onClick={() => setStart(shiftMonth(current, -step))}
           >
             <Icon name="chevron-left" />
           </button>
@@ -175,7 +186,7 @@ function PropertyCalendar() {
           <input
             id="calendar-date"
             type="month"
-            value={start.slice(0, 7)}
+            value={current.slice(0, 7)}
             onChange={(e) => {
               if (/^\d{4}-\d{2}$/.test(e.target.value))
                 setStart(`${e.target.value}-01`);
@@ -184,7 +195,7 @@ function PropertyCalendar() {
           <button
             className="icon-button"
             aria-label="Período siguiente"
-            onClick={() => setStart(shiftMonth(start, step))}
+            onClick={() => setStart(shiftMonth(current, step))}
           >
             <Icon name="chevron-right" />
           </button>
@@ -204,7 +215,11 @@ function PropertyCalendar() {
               className={`button ${view === key ? "primary" : "secondary"}`}
               key={key}
               aria-pressed={view === key}
-              onClick={() => setView(key)}
+              onClick={() => {
+                // Keep the month the planner was showing.
+                if (visible && visible !== start) setStart(visible);
+                setView(key);
+              }}
             >
               {label}
             </button>
@@ -212,7 +227,7 @@ function PropertyCalendar() {
         <strong className="calendar-period-label">
           {view === "year" && layout === "multiple"
             ? start.slice(0, 4)
-            : monthLabel(start)}
+            : monthLabel(current)}
         </strong>
         <button className="button secondary" onClick={() => setCustomize(true)}>
           <Icon name="settings" />
@@ -322,6 +337,8 @@ function PropertyCalendar() {
           <div className="panel mc-panel">
             <MultiCalendar
               month={start}
+              landing={landing}
+              onVisibleMonth={setVisible}
               units={units}
               reservations={reservations}
               occupancy={allReservations}

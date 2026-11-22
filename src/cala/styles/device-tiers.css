@@ -2100,3 +2100,43 @@ html:is([data-font-size="medium"], [data-font-size="large"]) .cala-admin
 .cala-admin .workspace-footer .status-dot.is-warning {
   background: var(--warning);
 }
+
+/* Alojamientos (website module): one padded page; its panels get their own
+   inner padding (CALA panels have none, the module card clipped them), and
+   the lodging cards wrap instead of hiding in a sideways strip (macOS hides
+   scrollbars, so the last cards looked cut off). */
+.cala-admin .site-module .lodgings-page {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+}
+.cala-admin .site-module .lodgings-page > .section-title {
+  padding: 0;
+}
+.cala-admin .site-module .lodgings-page > .panel {
+  padding: 22px;
+  border-radius: 16px;
+}
+.cala-admin .site-module .lodgings-page > .panel h2 {
+  margin: 0 0 12px;
+  font-size: calc(18px * var(--cala-fs, 1));
+}
+.cala-admin .site-module .lodgings-page .notice {
+  border-radius: 14px;
+}
+.cala-admin .site-module .lodgings-page .lodging-selector-card {
+  max-width: none;
+}
+@media (min-width: 761px) {
+  .cala-admin .site-module .lodgings-page .lodging-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    overflow: visible;
+    padding: 4px 2px 8px;
+  }
+}
+@media (max-width: 760px) {
+  .cala-admin .site-module .lodgings-page > .panel {
+    padding: 16px;
+  }
+}

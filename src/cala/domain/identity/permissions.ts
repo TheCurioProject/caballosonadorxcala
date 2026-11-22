@@ -47,7 +47,9 @@ export const grants: Record<Role, Permission[]> = {
     "finance.write",
     "operations.write",
   ],
-  housekeeping: ["property.read", "operations.write"],
+  // reservation.read only shows the calendar (read only): Reservas stays hidden
+  // for this role (navigation.ts) and it has no write or guest-data rights.
+  housekeeping: ["property.read", "reservation.read", "operations.write"],
   finance: [
     "property.read",
     "reservation.read",

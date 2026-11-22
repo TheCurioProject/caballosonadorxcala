@@ -4,6 +4,7 @@ import { revalidatePublicSite } from '@/lib/revalidatePublic';
 import { requireAdmin } from '@/lib/auth';
 
 import prisma from '@/lib/prisma';
+import { autoTranslate } from '@/lib/translate';
 import { revalidatePath } from 'next/cache';
 
 // Initialize default food services if they don't exist
@@ -35,25 +36,40 @@ export async function initFoodServices() {
   }
 }
 
+/** Names saved by the Experiencias editor are bilingual JSON ({"en","es","original"}). */
+function plainText(value: string | null | undefined) {
+  const text = (value ?? '').trim();
+  if (text.startsWith('{') && text.endsWith('}')) {
+    try {
+      const parsed = JSON.parse(text);
+      return String(parsed.original || parsed.es || parsed.en || '');
+    } catch { /* plain text that looks like JSON */ }
+  }
+  return value ?? '';
+}
+
 export async function getFoodServices() {
   await requireAdmin();
-  await initFoodServices(); // Ensure defaults exist
-  return await prisma.servicePricing.findMany({
-    where: { serviceType: { in: ['FOOD_SERVICE', 'FOOD_PRICE', 'FOOD_DISH', 'FOOD'] } },
-    orderBy: { id: 'asc' }
-  });
+  const where = { serviceType: { in: ['FOOD_SERVICE', 'FOOD_PRICE', 'FOOD_DISH', 'FOOD'] } };
+  // Defaults only for an empty catalog: seeding by name on every visit
+  // re-created any default the team had renamed (duplicated services).
+  if ((await prisma.servicePricing.count({ where })) === 0) await initFoodServices();
+  const services = await prisma.servicePricing.findMany({ where, orderBy: { id: 'asc' } });
+  return services.map((s) => ({ ...s, name: plainText(s.name), description: plainText(s.description) }));
 }
 
 export async function updateServiceDetails(id: number, price: number, name: string, description: string) {
   await requireAdmin();
   try {
-    // Store plain text directly — no JSON translation wrapping
+    // Same format as the Experiencias editor: the website shows each
+    // language ({"en","es","original"}), so the text is translated on save.
+    const [translatedName, translatedDescription] = await Promise.all([autoTranslate(name), autoTranslate(description)]);
     await prisma.servicePricing.update({
       where: { id },
-      data: { 
+      data: {
         price,
-        name,
-        description
+        name: translatedName,
+        description: translatedDescription,
       }
     });
     revalidatePath('/admin/servicios-comida');

@@ -1,11 +1,13 @@
 import type { AssetId } from "@/cala/assets/registry";
-import type { Permission } from "@/cala/domain/model";
+import type { Permission, Role } from "@/cala/domain/model";
 export const navigation: {
   path: string;
   label: string;
   icon: AssetId;
   group: string;
   permission?: Permission;
+  /** Roles that never see this entry even with the permission. */
+  hiddenFor?: Role[];
   featured?: boolean;
 }[] = [
   { path: "inicio", label: "Inicio", icon: "home", group: "OPERACIÓN" },
@@ -22,6 +24,8 @@ export const navigation: {
     icon: "reservation",
     group: "OPERACIÓN",
     permission: "reservation.read",
+    // Housekeeping reads reservations only to see the calendar.
+    hiddenFor: ["housekeeping"],
   },
   {
     path: "inbox",
@@ -160,8 +164,8 @@ export const navigation: {
     permission: "property.write",
   },
   {
-    path: "writers-group",
-    label: "Talleres de escritura",
+    path: "retiros",
+    label: "Retiros",
     icon: "message",
     group: "CASA CABALLO SOÑADOR",
     permission: "property.write",
@@ -216,3 +220,13 @@ export const navigation: {
     permission: "finance.write",
   },
 ];
+
+/** Entries this member may open. */
+export function visibleNavigation(
+  can: (permission: Permission) => boolean,
+  role: Role,
+) {
+  return navigation.filter(
+    (n) => (!n.permission || can(n.permission)) && !n.hiddenFor?.includes(role),
+  );
+}

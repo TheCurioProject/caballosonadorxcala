@@ -30,8 +30,8 @@ const airbnbFeed = [
 
 test("OTA calendar reader accepts all-day and timed events and skips CALA echoes", () => {
   expect(parseOtaCalendar(airbnbFeed)).toEqual([
-    { uid: "1418fb94e984-9b2a@airbnb.com", arrival: "2027-01-02", departure: "2027-01-05", cancelled: false, summary: "Reserved", kind: "reservation" },
-    { uid: "timed@booking", arrival: "2027-01-10", departure: "2027-01-11", cancelled: false, summary: "CLOSED - Not available", kind: "reservation" },
+    { uid: "1418fb94e984-9b2a@airbnb.com", arrival: "2027-01-02", departure: "2027-01-05", cancelled: false, summary: "Reserved", kind: "reservation", confirmed: true },
+    { uid: "timed@booking", arrival: "2027-01-10", departure: "2027-01-11", cancelled: false, summary: "CLOSED - Not available", kind: "reservation", confirmed: false },
   ]);
   expect(() => parseOtaCalendar("BEGIN:VCALENDAR\nBEGIN:VEVENT\nDTSTART;VALUE=DATE:20270101\nRRULE:FREQ=WEEKLY\nEND:VEVENT\nEND:VCALENDAR")).toThrow();
   expect(() => parseOtaCalendar("BEGIN:VCALENDAR\nBEGIN:VEVENT")).toThrow();

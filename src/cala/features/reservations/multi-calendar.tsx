@@ -2,6 +2,7 @@
 import {
   Fragment,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
@@ -15,9 +16,14 @@ import {
   previewMove,
   shiftedArrival,
 } from "@/cala/domain/reservations/movement";
-import { dayDistance, selectionRange } from "@/cala/domain/calendar/layout";
+import {
+  dayDistance,
+  monthStart,
+  selectionRange,
+  shiftMonth,
+} from "@/cala/domain/calendar/layout";
 import { Icon } from "@/cala/components/ui/primitives";
-import { money, shortDate } from "@/cala/lib/format";
+import { money, shortDate, uiLocale } from "@/cala/lib/format";
 import { guestName } from "./components";
 import type { CalendarRange } from "./calendar-actions";
 import type { Move } from "./calendar";
@@ -83,18 +89,33 @@ type Gesture =
   | { kind: "pan"; id: number };
 
 const LONG_PRESS_CELL = 380;
+/** Months kept rendered while scrolling sideways (older ones are dropped). */
+const WINDOW_MONTHS = 6;
+/** Hard limit while a selection or a move is in progress (nothing is dropped then). */
+const WINDOW_MAX = 9;
+const monthShort = (day: string) =>
+  new Intl.DateTimeFormat(uiLocale(), { month: "short", timeZone: "UTC" })
+    .format(new Date(day + "T12:00:00Z"))
+    .replace(".", "");
 const LONG_PRESS_STAY = 320;
 const movable = (r: Reservation) =>
   ["confirmed", "pending", "checked_in"].includes(r.status);
 
 /**
- * Multi-unit month planner. One gesture engine for every pointer:
- *  - finger: swipe pans the month (native scroll), press-and-hold then drag
+ * Multi-unit planner. One gesture engine for every pointer:
+ *  - finger: swipe pans the days (native scroll), press-and-hold then drag
  *    selects a range, press-and-hold a stay then drag moves it;
  *  - mouse: click-drag selects, drag a stay moves it, wheel/scrollbar pans.
+ *
+ * Scrolling is continuous: reaching the end of a month keeps going into the
+ * next one (and back into the previous one), so stays that cross a month are
+ * never cut. `month` is where it opens; `onVisibleMonth` reports the month
+ * in view so the header can follow it.
  */
 export function MultiCalendar({
   month,
+  landing = 0,
+  onVisibleMonth,
   units,
   reservations,
   occupancy,
@@ -108,6 +129,9 @@ export function MultiCalendar({
   onMove,
 }: {
   month: string;
+  /** Changes to land again on `month` (e.g. "Hoy" pressed twice). */
+  landing?: number;
+  onVisibleMonth?: (month: string) => void;
   units: Unit[];
   /** Stays drawn as pills (already filtered by channel). */
   reservations: Reservation[];
@@ -128,7 +152,17 @@ export function MultiCalendar({
   // A real touch also switches the hints, whatever the media query reported.
   const [touchSeen, setTouchSeen] = useState(false);
   const coarse = coarsePointer || touchSeen;
-  const days = monthDays(month);
+  // ---- rendered window of months around `month` -------------------------
+  const anchor = `${month}#${landing}`;
+  const [range, setSpan] = useState({ anchor, before: 1, after: 1 });
+  let win = range;
+  if (win.anchor !== anchor) {
+    win = { anchor, before: 1, after: 1 };
+    setSpan(win);
+  }
+  const days: string[] = [];
+  for (let i = -win.before; i <= win.after; i++)
+    days.push(...monthDays(shiftMonth(month, i)));
   const count = days.length;
   const first = days[0];
   const end = addDays(days[count - 1], 1);
@@ -175,24 +209,30 @@ export function MultiCalendar({
     string,
     { block?: Block; related: boolean; reserved: boolean }
   >();
+  // Only what touches the rendered window (several months may be drawn).
+  const windowBlocks = data.blocks.filter(
+    (b) => b.active && overlaps(first, end, b.arrival, b.departure),
+  );
+  const windowStays = occupancy.filter((r) =>
+    overlaps(first, end, r.arrival, r.departure),
+  );
   for (const u of units)
     for (const day of days) {
       const next = addDays(day, 1);
       info.set(`${u.id}|${day}`, {
-        block: data.blocks.find(
+        block: windowBlocks.find(
           (b) =>
-            b.active &&
             overlaps(day, next, b.arrival, b.departure) &&
             unitsConflict(data, u.id, b.unitId),
         ),
-        related: occupancy.some(
+        related: windowStays.some(
           (r) =>
             r.unitId &&
             r.unitId !== u.id &&
             overlaps(day, next, r.arrival, r.departure) &&
             unitsConflict(data, u.id, r.unitId),
         ),
-        reserved: occupancy.some(
+        reserved: windowStays.some(
           (r) => r.unitId === u.id && r.arrival <= day && r.departure > day,
         ),
       });
@@ -428,23 +468,37 @@ export function MultiCalendar({
 
   // Land on today (or the 1st) whenever the month changes. Waits until the
   // grid is actually wider than the viewport (styles/fonts may load late).
+  // The window only grows once landed, so the first scroll position never
+  // pulls in extra months.
+  const landed = useRef(false);
+  const shown = useRef("");
   useEffect(() => {
     const el = scroller.current;
     if (!el) return;
+    landed.current = false;
     let done = false;
     const land = () => {
       if (done || el.scrollWidth <= el.clientWidth + 1) return;
       done = true;
-      const head = el.querySelector<HTMLElement>(
-        `[data-mc-day="${data.today}"]`,
-      );
+      const target =
+        monthStart(data.today) === monthStart(month) ? data.today : month;
+      const head = el.querySelector<HTMLElement>(`[data-mc-day="${target}"]`);
       const label =
         el.querySelector<HTMLElement>(".mc-corner")?.offsetWidth ?? 0;
       el.scrollTo({
         left: head
-          ? Math.max(0, head.offsetLeft - label - head.offsetWidth)
+          ? Math.max(
+              0,
+              head.offsetLeft -
+                label -
+                (target === data.today ? head.offsetWidth : 0),
+            )
           : 0,
-        behavior: "smooth",
+      });
+      shown.current = monthStart(month);
+      onVisibleMonth?.(shown.current);
+      window.requestAnimationFrame(() => {
+        landed.current = true;
       });
     };
     land();
@@ -454,13 +508,73 @@ export function MultiCalendar({
     observer.observe(el);
     const stop = () => {
       done = true;
+      landed.current = true;
     };
     el.addEventListener("pointerdown", stop, { once: true });
     return () => {
       observer.disconnect();
       el.removeEventListener("pointerdown", stop);
     };
-  }, [month, data.today]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [anchor, data.today]);
+
+  // ---- continuous sideways scrolling -------------------------------------
+  // The day at the left edge and where it was, to keep it in place when
+  // months are added before it or dropped.
+  const keep = useRef<{ day: string; offset: number } | null>(null);
+  function dayAt(el: HTMLDivElement, x: number) {
+    const label = labelWidth();
+    const width = (el.scrollWidth - label) / count;
+    if (!(width > 0)) return null;
+    const index = Math.max(0, Math.min(count - 1, Math.floor(x / width)));
+    return days[index];
+  }
+  function remember(el: HTMLDivElement) {
+    const day = dayAt(el, el.scrollLeft);
+    const head = day
+      ? el.querySelector<HTMLElement>(`[data-mc-day="${day}"]`)
+      : null;
+    keep.current =
+      day && head ? { day, offset: head.offsetLeft - el.scrollLeft } : null;
+  }
+  useLayoutEffect(() => {
+    const el = scroller.current,
+      k = keep.current;
+    keep.current = null;
+    if (!el || !k) return;
+    const head = el.querySelector<HTMLElement>(`[data-mc-day="${k.day}"]`);
+    if (head) el.scrollLeft = head.offsetLeft - k.offset;
+  }, [win.before, win.after]);
+  function scrolled() {
+    const el = scroller.current;
+    if (!el || !landed.current || keep.current) return;
+    const label = labelWidth();
+    const middle = dayAt(el, el.scrollLeft + (el.clientWidth - label) / 2);
+    if (middle && monthStart(middle) !== shown.current) {
+      shown.current = monthStart(middle);
+      onVisibleMonth?.(shown.current);
+    }
+    const busy =
+      gesture.current?.kind === "select" || gesture.current?.kind === "drag";
+    const total = win.before + win.after + 1;
+    const right = el.scrollWidth - el.clientWidth - el.scrollLeft;
+    if (right < el.clientWidth * 0.75) {
+      // Next month; the oldest one goes once the window is full.
+      if (!busy && total >= WINDOW_MONTHS) {
+        remember(el);
+        setSpan({ ...win, before: win.before - 1, after: win.after + 1 });
+      } else if (total < WINDOW_MAX)
+        setSpan({ ...win, after: win.after + 1 });
+    } else if (el.scrollLeft < el.clientWidth * 0.5 && !busy) {
+      // Previous month, kept in place; the farthest one goes when full.
+      remember(el);
+      setSpan(
+        total >= WINDOW_MONTHS
+          ? { ...win, before: win.before + 1, after: win.after - 1 }
+          : { ...win, before: win.before + 1 },
+      );
+    }
+  }
 
   function reset() {
     const g = gesture.current;
@@ -649,15 +763,18 @@ export function MultiCalendar({
   const selDates = selecting
     ? selectionRange(selecting.first, selecting.last)
     : null;
-  const hint = coarse
-    ? "Desliza para recorrer el mes · Mantén pulsado un día y arrastra para seleccionar · Mantén pulsada una reserva y arrástrala para moverla."
-    : "Haz clic y arrastra sobre los días para seleccionar · Arrastra una reserva a otra fecha o habitación para moverla.";
+  const hint = !writable
+    ? "Solo lectura · Desliza para recorrer los días · Toca una reserva para ver sus fechas."
+    : coarse
+      ? "Desliza para recorrer el mes · Mantén pulsado un día y arrastra para seleccionar · Mantén pulsada una reserva y arrástrala para moverla."
+      : "Haz clic y arrastra sobre los días para seleccionar · Arrastra una reserva a otra fecha o habitación para moverla.";
 
   return (
     <div
       className={`mc${compact ? " mc-compact" : ""}${dragId ? " is-dragging" : ""}${selecting ? " is-selecting" : ""}`}
     >
-      {guide ? (
+      {/* Gesture guide only for those who can select or move. */}
+      {guide && writable ? (
         <div className="mc-guide" role="note">
           <span>
             <i aria-hidden="true">↔</i>
@@ -688,12 +805,13 @@ export function MultiCalendar({
         ref={scroller}
         className="mc-scroll"
         role="group"
-        aria-label="Calendario por unidad. Desliza horizontalmente para recorrer el mes."
+        aria-label="Calendario por unidad. Desliza horizontalmente para recorrer los días; al llegar al final del mes continúa con el siguiente."
         tabIndex={0}
         onPointerDown={down}
         onPointerMove={move}
         onPointerUp={up}
         onPointerCancel={cancel}
+        onScroll={scrolled}
         onContextMenu={(e) => {
           if (gesture.current || coarse) e.preventDefault();
         }}
@@ -708,16 +826,22 @@ export function MultiCalendar({
               {compact ? "Unidad" : "Unidad / inventario"}
             </div>
             <div className="mc-days">
-              {days.map((d) => (
-                <div
-                  key={d}
-                  data-mc-day={d}
-                  className={`mc-day${d === data.today ? " is-today" : ""}${isWeekend(d) ? " is-weekend" : ""}${d < data.today ? " is-past" : ""}`}
-                >
-                  <small>{weekday(d)}</small>
-                  <strong>{Number(d.slice(8))}</strong>
-                </div>
-              ))}
+              {days.map((d) => {
+                const monthFirst = d.endsWith("-01");
+                return (
+                  <div
+                    key={d}
+                    data-mc-day={d}
+                    className={`mc-day${d === data.today ? " is-today" : ""}${isWeekend(d) ? " is-weekend" : ""}${d < data.today ? " is-past" : ""}${monthFirst ? " is-month-start" : ""}`}
+                    title={monthFirst ? `${weekday(d)} ${shortDate(d)}` : undefined}
+                  >
+                    <small data-no-translate={monthFirst || undefined}>
+                      {monthFirst ? monthShort(d) : weekday(d)}
+                    </small>
+                    <strong>{Number(d.slice(8))}</strong>
+                  </div>
+                );
+              })}
             </div>
           </div>
           {rows.map(({ unit: u, depth, house, lastChild }, index) => (
@@ -782,7 +906,7 @@ export function MultiCalendar({
                         type="button"
                         tabIndex={-1}
                         data-mc-cell
-                        className={`mc-cell${day === data.today ? " is-today" : ""}${c.related && !c.reserved ? " is-related" : ""}${isWeekend(day) ? " is-weekend" : ""}${day < data.today ? " is-past" : ""}${c.block ? " is-blocked" : ""}${busy ? " is-busy" : ""}${inSelection ? " is-selected" : ""}${pressing === `cell:${u.id}:${day}` ? " is-pressing" : ""}`}
+                        className={`mc-cell${day.endsWith("-01") ? " is-month-start" : ""}${day === data.today ? " is-today" : ""}${c.related && !c.reserved ? " is-related" : ""}${isWeekend(day) ? " is-weekend" : ""}${day < data.today ? " is-past" : ""}${c.block ? " is-blocked" : ""}${busy ? " is-busy" : ""}${inSelection ? " is-selected" : ""}${pressing === `cell:${u.id}:${day}` ? " is-pressing" : ""}`}
                         style={{ gridColumn: i + 1, gridRow: 1 }}
                         aria-disabled={busy || (!c.block && !writable)}
                         aria-label={`${c.block ? "Bloqueada" : busy ? "Ocupada" : "Libre"} · ${u.name} · ${day}`}
@@ -927,7 +1051,7 @@ export function MultiCalendar({
             <i className="mc-dot blocked" />
             Bloqueada
           </span>
-          {!guide && (
+          {!guide && writable && (
             <button
               type="button"
               className="mc-guide-open"

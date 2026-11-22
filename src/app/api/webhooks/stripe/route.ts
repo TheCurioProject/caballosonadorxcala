@@ -99,9 +99,12 @@ export async function POST(request: Request) {
         // A group is announced once, with the whole amount and every room.
         const groupRooms = isGroup ? await prisma.booking.findMany({ where: { id: { in: groupIds } }, orderBy: { id: 'asc' }, select: { id: true, notes: true } }) : [];
         const groupTotal = isGroup && amountTotal !== undefined ? amountTotal : booking.totalPrice;
+        const retreatRoom = /^Alojamiento: (.+?)\. Huéspedes/m.exec(booking.notes || '')?.[1];
         const roomName = isGroup
           ? groupRooms.map(r => /^Alojamiento: (.+?)\. Huéspedes/.exec(r.notes || '')?.[1]).filter(Boolean).join(' + ') || `${groupIds.length} habitaciones`
-          : booking.property?.name || 'Casa Caballo Soñador';
+          : session.metadata?.retreatTitle
+            ? `Retiro: ${session.metadata.retreatTitle}${retreatRoom ? ` · ${retreatRoom}` : ''}`
+            : booking.property?.name || 'Casa Caballo Soñador';
 
         // The coupon use now counts, with the discount Stripe really applied.
         if (session.metadata?.couponCode) await confirmRedemption(session.id, session.total_details?.amount_discount ?? null).catch(error => console.error('[Webhook] coupon confirmation failed', error));

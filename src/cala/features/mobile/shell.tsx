@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Icon, Modal } from "@/cala/components/ui/primitives";
 import { useWorkspace } from "@/cala/features/workspace/context";
-import { navigation } from "@/cala/features/workspace/navigation";
+import { visibleNavigation } from "@/cala/features/workspace/navigation";
 import { WorkspaceScreen } from "@/cala/features/workspace/screen";
 import { LanguageToggle } from "@/cala/components/ui/language-toggle";
 import { api } from "@/cala/features/workspace/context";
@@ -68,7 +68,14 @@ export function MobileShell({
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, []);
-  const items = navigation.filter((i) => !i.permission || can(i.permission));
+  const role =
+    data.memberships.find(
+      (m) =>
+        m.userId === data.currentUser.id &&
+        m.organizationId === data.currentOrganizationId &&
+        m.status === "active",
+    )?.role ?? "viewer";
+  const items = visibleNavigation(can, role);
   const active = items.find((i) => i.path === section);
   const property = data.properties.find((p) => p.id === data.currentPropertyId);
   const tabs = items
@@ -80,13 +87,6 @@ export function MobileShell({
         ["inicio", "calendario", "inbox", "reservas"].indexOf(a.path) -
         ["inicio", "calendario", "inbox", "reservas"].indexOf(b.path),
     );
-  const role =
-    data.memberships.find(
-      (m) =>
-        m.userId === data.currentUser.id &&
-        m.organizationId === data.currentOrganizationId &&
-        m.status === "active",
-    )?.role ?? "viewer";
   const stale = !online || ["offline", "error"].includes(syncStatus);
   const choose = (path: string) => {
     setMore(false);

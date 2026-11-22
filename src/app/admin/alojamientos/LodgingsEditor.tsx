@@ -26,7 +26,7 @@ export default function LodgingsEditor({
   const lodging = lodgings.find((l) => l.id === selected) ?? lodgings[0];
   const whole = lodgings.find((l) => l.kind === "whole_home");
   return (
-    <>
+    <div className="lodgings-page">
       <SectionTitle
         eyebrow="CASA CABALLO SOÑADOR"
         title="Alojamientos y página web"
@@ -90,7 +90,7 @@ export default function LodgingsEditor({
             ["servicios-comida", "Comida"],
             ["atv-tours", "ATV Tours"],
             ["cupones", "Cupones"],
-            ["writers-group", "Workshops"],
+            ["retiros", "Retiros"],
             ["during-your-stay", "Amenidades"],
             ["calendario", "Calendario por habitación"],
             ["tarifas", "Tarifas por fecha"],
@@ -105,7 +105,7 @@ export default function LodgingsEditor({
           ))}
         </div>
       </section>
-    </>
+    </div>
   );
 }
 function LodgingForm({
