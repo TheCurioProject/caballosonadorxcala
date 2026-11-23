@@ -7,12 +7,17 @@ import {
   guestName,
   ReservationForm,
   ReservationInspector,
+  ReservationTrash,
 } from "@/cala/features/reservations/components";
 import { shortDate, statusLabels } from "@/cala/lib/format";
 export function MobileReservations() {
   const { data, can } = useWorkspace();
   const params = useSearchParams();
   const [create, setCreate] = useState(params.get("new") === "1");
+  const [trash, setTrash] = useState(params.get("trash") === "1");
+  const trashCount = (data.reservationTrash ?? []).filter(
+    (x) => x.propertyId === data.currentPropertyId,
+  ).length;
   const [selected, setSelected] = useState<string | null>(
     params.get("reservation"),
   );
@@ -56,15 +61,29 @@ export function MobileReservations() {
           <h1>Reservas</h1>
           <p>Encuentra y gestiona cada estancia.</p>
         </div>
-        {can("reservation.write") && (
-          <button
-            className="m-round-button primary"
-            aria-label="Nueva reserva"
-            onClick={() => setCreate(true)}
-          >
-            <Icon name="plus" />
-          </button>
-        )}
+        <div className="m-heading-actions">
+          {can("reservation.cancel") && (
+            <button
+              className="m-round-button trash-button"
+              aria-label={`Papelera (${trashCount})`}
+              onClick={() => setTrash(true)}
+            >
+              <Icon name="trash" />
+              {trashCount > 0 && (
+                <span className="m-trash-badge">{trashCount}</span>
+              )}
+            </button>
+          )}
+          {can("reservation.write") && (
+            <button
+              className="m-round-button primary"
+              aria-label="Nueva reserva"
+              onClick={() => setCreate(true)}
+            >
+              <Icon name="plus" />
+            </button>
+          )}
+        </div>
       </div>
       <label className="m-search">
         <Icon name="search" />
@@ -141,6 +160,7 @@ export function MobileReservations() {
         <ReservationInspector id={selected} onClose={() => setSelected(null)} />
       )}
       {create && <ReservationForm onClose={() => setCreate(false)} />}
+      {trash && <ReservationTrash onClose={() => setTrash(false)} />}
       {filtering && (
         <Modal title="Canal de reserva" onClose={() => setFiltering(false)}>
           <label className="field">

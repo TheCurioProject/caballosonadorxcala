@@ -2571,3 +2571,130 @@ html:is([data-font-size="medium"], [data-font-size="large"]) .cala-admin
   font-size: 12px;
   line-height: 1.3;
 }
+
+/* Papelera de reservas */
+.cala-admin .button.danger-outline {
+  background: transparent;
+  border-color: var(--error-border);
+  color: var(--error);
+}
+@media (hover: hover) {
+  .cala-admin .button.danger-outline:hover {
+    background: var(--error-bg);
+  }
+}
+.cala-admin .reservation-delete-zone {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.cala-admin .reservation-delete-zone > .button {
+  width: 100%;
+}
+.cala-admin .trash-confirmation {
+  margin-top: 0;
+  border-color: var(--error-border);
+  background: var(--error-bg);
+}
+.cala-admin .trash-confirmation .notice {
+  margin: 0 0 12px;
+}
+.cala-admin .trash-confirmation .row {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.cala-admin .trash-button {
+  position: relative;
+}
+.cala-admin .trash-count {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--subtle, var(--border));
+  color: var(--text);
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+}
+.cala-admin .trash-list {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.cala-admin .trash-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.cala-admin .trash-item-main {
+  display: grid;
+  gap: 4px;
+  flex: 1 1 260px;
+  min-width: 0;
+}
+.cala-admin .trash-item-main small {
+  overflow-wrap: anywhere;
+}
+.cala-admin .trash-soon {
+  color: var(--error);
+  font-weight: 600;
+}
+.cala-admin .trash-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.cala-admin .trash-confirm-text {
+  flex-basis: 100%;
+  color: var(--error);
+  font-size: 13px;
+  text-align: right;
+}
+@media (max-width: 640px) {
+  .cala-admin .trash-item-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+  .cala-admin .trash-item-actions .button {
+    flex: 1 1 auto;
+  }
+  .cala-admin .trash-confirm-text {
+    text-align: left;
+  }
+}
+.cala-admin .m-heading-actions {
+  display: flex;
+  flex: none;
+  gap: 8px;
+}
+.cala-admin .m-round-button.trash-button {
+  position: relative;
+}
+.cala-admin .m-trash-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--error);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+}
+.cala-admin .m-heading-actions .m-round-button.trash-button {
+  border: 1px solid var(--border);
+}

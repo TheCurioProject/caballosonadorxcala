@@ -16,6 +16,7 @@ import { grants } from "@/cala/domain/identity/permissions";
 import { DomainError, invariant } from "@/cala/domain/shared/errors";
 import { today } from "@/cala/domain/shared/dates";
 import { workspacePreferences } from "@/cala/domain/workspace/preferences";
+import { trashedReservations } from "@/cala/application/queries";
 type QueryResult<T> = {
   data: T | null;
   error: {
@@ -317,10 +318,31 @@ export async function supabaseSnapshot(
   ]);
   // Team (names/emails from auth.users) and unit attributes. Both are
   // optional extras: an older database without pms_team keeps working.
-  const [teamResult, attributesResult] = await Promise.all([
+  // The reservation trash is optional too: before its migration nothing is trashed.
+  const [teamResult, attributesResult, trashResult] = await Promise.all([
     client.rpc("pms_team", { org }),
     client.from("unit_attributes").select("*"),
+    (client as unknown as SupabaseClient)
+      .from("reservation_trash")
+      .select(
+        "reservation_id,organization_id,property_id,previous_status,deleted_at,purge_after,deleted_by",
+      )
+      .eq("organization_id", org),
   ]);
+  const trashRows = z
+    .array(
+      z.object({
+        reservation_id: z.string(),
+        organization_id: z.string(),
+        property_id: z.string(),
+        previous_status: z.string(),
+        deleted_at: z.string(),
+        purge_after: z.string(),
+        deleted_by: z.string().nullable(),
+      }),
+    )
+    .catch([])
+    .parse(trashResult.error ? [] : trashResult.data);
   const team = z
     .array(
       z.object({
@@ -389,7 +411,7 @@ export async function supabaseSnapshot(
     };
   });
   const folioById = new Map(folios.map((folio) => [folio.id, folio]));
-  return {
+  return hideTrashed({
     workspacePreferences: value(preferencesResult, "tus preferencias").map(
       (row) => ({
         id: row.id,
@@ -757,6 +779,35 @@ export async function supabaseSnapshot(
     currentPropertyId,
     development: false,
     today: today(selectedProperty?.timezone),
+    reservationTrash: trashRows.map((row) => ({
+      reservationId: row.reservation_id,
+      organizationId: row.organization_id,
+      propertyId: row.property_id,
+      previousStatus: row.previous_status as ReservationStatus,
+      deletedAt: row.deleted_at,
+      purgeAfter: row.purge_after,
+      deletedBy: row.deleted_by,
+    })),
+  });
+}
+
+/**
+ * Stays in the trash leave every list, calendar and total (their charges and
+ * payments too) and only show up in the trash, each with its reservation.
+ */
+function hideTrashed(snapshot: Snapshot): Snapshot {
+  const trash = trashedReservations(
+    snapshot.reservationTrash ?? [],
+    snapshot.reservations,
+  );
+  if (!trash.length) return { ...snapshot, reservationTrash: [] };
+  const ids = new Set(trash.map((t) => t.reservationId));
+  return {
+    ...snapshot,
+    reservationTrash: trash,
+    reservations: snapshot.reservations.filter((r) => !ids.has(r.id)),
+    folioItems: snapshot.folioItems.filter((x) => !ids.has(x.reservationId)),
+    payments: snapshot.payments.filter((x) => !ids.has(x.reservationId)),
   };
 }
 

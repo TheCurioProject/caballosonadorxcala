@@ -75,6 +75,7 @@ function migrateState(
     "messageEntries",
     "messageTemplates",
     "marketObservations",
+    "reservationTrash",
   ])
     if (!Array.isArray(state[key])) state[key] = [];
   state.schemaVersion = 2;

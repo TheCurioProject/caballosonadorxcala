@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { failure } from "@/cala/infrastructure/http/server";
 import { supabaseSnapshot } from "@/cala/infrastructure/supabase/snapshot";
 import { requireCalaAccess } from "@/lib/cala/access";
@@ -15,6 +16,11 @@ export async function GET(request: Request) {
       "Organización no permitida.",
       403,
     );
+    // Stamp first: a change made while the snapshot is read makes the next
+    // stamp check differ, so it is picked up (never missed).
+    const stamp = await (client as unknown as SupabaseClient)
+      .rpc("pms_workspace_stamp", { org: organizationId })
+      .then(({ data }) => (typeof data === "string" ? data : null));
     const result = await supabaseSnapshot(
       client,
       organizationId,
@@ -23,7 +29,7 @@ export async function GET(request: Request) {
           ? process.env.CALA_DEFAULT_PROPERTY_ID
           : undefined),
     );
-    return NextResponse.json(result, {
+    return NextResponse.json({ ...result, stamp }, {
       headers: { "Cache-Control": "private, no-store" },
     });
   } catch (error) {

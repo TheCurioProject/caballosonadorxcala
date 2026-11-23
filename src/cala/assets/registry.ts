@@ -28,6 +28,7 @@ export const assets = {
   more: "/cala/assets/icons/more.svg",
   edit: "/cala/assets/icons/edit.svg",
   trash: "/cala/assets/icons/trash.svg",
+  restore: "/cala/assets/icons/restore.svg",
   copy: "/cala/assets/icons/copy.svg",
   download: "/cala/assets/icons/download.svg",
   upload: "/cala/assets/icons/upload.svg",

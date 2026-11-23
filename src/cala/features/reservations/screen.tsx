@@ -7,6 +7,7 @@ import {
   ReservationTable,
   ReservationInspector,
   ReservationForm,
+  ReservationTrash,
   guestName,
 } from "./components";
 import { useI18n } from "@/cala/lib/i18n";
@@ -15,6 +16,10 @@ export function Reservations() {
   const { t } = useI18n();
   const params = useSearchParams();
   const [create, setCreate] = useState(params.get("new") === "1");
+  const [trash, setTrash] = useState(params.get("trash") === "1");
+  const trashCount = (data.reservationTrash ?? []).filter(
+    (x) => x.propertyId === data.currentPropertyId,
+  ).length;
   const [selected, setSelected] = useState<string | null>(
     params.get("reservation"),
   );
@@ -39,6 +44,17 @@ export function Reservations() {
           "Una vista clara, desde la primera noche hasta la despedida.",
         )}
       >
+        {can("reservation.cancel") && (
+          <button
+            className="button secondary trash-button"
+            onClick={() => setTrash(true)}
+            aria-label={t("Papelera ({count})", { count: trashCount })}
+          >
+            <Icon name="trash" />
+            {t("Papelera")}
+            {trashCount > 0 && <span className="trash-count">{trashCount}</span>}
+          </button>
+        )}
         {can("reservation.write") && (
           <button className="button primary" onClick={() => setCreate(true)}>
             <Icon name="plus" />
@@ -78,6 +94,7 @@ export function Reservations() {
         <ReservationTable reservations={reservations} onSelect={setSelected} />
       </div>
       {create && <ReservationForm onClose={() => setCreate(false)} />}{" "}
+      {trash && <ReservationTrash onClose={() => setTrash(false)} />}
       {selected && (
         <ReservationInspector id={selected} onClose={() => setSelected(null)} />
       )}

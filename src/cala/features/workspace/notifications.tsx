@@ -32,6 +32,7 @@ type State = {
 type DeviceState = "unsupported" | "ios-install" | "blocked" | "off" | "on";
 
 const POLL_MS = 60_000;
+const HIDDEN_POLL_MS = 5 * 60_000;
 const icons: Record<string, AssetId> = {
   "reservation.created": "reservation",
   "reservation.cancelled": "cancel-reservation",
@@ -143,8 +144,15 @@ export function NotificationBell({ variant = "desktop" }: { variant?: "desktop" 
       void load();
       void checkDevice();
     }, 0);
+    let last = Date.now();
     const timer = window.setInterval(() => {
-      if (document.visibilityState === "visible" || ("Notification" in window && Notification.permission === "granted")) void load();
+      // A hidden tab only needs the bell for local alerts: check every few minutes, not every minute.
+      const visible = document.visibilityState === "visible";
+      const alerts = "Notification" in window && Notification.permission === "granted";
+      if (visible || (alerts && Date.now() - last >= HIDDEN_POLL_MS)) {
+        last = Date.now();
+        void load();
+      }
     }, POLL_MS);
     const onVisible = () => document.visibilityState === "visible" && void load();
     const onMessage = (event: MessageEvent) => {

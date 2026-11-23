@@ -6,7 +6,7 @@ import {
   timeZoneOptions,
 } from "@/cala/domain/properties/options";
 test("registry contains every supplied asset", () => {
-  expect(Object.keys(assets)).toHaveLength(110);
+  expect(Object.keys(assets)).toHaveLength(111);
   expect(assets.home).toBe("/cala/assets/icons/home.svg");
 });
 test("property setup options are complete, stable and unique", () => {

@@ -304,6 +304,14 @@ export const commandSchema = z.discriminatedUnion("type", [
     pricing: z.enum(["preserve", "recalculate"]),
   }),
   z.object({
+    type: z.literal("reservation.delete"),
+    ...base,
+    id,
+    version: version.optional(),
+  }),
+  z.object({ type: z.literal("reservation.restore"), ...base, id }),
+  z.object({ type: z.literal("reservation.purge"), ...base, id }),
+  z.object({
     type: z.literal("reservation.transition"),
     ...base,
     id,

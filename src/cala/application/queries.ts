@@ -1,5 +1,11 @@
 import { jobPermission } from "@/cala/domain/identity/job-permissions";
-import type { Actor, Snapshot, State } from "@/cala/domain/model";
+import type {
+  Actor,
+  Reservation,
+  ReservationTrashEntry,
+  Snapshot,
+  State,
+} from "@/cala/domain/model";
 import { authorize, grants } from "@/cala/domain/identity/permissions";
 import { invariant } from "@/cala/domain/shared/errors";
 import { today } from "@/cala/domain/shared/dates";
@@ -31,10 +37,17 @@ export function snapshot(
   const has = (p: (typeof permissions)[number]) => permissions.includes(p);
   const properties = allowedProperties;
   const propIds = new Set(properties.map((p) => p.id));
-  const relevantReservations = s.reservations.filter((r) =>
-    propIds.has(r.propertyId),
+  const trash = trashedReservations(s.reservationTrash ?? [], s.reservations);
+  const visibleTrash = trash.filter((t) => propIds.has(t.propertyId));
+  const relevantReservations = s.reservations.filter(
+    (r) => propIds.has(r.propertyId) && !trash.some((t) => t.reservationId === r.id),
   );
-  const guestIds = new Set(relevantReservations.map((r) => r.guestId));
+  const trashIds = new Set(trash.map((t) => t.reservationId));
+  const guestIds = new Set(
+    [...relevantReservations, ...visibleTrash.flatMap((t) => t.reservation ?? [])].map(
+      (r) => r.guestId,
+    ),
+  );
   const guests = has("guest.pii.read")
     ? s.guests.filter(
         (g) =>
@@ -92,14 +105,28 @@ export function snapshot(
           totalMinor: has("finance.read") ? r.totalMinor : 0,
         }))
       : [],
+    reservationTrash: has("reservation.read")
+      ? visibleTrash.map((t) => ({
+          ...t,
+          reservation: t.reservation && {
+            ...t.reservation,
+            notes: has("guest.pii.read") ? t.reservation.notes : "",
+            totalMinor: has("finance.read") ? t.reservation.totalMinor : 0,
+          },
+        }))
+      : [],
     blocks: s.blocks.filter((x) => propIds.has(x.propertyId)),
     ratePlans: s.ratePlans.filter((x) => propIds.has(x.propertyId)),
     rateDays: s.rateDays.filter((x) => propIds.has(x.propertyId)),
     folioItems: has("finance.read")
-      ? s.folioItems.filter((x) => propIds.has(x.propertyId))
+      ? s.folioItems.filter(
+          (x) => propIds.has(x.propertyId) && !trashIds.has(x.reservationId),
+        )
       : [],
     payments: has("finance.read")
-      ? s.payments.filter((x) => propIds.has(x.propertyId))
+      ? s.payments.filter(
+          (x) => propIds.has(x.propertyId) && !trashIds.has(x.reservationId),
+        )
       : [],
     tasks: s.tasks.filter((x) => propIds.has(x.propertyId)),
     channels: has("channel.manage")
@@ -129,4 +156,21 @@ export function snapshot(
     development: true,
     today: today(properties.find((p) => p.id === pId)?.timezone),
   };
+}
+
+/**
+ * Stays in the trash, each with its reservation. A stay that something else
+ * revived (no longer cancelled / no-show, e.g. a website checkout paid late)
+ * is not trashed anymore, even before the database cleans its trash row.
+ */
+export function trashedReservations(
+  trash: ReservationTrashEntry[],
+  reservations: Reservation[],
+): ReservationTrashEntry[] {
+  return trash.flatMap((t) => {
+    const reservation = reservations.find((r) => r.id === t.reservationId);
+    return reservation && ["cancelled", "no_show"].includes(reservation.status)
+      ? [{ ...t, reservation }]
+      : [];
+  });
 }

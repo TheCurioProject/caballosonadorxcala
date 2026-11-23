@@ -77,6 +77,11 @@ const commandErrors: Record<string, string> = {
     "Registra al menos una habitación dentro de la casa para elegir cómo se renta.",
   INVALID_INVENTORY: "Elige un tipo de alojamiento de esta propiedad.",
   NOT_FOUND: "El registro ya no existe. Recarga la vista.",
+  RESERVATION_IN_TRASH:
+    "Esta reserva está en la papelera. Recupérala para editarla.",
+  ALREADY_IN_TRASH: "Esta reserva ya está en la papelera.",
+  NOT_IN_TRASH:
+    "La reserva ya no está en la papelera: se recuperó o se borró definitivamente. Recarga la vista.",
   INVALID_BUTTONS:
     "Revisa los botones: cada uno necesita un texto y un enlace que empiece por https://, mailto: o tel:",
   INVALID_DOCUMENT: "Uno de los documentos adjuntos ya no existe. Recarga la vista.",

@@ -69,6 +69,12 @@ export function PropertyWorkspace({
  * button); reads only when `activity` is given, so background polling stays
  * silent. Pass `activity: false` to opt a write out.
  */
+/** How often the open panel checks for changes (cheap stamp, not the data). */
+const STAMP_POLL_MS = 15_000;
+/** Full read even without changes, as a safety net. */
+const FULL_READ_MS = 5 * 60_000;
+/** Full read cadence when the database has no stamp function yet. */
+const STAMP_FALLBACK_MS = 60_000;
 export async function api<T>(
   url: string,
   options?: RequestInit,
@@ -140,6 +146,10 @@ export function WorkspaceProvider({
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("synced"),
     [syncError, setSyncError] = useState("");
   const [lastRefreshedAt, setLastRefreshedAt] = useState(() => Date.now());
+  // Change stamp of the data on screen (see /api/cala/workspace/stamp).
+  const knownStamp = useRef<string | null>(initial.stamp ?? null);
+  // Set to the first full read time by the poller (0 = the initial snapshot).
+  const lastFullRead = useRef(0);
   const [toast, setToast] = useState<{ message: string; kind: string } | null>(
     null,
   );
@@ -162,9 +172,11 @@ export function WorkspaceProvider({
       if (active()) setSyncStatus("refreshing");
       try {
         const next = await api<Snapshot>(
-          `/api/workspace?organizationId=${encodeURIComponent(current.organizationId)}&propertyId=${encodeURIComponent(current.propertyId)}`,
+          `/api/workspace/?organizationId=${encodeURIComponent(current.organizationId)}&propertyId=${encodeURIComponent(current.propertyId)}`,
         );
         if (!active()) return;
+        knownStamp.current = next.stamp ?? null;
+        lastFullRead.current = Date.now();
         setData(next);
         setSyncStatus("synced");
         setSyncError("");
@@ -194,12 +206,44 @@ export function WorkspaceProvider({
     return () => clearTimeout(timer);
   }, [toast]);
   useEffect(() => {
-    const poll = () => {
-      if (document.visibilityState === "visible")
-        void refresh().catch(() => {});
+    // Staying live without downloading the whole workspace every few seconds
+    // (that alone used most of the hosting CPU): ask for the small change
+    // stamp and download only when it differs. A safety full read still runs
+    // every few minutes, and every minute if the stamp is unavailable.
+    let checking = false;
+    const poll = async () => {
+      if (document.visibilityState !== "visible" || checking) return;
+      if (!navigator.onLine) {
+        setSyncStatus("offline");
+        return;
+      }
+      if (!lastFullRead.current) lastFullRead.current = Date.now();
+      const since = Date.now() - lastFullRead.current;
+      checking = true;
+      try {
+        const { stamp } = await api<{ stamp: string | null }>(
+          `/api/workspace/stamp/?organizationId=${encodeURIComponent(scope.current.organizationId)}`,
+        );
+        if (
+          !stamp
+            ? since >= STAMP_FALLBACK_MS
+            : stamp !== knownStamp.current || since >= FULL_READ_MS
+        )
+          await refresh();
+        else {
+          setSyncStatus((status) => (status === "refreshing" ? status : "synced"));
+          setSyncError("");
+          setLastRefreshedAt(Date.now());
+        }
+      } catch (e) {
+        if ((e as { status?: number }).status === 401) onSessionExpired();
+        else if (since >= STAMP_FALLBACK_MS) await refresh().catch(() => {});
+      } finally {
+        checking = false;
+      }
     };
     const offline = () => setSyncStatus("offline");
-    const timer = setInterval(poll, 3000);
+    const timer = setInterval(() => void poll(), STAMP_POLL_MS);
     document.addEventListener("visibilitychange", poll);
     window.addEventListener("online", poll);
     window.addEventListener("pageshow", poll);
@@ -211,7 +255,7 @@ export function WorkspaceProvider({
       window.removeEventListener("pageshow", poll);
       window.removeEventListener("offline", offline);
     };
-  }, [refresh]);
+  }, [refresh, onSessionExpired]);
   function begin() {
     operations.current++;
     setBusy(true);

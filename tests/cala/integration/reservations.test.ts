@@ -126,3 +126,40 @@ test("blocking the last unit respects existing unassigned reservations", () => {
   );
   store.close();
 });
+test("trash hides a stay, frees its dates, recovers it only while free and purges after 10 days", () => {
+  const { store, app } = setup();
+  const scope = { organizationId: "org-estancia", propertyId: "property-hotel" };
+  const first = app.execute(actor, reservation, "trash-first");
+  app.execute(actor, { type: "reservation.delete", ...scope, id: first.id, version: 1 }, "trash-delete");
+  let view = snapshot(store.read(), actor, scope.organizationId, scope.propertyId);
+  expect(view.reservations.some((r) => r.id === first.id)).toBe(false);
+  expect(view.folioItems.some((i) => i.reservationId === first.id)).toBe(false);
+  expect(view.reservationTrash?.map((t) => [t.reservationId, t.previousStatus, t.reservation?.id])).toEqual([
+    [first.id, "confirmed", first.id],
+  ]);
+  expect(() =>
+    app.execute(actor, { type: "reservation.transition", ...scope, id: first.id, status: "confirmed", version: 2 }, "trash-edit"),
+  ).toThrow(/papelera/);
+  // Dates are free: another stay fits, so recovering the first one is refused.
+  const second = app.execute(actor, reservation, "trash-second");
+  expect(() => app.execute(actor, { type: "reservation.restore", ...scope, id: first.id }, "trash-restore-1")).toThrow(/ocupado|disponibilidad/);
+  app.execute(actor, { type: "reservation.delete", ...scope, id: second.id }, "trash-delete-2");
+  app.execute(actor, { type: "reservation.restore", ...scope, id: first.id }, "trash-restore-2");
+  view = snapshot(store.read(), actor, scope.organizationId, scope.propertyId);
+  expect(view.reservations.find((r) => r.id === first.id)?.status).toBe("confirmed");
+  expect(view.reservationTrash?.map((t) => t.reservationId)).toEqual([second.id]);
+  // "Borrar ya" removes it with its charges.
+  app.execute(actor, { type: "reservation.purge", ...scope, id: second.id }, "trash-purge");
+  expect(store.read().reservations.some((r) => r.id === second.id)).toBe(false);
+  expect(store.read().folioItems.some((i) => i.reservationId === second.id)).toBe(false);
+  // After 10 days the next trash action empties what is due.
+  app.execute(actor, { type: "reservation.delete", ...scope, id: first.id }, "trash-delete-3");
+  store.transaction((s) => {
+    s.reservationTrash![0].purgeAfter = new Date(Date.now() - 1000).toISOString();
+  });
+  const third = app.execute(actor, reservation, "trash-third");
+  app.execute(actor, { type: "reservation.delete", ...scope, id: third.id }, "trash-delete-4");
+  expect(store.read().reservations.some((r) => r.id === first.id)).toBe(false);
+  expect(store.read().reservationTrash?.map((t) => t.reservationId)).toEqual([third.id]);
+  store.close();
+});

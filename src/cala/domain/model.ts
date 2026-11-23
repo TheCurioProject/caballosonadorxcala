@@ -160,6 +160,18 @@ export interface Reservation {
   version: number;
   createdAt: string;
 }
+/** A stay in the reservation trash: cancelled, hidden, recoverable until `purgeAfter`. */
+export interface ReservationTrashEntry {
+  reservationId: string;
+  organizationId: string;
+  propertyId: string;
+  previousStatus: ReservationStatus;
+  deletedAt: string;
+  purgeAfter: string;
+  deletedBy: string | null;
+  /** Local development keeps the stay here; the Supabase snapshot fills it from `reservations`. */
+  reservation?: Reservation;
+}
 export interface InventoryBlock {
   id: string;
   propertyId: string;
@@ -442,6 +454,7 @@ export interface State {
   units: Unit[];
   guests: Guest[];
   reservations: Reservation[];
+  reservationTrash?: ReservationTrashEntry[];
   blocks: InventoryBlock[];
   ratePlans: RatePlan[];
   rateDays: RateDay[];
@@ -480,4 +493,6 @@ export type Snapshot = Omit<
   currentPropertyId: string;
   development: boolean;
   today: string;
+  /** Change stamp of the organization's data when the snapshot was read (Supabase only). */
+  stamp?: string | null;
 };

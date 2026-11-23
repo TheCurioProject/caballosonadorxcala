@@ -569,7 +569,7 @@ function ReservationEditor({
   onClose: () => void;
   defaults?: { unitId: string; arrival: string };
 }) {
-  const { data, command } = useWorkspace();
+  const { data, command, can } = useWorkspace();
   const { t } = useI18n();
   const types = data.inventoryTypes.filter(
     (t) => t.propertyId === data.currentPropertyId,
@@ -706,6 +706,11 @@ function ReservationEditor({
             }}
           />
         </>
+      )}
+      {can("reservation.cancel") && (
+        <div className="reservation-delete-zone">
+          <DeleteReservation reservation={reservation} onDeleted={onClose} />
+        </div>
       )}
     </Modal>
   );
@@ -845,6 +850,11 @@ export function ReservationInspector({
           </Link>
         )}
       </div>
+      {can("reservation.cancel") && (
+        <div className="reservation-delete-zone">
+          <DeleteReservation reservation={r} onDeleted={onClose} />
+        </div>
+      )}
       {confirm && (
         <div className="confirmation">
           <strong>{labels[confirm]}</strong>
@@ -1164,5 +1174,255 @@ export function ReservationTable({
         ))}
       </div>
     </>
+  );
+}
+
+/** Days left before a trashed stay is deleted for good (0 = any moment now). */
+export function trashDaysLeft(purgeAfter: string, now = Date.now()) {
+  return Math.max(0, Math.ceil((Date.parse(purgeAfter) - now) / 86_400_000));
+}
+
+/** "Eliminar reserva": moves the stay to the trash after a clear confirmation. */
+export function DeleteReservation({
+  reservation: r,
+  onDeleted,
+}: {
+  reservation: Reservation;
+  onDeleted: () => void;
+}) {
+  const { data, command } = useWorkspace();
+  const { t } = useI18n();
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const paid = data.payments.some(
+    (p) => p.reservationId === r.id && p.status === "succeeded",
+  );
+  if (!open)
+    return (
+      <button
+        type="button"
+        className="button danger-outline"
+        onClick={() => setOpen(true)}
+      >
+        <Icon name="trash" />
+        {t("Eliminar reserva")}
+      </button>
+    );
+  return (
+    <div className="confirmation trash-confirmation" role="group">
+      <strong>{t("¿Eliminar esta reserva?")}</strong>
+      <p>
+        {t(
+          "Se moverá a la papelera y sus fechas quedarán libres en CALA y en la página web. Podrás recuperarla durante 10 días; después se borrará definitivamente.",
+        )}
+      </p>
+      {r.status === "checked_in" && (
+        <p className="notice warning">
+          {t(
+            "El huésped figura en casa. Elimínala solo si la estancia nunca ocurrió.",
+          )}
+        </p>
+      )}
+      {paid && (
+        <p className="notice warning">
+          {t(
+            "Tiene pagos registrados. Si no la recuperas, también se borrarán de CALA (Stripe conserva su propio registro).",
+          )}
+        </p>
+      )}
+      <div className="row">
+        <button
+          type="button"
+          className="button danger"
+          disabled={busy}
+          onClick={async () => {
+            setBusy(true);
+            setError("");
+            try {
+              await command({
+                type: "reservation.delete",
+                id: r.id,
+                propertyId: r.propertyId,
+                version: r.version,
+              });
+              onDeleted();
+            } catch (e) {
+              setError(
+                e instanceof Error ? e.message : t("No se pudo guardar."),
+              );
+              setBusy(false);
+            }
+          }}
+        >
+          <Icon name="trash" />
+          {busy ? t("Eliminando…") : t("Mover a la papelera")}
+        </button>
+        <button
+          type="button"
+          className="button secondary"
+          disabled={busy}
+          onClick={() => setOpen(false)}
+        >
+          {t("Volver")}
+        </button>
+      </div>
+      {error && (
+        <p className="notice error" role="alert">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Papelera: deleted stays, recoverable for 10 days, then deleted for good. */
+export function ReservationTrash({ onClose }: { onClose: () => void }) {
+  const { data, command, can } = useWorkspace();
+  const { t } = useI18n();
+  const [busy, setBusy] = useState<string | null>(null);
+  const [purging, setPurging] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const entries = (data.reservationTrash ?? [])
+    .filter((x) => x.propertyId === data.currentPropertyId && x.reservation)
+    .sort((a, b) => b.deletedAt.localeCompare(a.deletedAt));
+  const allowed = can("reservation.cancel");
+  async function run(
+    type: "reservation.restore" | "reservation.purge",
+    id: string,
+    propertyId: string,
+  ) {
+    setBusy(id + type);
+    setError("");
+    try {
+      await command({ type, id, propertyId });
+      setPurging(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t("No se pudo guardar."));
+    } finally {
+      setBusy(null);
+    }
+  }
+  return (
+    <Modal title={t("Papelera de reservas")} onClose={onClose} wide>
+      <p className="muted">
+        {t(
+          "Las reservas eliminadas se guardan aquí 10 días. Mientras tanto no ocupan fechas y puedes recuperarlas; después se borran definitivamente.",
+        )}
+      </p>
+      {error && (
+        <p className="notice error" role="alert">
+          {error}
+        </p>
+      )}
+      {!entries.length ? (
+        <Empty
+          title={t("La papelera está vacía")}
+          description={t("Las reservas que elimines aparecerán aquí.")}
+        />
+      ) : (
+        <ul className="trash-list">
+          {entries.map((entry) => {
+            const r = entry.reservation!;
+            const days = trashDaysLeft(entry.purgeAfter);
+            const unit = data.units.find((u) => u.id === r.unitId);
+            return (
+              <li key={entry.reservationId} className="trash-item">
+                <div className="trash-item-main">
+                  <div className="row between">
+                    <strong data-no-translate>
+                      {guestName(data.guests, r.guestId)}
+                    </strong>
+                    <Badge status={entry.previousStatus} />
+                  </div>
+                  <span>
+                    {shortDate(r.arrival)} → {shortDate(r.departure)} ·{" "}
+                    {unit?.name ?? t("Sin asignar")}
+                  </span>
+                  <small className="muted">
+                    <span className="mono">{r.confirmationCode}</span> ·{" "}
+                    {t("Eliminada {date}", { date: dateTime(entry.deletedAt) })}{" "}
+                    ·{" "}
+                    <span className={days <= 2 ? "trash-soon" : undefined}>
+                      {days === 0
+                        ? t("Se borrará en breve")
+                        : days === 1
+                          ? t("Se borrará definitivamente en 1 día")
+                          : t("Se borrará definitivamente en {days} días", {
+                              days,
+                            })}
+                    </span>
+                  </small>
+                </div>
+                {allowed && (
+                  <div className="trash-item-actions">
+                    {purging === entry.reservationId ? (
+                      <>
+                        <span className="trash-confirm-text">
+                          {t("¿Borrar para siempre? No se puede deshacer.")}
+                        </span>
+                        <button
+                          type="button"
+                          className="button danger"
+                          disabled={!!busy}
+                          onClick={() =>
+                            run(
+                              "reservation.purge",
+                              entry.reservationId,
+                              entry.propertyId,
+                            )
+                          }
+                        >
+                          {busy === entry.reservationId + "reservation.purge"
+                            ? t("Borrando…")
+                            : t("Borrar definitivamente")}
+                        </button>
+                        <button
+                          type="button"
+                          className="button secondary"
+                          disabled={!!busy}
+                          onClick={() => setPurging(null)}
+                        >
+                          {t("Volver")}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          className="button primary"
+                          disabled={!!busy}
+                          onClick={() =>
+                            run(
+                              "reservation.restore",
+                              entry.reservationId,
+                              entry.propertyId,
+                            )
+                          }
+                        >
+                          <Icon name="restore" />
+                          {busy === entry.reservationId + "reservation.restore"
+                            ? t("Recuperando…")
+                            : t("Recuperar")}
+                        </button>
+                        <button
+                          type="button"
+                          className="button danger-outline"
+                          disabled={!!busy}
+                          onClick={() => setPurging(entry.reservationId)}
+                        >
+                          <Icon name="trash" />
+                          {t("Borrar ya")}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </Modal>
   );
 }

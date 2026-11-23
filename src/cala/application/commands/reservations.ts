@@ -16,8 +16,114 @@ const transitions: Record<ReservationStatus, ReservationStatus[]> = {
   cancelled: [],
   no_show: [],
 };
+const TRASH_DAYS = 10;
+/** Deletes a stay and everything that only exists because of it (guest profile and audit trail stay). */
+function purgeReservation(s: Context["state"], id: string) {
+  s.reservations = s.reservations.filter((r) => r.id !== id);
+  s.reservationTrash = (s.reservationTrash ?? []).filter(
+    (t) => t.reservationId !== id,
+  );
+  s.folioItems = s.folioItems.filter((i) => i.reservationId !== id);
+  s.payments = s.payments.filter((p) => p.reservationId !== id);
+  s.conversations = s.conversations.filter((x) => x.reservationId !== id);
+  s.messageEntries = s.messageEntries.filter((x) => x.reservationId !== id);
+}
+/** Empties what is due; a stay revived meanwhile simply leaves the trash. */
+export function purgeDueTrash(s: Context["state"], now: string) {
+  const live = (id: string) =>
+    ["cancelled", "no_show"].includes(
+      s.reservations.find((r) => r.id === id)?.status ?? "cancelled",
+    );
+  s.reservationTrash = (s.reservationTrash ?? []).filter((t) =>
+    live(t.reservationId),
+  );
+  for (const t of [...s.reservationTrash])
+    if (t.purgeAfter <= now) purgeReservation(s, t.reservationId);
+}
+function trashCommand(c: Context, cmd: Command) {
+  if (
+    cmd.type !== "reservation.delete" &&
+    cmd.type !== "reservation.restore" &&
+    cmd.type !== "reservation.purge"
+  )
+    return;
+  const s = c.state;
+  permit(c, cmd.organizationId, "reservation.cancel", cmd.propertyId);
+  purgeDueTrash(s, c.now);
+  s.reservationTrash ??= [];
+  const r = s.reservations.find(
+    (r) =>
+      r.id === cmd.id &&
+      r.propertyId === cmd.propertyId &&
+      r.organizationId === cmd.organizationId,
+  );
+  invariant(r, "NOT_FOUND", "Reserva no encontrada.", 404);
+  const entry = s.reservationTrash.find((t) => t.reservationId === r.id);
+  if (cmd.type === "reservation.delete") {
+    invariant(
+      !entry,
+      "ALREADY_IN_TRASH",
+      "Esta reserva ya está en la papelera.",
+      409,
+    );
+    if (cmd.version !== undefined) checkVersion(r.version, cmd.version);
+    s.reservationTrash.push({
+      reservationId: r.id,
+      organizationId: r.organizationId,
+      propertyId: r.propertyId,
+      previousStatus: r.status,
+      deletedAt: c.now,
+      purgeAfter: new Date(
+        Date.parse(c.now) + TRASH_DAYS * 86_400_000,
+      ).toISOString(),
+      deletedBy: c.actor.userId,
+    });
+    if (!["cancelled", "no_show"].includes(r.status)) {
+      r.status = "cancelled";
+      r.version++;
+    }
+    audit(c, cmd.organizationId, cmd.propertyId, cmd.type, r.id, "Enviada a la papelera");
+    return result(
+      r.id,
+      "Reserva enviada a la papelera. Puedes recuperarla durante 10 días.",
+    );
+  }
+  invariant(
+    entry,
+    "NOT_IN_TRASH",
+    "La reserva ya no está en la papelera.",
+    409,
+  );
+  if (cmd.type === "reservation.purge") {
+    purgeReservation(s, r.id);
+    audit(c, cmd.organizationId, cmd.propertyId, cmd.type, r.id, "Borrada definitivamente");
+    return result(r.id, "Reserva borrada definitivamente.");
+  }
+  if (r.status === "cancelled" && entry.previousStatus !== "cancelled")
+    assertInventory(s, { ...r, status: entry.previousStatus });
+  s.reservationTrash = s.reservationTrash.filter((t) => t !== entry);
+  if (r.status === "cancelled" && entry.previousStatus !== "cancelled") {
+    r.status = entry.previousStatus;
+    r.version++;
+  }
+  audit(c, cmd.organizationId, cmd.propertyId, cmd.type, r.id, "Recuperada de la papelera");
+  return result(r.id, "Reserva recuperada.");
+}
 export function reservationCommand(c: Context, cmd: Command) {
   const s = c.state;
+  const trashed = trashCommand(c, cmd);
+  if (trashed) return trashed;
+  if (
+    cmd.type === "reservation.save" ||
+    cmd.type === "reservation.move" ||
+    cmd.type === "reservation.transition"
+  )
+    invariant(
+      !cmd.id || !s.reservationTrash?.some((t) => t.reservationId === cmd.id),
+      "RESERVATION_IN_TRASH",
+      "Esta reserva está en la papelera. Recupérala para editarla.",
+      409,
+    );
   if (cmd.type === "reservation.move") {
     permit(c, cmd.organizationId, "reservation.write", cmd.propertyId);
     const r = s.reservations.find(
