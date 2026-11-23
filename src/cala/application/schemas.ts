@@ -345,6 +345,12 @@ export const commandSchema = z.discriminatedUnion("type", [
     version: version.optional(),
   }),
   z.object({
+    type: z.literal("task.complete"),
+    ...base,
+    id,
+    status: z.enum(["pending", "in_progress", "completed"]).optional(),
+  }),
+  z.object({
     type: z.literal("room.create"),
     ...base,
     name,
@@ -467,10 +473,29 @@ export const commandSchema = z.discriminatedUnion("type", [
     trigger: z.enum([
       "reservation.created",
       "reservation.cancelled",
+      "checkin.completed",
       "checkout.completed",
     ]),
     action: z.enum(["create_task", "notify_team"]),
     enabled: z.boolean(),
+    notifyRoles: z
+      .array(
+        z.enum([
+          "owner",
+          "admin",
+          "manager",
+          "front_desk",
+          "housekeeping",
+          "finance",
+          "viewer",
+        ]),
+      )
+      .max(7)
+      .optional(),
+    onlyIfPending: z.boolean().optional(),
+    taskTitle: z.string().trim().max(160).nullable().optional(),
+    taskKind: z.enum(["housekeeping", "maintenance"]).optional(),
+    assigneeId: id.nullable().optional(),
   }),
   z.object({
     type: z.literal("team.update"),

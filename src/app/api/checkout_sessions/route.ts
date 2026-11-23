@@ -11,6 +11,7 @@ import { lodgingSelectionSchema, type LodgingSelection, lodgingDisplayName } fro
 import { getLodgings, quoteLodging } from '@/lib/lodgings.server';
 import { CouponError, couponsReady, stripeCouponFor, usableCoupon, type SiteCoupon } from '@/lib/coupons.server';
 import { couponMessage } from '@/lib/coupons';
+import { checkoutCancelUrl } from '@/lib/checkoutHolds.server';
 
 // ─── Simple in-memory rate limiter (per serverless instance) ───
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -292,7 +293,7 @@ export async function POST(req: Request) {
           ],
           mode: 'payment',
           success_url: `${origin}/${lang}/checkout/success/?session_id={CHECKOUT_SESSION_ID}&booking_id=${booking.id}`,
-          cancel_url: `${origin}/${lang}?canceled=true`,
+          cancel_url: checkoutCancelUrl(origin, 'b', booking.id, `/${lang}/`),
           customer_email: guestEmail,
           metadata: {
             bookingId: booking.id.toString(),

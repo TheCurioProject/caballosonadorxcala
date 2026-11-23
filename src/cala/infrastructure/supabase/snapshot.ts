@@ -716,6 +716,12 @@ export async function supabaseSnapshot(
       trigger: automation.trigger as Snapshot["automations"][number]["trigger"],
       action: automation.action as Snapshot["automations"][number]["action"],
       enabled: automation.enabled,
+      notifyRoles: (automation.notify_roles ?? []) as Role[],
+      onlyIfPending: automation.only_if_pending ?? false,
+      taskTitle: automation.task_title ?? null,
+      taskKind:
+        automation.task_kind === "maintenance" ? "maintenance" : "housekeeping",
+      assigneeId: automation.assignee_id ?? null,
     })),
     drafts: drafts.map((draft) => ({
       id: draft.id,

@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
 import { calaConfiguration } from '@/lib/cala/config';
 import { CHECKOUT_SECONDS } from '@/lib/bookingPolicy';
+import { checkoutCancelUrl } from '@/lib/checkoutHolds.server';
 import { getLodgings } from '@/lib/lodgings.server';
 import { lodgingDisplayName } from '@/lib/lodgings';
 import { heldTotalMinor, holdRetreat, listRetreats, retreatErrorCode, retreatsReady } from '@/lib/retreats.server';
@@ -117,7 +118,7 @@ export async function POST(req: Request) {
           }] : []),
         ],
         success_url: `${origin}/${lang}/checkout/success/?session_id={CHECKOUT_SESSION_ID}&booking_id=${bookingId}`,
-        cancel_url: `${origin}/${lang}/retiros/?canceled=true`,
+        cancel_url: checkoutCancelUrl(origin, 'b', bookingId, `/${lang}/retiros/`),
         metadata: { bookingId: String(bookingId), lodgingId: lodging.id, retreatId: String(retreat.id), retreatTitle: retreat.title.es.slice(0, 200) },
       });
       await prisma.booking.update({ where: { id: bookingId }, data: { externalId: session.id } });

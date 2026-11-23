@@ -34,6 +34,7 @@ export function authorizeCommand(state: State, actor: Actor, cmd: Command) {
     "rates.bulk": "rates.write",
     "ratePlan.create": "rates.write",
     "task.save": "operations.write",
+    "task.complete": "operations.write",
     "unit.clean": "operations.write",
     "folio.charge": "finance.write",
     "payment.create": "finance.write",

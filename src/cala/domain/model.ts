@@ -307,9 +307,21 @@ export interface Automation {
   propertyId: string;
   name: string;
   trigger:
-    "reservation.created" | "reservation.cancelled" | "checkout.completed";
+    | "reservation.created"
+    | "reservation.cancelled"
+    | "checkin.completed"
+    | "checkout.completed";
   action: "create_task" | "notify_team";
   enabled: boolean;
+  /** Roles that get a bell + browser notification each time the rule runs. */
+  notifyRoles?: Role[];
+  /** Only notify when the stay's units still have tasks to do. */
+  onlyIfPending?: boolean;
+  /** Title of the task the rule creates (defaults to the rule's name). */
+  taskTitle?: string | null;
+  taskKind?: "housekeeping" | "maintenance";
+  /** Person the created task is assigned to. */
+  assigneeId?: string | null;
 }
 export interface Draft {
   id: string;

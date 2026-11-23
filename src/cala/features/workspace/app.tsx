@@ -22,6 +22,7 @@ import { CalaAssistant } from "@/cala/features/onboarding/cala-assistant";
 import { CalaGuide } from "@/cala/features/onboarding/cala-guide";
 import { roleLabels } from "@/cala/domain/identity/permissions";
 import { WorkspaceScreen } from "./screen";
+import { NotificationBell } from "./notifications";
 import { LanguageToggle } from "@/cala/components/ui/language-toggle";
 import { scrollWorkspaceToTop } from "@/cala/lib/scroll-top";
 import { browserPreferences } from "@/cala/lib/browser-preferences";
@@ -465,16 +466,7 @@ function Shell({
               <span>{t("Buscar en CALA")}</span>
               <kbd>⌘ K</kbd>
             </button>
-            <Link
-              href="/admin/actividad"
-              className="icon-button activity-button"
-              aria-label={t("Activity Center, {count} procesos activos", {
-                count: jobs,
-              })}
-            >
-              <Icon name="notification" />
-              {jobs > 0 && <span className="notification-dot" />}
-            </Link>
+            <NotificationBell />
           </div>
         </header>
         <main id="main" className="main-content" tabIndex={-1}>

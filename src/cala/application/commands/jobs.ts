@@ -282,11 +282,28 @@ export function jobCommand(c: Context, cmd: Command) {
       if (cmd.id)
         invariant(old, "NOT_FOUND", "Automatización no encontrada.", 404);
       const id = old?.id ?? c.id();
+      if (cmd.assigneeId)
+        invariant(
+          s.memberships.some(
+            (m) =>
+              m.userId === cmd.assigneeId &&
+              m.organizationId === cmd.organizationId &&
+              m.status === "active" &&
+              (!m.propertyIds.length || m.propertyIds.includes(cmd.propertyId)),
+          ),
+          "INVALID_ASSIGNEE",
+          "Esa persona no tiene acceso a esta propiedad.",
+        );
       const data = {
         name: cmd.name,
         trigger: cmd.trigger,
         action: cmd.action,
         enabled: cmd.enabled,
+        notifyRoles: [...new Set(cmd.notifyRoles ?? [])].sort(),
+        onlyIfPending: cmd.onlyIfPending ?? false,
+        taskTitle: cmd.taskTitle?.trim() || null,
+        taskKind: cmd.taskKind ?? "housekeeping",
+        assigneeId: cmd.assigneeId ?? null,
       };
       if (old) Object.assign(old, data);
       else s.automations.push({ id, propertyId: cmd.propertyId, ...data });

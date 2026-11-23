@@ -441,6 +441,42 @@ export function inventoryCommand(c: Context, cmd: Command) {
       audit(c, cmd.organizationId, cmd.propertyId, cmd.type, u.id);
       return result(u.id);
     }
+    case "task.complete": {
+      permit(c, cmd.organizationId, "operations.write", cmd.propertyId);
+      const t = s.tasks.find(
+        (t) => t.id === cmd.id && t.propertyId === cmd.propertyId,
+      );
+      invariant(t, "NOT_FOUND", "Tarea no encontrada.", 404);
+      const role = s.memberships.find(
+        (m) =>
+          m.userId === c.actor.userId &&
+          m.organizationId === cmd.organizationId &&
+          m.status === "active",
+      )?.role;
+      // A task assigned to someone is theirs; owner, admin and manager may close anyone's.
+      invariant(
+        !t.assigneeId ||
+          t.assigneeId === c.actor.userId ||
+          (role !== undefined && ["owner", "admin", "manager"].includes(role)),
+        "TASK_NOT_YOURS",
+        "Esta tarea está asignada a otra persona.",
+        403,
+      );
+      const status = cmd.status ?? "completed";
+      if (t.status !== status) {
+        t.status = status;
+        t.version++;
+        if (status === "completed" && t.kind === "housekeeping" && t.unitId) {
+          const u = s.units.find((u) => u.id === t.unitId);
+          if (u) {
+            u.housekeeping = "clean";
+            u.version++;
+          }
+        }
+      }
+      audit(c, cmd.organizationId, cmd.propertyId, cmd.type, t.id);
+      return result(t.id);
+    }
     case "task.save": {
       permit(c, cmd.organizationId, "operations.write", cmd.propertyId);
       if (cmd.unitId)

@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { stripe } from '@/lib/stripe';
 import prisma from '@/lib/prisma';
 import { getBilingualText } from '@/lib/bilingual';
+import { checkoutCancelUrl } from '@/lib/checkoutHolds.server';
 import { CHECKOUT_SECONDS, activeServiceWhere, hotelToday, parseCalendarDate, validGuest } from '@/lib/bookingPolicy';
 
 export const dynamic = 'force-dynamic';
@@ -87,7 +88,7 @@ export async function POST(req: Request) {
         })),
         mode: 'payment',
         success_url: `${origin}/${lang}/checkout/success/?session_id={CHECKOUT_SESSION_ID}&service_booking_id=${booking.id}`,
-        cancel_url: `${origin}/${lang}/?canceled=true`, customer_email: guestEmail,
+        cancel_url: checkoutCancelUrl(origin, 's', booking.id, `/${lang}/`), customer_email: guestEmail,
         metadata: { serviceBookingId: String(booking.id), type: serviceType.toLowerCase() },
       });
     } catch (error) {

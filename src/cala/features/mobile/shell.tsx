@@ -13,6 +13,7 @@ import { LanguageToggle } from "@/cala/components/ui/language-toggle";
 import { api } from "@/cala/features/workspace/context";
 import { roleLabels } from "@/cala/domain/identity/permissions";
 import { InstallControl } from "@/cala/features/pwa/provider";
+import { NotificationBell } from "@/cala/features/workspace/notifications";
 import { useOnline, useVirtualKeyboard } from "./device";
 import { MobileCalendar } from "./calendar";
 import { MobileHome } from "./home";
@@ -150,13 +151,7 @@ export function MobileShell({
           >
             <Icon name="search" />
           </button>
-          <Link
-            className="m-round-button"
-            href="/admin/actividad"
-            aria-label="Activity Center"
-          >
-            <Icon name="notification" />
-          </Link>
+          <NotificationBell variant="mobile" />
         </div>
       </header>
       {stale && (

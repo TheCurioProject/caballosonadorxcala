@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
+import { deliverPushQuietly } from "@/lib/cala/push";
 import { body, failure } from "@/cala/infrastructure/http/server";
 import { assertOrigin } from "@/cala/lib/runtime";
 import { commandSchema } from "@/cala/application/schemas";
@@ -25,6 +26,8 @@ export async function POST(request: Request) {
     // blocks, settings) must show on the public website immediately.
     if ("propertyId" in input && isWebsiteProperty(input.propertyId))
       revalidatePublicSite();
+    // Notifications written by this command (new stay, task done…) reach phones right away.
+    after(deliverPushQuietly);
     if (result.secretUrl)
       result.secretUrl = result.secretUrl.replace(
         "/api/ical?",

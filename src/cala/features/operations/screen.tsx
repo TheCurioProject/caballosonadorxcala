@@ -17,12 +17,38 @@ export function Operations({ kind }: { kind: "housekeeping" | "maintenance" }) {
   const units = data.units.filter(
     (u) => u.propertyId === data.currentPropertyId,
   );
-  const tasks = data.tasks.filter(
-    (t) =>
-      t.propertyId === data.currentPropertyId &&
-      t.kind === kind &&
-      (filter === "all" || t.status === filter),
-  );
+  const me = data.currentUser.id;
+  const myRole = data.memberships.find((m) => m.userId === me)?.role;
+  const lead = myRole === "owner" || myRole === "admin" || myRole === "manager";
+  const [saving, setSaving] = useState<string | null>(null);
+  // A task assigned to someone is theirs; leads may close anyone's (the database checks it too).
+  const mayClose = (task: Task) =>
+    can("operations.write") && (!task.assigneeId || task.assigneeId === me || lead);
+  const order = { pending: 0, in_progress: 1, completed: 2 } as const;
+  const tasks = data.tasks
+    .filter(
+      (t) =>
+        t.propertyId === data.currentPropertyId &&
+        t.kind === kind &&
+        (filter === "all" ||
+          (filter === "mine" ? t.assigneeId === me && t.status !== "completed" : t.status === filter)),
+    )
+    .sort(
+      (a, b) =>
+        order[a.status] - order[b.status] ||
+        Number(b.assigneeId === me) - Number(a.assigneeId === me) ||
+        Number(b.priority === "high") - Number(a.priority === "high"),
+    );
+  async function quick(task: Task, status: Task["status"]) {
+    setSaving(task.id);
+    try {
+      await command({ type: "task.complete", id: task.id, status });
+    } catch {
+      /* the workspace shows the error */
+    } finally {
+      setSaving(null);
+    }
+  }
   const t = editing && editing !== "new" ? editing : null;
   return (
     <>
@@ -42,8 +68,83 @@ export function Operations({ kind }: { kind: "housekeeping" | "maintenance" }) {
           </button>
         )}
       </SectionTitle>
+      <div className="panel">
+        <div className="panel-heading">
+          <h2>Tareas del equipo</h2>
+          <select
+            aria-label="Filtrar tareas"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          >
+            <option value="all">Todos los estados</option>
+            <option value="mine">Asignadas a mí</option>
+            <option value="pending">Pendientes</option>
+            <option value="in_progress">En proceso</option>
+            <option value="completed">Completadas</option>
+          </select>
+        </div>
+        {tasks.length ? (
+          tasks.map((t) => (
+            <div className="list-row" key={t.id}>
+              <div>
+                <strong>{t.title}</strong>
+                <p>
+                  {units.find((u) => u.id === t.unitId)?.name ?? "Propiedad"} ·{" "}
+                  {data.users.find((u) => u.id === t.assigneeId)?.name ??
+                    "Sin asignar"}
+                  {t.priority === "high" ? " · Prioridad alta" : ""}
+                </p>
+              </div>
+              <div className="row task-actions">
+                <Badge status={t.status} />
+                {mayClose(t) && t.status === "pending" && (
+                  <button
+                    className="button secondary"
+                    disabled={saving === t.id}
+                    onClick={() => void quick(t, "in_progress")}
+                  >
+                    Empezar
+                  </button>
+                )}
+                {mayClose(t) && t.status !== "completed" && (
+                  <button
+                    className="button primary task-done"
+                    disabled={saving === t.id}
+                    onClick={() => void quick(t, "completed")}
+                  >
+                    <Icon name="check" size={16} />
+                    {saving === t.id ? "Guardando…" : "Completar"}
+                  </button>
+                )}
+                {mayClose(t) && t.status === "completed" && (
+                  <button
+                    className="button secondary"
+                    disabled={saving === t.id}
+                    onClick={() => void quick(t, "pending")}
+                  >
+                    Reabrir
+                  </button>
+                )}
+                {mayClose(t) && (
+                  <button
+                    className="button secondary"
+                    onClick={() => setEditing(t)}
+                  >
+                    Gestionar
+                  </button>
+                )}
+              </div>
+            </div>
+          ))
+        ) : (
+          <Empty
+            title="Sin tareas en esta vista"
+            description="Agrega una tarea o cambia el filtro para ver las demás."
+          />
+        )}
+      </div>
       {kind === "housekeeping" && (
-        <div className="card-grid" style={{ marginBottom: 28 }}>
+        <div className="card-grid" style={{ marginTop: 28 }}>
           {units.map((u) => (
             <div className="card" key={u.id}>
               <div className="row between">
@@ -86,52 +187,6 @@ export function Operations({ kind }: { kind: "housekeeping" | "maintenance" }) {
           ))}
         </div>
       )}
-      <div className="panel">
-        <div className="panel-heading">
-          <h2>Tareas del equipo</h2>
-          <select
-            aria-label="Filtrar tareas"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-          >
-            <option value="all">Todos los estados</option>
-            <option value="pending">Pendientes</option>
-            <option value="in_progress">En proceso</option>
-            <option value="completed">Completadas</option>
-          </select>
-        </div>
-        {tasks.length ? (
-          tasks.map((t) => (
-            <div className="list-row" key={t.id}>
-              <div>
-                <strong>{t.title}</strong>
-                <p>
-                  {units.find((u) => u.id === t.unitId)?.name ?? "Propiedad"} ·{" "}
-                  {data.users.find((u) => u.id === t.assigneeId)?.name ??
-                    "Sin asignar"}
-                  {t.priority === "high" ? " · Prioridad alta" : ""}
-                </p>
-              </div>
-              <div className="row">
-                <Badge status={t.status} />
-                {can("operations.write") && (
-                  <button
-                    className="button secondary"
-                    onClick={() => setEditing(t)}
-                  >
-                    Gestionar
-                  </button>
-                )}
-              </div>
-            </div>
-          ))
-        ) : (
-          <Empty
-            title="Sin tareas en esta vista"
-            description="Agrega una tarea o cambia el filtro para ver las demás."
-          />
-        )}
-      </div>
       {editing && (
         <Modal
           title={t ? "Gestionar tarea" : "Nueva tarea"}

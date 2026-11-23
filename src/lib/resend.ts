@@ -469,3 +469,58 @@ export async function sendAdminBookingNotification(adminEmails: string[], data: 
     return { success: false, error: err };
   }
 }
+
+/**
+ * Stripe charged the guest but the stay could not be confirmed automatically
+ * (dates taken meanwhile, or the payment arrived after the hold ended and the
+ * dates were sold). A person has to resolve it: move, refund or confirm.
+ */
+export async function sendAdminPaymentReviewNotification(adminEmails: string[], data: {
+  bookingId: number; guestName: string; guestEmail: string; guestPhone?: string | null;
+  checkIn: string; checkOut: string; amount: number; currency: string; sessionId: string; panelUrl?: string;
+}) {
+  const safe = {
+    guestName: escapeHtml(data.guestName), guestEmail: escapeHtml(data.guestEmail), guestPhone: escapeHtml(data.guestPhone || '—'),
+    checkIn: escapeHtml(data.checkIn), checkOut: escapeHtml(data.checkOut), sessionId: escapeHtml(data.sessionId),
+  };
+  const row = (label: string, value: string) => `<tr><td style="padding:10px 0;color:#999;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;">${label}</td><td style="padding:10px 0;text-align:right;color:#23211F;font-weight:500;">${value}</td></tr>`;
+  try {
+    const { error } = await withRetry(() => resend.emails.send({
+      from: 'Casa Caballo Soñador <reservas@casacaballosonador.com>',
+      to: adminEmails,
+      subject: `PAGO EN REVISIÓN #${data.bookingId} — cobrado, sin confirmar`,
+      html: `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+        <body style="margin:0;padding:0;background:#F9F7F4;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+          <div style="max-width:600px;margin:0 auto;padding:40px 24px;">
+            <h1 style="font-size:22px;color:#b4572e;margin:0 0 8px;text-align:center;">PAGO RECIBIDO — REQUIERE REVISIÓN</h1>
+            <p style="color:#524D48;font-size:15px;line-height:1.6;text-align:center;margin:0 0 28px;">
+              Stripe cobró esta reserva web, pero las fechas ya no estaban libres y no se pudo confirmar automáticamente.
+              En CALA quedó como <strong>borrador</strong> con una alerta en <strong>Finanzas → Pagos web</strong>.
+              Contacta a la persona para moverla de fechas, confirmarla o reembolsar.
+            </p>
+            <div style="background:white;border-radius:16px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+              <table style="width:100%;border-collapse:collapse;">
+                ${row('Reserva web', `#${data.bookingId}`)}
+                ${row('Huésped', safe.guestName)}
+                ${row('Email', safe.guestEmail)}
+                ${row('Teléfono', safe.guestPhone)}
+                ${row('Check-in', safe.checkIn)}
+                ${row('Check-out', safe.checkOut)}
+                ${row('Cobrado', `$${data.amount.toLocaleString('es-MX')} ${escapeHtml(data.currency)}`)}
+                ${row('Sesión Stripe', `<span style="font-family:monospace;font-size:11px;">${safe.sessionId}</span>`)}
+              </table>
+              ${data.panelUrl ? `<p style="text-align:center;margin:24px 0 0;"><a href="${escapeHtml(data.panelUrl)}" style="background:#23211F;color:#F9F7F4;padding:12px 24px;border-radius:999px;text-decoration:none;font-weight:bold;font-size:13px;">Abrir Pagos web en CALA</a></p>` : ''}
+            </div>
+          </div>
+        </body></html>`,
+    }, { idempotencyKey: `stripe-review-${data.bookingId}-${data.sessionId}:sendAdminPaymentReviewNotification` }));
+    if (error) {
+      console.error('[Resend] Error sending payment review notification:', error);
+      return { success: false, error };
+    }
+    return { success: true };
+  } catch (err) {
+    console.error('[Resend] Failed to send payment review notification:', err);
+    return { success: false, error: err };
+  }
+}

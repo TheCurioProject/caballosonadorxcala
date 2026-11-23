@@ -1,5 +1,5 @@
-/* global self, caches, fetch, Response, URL */
-const PUBLIC_CACHE = "cala-caballo-public-v2";
+/* global self, caches, fetch, Response, URL, clients */
+const PUBLIC_CACHE = "cala-caballo-public-v3";
 const OFFLINE = "/cala/offline.html";
 const PUBLIC_PATHS = new Set([
   OFFLINE,
@@ -67,4 +67,59 @@ self.addEventListener("fetch", (event) => {
       caches.match(request).then((cached) => cached ?? fetch(request)),
     );
   }
+});
+
+// CALA notifications (bell + browser push). The server only sends what the
+// person's role may see; the text arrives ready to show.
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = { title: "CALA", body: event.data ? event.data.text() : "" };
+  }
+  const url =
+    typeof data.url === "string" && data.url.startsWith("/admin/")
+      ? data.url
+      : "/admin/inicio/";
+  event.waitUntil(
+    Promise.all([
+      self.registration.showNotification(data.title || "CALA", {
+        body: data.body || "",
+        icon: "/cala/pwa/icon-192.png",
+        badge: "/cala/pwa/icon-192.png",
+        tag: data.id || undefined,
+        data: { url, id: data.id },
+      }),
+      // Open CALA tabs refresh their bell at once.
+      clients
+        .matchAll({ type: "window", includeUncontrolled: true })
+        .then((list) =>
+          list.forEach((client) =>
+            client.postMessage({ type: "cala-notification", id: data.id }),
+          ),
+        ),
+    ]),
+  );
+});
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = new URL(
+    event.notification.data?.url || "/admin/inicio/",
+    self.location.origin,
+  ).href;
+  event.waitUntil(
+    clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((list) => {
+        const open = list.find((client) =>
+          client.url.startsWith(self.location.origin + "/admin/"),
+        );
+        if (open) {
+          open.postMessage({ type: "cala-open", url });
+          return open.focus();
+        }
+        return clients.openWindow(url);
+      }),
+  );
 });

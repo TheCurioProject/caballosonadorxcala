@@ -1,19 +1,20 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { HOLD_MILLISECONDS } from '@/lib/bookingPolicy';
 import { isCronAuthorized } from '@/lib/cronAuth';
+import { reconcilePendingCheckouts } from '@/lib/checkoutHolds.server';
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * Runs every 5 minutes, but only looks at website checkouts older than the
+ * hold (35 min = Stripe's 30-minute session + margin). Each one is checked
+ * against Stripe before anything changes: paid → registered in CALA, still
+ * open → kept, expired/unpaid → EXPIRED (CALA cancels it and frees the dates).
+ * Nothing is deleted; expired checkouts stay as history.
+ */
 export async function GET(request: Request) {
   if (!isCronAuthorized(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
-    const createdAt = { lt: new Date(Date.now() - HOLD_MILLISECONDS) };
-    const [bookings, services] = await prisma.$transaction([
-      prisma.booking.updateMany({ where: { payment_status: 'PENDING', origin: 'WEBSITE', createdAt }, data: { payment_status: 'EXPIRED' } }),
-      prisma.serviceBooking.updateMany({ where: { paymentStatus: 'PENDING', externalId: { not: null }, createdAt }, data: { paymentStatus: 'EXPIRED' } }),
-    ]);
-    return NextResponse.json({ bookings: bookings.count, services: services.count });
+    return NextResponse.json(await reconcilePendingCheckouts());
   } catch (error) {
     console.error('[Cron] Expiration failed', error);
     return NextResponse.json({ error: 'Expiration failed' }, { status: 500 });

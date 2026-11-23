@@ -23,6 +23,9 @@ export default async function CheckoutSuccessPage({
   const isEn = lang === 'en';
 
   let success = false;
+  // Stripe took the payment but the booking still needs a person (late payment
+  // after the hold ended, or dates taken meanwhile): never show an error.
+  let received = false;
   let guestName = '';
 
   if (session_id && (booking_id || service_booking_id)) {
@@ -45,6 +48,9 @@ export default async function CheckoutSuccessPage({
             if (booking && ['PENDING', 'PAID', 'CONFIRMED'].includes(booking.payment_status)) {
               success = true;
               guestName = booking.guestName;
+            } else if (booking) {
+              received = true;
+              guestName = booking.guestName;
             }
           }
         } else if (service_booking_id) {
@@ -58,6 +64,9 @@ export default async function CheckoutSuccessPage({
 
             if (serviceBooking && ['PENDING', 'PAID', 'CONFIRMED'].includes(serviceBooking.paymentStatus)) {
               success = true;
+              guestName = serviceBooking.guestName;
+            } else if (serviceBooking) {
+              received = true;
               guestName = serviceBooking.guestName;
             }
           }
@@ -86,6 +95,27 @@ export default async function CheckoutSuccessPage({
               }
             </p>
             <Link 
+              href={`/${lang}`}
+              className="bg-[#23211F] text-[#F9F7F4] hover:bg-[#9B7E67] font-bold text-sm md:text-base uppercase tracking-widest py-4 px-8 rounded-full transition-all flex items-center gap-2"
+            >
+              {isEn ? "Return to Home" : "Volver al Inicio"} <ArrowRight size={16} />
+            </Link>
+          </>
+        ) : received ? (
+          <>
+            <div className="w-24 h-24 bg-[#9B7E67]/10 rounded-full flex items-center justify-center mb-8">
+              <CheckCircle size={48} className="text-[#9B7E67]" />
+            </div>
+            <h1 className="font-serif text-4xl text-[#23211F] mb-4">
+              {isEn ? "Payment received" : "Pago recibido"}
+            </h1>
+            <p className="text-[#524D48] text-xl md:text-2xl font-light mb-8 leading-relaxed">
+              {isEn
+                ? `Thank you, ${guestName}. We received your payment. Our team is confirming your reservation and will write to you shortly.`
+                : `Gracias, ${guestName}. Recibimos tu pago. Nuestro equipo está confirmando tu reserva y te escribirá en breve.`
+              }
+            </p>
+            <Link
               href={`/${lang}`}
               className="bg-[#23211F] text-[#F9F7F4] hover:bg-[#9B7E67] font-bold text-sm md:text-base uppercase tracking-widest py-4 px-8 rounded-full transition-all flex items-center gap-2"
             >

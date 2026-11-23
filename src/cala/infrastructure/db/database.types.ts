@@ -48,6 +48,12 @@ export interface Database {
           trigger: string;
           action: string;
           enabled: boolean;
+          /** Added by 20261129000000_notifications_automations.sql (absent before it runs). */
+          notify_roles?: string[] | null;
+          only_if_pending?: boolean | null;
+          task_title?: string | null;
+          task_kind?: string | null;
+          assignee_id?: string | null;
         };
         Insert: Partial<
           Database["public"]["Tables"]["automation_rules"]["Row"]

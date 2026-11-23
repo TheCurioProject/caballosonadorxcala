@@ -53,6 +53,12 @@ const commandErrors: Record<string, string> = {
   OWNER_TRANSFER_REQUIRED:
     "El propietario no se modifica desde Equipo; la transferencia requiere un proceso aparte.",
   INVALID_ROLE: "Elige un rol válido.",
+  TASK_NOT_YOURS:
+    "Esta tarea está asignada a otra persona. Solo ella o un responsable (propietario, administrador o gerente) puede cerrarla.",
+  INVALID_TRIGGER: "Elige cuándo se ejecuta la regla.",
+  INVALID_STATUS: "Elige un estado válido para la tarea.",
+  INVALID_TASK_KIND: "Elige si la tarea es de limpieza o de mantenimiento.",
+  INVALID_ASSIGNEE: "Esa persona no tiene acceso a esta propiedad.",
   INVALID_SCOPE: "Elige propiedades de esta organización.",
   DUPLICATE_UNIT: "Ya existe una unidad con ese nombre en la propiedad.",
   INVALID_PARENT: "Elige una casa de esta propiedad.",

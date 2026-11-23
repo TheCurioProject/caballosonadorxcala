@@ -2292,3 +2292,282 @@ html:is([data-font-size="medium"], [data-font-size="large"]) .cala-admin
     height: 380px;
   }
 }
+
+/* ── Notification bell (top bar) ─────────────────────────────────────────── */
+.cala-admin .cala-bell {
+  position: relative;
+  display: inline-flex;
+}
+.cala-admin .cala-bell-button {
+  position: relative;
+}
+.cala-admin .cala-bell-count {
+  position: absolute;
+  top: 3px;
+  right: 2px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border: 2px solid var(--bg);
+  border-radius: 999px;
+  background: var(--warning);
+  color: var(--surface);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 13px;
+  text-align: center;
+  pointer-events: none;
+}
+.cala-admin .cala-bell-panel {
+  position: absolute;
+  z-index: 90;
+  top: calc(100% + 10px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(380px, calc(100vw - 24px));
+  max-height: min(620px, calc(100vh - 110px));
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--shadow-lift);
+  animation: dialog-enter 0.2s var(--motion-ease) both;
+}
+.cala-admin .cala-bell-panel.mobile {
+  z-index: 200;
+  position: fixed;
+  top: auto;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  max-height: 82vh;
+  border-radius: 22px 22px 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.cala-admin .cala-bell-backdrop {
+  position: fixed;
+  z-index: 199;
+  inset: 0;
+  background: #102a2a59;
+}
+.cala-admin .cala-bell-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 16px 10px;
+}
+.cala-admin .cala-bell-head strong {
+  font-size: 16px;
+}
+.cala-admin .cala-bell-link {
+  border: 0;
+  padding: 4px 2px;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.cala-admin .cala-bell-link:disabled {
+  opacity: 0.5;
+}
+.cala-admin .cala-bell-device {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin: 0 12px 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--accent-soft);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.cala-admin .cala-bell-device > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 180px;
+}
+.cala-admin .cala-bell-device small {
+  flex-basis: 100%;
+  color: var(--muted);
+}
+.cala-admin .cala-bell-enable {
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+.cala-admin .cala-bell-list {
+  flex: 1;
+  margin: 0;
+  padding: 0 6px 6px;
+  overflow-y: auto;
+  list-style: none;
+  overscroll-behavior: contain;
+}
+.cala-admin .cala-bell-list button {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cala-admin .cala-bell-list button:hover,
+.cala-admin .cala-bell-list button:focus-visible {
+  background: color-mix(in srgb, var(--accent-soft) 60%, transparent);
+}
+.cala-admin .cala-bell-list button.is-unread {
+  background: color-mix(in srgb, var(--accent-soft) 45%, transparent);
+}
+.cala-admin .cala-bell-list button.is-unread strong::after {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: var(--warning);
+  vertical-align: middle;
+}
+.cala-admin .cala-bell-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.cala-admin .cala-bell-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.cala-admin .cala-bell-text strong {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.cala-admin .cala-bell-text span {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.cala-admin .cala-bell-text small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.cala-admin .cala-bell-empty {
+  margin: 0;
+  padding: 22px 18px 26px;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+.cala-admin .cala-bell-foot {
+  padding: 10px 16px 14px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+}
+.cala-admin .cala-bell-foot a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ── One-tap task actions (Housekeeping / Mantenimiento) ─────────────────── */
+.cala-admin .task-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.cala-admin .task-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+@media (max-width: 760px) {
+  .cala-admin .list-row:has(.task-actions) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .cala-admin .task-actions {
+    justify-content: flex-start;
+  }
+  .cala-admin .task-actions .button {
+    flex: 1 1 auto;
+    min-height: 44px;
+  }
+}
+
+/* ── Automation rule editor ──────────────────────────────────────────────── */
+.cala-admin .automation-notify {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--accent);
+}
+.cala-admin .automation-roles {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.cala-admin .automation-roles legend {
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.cala-admin .automation-role-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.cala-admin .automation-role {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+}
+.cala-admin .automation-role:has(input:checked) {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent-soft) 50%, transparent);
+}
+.cala-admin .automation-roles {
+  grid-column: 1 / -1;
+}
+.cala-admin .automation-role input[type="checkbox"] {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  min-height: 0;
+  margin: 2px 0 0;
+  padding: 0;
+}
+.cala-admin .automation-role span {
+  display: grid;
+  gap: 2px;
+}
+.cala-admin .automation-role small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.3;
+}
