@@ -436,6 +436,12 @@ export async function supabaseSnapshot(
         trigger: x.trigger as Snapshot["messageTemplates"][number]["trigger"],
         offsetDays: x.offset_days,
         version: x.version,
+        autoSend: Boolean(x.auto_send),
+        sendTime: String(x.send_time ?? "10:00").slice(0, 5),
+        buttons: Array.isArray(x.buttons)
+          ? (x.buttons as { label: string; url: string }[])
+          : [],
+        documentIds: x.document_ids ?? [],
       }),
     ),
     marketObservations: value(marketResult, "el mercado").map((x) => ({

@@ -71,6 +71,12 @@ const commandErrors: Record<string, string> = {
     "Registra al menos una habitación dentro de la casa para elegir cómo se renta.",
   INVALID_INVENTORY: "Elige un tipo de alojamiento de esta propiedad.",
   NOT_FOUND: "El registro ya no existe. Recarga la vista.",
+  INVALID_BUTTONS:
+    "Revisa los botones: cada uno necesita un texto y un enlace que empiece por https://, mailto: o tel:",
+  INVALID_DOCUMENT: "Uno de los documentos adjuntos ya no existe. Recarga la vista.",
+  TOO_MANY_DOCUMENTS: "Puedes adjuntar hasta 5 documentos por mensaje.",
+  AUTO_NEEDS_TRIGGER:
+    "Para enviarlo automáticamente elige cuándo: fecha de reserva, llegada o salida.",
   PAYMENT_PROVIDER_LOCKED:
     "Los pagos cobrados con Stripe no se editan ni se borran desde CALA.",
   INVALID_PAYMENT: "Revisa el concepto, el método, el estado y el importe del pago.",

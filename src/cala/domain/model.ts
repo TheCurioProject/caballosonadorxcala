@@ -373,6 +373,13 @@ export interface MessageTemplate {
   trigger: "manual" | "booking" | "arrival" | "departure";
   offsetDays: number;
   version: number;
+  /** E-mailed automatically to the guest at `sendTime` (property time) on the trigger day ± offset. */
+  autoSend?: boolean;
+  /** "HH:MM" */
+  sendTime?: string;
+  buttons?: { label: string; url: string }[];
+  /** Files of the property's document library attached to the e-mail. */
+  documentIds?: string[];
 }
 export interface MarketObservation {
   id: string;

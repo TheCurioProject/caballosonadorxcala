@@ -415,6 +415,11 @@ export interface Database {
           trigger: string;
           offset_days: number;
           version: number;
+          /** Added by 20261128000000_guest_mail_automation (absent before it). */
+          auto_send?: boolean;
+          send_time?: string;
+          buttons?: Json;
+          document_ids?: string[];
         };
         Insert: Partial<
           Database["public"]["Tables"]["message_templates"]["Row"]

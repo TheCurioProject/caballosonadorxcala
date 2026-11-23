@@ -2140,3 +2140,155 @@ html:is([data-font-size="medium"], [data-font-size="large"]) .cala-admin
     padding: 16px;
   }
 }
+
+/* Plantillas de mensajes: scheduled guest e-mails, buttons and documents */
+.cala-admin .guest-mail-tabs {
+  margin: 0 0 16px;
+  padding: 0;
+}
+.cala-admin .guest-mail-notice {
+  margin-bottom: 16px;
+}
+.cala-admin .guest-mail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0;
+}
+.cala-admin .guest-mail-stack {
+  display: grid;
+  gap: 16px;
+}
+.cala-admin .guest-mail-panel {
+  overflow: visible;
+}
+.cala-admin .guest-mail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+}
+.cala-admin .guest-mail-head h2 {
+  margin: 0;
+  font-size: calc(15px * var(--cala-fs, 1));
+}
+.cala-admin .guest-mail-head p {
+  margin: 4px 0 0;
+  max-width: 62ch;
+  font-size: calc(12px * var(--cala-fs, 1));
+}
+.cala-admin .guest-mail-head .button {
+  flex-shrink: 0;
+}
+.cala-admin .guest-mail-empty {
+  padding: 18px 22px;
+  margin: 0;
+}
+.cala-admin .guest-mail-subhead {
+  margin: 0;
+  padding: 14px 22px 4px;
+  font-size: calc(12px * var(--cala-fs, 1));
+  color: var(--muted);
+}
+.cala-admin .guest-mail-row > div:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.cala-admin .guest-mail-row .row {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.cala-admin .guest-mail-failure {
+  color: var(--error) !important;
+  margin: 4px 0 0;
+  font-size: calc(11px * var(--cala-fs, 1));
+}
+.cala-admin .guest-mail-editor {
+  display: grid;
+  gap: 12px;
+}
+.cala-admin .guest-mail-help {
+  margin: -4px 0 0;
+  font-size: calc(11px * var(--cala-fs, 1));
+}
+.cala-admin .guest-mail-block {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+.cala-admin .guest-mail-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.cala-admin .guest-mail-block-head h3 {
+  margin: 0;
+  font-size: calc(13px * var(--cala-fs, 1));
+}
+.cala-admin .guest-mail-block p {
+  margin: 0;
+}
+.cala-admin .guest-mail-button-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+.cala-admin .guest-mail-button-row .guest-mail-failure {
+  grid-column: 1 / -1;
+}
+.cala-admin .guest-mail-button-actions {
+  display: flex;
+  gap: 6px;
+  padding-bottom: 2px;
+}
+.cala-admin .guest-mail-docs {
+  display: grid;
+  gap: 8px;
+}
+.cala-admin .guest-mail-auto {
+  align-items: flex-start;
+}
+.cala-admin .guest-mail-auto span {
+  display: grid;
+  gap: 2px;
+}
+.cala-admin .guest-mail-when {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.cala-admin .guest-mail-summary {
+  margin: 0;
+}
+.cala-admin .guest-mail-subject {
+  overflow-wrap: anywhere;
+}
+.cala-admin .guest-mail-preview {
+  width: 100%;
+  height: 460px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #f4efe9;
+}
+@media (max-width: 760px) {
+  .cala-admin .guest-mail-head {
+    flex-direction: column;
+    padding: 16px;
+  }
+  .cala-admin .guest-mail-button-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cala-admin .guest-mail-when {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cala-admin .guest-mail-preview {
+    height: 380px;
+  }
+}

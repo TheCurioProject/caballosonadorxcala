@@ -113,6 +113,28 @@ export const commandSchema = z.discriminatedUnion("type", [
     body: z.string().trim().min(1).max(10000),
     trigger: z.enum(["manual", "booking", "arrival", "departure"]),
     offsetDays: z.number().int().min(-30).max(30),
+    autoSend: z.boolean().optional(),
+    sendTime: z
+      .string()
+      .regex(/^([01][0-9]|2[0-3]):[0-5][0-9]$/, "Hora inválida")
+      .optional(),
+    buttons: z
+      .array(
+        z.object({
+          label: z.string().trim().min(1).max(60),
+          url: z
+            .string()
+            .trim()
+            .max(2000)
+            .regex(
+              /^(https?:\/\/\S+|mailto:\S+|tel:\+?[0-9 ()-]{4,})$/i,
+              "El enlace debe empezar por https://, mailto: o tel:",
+            ),
+        }),
+      )
+      .max(3)
+      .optional(),
+    documentIds: z.array(z.string().uuid()).max(5).optional(),
   }),
   z.object({ type: z.literal("template.delete"), ...base, id, version }),
   z.object({ type: z.literal("ical.rotate"), ...base, unitId: id }),

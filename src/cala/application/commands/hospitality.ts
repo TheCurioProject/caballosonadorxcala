@@ -101,7 +101,17 @@ export function hospitalityCommand(c: Context, cmd: Command) {
       trigger: cmd.trigger,
       offsetDays: cmd.offsetDays,
       version: (old?.version ?? 0) + 1,
+      autoSend: cmd.autoSend ?? false,
+      sendTime: cmd.sendTime ?? "10:00",
+      buttons: cmd.buttons ?? [],
+      documentIds: cmd.documentIds ?? [],
     };
+    invariant(
+      !(value.autoSend && value.trigger === "manual"),
+      "AUTO_NEEDS_TRIGGER",
+      "Elige cuándo se envía (reserva, llegada o salida) para el envío automático.",
+    );
+    for (const b of value.buttons) validateTemplate(b.url);
     if (old) Object.assign(old, value);
     else s.messageTemplates.push(value);
     audit(c, cmd.organizationId, cmd.propertyId, cmd.type, value.id);
