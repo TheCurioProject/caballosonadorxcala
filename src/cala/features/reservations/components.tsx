@@ -799,7 +799,11 @@ export function ReservationInspector({
         <div>
           <dt>{t("Origen")}</dt>
           <dd>
-            {r.source === "direct" ? t("Directo") : t("Importación / canal")}
+            {r.source === "direct"
+              ? t("Directo")
+              : r.source === "website"
+                ? t("Página web (pago con tarjeta)")
+                : t("Importación / canal")}
           </dd>
         </div>
       </dl>

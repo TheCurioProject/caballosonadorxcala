@@ -73,11 +73,15 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
   try {
     const currencySymbol = data.currency === 'MXN' ? '$' : data.currency === 'USD' ? 'US$' : '€';
     const formattedPrice = `${currencySymbol}${data.totalPrice.toLocaleString()}`;
-    
+    const en = data.language === 'en';
+    const text = en
+      ? { subject: `Booking Confirmation #${data.bookingId} — Casa Caballo Soñador`, title: 'Booking confirmed!', hello: `Hi ${data.guestName}, your stay is confirmed.`, booking: 'Booking', nights: 'Nights', footer: 'Casa Caballo Soñador — Chacala, Nayarit, Mexico' }
+      : { subject: `Confirmación de Reserva #${data.bookingId} — Casa Caballo Soñador`, title: '¡Reserva Confirmada!', hello: `Hola ${data.guestName}, tu estancia está confirmada.`, booking: 'Reserva', nights: 'Noches', footer: 'Casa Caballo Soñador — Chacala, Nayarit, México' };
+
     const { data: responseData, error } = await withRetry(() => resend.emails.send({
       from: 'Casa Caballo Soñador <reservas@casacaballosonador.com>',
       to: data.toEmails || [data.guestEmail],
-      subject: `Confirmación de Reserva #${data.bookingId} — Casa Caballo Soñador`,
+      subject: text.subject,
       html: `
         <!DOCTYPE html>
         <html>
@@ -95,13 +99,13 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
             
             <!-- Content -->
             <div style="background:white;border-radius:16px;padding:32px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
-              <h2 style="font-size:22px;color:#23211F;margin:0 0 8px;font-weight:400;">¡Reserva Confirmada!</h2>
-              <p style="color:#666;font-size:14px;margin:0 0 24px;">Hola ${data.guestName}, tu estancia está confirmada.</p>
+              <h2 style="font-size:22px;color:#23211F;margin:0 0 8px;font-weight:400;">${text.title}</h2>
+              <p style="color:#666;font-size:14px;margin:0 0 24px;">${text.hello}</p>
               
               <div style="border-top:1px solid #eee;padding-top:20px;">
                 <table style="width:100%;border-collapse:collapse;">
                   <tr>
-                    <td style="padding:12px 0;color:#999;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;">Reserva</td>
+                    <td style="padding:12px 0;color:#999;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;">${text.booking}</td>
                     <td style="padding:12px 0;text-align:right;color:#23211F;font-weight:500;">#${data.bookingId}</td>
                   </tr>
                   <tr>
@@ -113,7 +117,7 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
                     <td style="padding:12px 0;text-align:right;color:#23211F;font-weight:500;">${data.checkOut}</td>
                   </tr>
                   <tr>
-                    <td style="padding:12px 0;color:#999;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;">Noches</td>
+                    <td style="padding:12px 0;color:#999;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;">${text.nights}</td>
                     <td style="padding:12px 0;text-align:right;color:#23211F;font-weight:500;">${data.nights}</td>
                   </tr>
                   <tr style="border-top:2px solid #23211F;">
@@ -126,7 +130,7 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
 
             <!-- Footer -->
             <div style="text-align:center;margin-top:32px;">
-              <p style="color:#999;font-size:12px;margin:0;">Casa Caballo Soñador — Chacala, Nayarit, México</p>
+              <p style="color:#999;font-size:12px;margin:0;">${text.footer}</p>
               <p style="color:#999;font-size:12px;margin:4px 0 0;">casacaballosonador.com</p>
             </div>
           </div>

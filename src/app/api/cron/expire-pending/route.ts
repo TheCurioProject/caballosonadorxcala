@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { isCronAuthorized } from '@/lib/cronAuth';
 import { reconcilePendingCheckouts } from '@/lib/checkoutHolds.server';
+import { deliverPushQuietly } from '@/lib/cala/push';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +15,10 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
   if (!isCronAuthorized(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
-    return NextResponse.json(await reconcilePendingCheckouts());
+    const result = await reconcilePendingCheckouts();
+    // A paid stay registered here (its webhook never came) rings the CALA bell on phones right away.
+    if (result.registered) after(deliverPushQuietly);
+    return NextResponse.json(result);
   } catch (error) {
     console.error('[Cron] Expiration failed', error);
     return NextResponse.json({ error: 'Expiration failed' }, { status: 500 });

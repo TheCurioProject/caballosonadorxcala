@@ -108,19 +108,8 @@ export async function fulfillPaidSession(session: Stripe.Checkout.Session, event
       console.log('[Stripe] Booking confirmed:', bookingId);
 
       const nights = differenceInDays(new Date(booking.checkOut), new Date(booking.checkIn));
-
-      // Send confirmation email to guest
-      await ensureEmail(sendBookingConfirmation({
-        idempotencyKey: `stripe-booking-${booking.id}`,
-        guestName: booking.guestName,
-        guestEmail: booking.guestEmail,
-        checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }),
-        checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }),
-        totalPrice: groupTotal,
-        currency,
-        bookingId: booking.id,
-        nights,
-      }));
+      const language = guestLanguage(booking.invoiceLanguage, session);
+      const locale = language === 'es' ? 'es-MX' : 'en-US';
 
       const rawAdminEmails = booking.property?.adminEmails || process.env.BOOKING_ADMIN_EMAIL || '';
       const adminEmailArray = rawAdminEmails.split(',').map((e: string) => e.trim()).filter((e: string) => e);
@@ -133,14 +122,15 @@ export async function fulfillPaidSession(session: Stripe.Checkout.Session, event
           bookingId: booking.id,
           guestName: booking.guestName,
           roomName,
-          checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { timeZone: 'UTC' }),
-          checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { timeZone: 'UTC' }),
+          checkIn: new Date(booking.checkIn).toLocaleDateString(locale, { timeZone: 'UTC' }),
+          checkOut: new Date(booking.checkOut).toLocaleDateString(locale, { timeZone: 'UTC' }),
           totalPrice: groupTotal,
           depositPaid: isGroup && amountTotal !== undefined ? amountTotal : booking.depositPaid || 0,
           depositCurrency: booking.depositCurrency || 'MXN',
-          date: booking.createdAt.toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
+          date: booking.createdAt.toLocaleDateString(locale, { timeZone: 'America/Mazatlan' }),
           logoBase64: logoBase64(),
-          addons: booking.addons
+          addons: booking.addons,
+          language,
         });
       } catch (pdfError) {
         console.error('[Stripe] Failed to generate invoice PDF for admin notification', pdfError);
@@ -151,20 +141,23 @@ export async function fulfillPaidSession(session: Stripe.Checkout.Session, event
         idempotencyKey: `stripe-${serviceBookingId ? 'service' : 'booking'}-${booking.id}`,
         guestName: booking.guestName,
         guestEmail: booking.guestEmail,
-        checkIn: new Date(booking.checkIn).toLocaleDateString('es-MX', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }),
-        checkOut: new Date(booking.checkOut).toLocaleDateString('es-MX', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }),
+        checkIn: new Date(booking.checkIn).toLocaleDateString(locale, { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }),
+        checkOut: new Date(booking.checkOut).toLocaleDateString(locale, { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }),
         totalPrice: groupTotal,
         currency,
         bookingId: booking.id,
         nights,
+        language,
       };
 
-      // Send confirmation to admins
+      // The team first (with the invoice attached): a guest address Resend rejects must not keep the admins uninformed.
       if (adminEmailArray.length > 0) {
-        await ensureEmail(sendAdminBookingNotification(adminEmailArray, emailData, pdfBuffer));
+        // The team's notice is written in Spanish; the attached invoice is the guest's copy.
+        const longDate = (d: Date) => new Date(d).toLocaleDateString('es-MX', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' });
+        await ensureEmail(sendAdminBookingNotification(adminEmailArray, { ...emailData, checkIn: longDate(booking.checkIn), checkOut: longDate(booking.checkOut) }, pdfBuffer));
       }
-
-      // Send invoice email to guest
+      // Guest: confirmation, then the invoice (each one sent once — Resend idempotency keys survive Stripe retries).
+      await ensureEmail(sendBookingConfirmation(emailData));
       await ensureEmail(sendInvoiceEmail(emailData, pdfBuffer));
       await prisma.$transaction(async tx=>{
         await tx.booking.updateMany({where:{id:{in:isGroup?groupIds:[booking.id]}},data:{payment_status:'CONFIRMED'}});
@@ -205,6 +198,8 @@ export async function fulfillPaidSession(session: Stripe.Checkout.Session, event
       const destinationNames = (type === 'food' ? tourDetails.items : tourDetails.destinations)?.map((d: any) => d.name).join(', ') || (type === 'food' ? 'Food service / Servicio de comida' : 'Tour');
 
       const { sendTourConfirmation, sendTourInvoiceEmail } = await import('@/lib/resend');
+      const language = guestLanguage(booking.invoiceLanguage, session);
+      const locale = language === 'es' ? 'es-MX' : 'en-US';
 
       // Fetch property admin emails
       const property = await prisma.property.findFirst();
@@ -218,11 +213,12 @@ export async function fulfillPaidSession(session: Stripe.Checkout.Session, event
         guestEmail: booking.guestEmail,
         serviceType: booking.serviceType === 'FOOD' ? 'FOOD' as const : 'TOUR' as const,
         tourDestination: destinationNames,
-        date: new Date(booking.startDate).toLocaleDateString('es-MX', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }),
+        date: new Date(booking.startDate).toLocaleDateString(locale, { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }),
         pax: booking.pax || 1,
         totalPrice: booking.totalPrice,
         currency,
-        bookingId: booking.id
+        bookingId: booking.id,
+        language,
       }));
 
       // Generate Tour Invoice PDF Buffer
@@ -234,12 +230,13 @@ export async function fulfillPaidSession(session: Stripe.Checkout.Session, event
           guestName: booking.guestName,
           serviceType: booking.serviceType === 'FOOD' ? 'FOOD' as const : 'TOUR' as const,
           tourDestination: destinationNames,
-          date: new Date(booking.startDate).toLocaleDateString('es-MX', { timeZone: 'UTC' }),
+          date: new Date(booking.startDate).toLocaleDateString(locale, { timeZone: 'UTC' }),
           pax: booking.pax || 1,
           totalPrice: booking.totalPrice,
           currency: currency,
-          issueDate: booking.createdAt.toLocaleDateString('es-MX', { timeZone: 'America/Mazatlan' }),
-          logoBase64: logoBase64()
+          issueDate: booking.createdAt.toLocaleDateString(locale, { timeZone: 'America/Mazatlan' }),
+          logoBase64: logoBase64(),
+          language,
         });
       } catch (pdfError) {
         console.error('[Stripe] Failed to generate tour invoice PDF for admin notification', pdfError);
@@ -252,16 +249,17 @@ export async function fulfillPaidSession(session: Stripe.Checkout.Session, event
         guestEmail: booking.guestEmail,
         serviceType: booking.serviceType === 'FOOD' ? 'FOOD' as const : 'TOUR' as const,
         tourDestination: destinationNames,
-        date: new Date(booking.startDate).toLocaleDateString('es-MX', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }),
+        date: new Date(booking.startDate).toLocaleDateString(locale, { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }),
         pax: booking.pax || 1,
         totalPrice: booking.totalPrice,
         currency,
-        bookingId: booking.id
+        bookingId: booking.id,
+        language,
       };
 
       // Send confirmation to admin
       if (adminEmailArray.length > 0) {
-        await ensureEmail(sendAdminBookingNotification(adminEmailArray, emailData, pdfBuffer));
+        await ensureEmail(sendAdminBookingNotification(adminEmailArray, { ...emailData, date: new Date(booking.startDate).toLocaleDateString('es-MX', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' }) }, pdfBuffer));
       }
 
       // Send Invoice email to guest
@@ -290,6 +288,17 @@ async function notifyPaymentReview(bookingId: number, session: Stripe.Checkout.S
   // The CALA bell gets it from the database (trigger on site.integration_alerts).
 }
 
+/**
+ * The guest's language for the invoice and e-mails: the one stored with the
+ * booking, else the one in the Stripe return URL (/es/… or /en/…) for
+ * checkouts started before the booking kept it. The site defaults to Spanish.
+ */
+export function guestLanguage(stored: string | null | undefined, session: Pick<Stripe.Checkout.Session, 'success_url'>): 'es' | 'en' {
+  const fromUrl = /\/(es|en)\/checkout\//.exec(session.success_url || '')?.[1];
+  if (fromUrl) return fromUrl as 'es' | 'en';
+  return stored === 'en' ? 'en' : 'es';
+}
+
 function logoBase64() {
   const logoPath = path.join(process.cwd(), 'public', 'imagenes', '01_logo', 'logo_official.png');
   return fs.existsSync(logoPath) ? fs.readFileSync(logoPath).toString('base64') : '';
@@ -297,5 +306,7 @@ function logoBase64() {
 
 async function ensureEmail(result: Promise<{ success: boolean; error?: unknown }>) {
   const value = await result;
+  // Same idempotency key with a different body: this e-mail already went out on an earlier attempt.
+  if (!value.success && (value.error as { name?: string } | undefined)?.name === 'invalid_idempotent_request') return;
   if (!value.success) throw new Error('Email delivery failed', { cause: value.error });
 }

@@ -230,6 +230,8 @@ export async function POST(req: Request) {
             totalPrice: group ? roomTotalsMinor[0] / 100 + serverAddonTotal : serverGrandTotal,
             payment_status: 'PENDING',
             origin: 'WEBSITE',
+            // Language of the invoice, the e-mails and the CALA guest profile.
+            invoiceLanguage: lang,
             ...(selectedLodging ? {notes: [`Alojamiento: ${lodgingDisplayName(selectedLodging, lang)}. Huéspedes: ${selection!.adults} adultos, ${selection!.children} menores.`, groupNote, couponNote].filter(Boolean).join('\n')} : couponNote ? {notes: couponNote} : {}),
             addons: {
               create: verifiedAddons.map((a: any) => ({
@@ -248,7 +250,7 @@ export async function POST(req: Request) {
           const lodging = catalog.find(l => l.id === s.lodgingId)!;
           const room = await tx.booking.create({data: {
             propertyId: property.id, checkIn: checkInDate, checkOut: checkOutDate, guestName, guestEmail, guestPhone,
-            totalPrice: roomTotalsMinor[i] / 100, payment_status: 'PENDING', origin: 'WEBSITE',
+            totalPrice: roomTotalsMinor[i] / 100, payment_status: 'PENDING', origin: 'WEBSITE', invoiceLanguage: lang,
             notes: `Alojamiento: ${lodgingDisplayName(lodging, lang)}. Huéspedes: ${s.adults} adultos, ${s.children} menores.\nParte de la reserva web #${created.id}. ${groupNote}`,
           }});
           await tx.$executeRaw`INSERT INTO site.booking_lodging(booking_id,lodging_id,adults,children) VALUES(${room.id}::integer,${s.lodgingId}::uuid,${s.adults}::integer,${s.children}::integer)`;

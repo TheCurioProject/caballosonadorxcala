@@ -39,4 +39,5 @@ export const catalog8: Record<string, string> = {
   "La reserva ya no está en la papelera: se recuperó o se borró definitivamente. Recarga la vista.":
     "The reservation is no longer in the trash: it was recovered or permanently deleted. Reload the view.",
   "La reserva ya no está en la papelera.": "The reservation is no longer in the trash.",
+  "Página web (pago con tarjeta)": "Website (card payment)",
 };
